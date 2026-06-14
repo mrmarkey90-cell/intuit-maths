@@ -8,6 +8,7 @@ function Dashboard({ session }) {
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
   const [changingPin, setChangingPin] = useState(false)
+  const [oldPin, setOldPin] = useState('')
   const [newPin, setNewPin] = useState('')
   const [confirmPin, setConfirmPin] = useState('')
   const [pinLoading, setPinLoading] = useState(false)
@@ -39,17 +40,19 @@ function Dashboard({ session }) {
   }, [session.user.id])
 
   async function handleChangePin() {
-    if (!/^\d{4,6}$/.test(newPin)) { setPinError('PIN must be 4–6 digits'); return }
+    if (!oldPin) { setPinError('Enter your current PIN'); return }
+    if (!/^\d{4,6}$/.test(newPin)) { setPinError('New PIN must be 4–6 digits'); return }
     if (newPin !== confirmPin) { setPinError('PINs do not match'); return }
     setPinLoading(true)
     setPinError(null)
-    const { error } = await supabase.rpc('set_school_pin', { plain_pin: newPin })
+    const { error } = await supabase.rpc('set_school_pin', { old_pin: oldPin, new_pin: newPin })
     if (error) {
-      setPinError(error.message)
+      setPinError(error.message === 'Incorrect PIN' ? 'Current PIN is incorrect' : error.message)
       setPinLoading(false)
       return
     }
     setChangingPin(false)
+    setOldPin('')
     setNewPin('')
     setConfirmPin('')
     setPinSuccess(true)
@@ -59,6 +62,7 @@ function Dashboard({ session }) {
 
   function cancelChangePin() {
     setChangingPin(false)
+    setOldPin('')
     setNewPin('')
     setConfirmPin('')
     setPinError(null)
@@ -118,6 +122,14 @@ function Dashboard({ session }) {
               <input
                 type="password"
                 inputMode="numeric"
+                placeholder="Current PIN"
+                value={oldPin}
+                maxLength={6}
+                onChange={e => { setOldPin(e.target.value.replace(/\D/g, '')); setPinError(null) }}
+              />
+              <input
+                type="password"
+                inputMode="numeric"
                 placeholder="New PIN (4–6 digits)"
                 value={newPin}
                 maxLength={6}
@@ -133,7 +145,7 @@ function Dashboard({ session }) {
               />
               {pinError && <p className="error">{pinError}</p>}
               <div style={{ display: 'flex', gap: '8px' }}>
-                <button onClick={handleChangePin} disabled={!newPin || !confirmPin || pinLoading}>
+                <button onClick={handleChangePin} disabled={!oldPin || !newPin || !confirmPin || pinLoading}>
                   {pinLoading ? 'Saving...' : 'Save PIN'}
                 </button>
                 <button className="button-secondary" onClick={cancelChangePin}>Cancel</button>
