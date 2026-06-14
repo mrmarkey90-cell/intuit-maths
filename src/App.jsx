@@ -7,52 +7,55 @@ import Dashboard from './screens/Dashboard'
 
 function App() {
   const [session, setSession] = useState(null)
-  const [school, setSchool] = useState(null)
+  const [userData, setUserData] = useState(null)
   const [onboarding, setOnboarding] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
-      if (session) checkSchool(session.user.id)
+      if (session) checkUser(session.user.id)
       else setLoading(false)
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
-      if (session) checkSchool(session.user.id)
+      if (session) checkUser(session.user.id)
       else setLoading(false)
     })
 
     return () => subscription.unsubscribe()
   }, [])
 
-  async function checkSchool(userId) {
+  async function checkUser(userId) {
     const { data } = await supabase
       .from('users')
-      .select('school_id')
+      .select('school_id, onboarding_complete')
       .eq('id', userId)
       .maybeSingle()
-    setSchool(data?.school_id || null)
+    setUserData(data || null)
     setLoading(false)
   }
 
   if (loading) return <div className="screen"><p>Loading...</p></div>
   if (!session) return <Landing />
-  if (!school && onboarding !== 'payment') return (
+  if (!userData) return (
     <SchoolSetup
       session={session}
       onComplete={(id) => {
-        setSchool(id)
+        setUserData({ school_id: id, onboarding_complete: false })
         setOnboarding('payment')
       }}
     />
   )
-  if (onboarding === 'payment') return (
+  if (!userData.onboarding_complete || onboarding === 'payment') return (
     <Payment
       onFree={() => setOnboarding('classes')}
       onPaid={() => setOnboarding('classes')}
     />
+  )
+  if (onboarding === 'classes') return (
+    <div className="screen"><h1>Add classes</h1></div>
   )
   return <Dashboard session={session} />
 }
