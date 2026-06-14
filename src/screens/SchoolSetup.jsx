@@ -11,19 +11,17 @@ function SchoolSetup({ session, onComplete }) {
     setLoading(true)
     setError(null)
 
-    // Generate a school code from the name
     const code = schoolName
       .toUpperCase()
       .replace(/[^A-Z0-9]/g, '')
       .slice(0, 6)
       + Math.floor(10 + Math.random() * 90)
 
-    // Create the school record
     const { data: school, error: schoolError } = await supabase
-      .from('schools')
-      .insert({ name: schoolName, school_code: code })
-      .select()
-      .single()
+      .rpc('create_school', {
+        school_name: schoolName,
+        school_code: code
+      })
 
     if (schoolError) {
       setError(schoolError.message)
@@ -31,7 +29,6 @@ function SchoolSetup({ session, onComplete }) {
       return
     }
 
-    // Create the leadership user record
     const { error: userError } = await supabase
       .from('users')
       .insert({
