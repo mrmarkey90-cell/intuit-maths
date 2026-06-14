@@ -3,6 +3,7 @@ import { supabase } from './supabaseClient'
 import Landing from './screens/Landing'
 import SchoolSetup from './screens/SchoolSetup'
 import Payment from './screens/Payment'
+import AddClasses from './screens/AddClasses'
 import Dashboard from './screens/Dashboard'
 
 function App() {
@@ -30,7 +31,7 @@ function App() {
   async function checkUser(userId) {
     const { data } = await supabase
       .from('users')
-      .select('school_id, onboarding_complete')
+      .select('school_id, onboarding_complete, subscribed')
       .eq('id', userId)
       .maybeSingle()
     setUserData(data || null)
@@ -43,7 +44,7 @@ function App() {
     <SchoolSetup
       session={session}
       onComplete={(id) => {
-        setUserData({ school_id: id, onboarding_complete: false })
+        setUserData({ school_id: id, onboarding_complete: false, subscribed: false })
         setOnboarding('payment')
       }}
     />
@@ -55,7 +56,13 @@ function App() {
     />
   )
   if (onboarding === 'classes') return (
-    <div className="screen"><h1>Add classes</h1></div>
+    <AddClasses
+      userData={userData}
+      onComplete={() => setOnboarding('pin')}
+    />
+  )
+  if (onboarding === 'pin') return (
+    <div className="screen"><h1>Set your PIN</h1></div>
   )
   if (!userData.onboarding_complete) return (
     <Payment

@@ -77,3 +77,84 @@ button:hover:not(:disabled) {
   color: #e53e3e;
   font-size: 14px;
 }
+
+.plan-grid {
+  display: flex;
+  gap: 16px;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.plan-card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 2rem;
+  width: 240px;
+  text-align: left;
+}
+
+.plan-card--featured {
+  border-color: #4f46e5;
+  border-width: 2px;
+}
+
+.plan-card h2 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.plan-price {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #4f46e5;
+  margin-bottom: 1rem;
+}
+
+.plan-price span {
+  font-size: 1rem;
+  font-weight: normal;
+  color: #666;
+}
+
+.plan-features {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 1.5rem;
+}
+
+.plan-features li {
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+  color: #444;
+}
+
+.plan-features li::before {
+  content: "✓ ";
+  color: #4f46e5;
+}
+
+.class-list {
+  width: 100%;
+  max-width: 360px;
+  margin: 1rem 0;
+}
+
+.class-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+.note {
+  font-size: 13px;
+  color: #888;
+}
