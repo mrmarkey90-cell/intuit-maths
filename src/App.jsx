@@ -73,7 +73,6 @@ function App() {
   )
   if (onboarding === 'pin') return (
     <PinSetup
-      session={session}
       userData={userData}
       onComplete={() => {
         setUserData(d => ({ ...d, onboarding_complete: true }))

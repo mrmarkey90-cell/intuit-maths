@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../supabaseClient'
 
-function PinSetup({ session, userData, onComplete }) {
+function PinSetup({ userData, onComplete }) {
   const [pin, setPin] = useState('')
   const [confirmPin, setConfirmPin] = useState('')
   const [loading, setLoading] = useState(false)
@@ -22,8 +22,7 @@ function PinSetup({ session, userData, onComplete }) {
     setLoading(true)
     setError(null)
 
-    const { error: rpcError } = await supabase.rpc('set_user_pin', {
-      user_id: session.user.id,
+    const { error: rpcError } = await supabase.rpc('complete_onboarding', {
       plain_pin: pin,
     })
 
