@@ -78,6 +78,11 @@ button:hover:not(:disabled) {
   font-size: 14px;
 }
 
+.success {
+  color: #16a34a;
+  font-size: 14px;
+}
+
 .plan-grid {
   display: flex;
   gap: 16px;

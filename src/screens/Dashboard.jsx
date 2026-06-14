@@ -7,6 +7,12 @@ function Dashboard({ session }) {
   const [pupils, setPupils] = useState([])
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
+  const [changingPin, setChangingPin] = useState(false)
+  const [newPin, setNewPin] = useState('')
+  const [confirmPin, setConfirmPin] = useState('')
+  const [pinLoading, setPinLoading] = useState(false)
+  const [pinError, setPinError] = useState(null)
+  const [pinSuccess, setPinSuccess] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -31,6 +37,32 @@ function Dashboard({ session }) {
     }
     load()
   }, [session.user.id])
+
+  async function handleChangePin() {
+    if (!/^\d{4,6}$/.test(newPin)) { setPinError('PIN must be 4–6 digits'); return }
+    if (newPin !== confirmPin) { setPinError('PINs do not match'); return }
+    setPinLoading(true)
+    setPinError(null)
+    const { error } = await supabase.rpc('set_school_pin', { plain_pin: newPin })
+    if (error) {
+      setPinError(error.message)
+      setPinLoading(false)
+      return
+    }
+    setChangingPin(false)
+    setNewPin('')
+    setConfirmPin('')
+    setPinSuccess(true)
+    setTimeout(() => setPinSuccess(false), 3000)
+    setPinLoading(false)
+  }
+
+  function cancelChangePin() {
+    setChangingPin(false)
+    setNewPin('')
+    setConfirmPin('')
+    setPinError(null)
+  }
 
   async function copyLink() {
     await navigator.clipboard.writeText(`https://intuit-education.co.uk/school/${school.school_code}`)
@@ -68,6 +100,46 @@ function Dashboard({ session }) {
               {copied ? 'Copied!' : 'Copy'}
             </button>
           </div>
+        </section>
+
+        <section className="dashboard-section">
+          <div className="section-heading">
+            <h2>School PIN</h2>
+            {!changingPin && (
+              <button className="button-secondary" onClick={() => setChangingPin(true)}>
+                Change PIN
+              </button>
+            )}
+          </div>
+          <p className="note">Used by staff to access the school link above</p>
+          {pinSuccess && <p className="success" style={{ marginTop: '0.75rem' }}>PIN updated successfully</p>}
+          {changingPin && (
+            <div className="form" style={{ marginTop: '1rem', marginBottom: 0 }}>
+              <input
+                type="password"
+                inputMode="numeric"
+                placeholder="New PIN (4–6 digits)"
+                value={newPin}
+                maxLength={6}
+                onChange={e => { setNewPin(e.target.value.replace(/\D/g, '')); setPinError(null) }}
+              />
+              <input
+                type="password"
+                inputMode="numeric"
+                placeholder="Confirm new PIN"
+                value={confirmPin}
+                maxLength={6}
+                onChange={e => { setConfirmPin(e.target.value.replace(/\D/g, '')); setPinError(null) }}
+              />
+              {pinError && <p className="error">{pinError}</p>}
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button onClick={handleChangePin} disabled={!newPin || !confirmPin || pinLoading}>
+                  {pinLoading ? 'Saving...' : 'Save PIN'}
+                </button>
+                <button className="button-secondary" onClick={cancelChangePin}>Cancel</button>
+              </div>
+            </div>
+          )}
         </section>
 
         <section className="dashboard-section">
