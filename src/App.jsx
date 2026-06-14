@@ -48,7 +48,7 @@ function App() {
       }}
     />
   )
-  if (!userData.onboarding_complete || onboarding === 'payment') return (
+  if (onboarding === 'payment') return (
     <Payment
       onFree={() => setOnboarding('classes')}
       onPaid={() => setOnboarding('classes')}
@@ -56,6 +56,12 @@ function App() {
   )
   if (onboarding === 'classes') return (
     <div className="screen"><h1>Add classes</h1></div>
+  )
+  if (!userData.onboarding_complete) return (
+    <Payment
+      onFree={() => setOnboarding('classes')}
+      onPaid={() => setOnboarding('classes')}
+    />
   )
   return <Dashboard session={session} />
 }
