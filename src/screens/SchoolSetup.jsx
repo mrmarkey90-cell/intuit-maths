@@ -45,7 +45,7 @@ function SchoolSetup({ session, onComplete }) {
       return
     }
 
-    onComplete(school.id)
+    onComplete(school.id, code)
   }
 
   return (
