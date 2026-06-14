@@ -197,3 +197,84 @@ button:hover:not(:disabled) {
 .button-secondary:hover {
   background: #f0eeff;
 }
+
+.dashboard {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f5f5f5;
+}
+
+.dashboard-header {
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 1.25rem 2rem;
+  display: flex;
+  align-items: center;
+}
+
+.dashboard-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dashboard-header h1 {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.tier-badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  color: #555;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.tier-badge--pro {
+  background: #ede9fe;
+  color: #4f46e5;
+}
+
+.dashboard-main {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 600px;
+  width: 100%;
+}
+
+.dashboard-section {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.dashboard-section h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #111;
+}
+
+.section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.section-heading h2 {
+  margin: 0;
+}
+
+.section-count {
+  font-size: 13px;
+  color: #888;
+}
