@@ -61,6 +61,7 @@ function PupilSession() {
   const timerRef = useRef(null)
   const skipRef = useRef(null)
   const finishedRef = useRef(false)
+  const broadcastRef = useRef(null)
 
   useEffect(() => { feedbackRef.current = feedback }, [feedback])
   useEffect(() => { answersRef.current = answers }, [answers])
@@ -82,6 +83,7 @@ function PupilSession() {
       clearInterval(pollRef.current)
       clearInterval(timerRef.current)
       clearInterval(skipRef.current)
+      if (broadcastRef.current) supabase.removeChannel(broadcastRef.current)
     }
   }, [])
 
@@ -128,6 +130,10 @@ function PupilSession() {
   }
 
   function beginQuestions(startedAt) {
+    const si = sessionInfoRef.current
+    broadcastRef.current = supabase.channel(`session-${si.session_id}`)
+    broadcastRef.current.subscribe()
+
     const endTime = new Date(startedAt).getTime() + SESSION_DURATION * 1000
     const remaining = Math.max(0, Math.round((endTime - Date.now()) / 1000))
     setTimeLeft(remaining)
@@ -155,21 +161,29 @@ function PupilSession() {
     feedbackRef.current = correct ? 'correct' : 'wrong'
     setFeedback(correct ? 'correct' : 'wrong')
 
-    setAnswers(prev => {
-      const updated = [...prev, { ...q, entered, correct }]
-      answersRef.current = updated
-      const si = sessionInfoRef.current
-      if (si?.session_id && pupilRef.current?.id) {
-        const score = updated.filter(a => a.correct).length
-        supabase.rpc('update_participant_progress', {
-          p_session_id: si.session_id,
-          p_pupil_id: pupilRef.current.id,
-          p_score: score,
-          p_total: updated.length,
-        })
-      }
-      return updated
-    })
+    const updated = [...answersRef.current, { ...q, entered, correct }]
+    answersRef.current = updated
+    setAnswers(updated)
+
+    const si = sessionInfoRef.current
+    const p = pupilRef.current
+    if (si?.session_id && p?.id) {
+      const score = updated.filter(a => a.correct).length
+      const total = updated.length
+      // Broadcast to teacher in real-time
+      broadcastRef.current?.send({
+        type: 'broadcast',
+        event: 'answer',
+        payload: { pupil_id: p.id, total },
+      })
+      // Also persist to DB for grace-period fetch and history
+      supabase.rpc('update_participant_progress', {
+        p_session_id: si.session_id,
+        p_pupil_id: p.id,
+        p_score: score,
+        p_total: total,
+      })
+    }
 
     setTimeout(() => nextQuestion(), 600)
   }

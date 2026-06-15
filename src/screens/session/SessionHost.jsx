@@ -82,23 +82,13 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
   function startRealtimeSubscription() {
     channelRef.current = supabase
       .channel(`session-${session.session_id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'session_participants',
-          filter: `session_id=eq.${session.session_id}`,
-        },
-        (payload) => {
-          const row = payload.new
-          setParticipantMap(prev => {
-            const prev_total = prev[row.pupil_id]?.total ?? 0
-            if ((row.total ?? 0) > prev_total) playPing()
-            return { ...prev, [row.pupil_id]: row }
-          })
-        }
-      )
+      .on('broadcast', { event: 'answer' }, ({ payload }) => {
+        setParticipantMap(prev => {
+          const prevTotal = prev[payload.pupil_id]?.total ?? 0
+          if (payload.total > prevTotal) playPing()
+          return { ...prev, [payload.pupil_id]: { ...(prev[payload.pupil_id] ?? {}), total: payload.total } }
+        })
+      })
       .subscribe()
   }
 
