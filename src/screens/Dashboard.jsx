@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
+import LeadershipClassDetail from './LeadershipClassDetail'
+import LeadershipPupilDetail from './LeadershipPupilDetail'
 
 const TIER_LABELS = { free: 'Free', pilot: 'Pilot', paid: 'Pro' }
 const TIER_SLOTS = { free: 1, pilot: null } // null = unlimited
@@ -23,6 +25,10 @@ function Dashboard({ session }) {
   const [pinLoading, setPinLoading] = useState(false)
   const [pinError, setPinError] = useState(null)
   const [pinSuccess, setPinSuccess] = useState(false)
+  const [view, setView] = useState('main') // main | class | pupil
+  const [selectedClassId, setSelectedClassId] = useState(null)
+  const [selectedPupilId, setSelectedPupilId] = useState(null)
+  const [pupilReturnView, setPupilReturnView] = useState('main')
   const [togglingId, setTogglingId] = useState(null)
   const [slotError, setSlotError] = useState(null)
   const [transferring, setTransferring] = useState(false)
@@ -139,6 +145,26 @@ function Dashboard({ session }) {
 
   if (loading) return <div className="screen"><p>Loading...</p></div>
 
+  if (view === 'class') return (
+    <LeadershipClassDetail
+      classId={selectedClassId}
+      onBack={() => setView('main')}
+      onSelectPupil={id => { setSelectedPupilId(id); setPupilReturnView('class'); setView('pupil') }}
+      onClassDeleted={id => {
+        setClasses(prev => prev.filter(c => c.id !== id))
+        setView('main')
+      }}
+    />
+  )
+
+  if (view === 'pupil') return (
+    <LeadershipPupilDetail
+      pupilId={selectedPupilId}
+      onBack={() => setView(pupilReturnView)}
+      onPupilDeleted={() => setView(pupilReturnView)}
+    />
+  )
+
   const tier = school.tier ?? 'free'
   const classSlots = school.class_slots
   const activeCount = classes.filter(c => c.active).length
@@ -240,12 +266,15 @@ function Dashboard({ session }) {
             <div className="class-list" style={{ margin: 0 }}>
               {classes.map(c => (
                 <div key={c.id} className={`class-item ${c.active ? '' : 'class-item--inactive'}`}>
-                  <div>
+                  <button
+                    className="class-item-link"
+                    onClick={() => { setSelectedClassId(c.id); setView('class') }}
+                  >
                     <span>{c.name}</span>
                     <span className="note" style={{ marginLeft: '0.5rem' }}>
                       {pupilsByClass[c.id] ?? 0} pupils
                     </span>
-                  </div>
+                  </button>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                     {!c.active && <span className="inactive-badge">Inactive</span>}
                     <button
