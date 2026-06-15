@@ -1,5 +1,7 @@
 {
   "rewrites": [
-    { "source": "/school/:code", "destination": "/index.html" }
+    { "source": "/school/:code", "destination": "/index.html" },
+    { "source": "/play/:code", "destination": "/index.html" },
+    { "source": "/join/:code", "destination": "/index.html" }
   ]
 }
