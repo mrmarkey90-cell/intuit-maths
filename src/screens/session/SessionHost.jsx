@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import QRCode from 'react-qr-code'
 import { supabase } from '../../supabaseClient'
+import AvatarDisplay from '../../components/AvatarDisplay'
 
 const SESSION_DURATION = 90
 const GRACE_PERIOD = 5
