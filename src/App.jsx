@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { supabase } from './supabaseClient'
 import './App.css'
+import FloatingLogos from './components/FloatingLogos'
 import Landing from './screens/Landing'
 import SchoolSetup from './screens/SchoolSetup'
 import Payment from './screens/Payment'
@@ -60,44 +61,44 @@ function LeadershipApp() {
   }
 
   if (loading) return <div className="screen"><p>Loading...</p></div>
-  if (!session) return <Landing />
+  if (!session) return <><FloatingLogos /><Landing /></>
   if (!userData) return (
-    <SchoolSetup
+    <><FloatingLogos /><SchoolSetup
       session={session}
       onComplete={(id) => {
         setUserData({ school_id: id, onboarding_complete: false })
         setOnboarding('payment')
       }}
-    />
+    /></>
   )
   if (onboarding === 'payment') return (
-    <Payment
+    <><FloatingLogos /><Payment
       onFree={() => setOnboarding('classes')}
       onPaid={() => setOnboarding('classes')}
-    />
+    /></>
   )
   if (onboarding === 'classes') return (
-    <AddClasses
+    <><FloatingLogos /><AddClasses
       userData={userData}
       onComplete={() => setOnboarding('pin')}
-    />
+    /></>
   )
   if (onboarding === 'pin') return (
-    <PinSetup
+    <><FloatingLogos /><PinSetup
       userData={userData}
       onComplete={() => {
         setUserData(d => ({ ...d, onboarding_complete: true }))
         setOnboarding(null)
       }}
-    />
+    /></>
   )
   if (!userData.onboarding_complete) return (
-    <Payment
+    <><FloatingLogos /><Payment
       onFree={() => setOnboarding('classes')}
       onPaid={() => setOnboarding('classes')}
-    />
+    /></>
   )
-  return <Dashboard session={session} />
+  return <><FloatingLogos /><Dashboard session={session} /></>
 }
 
 function StaffApp() {
