@@ -52,21 +52,19 @@ function LeadershipManageClasses({ school, onBack, onSelectClass }) {
 
       <main className="dashboard-main">
         <section className="dashboard-section">
-          <div className="section-heading" style={{ marginBottom: editing ? '0.5rem' : '1rem' }}>
-            <div>
-              <div style={{ fontWeight: 600, fontSize: '1rem', marginBottom: '0.2rem' }}>
-                Manage active classes
-              </div>
-              <div className="note">
-                {tier === 'pilot' ? 'Unlimited' : `${activeCount} of ${school.class_slots ?? 1}`} active
-              </div>
+          <div style={{ marginBottom: editing ? '0.5rem' : '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.25rem' }}>
+              <span style={{ fontWeight: 600, fontSize: '1rem' }}>Manage active classes</span>
+              <button
+                className={`toggle-switch ${editing ? 'toggle-switch--on' : ''}`}
+                onClick={() => { setEditing(e => !e); setSlotError(null) }}
+                role="switch"
+                aria-checked={editing}
+              />
             </div>
-            <button
-              className={`toggle-switch ${editing ? 'toggle-switch--on' : ''}`}
-              onClick={() => { setEditing(e => !e); setSlotError(null) }}
-              role="switch"
-              aria-checked={editing}
-            />
+            <div className="note">
+              {tier === 'pilot' ? 'Unlimited' : `${activeCount} of ${school.class_slots ?? 1}`} active
+            </div>
           </div>
 
           {editing && (
