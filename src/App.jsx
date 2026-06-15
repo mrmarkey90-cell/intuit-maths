@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { supabase } from './supabaseClient'
 import Landing from './screens/Landing'
 import SchoolSetup from './screens/SchoolSetup'
@@ -9,21 +10,7 @@ import Dashboard from './screens/Dashboard'
 import StaffLogin from './screens/StaffLogin'
 import StaffClassSelect from './screens/StaffClassSelect'
 
-const STAFF_PATH = /^\/school\/([A-Z0-9]+)$/i
-
-function App() {
-  const staffMatch = STAFF_PATH.exec(window.location.pathname)
-  const staffSchoolCode = staffMatch ? staffMatch[1].toUpperCase() : null
-
-  const [staffSchool, setStaffSchool] = useState(() => {
-    if (!staffSchoolCode) return null
-    try {
-      const stored = JSON.parse(localStorage.getItem('staffSession') || 'null')
-      return stored?.school_code === staffSchoolCode ? stored : null
-    } catch { return null }
-  })
-  const [staffClass, setStaffClass] = useState(null)
-
+function LeadershipApp() {
   const [session, setSession] = useState(null)
   const [userData, setUserData] = useState(null)
   const [onboarding, setOnboarding] = useState(null)
@@ -62,22 +49,6 @@ function App() {
       setUserData(null)
     }
     setLoading(false)
-  }
-
-  if (staffSchoolCode) {
-    if (!staffSchool) return (
-      <StaffLogin
-        schoolCode={staffSchoolCode}
-        onSuccess={school => {
-          localStorage.setItem('staffSession', JSON.stringify(school))
-          setStaffSchool(school)
-        }}
-      />
-    )
-    if (!staffClass) return (
-      <StaffClassSelect school={staffSchool} onSelect={setStaffClass} />
-    )
-    return <div className="screen"><p>Class dashboard coming soon — {staffClass.name}</p></div>
   }
 
   if (loading) return <div className="screen"><p>Loading...</p></div>
@@ -119,6 +90,35 @@ function App() {
     />
   )
   return <Dashboard session={session} />
+}
+
+function StaffApp() {
+  const [staffSchool, setStaffSchool] = useState(null)
+  const [staffClass, setStaffClass] = useState(null)
+
+  if (!staffSchool) return (
+    <StaffLogin
+      onSuccess={school => {
+        localStorage.setItem('staffSession', JSON.stringify(school))
+        setStaffSchool(school)
+      }}
+    />
+  )
+  if (!staffClass) return (
+    <StaffClassSelect school={staffSchool} onSelect={setStaffClass} />
+  )
+  return <div className="screen"><p>Class dashboard coming soon — {staffClass.name}</p></div>
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/school/:code" element={<StaffApp />} />
+        <Route path="/*" element={<LeadershipApp />} />
+      </Routes>
+    </BrowserRouter>
+  )
 }
 
 export default App

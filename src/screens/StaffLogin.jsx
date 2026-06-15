@@ -1,7 +1,9 @@
 import { useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 
-function StaffLogin({ schoolCode, onSuccess }) {
+function StaffLogin({ onSuccess }) {
+  const { code: schoolCode } = useParams()
   const [pin, setPin] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
