@@ -2,17 +2,20 @@ import { useState } from 'react'
 import { supabase } from '../supabaseClient'
 
 function PinSetup({ userData, onComplete }) {
-  const [pin, setPin] = useState('')
-  const [confirmPin, setConfirmPin] = useState('')
+  const [leadershipPin, setLeadershipPin] = useState('')
+  const [confirmLeadershipPin, setConfirmLeadershipPin] = useState('')
+  const [staffPin, setStaffPin] = useState('')
+  const [confirmStaffPin, setConfirmStaffPin] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [copied, setCopied] = useState(false)
 
   const schoolUrl = `intuit-education.co.uk/school/${userData.school_code}`
 
   function validate() {
-    if (!/^\d{4,6}$/.test(pin)) return 'PIN must be 4–6 digits'
-    if (pin !== confirmPin) return 'PINs do not match'
+    if (!/^\d{4,6}$/.test(leadershipPin)) return 'Your PIN must be 4–6 digits'
+    if (leadershipPin !== confirmLeadershipPin) return 'Your PINs do not match'
+    if (!/^\d{4,6}$/.test(staffPin)) return 'Staff PIN must be 4–6 digits'
+    if (staffPin !== confirmStaffPin) return 'Staff PINs do not match'
     return null
   }
 
@@ -22,68 +25,75 @@ function PinSetup({ userData, onComplete }) {
     setLoading(true)
     setError(null)
 
-    const { error: rpcError } = await supabase.rpc('complete_onboarding', {
-      plain_pin: pin,
-    })
+    const { error: authError } = await supabase.auth.updateUser({ password: leadershipPin })
+    if (authError) { setError(authError.message); setLoading(false); return }
 
-    if (rpcError) {
-      setError(rpcError.message)
-      setLoading(false)
-      return
-    }
+    const { error: rpcError } = await supabase.rpc('complete_onboarding', {
+      leadership_pin: leadershipPin,
+      staff_pin: staffPin,
+    })
+    if (rpcError) { setError(rpcError.message); setLoading(false); return }
 
     onComplete()
   }
 
-  async function copyLink() {
-    try {
-      await navigator.clipboard.writeText(`https://${schoolUrl}`)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch {
-      setError('Could not copy to clipboard')
-    }
-  }
-
   return (
     <div className="screen">
-      <h1>Set your PIN</h1>
-      <p className="tagline">You'll use this to log in quickly on shared devices</p>
+      <h1>Set your PINs</h1>
+      <p className="tagline">Two PINs — one for you, one for your staff</p>
 
       <div className="form">
+        <p className="pin-section-label">Your leadership PIN</p>
+        <p className="note" style={{ marginBottom: '0.5rem' }}>Used to log in and authorise changes</p>
         <input
           type="password"
           inputMode="numeric"
           placeholder="Enter PIN (4–6 digits)"
-          value={pin}
+          value={leadershipPin}
           maxLength={6}
-          onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
+          onChange={e => { setLeadershipPin(e.target.value.replace(/\D/g, '')); setError(null) }}
         />
         <input
           type="password"
           inputMode="numeric"
           placeholder="Confirm PIN"
-          value={confirmPin}
+          value={confirmLeadershipPin}
           maxLength={6}
-          onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ''))}
-          onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+          onChange={e => { setConfirmLeadershipPin(e.target.value.replace(/\D/g, '')); setError(null) }}
         />
+
+        <p className="pin-section-label" style={{ marginTop: '1rem' }}>Staff PIN</p>
+        <p className="note" style={{ marginBottom: '0.5rem' }}>Shared with teachers to access their class</p>
+        <input
+          type="password"
+          inputMode="numeric"
+          placeholder="Enter PIN (4–6 digits)"
+          value={staffPin}
+          maxLength={6}
+          onChange={e => { setStaffPin(e.target.value.replace(/\D/g, '')); setError(null) }}
+        />
+        <input
+          type="password"
+          inputMode="numeric"
+          placeholder="Confirm PIN"
+          value={confirmStaffPin}
+          maxLength={6}
+          onChange={e => { setConfirmStaffPin(e.target.value.replace(/\D/g, '')); setError(null) }}
+        />
+
         {error && <p className="error">{error}</p>}
       </div>
 
       <div className="school-link">
-        <p className="note">Your school's pupil link:</p>
+        <p className="note">Your school's staff link:</p>
         <div className="school-link-row">
           <code>{schoolUrl}</code>
-          <button className="button-secondary" onClick={copyLink}>
-            {copied ? 'Copied!' : 'Copy'}
-          </button>
         </div>
       </div>
 
       <button
         onClick={handleSubmit}
-        disabled={!pin || !confirmPin || loading}
+        disabled={!leadershipPin || !confirmLeadershipPin || !staffPin || !confirmStaffPin || loading}
         style={{ marginTop: '2rem' }}
       >
         {loading ? 'Saving...' : 'Go to dashboard'}

@@ -40,14 +40,14 @@ function Dashboard({ session }) {
   }, [session.user.id])
 
   async function handleChangePin() {
-    if (!oldPin) { setPinError('Enter your current PIN'); return }
+    if (!oldPin) { setPinError('Enter your leadership PIN'); return }
     if (!/^\d{4,6}$/.test(newPin)) { setPinError('New PIN must be 4–6 digits'); return }
     if (newPin !== confirmPin) { setPinError('PINs do not match'); return }
     setPinLoading(true)
     setPinError(null)
-    const { error } = await supabase.rpc('set_school_pin', { old_pin: oldPin, new_pin: newPin })
+    const { error } = await supabase.rpc('set_staff_pin', { leadership_pin: oldPin, new_staff_pin: newPin })
     if (error) {
-      setPinError(error.message === 'Incorrect PIN' ? 'Current PIN is incorrect' : error.message)
+      setPinError(error.message === 'Incorrect PIN' ? 'Leadership PIN is incorrect' : error.message)
       setPinLoading(false)
       return
     }
@@ -108,21 +108,21 @@ function Dashboard({ session }) {
 
         <section className="dashboard-section">
           <div className="section-heading">
-            <h2>School PIN</h2>
+            <h2>Staff PIN</h2>
             {!changingPin && (
               <button className="button-secondary" onClick={() => setChangingPin(true)}>
                 Change PIN
               </button>
             )}
           </div>
-          <p className="note">Used by staff to access the school link above</p>
+          <p className="note">Used by teachers to access the staff link above</p>
           {pinSuccess && <p className="success" style={{ marginTop: '0.75rem' }}>PIN updated successfully</p>}
           {changingPin && (
             <div className="form" style={{ marginTop: '1rem', marginBottom: 0 }}>
               <input
                 type="password"
                 inputMode="numeric"
-                placeholder="Current PIN"
+                placeholder="Your leadership PIN"
                 value={oldPin}
                 maxLength={6}
                 onChange={e => { setOldPin(e.target.value.replace(/\D/g, '')); setPinError(null) }}
