@@ -75,14 +75,6 @@ function PupilSession() {
       const { data: pupilData } = await supabase.rpc('get_class_pupils', { p_join_code: data.class_join_code })
       setPupils(pupilData ?? [])
 
-      const stored = localStorage.getItem('pupilProfile')
-      if (stored) {
-        try {
-          const p = JSON.parse(stored)
-          const match = (pupilData ?? []).find(pp => pp.id === p.id)
-          if (match) { await doJoin(data, match); return }
-        } catch {}
-      }
       setView('join')
     }
     init()
@@ -102,7 +94,6 @@ function PupilSession() {
 
     pupilRef.current = p
     setPupil(p)
-    localStorage.setItem('pupilProfile', JSON.stringify(p))
     setView('lobby')
     pollForStart()
   }
