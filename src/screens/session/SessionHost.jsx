@@ -31,12 +31,14 @@ function playPing() {
 function SessionHost({ school, cls, session, classPupils, onEnd }) {
   const [view, setView] = useState('lobby') // lobby | active | marking | results
   const [participants, setParticipants] = useState([])
+  // pupil_id → participant row, updated in real-time during active phase
+  const [participantMap, setParticipantMap] = useState({})
   const [timeLeft, setTimeLeft] = useState(SESSION_DURATION)
   const [graceLeft, setGraceLeft] = useState(GRACE_PERIOD)
   const pollRef = useRef(null)
   const timerRef = useRef(null)
   const graceRef = useRef(null)
-  const prevTotalRef = useRef(0)
+  const channelRef = useRef(null)
 
   const joinUrl = `https://intuited.uk/play/${session.join_code}`
 
@@ -53,6 +55,7 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
       clearInterval(pollRef.current)
       clearInterval(timerRef.current)
       clearInterval(graceRef.current)
+      if (channelRef.current) supabase.removeChannel(channelRef.current)
     }
   }, [])
 
@@ -61,27 +64,42 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
     const { data: startedAt } = await supabase.rpc('start_session', { p_session_id: session.session_id })
     if (!startedAt) return
 
-    const endTime = new Date(startedAt).getTime() + SESSION_DURATION * 1000
+    // Seed the map with everyone who joined the lobby (total/score still null)
+    const { data: parts } = await supabase.rpc('get_session_participants', { p_session_id: session.session_id })
+    const initial = {}
+    if (parts) for (const p of parts) initial[p.pupil_id] = p
+    setParticipantMap(initial)
 
+    const endTime = new Date(startedAt).getTime() + SESSION_DURATION * 1000
     const msUntilStart = new Date(startedAt).getTime() - Date.now()
     await new Promise(r => setTimeout(r, Math.max(0, msUntilStart)))
 
     setView('active')
     startActiveTimer(endTime)
-    startActivePolling()
+    startRealtimeSubscription()
   }
 
-  function startActivePolling() {
-    pollRef.current = setInterval(async () => {
-      const { data } = await supabase.rpc('get_session_participants', { p_session_id: session.session_id })
-      if (data) {
-        const updated = Array.isArray(data) ? data : []
-        const newTotal = updated.reduce((s, p) => s + (p.total ?? 0), 0)
-        if (newTotal > prevTotalRef.current) playPing()
-        prevTotalRef.current = newTotal
-        setParticipants(updated)
-      }
-    }, 2000)
+  function startRealtimeSubscription() {
+    channelRef.current = supabase
+      .channel(`session-${session.session_id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'session_participants',
+          filter: `session_id=eq.${session.session_id}`,
+        },
+        (payload) => {
+          const row = payload.new
+          setParticipantMap(prev => {
+            const prev_total = prev[row.pupil_id]?.total ?? 0
+            if ((row.total ?? 0) > prev_total) playPing()
+            return { ...prev, [row.pupil_id]: row }
+          })
+        }
+      )
+      .subscribe()
   }
 
   function startActiveTimer(endTime) {
@@ -91,7 +109,10 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
 
       if (t <= 0) {
         clearInterval(timerRef.current)
-        clearInterval(pollRef.current)
+        if (channelRef.current) {
+          supabase.removeChannel(channelRef.current)
+          channelRef.current = null
+        }
         await supabase.rpc('end_session', { p_session_id: session.session_id })
         setView('marking')
         startGracePeriod()
@@ -109,7 +130,6 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
       setGraceLeft(g)
       if (g <= 0) {
         clearInterval(graceRef.current)
-        // Final fetch of all submitted results
         const { data } = await supabase.rpc('get_session_participants', { p_session_id: session.session_id })
         if (data) setParticipants(Array.isArray(data) ? data : [])
         setView('results')
@@ -179,9 +199,8 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
   }
 
   if (view === 'active') {
-    const totalAnswered = participants.reduce((s, p) => s + (p.total ?? 0), 0)
-    const totalCorrect = participants.reduce((s, p) => s + (p.score ?? 0), 0)
-    const pct = totalAnswered > 0 ? Math.round((totalCorrect / totalAnswered) * 100) : null
+    const allRows = Object.values(participantMap)
+    const totalAnswered = allRows.reduce((s, p) => s + (p.total ?? 0), 0)
 
     return (
       <div className="session-active">
@@ -191,16 +210,12 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
         <p className="session-active-label">Maths Challenge in progress</p>
         <div className="session-stats">
           <div className="stat-box">
-            <div className="stat-number">{participants.length}</div>
+            <div className="stat-number">{allRows.length}</div>
             <div className="stat-label">Playing</div>
           </div>
           <div className="stat-box">
             <div className="stat-number">{totalAnswered}</div>
             <div className="stat-label">Answered</div>
-          </div>
-          <div className="stat-box">
-            <div className="stat-number">{pct !== null ? `${pct}%` : '—'}</div>
-            <div className="stat-label">Correct</div>
           </div>
         </div>
       </div>
@@ -218,7 +233,7 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
     )
   }
 
-  // Results
+  // Results — fetched fresh after grace period
   const totalAnswered = participants.reduce((s, p) => s + (p.total ?? 0), 0)
   const totalCorrect = participants.reduce((s, p) => s + (p.score ?? 0), 0)
   const pct = totalAnswered > 0 ? Math.round((totalCorrect / totalAnswered) * 100) : 0
