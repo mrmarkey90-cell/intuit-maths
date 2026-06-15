@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import PupilProfileCreate from './PupilProfileCreate'
-import PupilClassGrid from './PupilClassGrid'
 
 function PupilJoin() {
   const { code } = useParams()
@@ -10,7 +9,6 @@ function PupilJoin() {
 
   const [classInfo, setClassInfo] = useState(null)
   const [notFound, setNotFound] = useState(false)
-  const [view, setView] = useState('landing')
   const [pupil, setPupil] = useState(null)
 
   useEffect(() => {
@@ -21,11 +19,6 @@ function PupilJoin() {
       })
   }, [joinCode])
 
-  function handleComplete(profile) {
-    setPupil(profile)
-    setView('welcome')
-  }
-
   if (notFound) return (
     <div className="screen">
       <h1>Class not found</h1>
@@ -35,15 +28,7 @@ function PupilJoin() {
 
   if (!classInfo) return <div className="screen"><p>Loading...</p></div>
 
-  if (view === 'create') return (
-    <PupilProfileCreate joinCode={joinCode} classInfo={classInfo} onComplete={handleComplete} />
-  )
-
-  if (view === 'returning') return (
-    <PupilClassGrid joinCode={joinCode} classInfo={classInfo} onSelect={handleComplete} />
-  )
-
-  if (view === 'welcome') return (
+  if (pupil) return (
     <div className="screen">
       <h1>Welcome, {pupil.first_name}!</h1>
       <p className="tagline">Wait for your teacher to start the session</p>
@@ -51,16 +36,7 @@ function PupilJoin() {
   )
 
   return (
-    <div className="screen">
-      <h1>{classInfo.class_name}</h1>
-      <p className="tagline">{classInfo.school_name}</p>
-      <div className="join-options">
-        <button onClick={() => setView('create')}>Create my profile</button>
-        <button className="button-secondary" onClick={() => setView('returning')}>
-          I'm already here
-        </button>
-      </div>
-    </div>
+    <PupilProfileCreate joinCode={joinCode} classInfo={classInfo} onComplete={setPupil} />
   )
 }
 
