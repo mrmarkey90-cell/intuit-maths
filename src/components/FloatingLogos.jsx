@@ -3,18 +3,18 @@ import { useEffect, useRef } from 'react'
 const ASPECT = 181.54816 / 116.77534  // SVG height ÷ width
 
 const LOGO_DEFS = [
-  { w: 40, speed: 0.50, opacity: 0.22 },
-  { w: 52, speed: 0.32, opacity: 0.18 },
-  { w: 34, speed: 0.62, opacity: 0.25 },
-  { w: 30, speed: 0.48, opacity: 0.20 },
-  { w: 46, speed: 0.55, opacity: 0.22 },
-  { w: 38, speed: 0.40, opacity: 0.18 },
-  { w: 28, speed: 0.68, opacity: 0.24 },
-  { w: 44, speed: 0.38, opacity: 0.20 },
-  { w: 36, speed: 0.52, opacity: 0.22 },
-  { w: 50, speed: 0.30, opacity: 0.17 },
-  { w: 32, speed: 0.60, opacity: 0.23 },
-  { w: 42, speed: 0.44, opacity: 0.19 },
+  { w: 40, speed: 0.50, opacity: 0.50, rotSpeed:  0.25 },
+  { w: 52, speed: 0.32, opacity: 0.42, rotSpeed: -0.18 },
+  { w: 34, speed: 0.62, opacity: 0.55, rotSpeed:  0.35 },
+  { w: 30, speed: 0.48, opacity: 0.45, rotSpeed: -0.28 },
+  { w: 46, speed: 0.55, opacity: 0.50, rotSpeed:  0.20 },
+  { w: 38, speed: 0.40, opacity: 0.42, rotSpeed: -0.32 },
+  { w: 28, speed: 0.68, opacity: 0.52, rotSpeed:  0.40 },
+  { w: 44, speed: 0.38, opacity: 0.48, rotSpeed: -0.22 },
+  { w: 36, speed: 0.52, opacity: 0.50, rotSpeed:  0.30 },
+  { w: 50, speed: 0.30, opacity: 0.40, rotSpeed: -0.15 },
+  { w: 32, speed: 0.60, opacity: 0.52, rotSpeed:  0.38 },
+  { w: 42, speed: 0.44, opacity: 0.46, rotSpeed: -0.24 },
 ]
 
 export default function FloatingLogos() {
@@ -36,6 +36,8 @@ export default function FloatingLogos() {
         y: Math.random() * Math.max(1, H - h),
         vx: Math.cos(angle) * def.speed,
         vy: Math.sin(angle) * def.speed,
+        rot: Math.random() * 360,
+        rotSpeed: def.rotSpeed,
       }
     })
 
@@ -45,6 +47,7 @@ export default function FloatingLogos() {
       stateRef.current.forEach((logo, i) => {
         logo.x += logo.vx
         logo.y += logo.vy
+        logo.rot += logo.rotSpeed
 
         if (logo.x <= 0)           { logo.x = 0;            logo.vx =  Math.abs(logo.vx) }
         if (logo.x + logo.w >= W)  { logo.x = W - logo.w;  logo.vx = -Math.abs(logo.vx) }
@@ -53,8 +56,9 @@ export default function FloatingLogos() {
 
         const el = imgRefs.current[i]
         if (el) {
-          el.style.left = `${logo.x}px`
-          el.style.top  = `${logo.y}px`
+          el.style.left      = `${logo.x}px`
+          el.style.top       = `${logo.y}px`
+          el.style.transform = `rotate(${logo.rot}deg)`
         }
       })
       rafRef.current = requestAnimationFrame(tick)
