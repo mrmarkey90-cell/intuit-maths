@@ -5,6 +5,7 @@ function LeadershipManageClasses({ school, onBack, onSelectClass }) {
   const [classes, setClasses] = useState([])
   const [pupils, setPupils] = useState([])
   const [loading, setLoading] = useState(true)
+  const [editing, setEditing] = useState(false)
   const [togglingId, setTogglingId] = useState(null)
   const [slotError, setSlotError] = useState(null)
 
@@ -20,11 +21,12 @@ function LeadershipManageClasses({ school, onBack, onSelectClass }) {
   }, [school.id])
 
   async function toggleActive(cls) {
+    if (togglingId) return
     setTogglingId(cls.id)
     setSlotError(null)
     const { data } = await supabase.rpc('toggle_class_active', { p_class_id: cls.id, p_active: !cls.active })
     if (data?.error === 'no_slots') {
-      setSlotError('No active class slots available. Deactivate another class or contact us to add more.')
+      setSlotError('All class slots are in use. Deactivate a class first.')
     } else {
       setClasses(prev => prev.map(c => c.id === cls.id ? { ...c, active: !c.active } : c))
     }
@@ -45,47 +47,73 @@ function LeadershipManageClasses({ school, onBack, onSelectClass }) {
         <button className="button-secondary" onClick={onBack}>← Back</button>
         <div className="dashboard-header-left" style={{ marginLeft: '1rem' }}>
           <h1>Manage Classes</h1>
-          <span className="section-count" style={{ fontSize: '14px', color: '#888' }}>
-            {tier === 'pilot' ? 'Unlimited' : `${activeCount} / ${school.class_slots ?? 1}`} active
-          </span>
         </div>
       </header>
 
       <main className="dashboard-main">
         <section className="dashboard-section">
-          <p className="note" style={{ marginBottom: '1rem' }}>
-            {tier === 'pilot'
-              ? 'Pilot account — unlimited active classes.'
-              : atLimit
-                ? 'All class slots in use. Deactivate a class to free a slot.'
-                : 'Active classes are visible to teachers. Inactive classes retain all data.'}
-          </p>
+          <div className="section-heading" style={{ marginBottom: editing ? '0.5rem' : '1rem' }}>
+            <div>
+              <div style={{ fontWeight: 600, fontSize: '1rem', marginBottom: '0.2rem' }}>
+                Manage active classes
+              </div>
+              <div className="note">
+                {tier === 'pilot' ? 'Unlimited' : `${activeCount} of ${school.class_slots ?? 1}`} active
+              </div>
+            </div>
+            <button
+              className={`toggle-switch ${editing ? 'toggle-switch--on' : ''}`}
+              onClick={() => { setEditing(e => !e); setSlotError(null) }}
+              role="switch"
+              aria-checked={editing}
+            />
+          </div>
+
+          {editing && (
+            <p className="note" style={{ marginBottom: '1rem' }}>
+              {atLimit
+                ? 'Slot limit reached — deactivate a class to free a slot.'
+                : 'Click a class to activate or deactivate it.'}
+            </p>
+          )}
           {slotError && <p className="error" style={{ marginBottom: '1rem' }}>{slotError}</p>}
+
           {loading ? (
             <p className="note">Loading...</p>
           ) : classes.length === 0 ? (
             <p className="note">No classes yet.</p>
+          ) : editing ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {classes.map(c => (
+                <button
+                  key={c.id}
+                  className={`class-toggle-item ${c.active ? 'class-toggle-item--active' : 'class-toggle-item--inactive'}`}
+                  onClick={() => toggleActive(c)}
+                  disabled={togglingId === c.id || (!c.active && atLimit)}
+                >
+                  <span className="class-toggle-dot" />
+                  <span className="class-toggle-name">{c.name}</span>
+                  <span className="note" style={{ marginLeft: 'auto' }}>
+                    {togglingId === c.id ? '...' : `${pupilsByClass[c.id] ?? 0} pupils`}
+                  </span>
+                </button>
+              ))}
+            </div>
           ) : (
             <div className="pupil-list">
               {classes.map(c => (
-                <div key={c.id} className={`class-item ${c.active ? '' : 'class-item--inactive'}`}>
-                  <button className="class-item-link" onClick={() => onSelectClass(c.id)}>
-                    <span>{c.name}</span>
-                    <span className="note" style={{ marginLeft: '0.5rem' }}>
-                      {pupilsByClass[c.id] ?? 0} pupils
-                    </span>
-                  </button>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <button
+                  key={c.id}
+                  className={`pupil-list-row ${c.active ? '' : 'class-item--inactive'}`}
+                  onClick={() => onSelectClass(c.id)}
+                >
+                  <span className="pupil-list-name">{c.name}</span>
+                  <span className="pupil-list-meta">
                     {!c.active && <span className="inactive-badge">Inactive</span>}
-                    <button
-                      className="button-secondary"
-                      onClick={() => toggleActive(c)}
-                      disabled={togglingId === c.id || (!c.active && atLimit)}
-                    >
-                      {togglingId === c.id ? '...' : c.active ? 'Deactivate' : 'Activate'}
-                    </button>
-                  </div>
-                </div>
+                    <span className="note">{pupilsByClass[c.id] ?? 0} pupils</span>
+                  </span>
+                  <span className="pupil-list-arrow">›</span>
+                </button>
               ))}
             </div>
           )}
