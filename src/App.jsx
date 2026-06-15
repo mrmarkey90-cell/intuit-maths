@@ -9,6 +9,7 @@ import PinSetup from './screens/PinSetup'
 import Dashboard from './screens/Dashboard'
 import StaffLogin from './screens/StaffLogin'
 import StaffClassSelect from './screens/StaffClassSelect'
+import StaffClassDashboard from './screens/StaffClassDashboard'
 
 function LeadershipApp() {
   const [session, setSession] = useState(null)
@@ -107,7 +108,7 @@ function StaffApp() {
   if (!staffClass) return (
     <StaffClassSelect school={staffSchool} onSelect={setStaffClass} />
   )
-  return <div className="screen"><p>Class dashboard coming soon — {staffClass.name}</p></div>
+  return <StaffClassDashboard school={staffSchool} cls={staffClass} />
 }
 
 function App() {
