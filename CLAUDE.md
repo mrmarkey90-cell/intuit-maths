@@ -74,7 +74,7 @@ Admin support: `SELECT admin_reset_staff_pin('SCHOOLCODE');` resets staff PIN to
 
 ## Challenge session model
 
-- **Class Challenge** — teacher-initiated, once per week per class (resets Sunday). 90-second timer. Awards 10 credits per correct answer (2 base × 5x weekly multiplier).
+- **Class Challenge** — teacher-initiated, once per week per class (resets Sunday). 60-second timer. Awards 10 credits per correct answer (2 base × 5x weekly multiplier).
 - **Practice** — pupil self-initiated (not yet built). Awards 1 credit per correct answer.
 - Session join code: 6-char alphanumeric, generated fresh per session. Displayed as URL + QR code in lobby.
 - Timer: both teacher and pupil derive remaining time from `sessions.started_at` (absolute timestamp set 4 seconds in future when teacher clicks Begin, giving all clients time to sync).

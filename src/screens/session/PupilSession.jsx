@@ -5,7 +5,7 @@ import AvatarDisplay from '../../components/AvatarDisplay'
 import NumberPad from '../../components/NumberPad'
 import { generateQuestion } from '../../lib/questionGenerator'
 
-const SESSION_DURATION = 90
+const SESSION_DURATION = 60
 const SKIP_PENALTY = 5
 
 function TimerBar({ timeLeft }) {

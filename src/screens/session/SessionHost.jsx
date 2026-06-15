@@ -3,7 +3,7 @@ import QRCode from 'react-qr-code'
 import { supabase } from '../../supabaseClient'
 import AvatarDisplay from '../../components/AvatarDisplay'
 
-const SESSION_DURATION = 90
+const SESSION_DURATION = 60
 const GRACE_PERIOD = 5
 
 function fmt(secs) {
