@@ -35,6 +35,7 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
   const [participantMap, setParticipantMap] = useState({})
   const [timeLeft, setTimeLeft] = useState(SESSION_DURATION)
   const [graceLeft, setGraceLeft] = useState(GRACE_PERIOD)
+  const [comparison, setComparison] = useState(null)
   const pollRef = useRef(null)
   const timerRef = useRef(null)
   const graceRef = useRef(null)
@@ -120,8 +121,15 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
       setGraceLeft(g)
       if (g <= 0) {
         clearInterval(graceRef.current)
-        const { data } = await supabase.rpc('get_session_participants', { p_session_id: session.session_id })
-        if (data) setParticipants(Array.isArray(data) ? data : [])
+        const [{ data: parts }, { data: cmp }] = await Promise.all([
+          supabase.rpc('get_session_participants', { p_session_id: session.session_id }),
+          supabase.rpc('get_class_challenge_comparison', {
+            p_class_id: cls.id,
+            p_current_session_id: session.session_id,
+          }),
+        ])
+        if (parts) setParticipants(Array.isArray(parts) ? parts : [])
+        if (cmp) setComparison(cmp)
         setView('results')
       }
     }, 1000)
@@ -253,6 +261,17 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
               <div className="stat-label">Class accuracy</div>
             </div>
           </div>
+          {comparison?.previous && (() => {
+            const prev = comparison.previous
+            const prevPct = prev.answered > 0 ? Math.round((prev.correct / prev.answered) * 100) : 0
+            const diff = pct - prevPct
+            return (
+              <p className="results-comparison" style={{ marginTop: '1rem', textAlign: 'center' }}>
+                {diff > 0 ? `▲ ${diff}%` : diff < 0 ? `▼ ${Math.abs(diff)}%` : '—'} vs last session
+                {' '}({prev.correct}/{prev.answered}, {prevPct}%)
+              </p>
+            )
+          })()}
         </section>
 
         <button className="button-secondary" onClick={onEnd} style={{ marginTop: '0.5rem' }}>

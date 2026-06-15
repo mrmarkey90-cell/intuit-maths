@@ -299,21 +299,37 @@ function PupilSession() {
 
     if (!results) return <div className="screen"><p>Submitting...</p></div>
 
+    const currentStage = pupil?.current_stage ?? 1
+    const displayStage = levelUp ? newStage : currentStage
+    const streak = results?.new_streak ?? 0
+
     return (
       <div className="screen">
         {levelUp && (
-          <div className="level-up-banner">Level up! Moving to Stage {newStage}</div>
+          <div className="level-up-banner">Level up! Now on Test Level {newStage}</div>
         )}
-        <AvatarDisplay avatar={pupil?.avatar ?? { face: 0, hat: 0, glasses: 0, scarf: 0 }} size={96} />
-        <h1 style={{ marginTop: '1rem' }}>{score} correct</h1>
+        <AvatarDisplay avatar={pupil?.avatar ?? { face: 0, hat: 0, glasses: 0, scarf: 0 }} size={80} />
+        <div className="test-level-badge">Test Level {displayStage}</div>
+        <h1 style={{ marginTop: '0.5rem' }}>{score} correct</h1>
         <p className="tagline">out of {total} attempted — {pct}%</p>
         {comparison && <p className="results-comparison">{comparison}</p>}
         <div className="credits-earned">+{creditsEarned} credits</div>
-        {!levelUp && results?.new_streak > 0 && (
-          <p className="streak-info">{results.new_streak} / 3 towards next level</p>
+        {!levelUp && (
+          <div className="streak-display">
+            <div className="streak-dots">
+              {[0, 1, 2].map(i => (
+                <span key={i} className={`streak-dot ${i < streak ? 'streak-dot--filled' : ''}`} />
+              ))}
+            </div>
+            <span className="streak-label">
+              {streak === 0
+                ? `Towards Test Level ${displayStage + 1}`
+                : `${streak}/3 towards Test Level ${displayStage + 1}`}
+            </span>
+          </div>
         )}
         {levelDownOffer && !levelUp && (
-          <LevelDownOffer pupilId={pupil?.id} currentStage={pupil?.current_stage ?? 1} />
+          <LevelDownOffer pupilId={pupil?.id} currentStage={currentStage} />
         )}
         <p className="note" style={{ marginTop: '2rem' }}>Write your score in your book!</p>
       </div>

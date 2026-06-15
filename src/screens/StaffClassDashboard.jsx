@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
 import SessionHost from './session/SessionHost'
+import PupilDetail from './PupilDetail'
 
 function StaffClassDashboard({ school, cls }) {
   const [copied, setCopied] = useState(false)
@@ -8,6 +9,7 @@ function StaffClassDashboard({ school, cls }) {
   const [weeklyUsed, setWeeklyUsed] = useState(false)
   const [classPupils, setClassPupils] = useState([])
   const [starting, setStarting] = useState(false)
+  const [selectedPupil, setSelectedPupil] = useState(null)
 
   const profileUrl = `intuited.uk/join/${cls.join_code}`
 
@@ -62,6 +64,10 @@ function StaffClassDashboard({ school, cls }) {
     )
   }
 
+  if (selectedPupil) {
+    return <PupilDetail pupilId={selectedPupil.id} onBack={() => setSelectedPupil(null)} />
+  }
+
   return (
     <div className="dashboard">
       <header className="dashboard-header">
@@ -100,6 +106,29 @@ function StaffClassDashboard({ school, cls }) {
             <button className="button-secondary" onClick={copyLink}>
               {copied ? 'Copied!' : 'Copy'}
             </button>
+          </div>
+        </section>
+
+        <section className="dashboard-section">
+          <div className="section-heading">
+            <h2>Pupils</h2>
+            <span className="section-count">{classPupils.length}</span>
+          </div>
+          <div className="pupil-list">
+            {classPupils.map(p => (
+              <button
+                key={p.id}
+                className="pupil-list-row"
+                onClick={() => setSelectedPupil(p)}
+              >
+                <span className="pupil-list-name">{p.first_name} {p.last_name}</span>
+                <span className="pupil-list-level">Level {p.current_stage ?? '—'}</span>
+                <span className="pupil-list-arrow">›</span>
+              </button>
+            ))}
+            {classPupils.length === 0 && (
+              <p className="note">No pupils yet. Share the profile creator link above.</p>
+            )}
           </div>
         </section>
       </main>

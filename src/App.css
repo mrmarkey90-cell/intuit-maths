@@ -915,3 +915,143 @@ button:hover:not(:disabled) {
   max-width: 320px;
   font-size: 15px;
 }
+
+/* ── Test level badge ──────────────────────────── */
+
+.test-level-badge {
+  display: inline-block;
+  margin-top: 0.75rem;
+  background: #ede9fe;
+  color: #4f46e5;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 4px 16px;
+  border-radius: 999px;
+  border: 2px solid #c4b5fd;
+  letter-spacing: 0.03em;
+}
+
+/* ── Streak dots ───────────────────────────────── */
+
+.streak-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 1rem;
+}
+
+.streak-dots {
+  display: flex;
+  gap: 10px;
+}
+
+.streak-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  border: 2px solid #d1d5db;
+  display: inline-block;
+}
+
+.streak-dot--filled {
+  background: #4f46e5;
+  border-color: #4338ca;
+}
+
+.streak-label {
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* ── Pupil list (staff dashboard) ──────────────── */
+
+.pupil-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pupil-list-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font-size: 15px;
+  color: #1e1b4b;
+  transition: background 0.15s;
+}
+
+.pupil-list-row:hover {
+  background: #f5f3ff;
+}
+
+.pupil-list-name {
+  flex: 1;
+  font-weight: 600;
+}
+
+.pupil-list-level {
+  font-size: 13px;
+  color: #4f46e5;
+  font-weight: 600;
+  background: #ede9fe;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+
+.pupil-list-arrow {
+  color: #9ca3af;
+  font-size: 1.2rem;
+}
+
+/* ── Pupil detail view ─────────────────────────── */
+
+.pupil-detail-level {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+.history-table {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.history-row {
+  display: grid;
+  grid-template-columns: 1fr 60px 80px 60px;
+  align-items: center;
+  padding: 0.6rem 0.75rem;
+  border-radius: 6px;
+  font-size: 14px;
+  gap: 0.5rem;
+}
+
+.history-row--header {
+  font-weight: 700;
+  font-size: 12px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-bottom: 0.25rem;
+}
+
+.history-row:not(.history-row--header) {
+  background: white;
+  border: 1px solid #e5e7eb;
+}
+
+.history-row--good {
+  border-color: #a7f3d0 !important;
+  background: #f0fdf4 !important;
+}
