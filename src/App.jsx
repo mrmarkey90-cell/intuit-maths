@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { supabase } from './supabaseClient'
+import './App.css'
 import Landing from './screens/Landing'
 import SchoolSetup from './screens/SchoolSetup'
 import Payment from './screens/Payment'
