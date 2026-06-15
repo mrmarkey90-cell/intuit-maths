@@ -69,14 +69,14 @@ function Dashboard({ session }) {
   }
 
   async function copyLink() {
-    await navigator.clipboard.writeText(`https://intuit-education.co.uk/school/${school.school_code}`)
+    await navigator.clipboard.writeText(`https://intuited.uk/school/${school.school_code}`)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
 
   if (loading) return <div className="screen"><p>Loading...</p></div>
 
-  const teacherLink = `intuit-education.co.uk/school/${school.school_code}`
+  const teacherLink = `intuited.uk/school/${school.school_code}`
   const totalPupils = pupils.length
   const pupilsByClass = pupils.reduce((acc, p) => {
     acc[p.class_id] = (acc[p.class_id] || 0) + 1

@@ -9,7 +9,7 @@ function PinSetup({ userData, onComplete }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const schoolUrl = `intuit-education.co.uk/school/${userData.school_code}`
+  const schoolUrl = `intuited.uk/school/${userData.school_code}`
 
   function validate() {
     if (!/^\d{4,6}$/.test(leadershipPin)) return 'Your PIN must be 4–6 digits'
