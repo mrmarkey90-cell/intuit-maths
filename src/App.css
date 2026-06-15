@@ -225,6 +225,23 @@ button:hover:not(:disabled) {
   margin-right: 0.5rem;
 }
 
+.active-classes-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+  gap: 1rem;
+}
+
+.active-classes-pill-count {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #111;
+}
+
 .toggle-switch {
   width: 48px;
   height: 26px;

@@ -51,30 +51,30 @@ function LeadershipManageClasses({ school, onBack, onSelectClass }) {
       </header>
 
       <main className="dashboard-main">
-        <section className="dashboard-section">
-          <div style={{ marginBottom: editing ? '0.5rem' : '1rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.25rem' }}>
-              <span style={{ fontWeight: 600, fontSize: '1rem' }}>Manage active classes</span>
-              <button
-                className={`toggle-switch ${editing ? 'toggle-switch--on' : ''}`}
-                onClick={() => { setEditing(e => !e); setSlotError(null) }}
-                role="switch"
-                aria-checked={editing}
-              />
+        <div className="active-classes-pill">
+          <div>
+            <div className="active-classes-pill-count">
+              {tier === 'pilot' ? 'Unlimited active classes' : `${activeCount} of ${school.class_slots ?? 1} active`}
             </div>
-            <div className="note">
-              {tier === 'pilot' ? 'Unlimited' : `${activeCount} of ${school.class_slots ?? 1}`} active
-            </div>
+            {editing && (
+              <div className="note" style={{ marginTop: '0.15rem' }}>
+                {atLimit ? 'Deactivate a class to free a slot.' : 'Click a class to activate or deactivate it.'}
+              </div>
+            )}
+            {slotError && <p className="error" style={{ marginTop: '0.25rem' }}>{slotError}</p>}
           </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span className="note">Edit</span>
+            <button
+              className={`toggle-switch ${editing ? 'toggle-switch--on' : ''}`}
+              onClick={() => { setEditing(e => !e); setSlotError(null) }}
+              role="switch"
+              aria-checked={editing}
+            />
+          </div>
+        </div>
 
-          {editing && (
-            <p className="note" style={{ marginBottom: '1rem' }}>
-              {atLimit
-                ? 'Slot limit reached — deactivate a class to free a slot.'
-                : 'Click a class to activate or deactivate it.'}
-            </p>
-          )}
-          {slotError && <p className="error" style={{ marginBottom: '1rem' }}>{slotError}</p>}
+        <section className="dashboard-section">
 
           {loading ? (
             <p className="note">Loading...</p>
