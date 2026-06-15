@@ -140,12 +140,13 @@ function Dashboard({ session }) {
       </header>
 
       <main className="dashboard-tiles-wrapper">
+        <div className="dashboard-brand">intuit</div>
         <div className="dashboard-tiles">
 
-          {/* Staff Access Link — no navigation, content inline */}
+          {/* Staff Link — content inline, no navigation */}
           <div className="dashboard-tile dashboard-tile--link">
             <div className="dashboard-tile-icon">🔗</div>
-            <div className="dashboard-tile-title">Staff Access Link</div>
+            <div className="dashboard-tile-title">Staff Link</div>
             <div className="dashboard-tile-link-row">
               <code className="dashboard-tile-code">{staffLink}</code>
               <button className="button-secondary" onClick={copyLink} style={{ flexShrink: 0 }}>
@@ -154,44 +155,38 @@ function Dashboard({ session }) {
             </div>
           </div>
 
-          {/* Manage Classes */}
           <button className="dashboard-tile" onClick={() => setView('classes')}>
             <div className="dashboard-tile-icon">🏫</div>
             <div className="dashboard-tile-title">Manage Classes</div>
             <div className="dashboard-tile-sub">{slotSub}</div>
           </button>
 
-          {/* Manage Pupils */}
           <button className="dashboard-tile" onClick={() => setView('pupils')}>
             <div className="dashboard-tile-icon">👥</div>
             <div className="dashboard-tile-title">Manage Pupils</div>
             <div className="dashboard-tile-sub">{totalPupils} pupil{totalPupils !== 1 ? 's' : ''}</div>
           </button>
 
-          {/* Subscription Tier → Manage Account */}
           <button className="dashboard-tile" onClick={() => setView('account')}>
             <div className="dashboard-tile-icon">⭐</div>
-            <div className="dashboard-tile-title">Subscription</div>
+            <div className="dashboard-tile-title">Tier</div>
             <div className="dashboard-tile-sub">
               <span className={`tier-badge${tier !== 'free' ? ' tier-badge--pro' : ''}`}>{tierLabel}</span>
             </div>
           </button>
 
-          {/* Manage Account */}
           <button className="dashboard-tile" onClick={() => setView('account')}>
             <div className="dashboard-tile-icon">⚙️</div>
             <div className="dashboard-tile-title">Manage Account</div>
-            <div className="dashboard-tile-sub">PIN, transfer</div>
+            <div className="dashboard-tile-sub">PIN · transfer</div>
           </button>
 
-          {/* Support */}
           <button className="dashboard-tile" onClick={() => setView('support')}>
             <div className="dashboard-tile-icon">💬</div>
             <div className="dashboard-tile-title">Support</div>
             <div className="dashboard-tile-sub">Get help</div>
           </button>
 
-          {/* Sign Out */}
           <button className="dashboard-tile dashboard-tile--signout" onClick={handleSignOut}>
             <div className="dashboard-tile-icon">🚪</div>
             <div className="dashboard-tile-title">Sign Out</div>

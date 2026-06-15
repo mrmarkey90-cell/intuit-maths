@@ -336,35 +336,44 @@ button:hover:not(:disabled) {
   width: 100%;
 }
 
+.dashboard-brand {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #4f46e5;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.25rem;
+}
+
 .dashboard-tiles {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  max-width: 860px;
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  gap: 1.25rem;
+  width: 100%;
+  max-width: 900px;
 }
 
 .dashboard-tile {
   background: white;
   border: 1px solid #e5e7eb;
-  border-radius: 14px;
-  padding: 1.5rem;
+  border-radius: 16px;
+  padding: 1.75rem;
   cursor: pointer;
   text-align: left;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  min-height: 130px;
+  gap: 0.5rem;
+  min-height: 180px;
+  min-width: 0;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .dashboard-tile:hover {
   border-color: #818cf8;
-  box-shadow: 0 2px 12px rgba(79, 70, 229, 0.1);
+  box-shadow: 0 2px 16px rgba(79, 70, 229, 0.1);
 }
 
 .dashboard-tile--link {
   cursor: default;
-  grid-column: span 1;
 }
 
 .dashboard-tile--link:hover {
@@ -374,12 +383,11 @@ button:hover:not(:disabled) {
 
 .dashboard-tile--signout {
   border-color: #fecaca;
-  color: #b91c1c;
 }
 
 .dashboard-tile--signout:hover {
   border-color: #f87171;
-  box-shadow: 0 2px 12px rgba(220, 38, 38, 0.08);
+  box-shadow: 0 2px 16px rgba(220, 38, 38, 0.08);
 }
 
 .dashboard-tile--signout .dashboard-tile-title {
@@ -387,13 +395,13 @@ button:hover:not(:disabled) {
 }
 
 .dashboard-tile-icon {
-  font-size: 1.6rem;
+  font-size: 1.75rem;
   line-height: 1;
   margin-bottom: 0.25rem;
 }
 
 .dashboard-tile-title {
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 600;
   color: #111;
 }
@@ -404,13 +412,14 @@ button:hover:not(:disabled) {
   display: flex;
   align-items: center;
   gap: 0.4rem;
+  margin-top: auto;
 }
 
 .dashboard-tile-link-row {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-top: 0.25rem;
+  margin-top: auto;
   flex-wrap: wrap;
 }
 
