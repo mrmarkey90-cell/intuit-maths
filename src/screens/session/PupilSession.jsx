@@ -193,12 +193,13 @@ function PupilSession() {
     const total = all.length
     const si = sessionInfoRef.current
 
-    const { data } = await supabase.rpc('submit_attempt', {
+    const { data, error } = await supabase.rpc('submit_attempt', {
       p_session_id: si.session_id,
       p_pupil_id: pupilRef.current.id,
       p_score: score,
       p_total: total,
     })
+    if (error) console.error('submit_attempt failed:', error)
     setResults({ score, total, ...(data ?? {}) })
   }
 
@@ -258,10 +259,6 @@ function PupilSession() {
           <button className="skip-btn" onClick={handleSkip} disabled={skipCooldown > 0}>
             {skipCooldown > 0 ? `Skip (${skipCooldown}s)` : 'Skip'}
           </button>
-        </div>
-        <div className="question-footer">
-          <span>{answers.filter(a => a.correct).length} correct</span>
-          <span>{answers.length} answered</span>
         </div>
       </div>
     )

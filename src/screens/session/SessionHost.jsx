@@ -46,12 +46,19 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
 
     const endTime = new Date(startedAt).getTime() + SESSION_DURATION * 1000
 
-    // Wait until started_at before showing active view
     const msUntilStart = new Date(startedAt).getTime() - Date.now()
     await new Promise(r => setTimeout(r, Math.max(0, msUntilStart)))
 
     setView('active')
     startActiveTimer(endTime)
+    startActivePolling()
+  }
+
+  function startActivePolling() {
+    pollRef.current = setInterval(async () => {
+      const { data } = await supabase.rpc('get_session_participants', { p_session_id: session.session_id })
+      if (data) setParticipants(Array.isArray(data) ? data : [])
+    }, 2000)
   }
 
   function startActiveTimer(endTime) {
@@ -61,6 +68,7 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
 
       if (t <= 0) {
         clearInterval(timerRef.current)
+        clearInterval(pollRef.current)
         await supabase.rpc('end_session', { p_session_id: session.session_id })
         setView('marking')
         startGracePeriod()
