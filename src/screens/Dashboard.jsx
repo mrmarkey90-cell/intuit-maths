@@ -25,6 +25,12 @@ function Dashboard({ session }) {
   const [pinSuccess, setPinSuccess] = useState(false)
   const [togglingId, setTogglingId] = useState(null)
   const [slotError, setSlotError] = useState(null)
+  const [transferring, setTransferring] = useState(false)
+  const [transferPin, setTransferPin] = useState('')
+  const [transferEmail, setTransferEmail] = useState('')
+  const [transferLoading, setTransferLoading] = useState(false)
+  const [transferError, setTransferError] = useState(null)
+  const [transferSent, setTransferSent] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -83,6 +89,38 @@ function Dashboard({ session }) {
     setPinSuccess(true)
     setTimeout(() => setPinSuccess(false), 3000)
     setPinLoading(false)
+  }
+
+  async function handleTransfer() {
+    if (!/^\d{4,6}$/.test(transferPin)) { setTransferError('Enter your leadership PIN'); return }
+    if (!transferEmail.includes('@')) { setTransferError('Enter a valid email address'); return }
+    setTransferLoading(true)
+    setTransferError(null)
+    const { data } = await supabase.rpc('initiate_transfer', {
+      p_leadership_pin: transferPin,
+      p_new_email: transferEmail.toLowerCase().trim(),
+    })
+    if (data?.error === 'wrong_pin') {
+      setTransferError('Leadership PIN is incorrect')
+      setTransferLoading(false)
+      return
+    }
+    if (data?.error) {
+      setTransferError('Something went wrong. Try again.')
+      setTransferLoading(false)
+      return
+    }
+    await supabase.auth.signInWithOtp({ email: transferEmail.toLowerCase().trim() })
+    setTransferLoading(false)
+    setTransferSent(true)
+  }
+
+  function cancelTransfer() {
+    setTransferring(false)
+    setTransferPin('')
+    setTransferEmail('')
+    setTransferError(null)
+    setTransferSent(false)
   }
 
   function cancelChangePin() {
@@ -225,6 +263,52 @@ function Dashboard({ session }) {
           {totalPupils > 0 && (
             <p className="note" style={{ marginTop: '0.75rem' }}>{totalPupils} pupil{totalPupils !== 1 ? 's' : ''} total</p>
           )}
+        </section>
+
+        <section className="dashboard-section">
+          <div className="section-heading">
+            <h2>Transfer ownership</h2>
+            {!transferring && !transferSent && (
+              <button className="button-secondary" onClick={() => setTransferring(true)}>
+                Transfer
+              </button>
+            )}
+          </div>
+          <p className="note">Move this school account to a new email address. The current owner loses access when the new owner clicks their link.</p>
+          {transferSent ? (
+            <div style={{ marginTop: '1rem' }}>
+              <p className="success">Magic link sent to <strong>{transferEmail}</strong>.</p>
+              <p className="note" style={{ marginTop: '0.5rem' }}>The new owner must click the link to complete the transfer. You can cancel this transfer before they do so.</p>
+              <button className="button-secondary" style={{ marginTop: '1rem' }} onClick={cancelTransfer}>Cancel transfer</button>
+            </div>
+          ) : transferring ? (
+            <div className="form" style={{ marginTop: '1rem', marginBottom: 0 }}>
+              <p className="note" style={{ color: '#b91c1c' }}>
+                Warning: you will lose access to this account once the new owner clicks their link.
+              </p>
+              <input
+                type="password"
+                inputMode="numeric"
+                placeholder="Your leadership PIN"
+                value={transferPin}
+                maxLength={6}
+                onChange={e => { setTransferPin(e.target.value.replace(/\D/g, '')); setTransferError(null) }}
+              />
+              <input
+                type="email"
+                placeholder="New owner's email address"
+                value={transferEmail}
+                onChange={e => { setTransferEmail(e.target.value); setTransferError(null) }}
+              />
+              {transferError && <p className="error">{transferError}</p>}
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button onClick={handleTransfer} disabled={!transferPin || !transferEmail || transferLoading}>
+                  {transferLoading ? 'Sending...' : 'Send transfer link'}
+                </button>
+                <button className="button-secondary" onClick={cancelTransfer}>Cancel</button>
+              </div>
+            </div>
+          ) : null}
         </section>
       </main>
     </div>

@@ -38,20 +38,24 @@ function LeadershipApp() {
   async function checkUser(userId) {
     const { data } = await supabase
       .from('users')
-      .select('school_id, onboarding_complete, schools(subscribed, school_code)')
+      .select('school_id, onboarding_complete')
       .eq('id', userId)
       .maybeSingle()
     if (data) {
-      setUserData({
-        school_id: data.school_id,
-        onboarding_complete: data.onboarding_complete,
-        subscribed: data.schools?.subscribed ?? false,
-        school_code: data.schools?.school_code ?? null,
-      })
+      setUserData({ school_id: data.school_id, onboarding_complete: data.onboarding_complete })
+      setLoading(false)
     } else {
-      setUserData(null)
+      // No user row — could be a completed ownership transfer
+      const { data: transfer } = await supabase.rpc('complete_transfer')
+      if (transfer?.ok) {
+        // Row now exists under the new auth UID — re-check
+        checkUser(userId)
+      } else {
+        // Normal new signup
+        setUserData(null)
+        setLoading(false)
+      }
     }
-    setLoading(false)
   }
 
   if (loading) return <div className="screen"><p>Loading...</p></div>
@@ -59,8 +63,8 @@ function LeadershipApp() {
   if (!userData) return (
     <SchoolSetup
       session={session}
-      onComplete={(id, schoolCode) => {
-        setUserData({ school_id: id, school_code: schoolCode, onboarding_complete: false, subscribed: false })
+      onComplete={(id) => {
+        setUserData({ school_id: id, onboarding_complete: false })
         setOnboarding('payment')
       }}
     />
