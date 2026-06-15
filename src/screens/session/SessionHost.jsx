@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import QRCode from 'react-qr-code'
 import { supabase } from '../../supabaseClient'
-import AvatarDisplay from '../../components/AvatarDisplay'
 
 const SESSION_DURATION = 90
 const GRACE_PERIOD = 5
@@ -12,6 +11,22 @@ function fmt(secs) {
   return `${m}:${s.toString().padStart(2, '0')}`
 }
 
+function playPing() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)()
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+    osc.connect(gain)
+    gain.connect(ctx.destination)
+    osc.type = 'sine'
+    osc.frequency.value = 880
+    gain.gain.setValueAtTime(0.25, ctx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25)
+    osc.start(ctx.currentTime)
+    osc.stop(ctx.currentTime + 0.25)
+  } catch {}
+}
+
 function SessionHost({ school, cls, session, classPupils, onEnd }) {
   const [view, setView] = useState('lobby') // lobby | active | marking | results
   const [participants, setParticipants] = useState([])
@@ -20,6 +35,7 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
   const pollRef = useRef(null)
   const timerRef = useRef(null)
   const graceRef = useRef(null)
+  const prevTotalRef = useRef(0)
 
   const joinUrl = `https://intuited.uk/play/${session.join_code}`
 
@@ -57,7 +73,13 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
   function startActivePolling() {
     pollRef.current = setInterval(async () => {
       const { data } = await supabase.rpc('get_session_participants', { p_session_id: session.session_id })
-      if (data) setParticipants(Array.isArray(data) ? data : [])
+      if (data) {
+        const updated = Array.isArray(data) ? data : []
+        const newTotal = updated.reduce((s, p) => s + (p.total ?? 0), 0)
+        if (newTotal > prevTotalRef.current) playPing()
+        prevTotalRef.current = newTotal
+        setParticipants(updated)
+      }
     }, 2000)
   }
 
@@ -196,9 +218,8 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
   }
 
   // Results
-  const submitted = participants.filter(p => p.total !== null)
-  const totalAnswered = submitted.reduce((s, p) => s + (p.total ?? 0), 0)
-  const totalCorrect = submitted.reduce((s, p) => s + (p.score ?? 0), 0)
+  const totalAnswered = participants.reduce((s, p) => s + (p.total ?? 0), 0)
+  const totalCorrect = participants.reduce((s, p) => s + (p.score ?? 0), 0)
   const pct = totalAnswered > 0 ? Math.round((totalCorrect / totalAnswered) * 100) : 0
 
   return (
@@ -225,26 +246,6 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
               <div className="stat-number">{pct}%</div>
               <div className="stat-label">Class accuracy</div>
             </div>
-          </div>
-        </section>
-
-        <section className="dashboard-section">
-          <div className="section-heading">
-            <h2>Individual results</h2>
-            <span className="section-count">{submitted.length} submitted</span>
-          </div>
-          <div className="results-table">
-            {[...participants]
-              .sort((a, b) => (b.score ?? -1) - (a.score ?? -1))
-              .map(p => (
-                <div key={p.pupil_id} className="results-row">
-                  <AvatarDisplay avatar={p.avatar ?? { face: 0, hat: 0, glasses: 0, scarf: 0 }} size={36} />
-                  <span className="results-name">{p.first_name} {p.last_name}</span>
-                  <span className="results-score">
-                    {p.score !== null ? `${p.score} / ${p.total}` : '—'}
-                  </span>
-                </div>
-              ))}
           </div>
         </section>
 

@@ -167,6 +167,16 @@ function PupilSession() {
     setAnswers(prev => {
       const updated = [...prev, { ...q, entered, correct }]
       answersRef.current = updated
+      const si = sessionInfoRef.current
+      if (si?.session_id && pupilRef.current?.id) {
+        const score = updated.filter(a => a.correct).length
+        supabase.rpc('update_participant_progress', {
+          p_session_id: si.session_id,
+          p_pupil_id: pupilRef.current.id,
+          p_score: score,
+          p_total: updated.length,
+        })
+      }
       return updated
     })
 
