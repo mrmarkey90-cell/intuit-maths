@@ -18,6 +18,8 @@ body {
   justify-content: center;
   padding: 2rem;
   text-align: center;
+  position: relative;
+  z-index: 1;
 }
 
 h1 {
@@ -385,7 +387,8 @@ button:hover:not(:disabled) {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #f5f5f5;
+  position: relative;
+  z-index: 1;
 }
 
 .dashboard-header {
@@ -1262,7 +1265,7 @@ button:hover:not(:disabled) {
 .floating-logos-container {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 0;
   pointer-events: none;
   overflow: hidden;
 }
@@ -1270,42 +1273,6 @@ button:hover:not(:disabled) {
 .floating-logo {
   position: absolute;
   user-select: none;
-}
-
-.floating-logo--1 { animation: logo-float-1 linear infinite; }
-.floating-logo--2 { animation: logo-float-2 linear infinite; }
-.floating-logo--3 { animation: logo-float-3 linear infinite; }
-.floating-logo--4 { animation: logo-float-4 linear infinite; }
-
-@keyframes logo-float-1 {
-  0%   { transform: translate(0, 0) rotate(0deg); }
-  20%  { transform: translate(12px, -22px) rotate(8deg); }
-  45%  { transform: translate(-8px, -40px) rotate(-5deg); }
-  70%  { transform: translate(18px, -28px) rotate(12deg); }
-  100% { transform: translate(0, 0) rotate(0deg); }
-}
-
-@keyframes logo-float-2 {
-  0%   { transform: translate(0, 0) rotate(0deg); }
-  30%  { transform: translate(-18px, 14px) rotate(-12deg); }
-  60%  { transform: translate(10px, -24px) rotate(7deg); }
-  100% { transform: translate(0, 0) rotate(0deg); }
-}
-
-@keyframes logo-float-3 {
-  0%   { transform: translate(0, 0) rotate(0deg); }
-  25%  { transform: translate(16px, -12px) rotate(10deg); }
-  50%  { transform: translate(-10px, -32px) rotate(-8deg); }
-  75%  { transform: translate(22px, -18px) rotate(15deg); }
-  100% { transform: translate(0, 0) rotate(0deg); }
-}
-
-@keyframes logo-float-4 {
-  0%   { transform: translate(0, 0) rotate(0deg); }
-  25%  { transform: translate(-20px, 16px) rotate(-16deg); }
-  50%  { transform: translate(14px, -8px) rotate(8deg); }
-  75%  { transform: translate(-12px, -26px) rotate(-4deg); }
-  100% { transform: translate(0, 0) rotate(0deg); }
 }
 
 /* ── Pupil list (staff dashboard) ──────────────── */

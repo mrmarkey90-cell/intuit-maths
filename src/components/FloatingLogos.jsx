@@ -1,35 +1,79 @@
-const LOGOS = [
-  { left: '4%',  top: '7%',  size: 42, duration: 24, delay: 0,   anim: 1, opacity: 0.28 },
-  { left: '86%', top: '4%',  size: 54, duration: 31, delay: -9,  anim: 2, opacity: 0.22 },
-  { left: '11%', top: '54%', size: 38, duration: 27, delay: -16, anim: 3, opacity: 0.26 },
-  { left: '73%', top: '36%', size: 32, duration: 19, delay: -5,  anim: 4, opacity: 0.20 },
-  { left: '43%', top: '73%', size: 28, duration: 36, delay: -22, anim: 1, opacity: 0.24 },
-  { left: '79%', top: '66%', size: 48, duration: 23, delay: -11, anim: 2, opacity: 0.28 },
-  { left: '24%', top: '17%', size: 36, duration: 29, delay: -18, anim: 3, opacity: 0.22 },
-  { left: '56%', top: '11%', size: 52, duration: 21, delay: -7,  anim: 4, opacity: 0.25 },
-  { left: '91%', top: '79%', size: 30, duration: 34, delay: -26, anim: 1, opacity: 0.20 },
-  { left: '6%',  top: '83%', size: 44, duration: 26, delay: -13, anim: 2, opacity: 0.27 },
-  { left: '37%', top: '43%', size: 34, duration: 38, delay: -31, anim: 3, opacity: 0.23 },
-  { left: '61%', top: '86%', size: 40, duration: 22, delay: -20, anim: 4, opacity: 0.25 },
+import { useEffect, useRef } from 'react'
+
+const ASPECT = 181.54816 / 116.77534  // SVG height ÷ width
+
+const LOGO_DEFS = [
+  { w: 40, speed: 0.50, opacity: 0.22 },
+  { w: 52, speed: 0.32, opacity: 0.18 },
+  { w: 34, speed: 0.62, opacity: 0.25 },
+  { w: 30, speed: 0.48, opacity: 0.20 },
+  { w: 46, speed: 0.55, opacity: 0.22 },
+  { w: 38, speed: 0.40, opacity: 0.18 },
+  { w: 28, speed: 0.68, opacity: 0.24 },
+  { w: 44, speed: 0.38, opacity: 0.20 },
+  { w: 36, speed: 0.52, opacity: 0.22 },
+  { w: 50, speed: 0.30, opacity: 0.17 },
+  { w: 32, speed: 0.60, opacity: 0.23 },
+  { w: 42, speed: 0.44, opacity: 0.19 },
 ]
 
 export default function FloatingLogos() {
+  const imgRefs = useRef([])
+  const stateRef = useRef(null)
+  const rafRef = useRef(null)
+
+  useEffect(() => {
+    const W = window.innerWidth
+    const H = window.innerHeight
+
+    stateRef.current = LOGO_DEFS.map(def => {
+      const h = def.w * ASPECT
+      const angle = Math.random() * Math.PI * 2
+      return {
+        w: def.w,
+        h,
+        x: Math.random() * Math.max(1, W - def.w),
+        y: Math.random() * Math.max(1, H - h),
+        vx: Math.cos(angle) * def.speed,
+        vy: Math.sin(angle) * def.speed,
+      }
+    })
+
+    function tick() {
+      const W = window.innerWidth
+      const H = window.innerHeight
+      stateRef.current.forEach((logo, i) => {
+        logo.x += logo.vx
+        logo.y += logo.vy
+
+        if (logo.x <= 0)           { logo.x = 0;            logo.vx =  Math.abs(logo.vx) }
+        if (logo.x + logo.w >= W)  { logo.x = W - logo.w;  logo.vx = -Math.abs(logo.vx) }
+        if (logo.y <= 0)           { logo.y = 0;            logo.vy =  Math.abs(logo.vy) }
+        if (logo.y + logo.h >= H)  { logo.y = H - logo.h;  logo.vy = -Math.abs(logo.vy) }
+
+        const el = imgRefs.current[i]
+        if (el) {
+          el.style.left = `${logo.x}px`
+          el.style.top  = `${logo.y}px`
+        }
+      })
+      rafRef.current = requestAnimationFrame(tick)
+    }
+
+    rafRef.current = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [])
+
   return (
     <div className="floating-logos-container">
-      {LOGOS.map((l, i) => (
+      {LOGO_DEFS.map((def, i) => (
         <img
           key={i}
+          ref={el => { imgRefs.current[i] = el }}
           src="/intuit-logo.svg"
           alt=""
-          className={`floating-logo floating-logo--${l.anim}`}
-          style={{
-            left: l.left,
-            top: l.top,
-            width: l.size,
-            opacity: l.opacity,
-            animationDuration: `${l.duration}s`,
-            animationDelay: `${l.delay}s`,
-          }}
+          className="floating-logo"
+          style={{ width: def.w, opacity: def.opacity }}
         />
       ))}
     </div>
