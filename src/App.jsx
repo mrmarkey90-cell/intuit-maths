@@ -10,6 +10,7 @@ import Dashboard from './screens/Dashboard'
 import StaffLogin from './screens/StaffLogin'
 import StaffClassSelect from './screens/StaffClassSelect'
 import StaffClassDashboard from './screens/StaffClassDashboard'
+import PupilJoin from './screens/PupilJoin'
 
 function LeadershipApp() {
   const [session, setSession] = useState(null)
@@ -115,6 +116,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/join/:code" element={<PupilJoin />} />
         <Route path="/school/:code" element={<StaffApp />} />
         <Route path="/*" element={<LeadershipApp />} />
       </Routes>

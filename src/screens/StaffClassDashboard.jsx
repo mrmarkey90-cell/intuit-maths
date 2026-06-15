@@ -3,7 +3,7 @@ import { useState } from 'react'
 function StaffClassDashboard({ school, cls }) {
   const [copied, setCopied] = useState(false)
 
-  const profileUrl = `intuited.uk/join/${cls.id}`
+  const profileUrl = `intuited.uk/join/${cls.join_code}`
 
   async function copyLink() {
     await navigator.clipboard.writeText(`https://${profileUrl}`)

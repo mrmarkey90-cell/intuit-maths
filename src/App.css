@@ -284,6 +284,135 @@ button:hover:not(:disabled) {
   color: #888;
 }
 
+/* Avatar */
+.avatar-display {
+  position: relative;
+  margin: 0 auto;
+  flex-shrink: 0;
+}
+
+.avatar-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.avatar-builder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.avatar-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 280px;
+}
+
+.avatar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.avatar-label {
+  font-size: 15px;
+  font-weight: 500;
+  color: #444;
+  width: 64px;
+}
+
+.avatar-stepper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar-arrow {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  width: 36px;
+  height: 36px;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: #4f46e5;
+}
+
+.avatar-arrow:disabled {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.avatar-index {
+  font-size: 14px;
+  color: #888;
+  width: 24px;
+  text-align: center;
+}
+
+/* Pupil grid */
+.join-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 360px;
+  margin-top: 2rem;
+}
+
+.pupil-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+  width: 100%;
+  max-width: 600px;
+  margin-top: 1.5rem;
+}
+
+.pupil-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 8px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.pupil-tile:hover {
+  border-color: #4f46e5;
+  background: #f5f3ff;
+}
+
+.pupil-tile-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111;
+}
+
+.pupil-tile-surname {
+  font-size: 12px;
+  color: #888;
+}
+
 .tab-bar {
   display: flex;
   gap: 4px;
