@@ -8,6 +8,10 @@ function LeadershipManageClasses({ school, onBack, onSelectClass }) {
   const [editing, setEditing] = useState(false)
   const [togglingId, setTogglingId] = useState(null)
   const [slotError, setSlotError] = useState(null)
+  const [adding, setAdding] = useState(false)
+  const [newName, setNewName] = useState('')
+  const [addLoading, setAddLoading] = useState(false)
+  const [addError, setAddError] = useState(null)
 
   useEffect(() => {
     Promise.all([
@@ -31,6 +35,33 @@ function LeadershipManageClasses({ school, onBack, onSelectClass }) {
       setClasses(prev => prev.map(c => c.id === cls.id ? { ...c, active: !c.active } : c))
     }
     setTogglingId(null)
+  }
+
+  async function handleAddClass() {
+    const name = newName.trim()
+    if (!name) return
+    setAddLoading(true)
+    setAddError(null)
+    const active = !atLimit
+    const { data, error } = await supabase.rpc('create_class', { p_name: name, p_active: active })
+    if (error || data?.error) {
+      setAddError(error?.message || 'Failed to create class')
+      setAddLoading(false)
+      return
+    }
+    setClasses(prev =>
+      [...prev, { id: data.id, name: data.name, active: data.active }]
+        .sort((a, b) => a.name.localeCompare(b.name))
+    )
+    setNewName('')
+    setAdding(false)
+    setAddLoading(false)
+  }
+
+  function cancelAdd() {
+    setAdding(false)
+    setNewName('')
+    setAddError(null)
   }
 
   const tier = school.tier ?? 'free'
@@ -75,10 +106,9 @@ function LeadershipManageClasses({ school, onBack, onSelectClass }) {
         </div>
 
         <section className="dashboard-section">
-
           {loading ? (
             <p className="note">Loading...</p>
-          ) : classes.length === 0 ? (
+          ) : classes.length === 0 && !adding ? (
             <p className="note">No classes yet.</p>
           ) : editing ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -113,6 +143,38 @@ function LeadershipManageClasses({ school, onBack, onSelectClass }) {
                   <span className="pupil-list-arrow">›</span>
                 </button>
               ))}
+            </div>
+          )}
+
+          {!editing && (
+            <div style={{ marginTop: classes.length > 0 ? '0.75rem' : 0 }}>
+              {adding ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <input
+                    type="text"
+                    placeholder="Class name"
+                    value={newName}
+                    onChange={e => { setNewName(e.target.value); setAddError(null) }}
+                    onKeyDown={e => e.key === 'Enter' && handleAddClass()}
+                    autoFocus
+                    maxLength={50}
+                  />
+                  {atLimit && (
+                    <p className="note">All active slots are in use — this class will be created as inactive.</p>
+                  )}
+                  {addError && <p className="error">{addError}</p>}
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button onClick={handleAddClass} disabled={!newName.trim() || addLoading}>
+                      {addLoading ? 'Adding...' : 'Add class'}
+                    </button>
+                    <button className="button-secondary" onClick={cancelAdd}>Cancel</button>
+                  </div>
+                </div>
+              ) : (
+                <button className="button-secondary" onClick={() => setAdding(true)}>
+                  + Add a class
+                </button>
+              )}
             </div>
           )}
         </section>
