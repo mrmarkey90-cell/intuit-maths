@@ -159,6 +159,21 @@ button:hover:not(:disabled) {
   font-size: 15px;
 }
 
+.class-item--inactive {
+  opacity: 0.55;
+}
+
+.inactive-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #b91c1c;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 .note {
   font-size: 13px;
   color: #888;

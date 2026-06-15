@@ -119,21 +119,36 @@ Out of scope: geometry, statistics, algebra, money, time, formal written methods
 
 ## Subscription model
 
-- Free tier: 1 class, up to 40 pupils, full functionality
-- Paid tier: £125/year, unlimited classes and pupils
-- Stored as `subscribed` boolean on schools table
-- Stripe webhook flips subscribed true/false (post-MVP)
+Three tiers, stored as `schools.tier` (free/pilot/paid):
+
+- **Free** — 1 active class (`class_slots = 1`), full functionality
+- **Pilot** — unlimited active classes (`class_slots = NULL`), manually assigned by us for early partner schools
+- **Paid** — N active classes (`class_slots = N`), per-class annual subscription
+
+Pricing model:
+- Annual subscription, per class, billed at signup
+- Mid-year additions: one-off charge for extra classes, aligned to anniversary date
+- On renewal, subscription quantity updates to current active classes
+- Cancellation: no refund, access until period end
+
+Class management:
+- `classes.active` bool — inactive classes are hidden from staff login but data is retained indefinitely
+- `toggle_class_active(p_class_id, p_active)` RPC enforces slot limit for paid tier, allows freely for pilot/NULL
+- Leadership dashboard shows active class count vs limit, with per-class activate/deactivate toggles
+- `verify_school_pin` only returns `active = true` classes to staff
+
+Stripe integration is post-MVP. Webhook will manage `class_slots` and `slots_expire_at`.
 
 ## Database schema
 
 ### schools
-id (uuid PK), name, school_code (text, unique), staff_pin (text, bcrypt hashed), subscribed (bool), created_at
+id (uuid PK), name, school_code (text, unique), staff_pin (text, bcrypt hashed), tier (text: free/pilot/paid, default free), class_slots (int, NULL = unlimited), slots_expire_at (timestamptz), stripe_customer_id (text), stripe_subscription_id (text), subscribed (bool — legacy, no longer used), created_at
 
 ### users
 id (uuid PK), name, email, role (leadership/pupil), school_id (FK), pin_hash (text, bcrypt — leadership PIN), active (bool), onboarding_complete (bool), created_at
 
 ### classes
-id (uuid PK), name, school_id (FK), join_code (text, unique — auto-generated on insert by trigger), created_at
+id (uuid PK), name, school_id (FK), join_code (text, unique — auto-generated on insert by trigger), active (bool, default true), created_at
 
 ### pupil_profiles
 id (uuid PK), user_id (FK, nullable — pupils have no auth account), class_id (FK, nullable), school_id (FK), first_name (text), last_name (text), current_stage (int 1-6), credits (int), avatar (jsonb), unlocked_items (jsonb), challenge_streak (int), bad_streak (int), created_at
@@ -167,7 +182,8 @@ id (uuid PK), attempt_id (FK), domain (text), subdomain (text), correct (bool)
 - `set_staff_pin(leadership_pin, new_staff_pin)` — verifies leadership PIN, updates schools.staff_pin
 - `admin_reset_staff_pin(school_code, new_pin DEFAULT '0000')` — support use from SQL editor
 - `get_school_name(school_code)` — public/anon, returns school name for staff login screen
-- `verify_school_pin(school_code, pin)` — public/anon, verifies staff PIN, returns school + classes (with id, name, join_code)
+- `verify_school_pin(school_code, pin)` — public/anon, verifies staff PIN, returns school + active classes (with id, name, join_code) + tier
+- `toggle_class_active(p_class_id, p_active)` — leadership, activates/deactivates a class; enforces class_slots limit for paid tier; returns `{ ok }` or `{ error: 'no_slots' }`
 
 #### Pupil profiles
 - `get_class_by_join_code(join_code)` — public/anon, returns class_name + school_name
@@ -202,7 +218,7 @@ id (uuid PK), attempt_id (FK), domain (text), subdomain (text), correct (bool)
 - Pupil detail view — challenge history, Test Level, streak progress (teacher-accessible)
 - Pupil profile creation — `/join/[code]` → name + avatar builder → profile saved
 - **Class Challenge session (teacher side)** — lobby with QR code + pupil ready grid, real-time answered count via Broadcast + ping sound, 5s marking grace period, results with class aggregate + comparison vs last session
-- **Class Challenge session (pupil side)** — `/play/[code]` → profile select → lobby wait → 90s question flow with numpad + skip → results with Test Level badge, streak dots, credits earned, comparison vs last time
+- **Class Challenge session (pupil side)** — `/play/[code]` → profile select → lobby wait → 60s question flow with numpad + skip → results with Test Level badge, streak dots, credits earned, comparison vs last time
 
 ### Not yet built
 - Practice session flow (pupil self-directed, from pupil dashboard)

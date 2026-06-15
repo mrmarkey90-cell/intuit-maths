@@ -1,6 +1,15 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
 
+const TIER_LABELS = { free: 'Free', pilot: 'Pilot', paid: 'Pro' }
+const TIER_SLOTS = { free: 1, pilot: null } // null = unlimited
+
+function slotSummary(tier, classSlots, activeCount) {
+  if (tier === 'pilot') return 'Unlimited active classes (Pilot)'
+  const limit = classSlots ?? TIER_SLOTS[tier] ?? 1
+  return `${activeCount} / ${limit} active class${limit !== 1 ? 'es' : ''}`
+}
+
 function Dashboard({ session }) {
   const [school, setSchool] = useState(null)
   const [classes, setClasses] = useState([])
@@ -14,21 +23,22 @@ function Dashboard({ session }) {
   const [pinLoading, setPinLoading] = useState(false)
   const [pinError, setPinError] = useState(null)
   const [pinSuccess, setPinSuccess] = useState(false)
+  const [togglingId, setTogglingId] = useState(null)
+  const [slotError, setSlotError] = useState(null)
 
   useEffect(() => {
     async function load() {
       const { data: user } = await supabase
         .from('users')
-        .select('school_id, schools(name, subscribed, school_code)')
+        .select('school_id, schools(name, school_code, tier, class_slots, slots_expire_at)')
         .eq('id', session.user.id)
         .maybeSingle()
 
       if (!user) return
-
       setSchool({ id: user.school_id, ...user.schools })
 
       const [{ data: classData }, { data: pupilData }] = await Promise.all([
-        supabase.from('classes').select('id, name').eq('school_id', user.school_id).order('name'),
+        supabase.from('classes').select('id, name, active').eq('school_id', user.school_id).order('name'),
         supabase.from('pupil_profiles').select('id, class_id').eq('school_id', user.school_id),
       ])
 
@@ -38,6 +48,21 @@ function Dashboard({ session }) {
     }
     load()
   }, [session.user.id])
+
+  async function toggleActive(cls) {
+    setTogglingId(cls.id)
+    setSlotError(null)
+    const { data } = await supabase.rpc('toggle_class_active', {
+      p_class_id: cls.id,
+      p_active: !cls.active,
+    })
+    if (data?.error === 'no_slots') {
+      setSlotError('No active class slots available. Deactivate another class or purchase more slots.')
+    } else {
+      setClasses(prev => prev.map(c => c.id === cls.id ? { ...c, active: !c.active } : c))
+    }
+    setTogglingId(null)
+  }
 
   async function handleChangePin() {
     if (!oldPin) { setPinError('Enter your leadership PIN'); return }
@@ -76,20 +101,24 @@ function Dashboard({ session }) {
 
   if (loading) return <div className="screen"><p>Loading...</p></div>
 
-  const teacherLink = `intuited.uk/school/${school.school_code}`
+  const tier = school.tier ?? 'free'
+  const classSlots = school.class_slots
+  const activeCount = classes.filter(c => c.active).length
+  const atLimit = tier !== 'pilot' && classSlots != null && activeCount >= classSlots
   const totalPupils = pupils.length
   const pupilsByClass = pupils.reduce((acc, p) => {
     acc[p.class_id] = (acc[p.class_id] || 0) + 1
     return acc
   }, {})
+  const teacherLink = `intuited.uk/school/${school.school_code}`
 
   return (
     <div className="dashboard">
       <header className="dashboard-header">
         <div className="dashboard-header-left">
           <h1>{school.name}</h1>
-          <span className={`tier-badge${school.subscribed ? ' tier-badge--pro' : ''}`}>
-            {school.subscribed ? 'Pro' : 'Free'}
+          <span className={`tier-badge${tier !== 'free' ? ' tier-badge--pro' : ''}`}>
+            {TIER_LABELS[tier] ?? tier}
           </span>
         </div>
       </header>
@@ -157,19 +186,44 @@ function Dashboard({ session }) {
         <section className="dashboard-section">
           <div className="section-heading">
             <h2>Classes</h2>
-            <span className="section-count">{totalPupils} pupil{totalPupils !== 1 ? 's' : ''} total</span>
+            <span className="section-count">{slotSummary(tier, classSlots, activeCount)}</span>
           </div>
+          <p className="note" style={{ marginBottom: '0.75rem' }}>
+            {tier === 'pilot'
+              ? 'Pilot account — unlimited active classes.'
+              : atLimit
+                ? 'All class slots are in use. Deactivate a class to free a slot, or contact us to add more.'
+                : `Active classes are visible to teachers. Inactive classes retain all pupil data.`}
+          </p>
+          {slotError && <p className="error" style={{ marginBottom: '0.75rem' }}>{slotError}</p>}
           {classes.length === 0 ? (
             <p className="note">No classes yet</p>
           ) : (
             <div className="class-list" style={{ margin: 0 }}>
               {classes.map(c => (
-                <div key={c.id} className="class-item">
-                  <span>{c.name}</span>
-                  <span className="note">{pupilsByClass[c.id] ?? 0} pupils</span>
+                <div key={c.id} className={`class-item ${c.active ? '' : 'class-item--inactive'}`}>
+                  <div>
+                    <span>{c.name}</span>
+                    <span className="note" style={{ marginLeft: '0.5rem' }}>
+                      {pupilsByClass[c.id] ?? 0} pupils
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    {!c.active && <span className="inactive-badge">Inactive</span>}
+                    <button
+                      className="button-secondary"
+                      onClick={() => toggleActive(c)}
+                      disabled={togglingId === c.id || (!c.active && atLimit)}
+                    >
+                      {togglingId === c.id ? '...' : c.active ? 'Deactivate' : 'Activate'}
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
+          )}
+          {totalPupils > 0 && (
+            <p className="note" style={{ marginTop: '0.75rem' }}>{totalPupils} pupil{totalPupils !== 1 ? 's' : ''} total</p>
           )}
         </section>
       </main>
