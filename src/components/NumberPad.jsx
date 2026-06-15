@@ -7,7 +7,6 @@ function NumberPad({ onSubmit, stage = 1, disabled = false }) {
   const append = useCallback((char) => {
     if (disabled) return
     setValue(v => {
-      if (char === '.' && v.includes('.')) return v
       if (v.length >= 8) return v
       return v + char
     })
@@ -45,10 +44,16 @@ function NumberPad({ onSubmit, stage = 1, disabled = false }) {
     <div className="numpad">
       <div className="numpad-display">{value || <span className="numpad-placeholder">?</span>}</div>
       <div className="numpad-grid">
-        {['7','8','9','4','5','6','1','2','3'].map(d => (
+        {/* Phone-style layout: 1-2-3 on top (familiar for iPad/phone users) */}
+        {['1','2','3','4','5','6','7','8','9'].map(d => (
           <button key={d} className="numpad-btn" onClick={() => append(d)} disabled={disabled}>{d}</button>
         ))}
-        <button className="numpad-btn numpad-btn--secondary" onClick={toggleNegative} disabled={disabled || !showNegative} style={{ visibility: showNegative ? 'visible' : 'hidden' }}>±</button>
+        <button
+          className="numpad-btn numpad-btn--secondary"
+          onClick={toggleNegative}
+          disabled={disabled || !showNegative}
+          style={{ visibility: showNegative ? 'visible' : 'hidden' }}
+        >±</button>
         <button className="numpad-btn" onClick={() => append('0')} disabled={disabled}>0</button>
         <button className="numpad-btn numpad-btn--secondary" onClick={backspace} disabled={disabled}>⌫</button>
       </div>

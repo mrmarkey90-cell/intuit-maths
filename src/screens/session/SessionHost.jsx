@@ -4,6 +4,7 @@ import { supabase } from '../../supabaseClient'
 import AvatarDisplay from '../../components/AvatarDisplay'
 
 const SESSION_DURATION = 90
+const GRACE_PERIOD = 5
 
 function fmt(secs) {
   const m = Math.floor(secs / 60)
@@ -12,17 +13,17 @@ function fmt(secs) {
 }
 
 function SessionHost({ school, cls, session, classPupils, onEnd }) {
-  const [view, setView] = useState('lobby') // lobby | active | results
+  const [view, setView] = useState('lobby') // lobby | active | marking | results
   const [participants, setParticipants] = useState([])
   const [timeLeft, setTimeLeft] = useState(SESSION_DURATION)
-  const [countdown, setCountdown] = useState(null) // 3,2,1 pre-start countdown
+  const [graceLeft, setGraceLeft] = useState(GRACE_PERIOD)
   const pollRef = useRef(null)
   const timerRef = useRef(null)
+  const graceRef = useRef(null)
 
   const joinUrl = `https://intuited.uk/play/${session.join_code}`
 
-  // Poll participants
-  function startPolling() {
+  function startLobbyPolling() {
     pollRef.current = setInterval(async () => {
       const { data } = await supabase.rpc('get_session_participants', { p_session_id: session.session_id })
       if (data) setParticipants(Array.isArray(data) ? data : [])
@@ -30,43 +31,54 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
   }
 
   useEffect(() => {
-    startPolling()
+    startLobbyPolling()
     return () => {
       clearInterval(pollRef.current)
       clearInterval(timerRef.current)
+      clearInterval(graceRef.current)
     }
   }, [])
 
   async function handleBegin() {
-    await supabase.rpc('start_session', { p_session_id: session.session_id })
     clearInterval(pollRef.current)
+    const { data: startedAt } = await supabase.rpc('start_session', { p_session_id: session.session_id })
+    if (!startedAt) return
 
-    // 3-2-1 countdown while DB sets started_at = now + 4s
-    let c = 3
-    setCountdown(c)
-    const cd = setInterval(() => {
-      c -= 1
-      if (c <= 0) {
-        clearInterval(cd)
-        setCountdown(null)
-        setView('active')
-        startActiveTimer()
-      } else {
-        setCountdown(c)
-      }
-    }, 1000)
+    const endTime = new Date(startedAt).getTime() + SESSION_DURATION * 1000
+
+    // Wait until started_at before showing active view
+    const msUntilStart = new Date(startedAt).getTime() - Date.now()
+    await new Promise(r => setTimeout(r, Math.max(0, msUntilStart)))
+
+    setView('active')
+    startActiveTimer(endTime)
   }
 
-  function startActiveTimer() {
-    let t = SESSION_DURATION
-    setTimeLeft(t)
-    timerRef.current = setInterval(async () => {
-      t -= 1
+  function startActiveTimer(endTime) {
+    const tick = async () => {
+      const t = Math.max(0, Math.round((endTime - Date.now()) / 1000))
       setTimeLeft(t)
+
       if (t <= 0) {
         clearInterval(timerRef.current)
         await supabase.rpc('end_session', { p_session_id: session.session_id })
-        // Final participant fetch for results
+        setView('marking')
+        startGracePeriod()
+      }
+    }
+    tick()
+    timerRef.current = setInterval(tick, 500)
+  }
+
+  function startGracePeriod() {
+    let g = GRACE_PERIOD
+    setGraceLeft(g)
+    graceRef.current = setInterval(async () => {
+      g -= 1
+      setGraceLeft(g)
+      if (g <= 0) {
+        clearInterval(graceRef.current)
+        // Final fetch of all submitted results
         const { data } = await supabase.rpc('get_session_participants', { p_session_id: session.session_id })
         if (data) setParticipants(Array.isArray(data) ? data : [])
         setView('results')
@@ -74,23 +86,12 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
     }, 1000)
   }
 
-  // Map class pupils with joined status for lobby grid
+  const joinedCount = participants.length
+  const totalPupils = classPupils.length
   const pupilsWithStatus = classPupils.map(p => ({
     ...p,
     joined: participants.some(pp => pp.pupil_id === p.id),
   }))
-
-  const joinedCount = participants.length
-  const totalPupils = classPupils.length
-
-  if (countdown !== null) {
-    return (
-      <div className="session-countdown">
-        <div className="countdown-number">{countdown}</div>
-        <p>Get ready!</p>
-      </div>
-    )
-  }
 
   if (view === 'lobby') {
     return (
@@ -104,9 +105,7 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
 
         <main className="dashboard-main" style={{ maxWidth: 720 }}>
           <section className="dashboard-section">
-            <div className="section-heading">
-              <h2>Session link</h2>
-            </div>
+            <div className="section-heading"><h2>Session link</h2></div>
             <div className="session-link-block">
               <div className="session-qr">
                 <QRCode value={joinUrl} size={140} />
@@ -114,7 +113,9 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
               <div className="session-link-info">
                 <p className="note" style={{ marginBottom: '0.5rem' }}>Pupils go to:</p>
                 <code className="session-code-display">{joinUrl.replace('https://', '')}</code>
-                <p className="note" style={{ marginTop: '0.5rem' }}>Session code: <strong>{session.join_code}</strong></p>
+                <p className="note" style={{ marginTop: '0.5rem' }}>
+                  Session code: <strong>{session.join_code}</strong>
+                </p>
               </div>
             </div>
           </section>
@@ -153,11 +154,10 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
 
     return (
       <div className="session-active">
-        <div className="session-timer" style={{ color: timeLeft <= 15 ? '#e53e3e' : undefined }}>
+        <div className="session-timer" style={{ color: timeLeft <= 15 ? '#f87171' : undefined }}>
           {fmt(timeLeft)}
         </div>
         <p className="session-active-label">Maths Challenge in progress</p>
-
         <div className="session-stats">
           <div className="stat-box">
             <div className="stat-number">{participants.length}</div>
@@ -172,6 +172,17 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
             <div className="stat-label">Correct</div>
           </div>
         </div>
+      </div>
+    )
+  }
+
+  if (view === 'marking') {
+    return (
+      <div className="session-active">
+        <div className="session-timer" style={{ fontSize: '3rem', color: '#818cf8' }}>
+          Marking your answers...
+        </div>
+        <p className="session-active-label">Results in {graceLeft}s</p>
       </div>
     )
   }
@@ -215,15 +226,17 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
             <span className="section-count">{submitted.length} submitted</span>
           </div>
           <div className="results-table">
-            {[...participants].sort((a, b) => (b.score ?? -1) - (a.score ?? -1)).map(p => (
-              <div key={p.pupil_id} className="results-row">
-                <AvatarDisplay avatar={p.avatar ?? { face: 0, hat: 0, glasses: 0, scarf: 0 }} size={36} />
-                <span className="results-name">{p.first_name} {p.last_name}</span>
-                <span className="results-score">
-                  {p.score !== null ? `${p.score} / ${p.total}` : '—'}
-                </span>
-              </div>
-            ))}
+            {[...participants]
+              .sort((a, b) => (b.score ?? -1) - (a.score ?? -1))
+              .map(p => (
+                <div key={p.pupil_id} className="results-row">
+                  <AvatarDisplay avatar={p.avatar ?? { face: 0, hat: 0, glasses: 0, scarf: 0 }} size={36} />
+                  <span className="results-name">{p.first_name} {p.last_name}</span>
+                  <span className="results-score">
+                    {p.score !== null ? `${p.score} / ${p.total}` : '—'}
+                  </span>
+                </div>
+              ))}
           </div>
         </section>
 
