@@ -45,13 +45,17 @@ export function L1_2B() {
   }
 }
 
-// 3A — Bonds to 10: "3 + ___ = 10"
+// 3A — Bonds to 10: choose two numbers from a selection that add up to 10
 export function L1_3A() {
   const a = rand(1, 9)
+  const b = 10 - a
+  const pool = new Set([a, b])
+  while (pool.size < 5) pool.add(rand(1, 9))
   return {
-    moduleType: 'numpad',
-    question: `${a} + ___ = 10`,
-    answer: String(10 - a),
+    moduleType: 'pair_sum',
+    prompt: 'Choose two numbers that add up to 10',
+    options: shuffle([...pool]),
+    target: 10,
   }
 }
 

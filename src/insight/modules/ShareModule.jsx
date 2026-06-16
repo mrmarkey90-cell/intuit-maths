@@ -48,9 +48,23 @@ function ShareModule({ question, locked, revealed, onAnswer }) {
             <div key={i} className={cls}>
               <div className="insight-share-box-sweets">{Array(count).fill('🍬').join(' ')}</div>
               <div className="insight-share-box-controls">
-                <button onClick={() => removeFrom(i)} disabled={locked || count === 0}>−</button>
-                <span>{count}</span>
-                <button onClick={() => addTo(i)} disabled={locked || remaining === 0}>+</button>
+                <button
+                  className="insight-share-btn insight-share-btn--remove"
+                  onClick={() => removeFrom(i)}
+                  disabled={locked || count === 0}
+                  aria-label="Take a sweet out"
+                >
+                  − Take
+                </button>
+                <span className="insight-share-box-count">{count}</span>
+                <button
+                  className="insight-share-btn insight-share-btn--add"
+                  onClick={() => addTo(i)}
+                  disabled={locked || remaining === 0}
+                  aria-label="Add a sweet"
+                >
+                  + Add
+                </button>
               </div>
             </div>
           )

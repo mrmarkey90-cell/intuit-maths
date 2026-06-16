@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { SUBDOMAIN_CONFIG, getActiveSubdomains, generateModuleSlots } from '../insight/domainConfig'
 import InsightModule from '../insight/InsightModule'
+import InsightResults from '../insight/InsightResults'
 
 function QuickTester() {
   const [level, setLevel] = useState(1)
@@ -52,7 +53,7 @@ function QuickTester() {
         <button onClick={reset} className="button-secondary">New question</button>
       </div>
 
-      <div style={{ width: 260, marginBottom: '1rem' }}>
+      <div style={{ width: 480, marginBottom: '1rem' }}>
         <InsightModule
           key={key}
           subdomain={subdomain}
@@ -80,19 +81,54 @@ function QuickTester() {
   )
 }
 
-function Carousel({ level }) {
+function Carousel({ level, onRestart }) {
   const [slots] = useState(() => generateModuleSlots(level))
   const [current, setCurrent] = useState(0)
   const [results, setResults] = useState({})
-  const [finalSubmitted, setFinalSubmitted] = useState(false)
-  const [revealed, setRevealed] = useState(false)
+  const [view, setView] = useState('questions') // questions | marking | results | review
 
   const total = slots.length
   const answeredCount = Object.keys(results).length
   const correctCount = Object.values(results).filter(r => r.correct).length
 
+  const locked = view !== 'questions'
+  const revealed = view === 'review'
+
+  function handleSubmit() {
+    setView('marking')
+    setTimeout(() => setView('results'), 1800)
+  }
+
+  if (view === 'marking') {
+    return (
+      <div className="session-active" style={{ minHeight: 280 }}>
+        <div className="session-timer" style={{ fontSize: '2.5rem', color: '#818cf8' }}>
+          Marking your answers...
+        </div>
+        <p className="session-active-label">One moment</p>
+      </div>
+    )
+  }
+
+  if (view === 'results') {
+    return (
+      <InsightResults
+        score={correctCount}
+        total={total}
+        onReviewMarking={() => { setCurrent(0); setView('review') }}
+        onRestart={onRestart}
+      />
+    )
+  }
+
   return (
     <div>
+      {view === 'review' && (
+        <button className="button-secondary" onClick={() => setView('results')} style={{ marginBottom: '1rem' }}>
+          ← Back to results
+        </button>
+      )}
+
       <div className="insight-carousel-nav">
         <button
           className="button-secondary"
@@ -111,13 +147,13 @@ function Carousel({ level }) {
         </button>
       </div>
 
-      <div style={{ width: 280, margin: '1rem 0' }}>
+      <div style={{ width: 560, margin: '1rem 0' }}>
         {slots.map((code, i) => (
           <div key={i} style={{ display: i === current ? 'block' : 'none' }}>
             <InsightModule
               subdomain={code}
               level={level}
-              locked={finalSubmitted}
+              locked={locked}
               revealed={revealed}
               onAnswer={result => setResults(r => ({ ...r, [i]: result }))}
             />
@@ -125,19 +161,9 @@ function Carousel({ level }) {
         ))}
       </div>
 
-      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-        {!finalSubmitted && current === total - 1 && (
-          <button onClick={() => setFinalSubmitted(true)}>
-            Submit ({answeredCount}/{total} answered)
-          </button>
-        )}
-        {finalSubmitted && !revealed && (
-          <button onClick={() => setRevealed(true)}>Reveal marking</button>
-        )}
-        {revealed && (
-          <span style={{ fontWeight: 700 }}>{correctCount} / {total} correct</span>
-        )}
-      </div>
+      {view === 'questions' && current === total - 1 && (
+        <button onClick={handleSubmit}>Submit ({answeredCount}/{total} answered)</button>
+      )}
     </div>
   )
 }
@@ -146,6 +172,11 @@ function InsightTest() {
   const [level, setLevel] = useState(1)
   const [showCarousel, setShowCarousel] = useState(false)
   const [carouselKey, setCarouselKey] = useState(0)
+
+  function startTest() {
+    setShowCarousel(true)
+    setCarouselKey(k => k + 1)
+  }
 
   return (
     <div style={{ padding: '24px', fontFamily: 'sans-serif' }}>
@@ -163,15 +194,10 @@ function InsightTest() {
         >
           {[1, 2, 3, 4, 5, 6].map(s => <option key={s} value={s}>Level {s}</option>)}
         </select>
-        <button
-          className="button-secondary"
-          onClick={() => { setShowCarousel(true); setCarouselKey(k => k + 1) }}
-        >
-          Start new test
-        </button>
+        <button className="button-secondary" onClick={startTest}>Start new test</button>
       </div>
 
-      {showCarousel && <Carousel key={carouselKey} level={level} />}
+      {showCarousel && <Carousel key={carouselKey} level={level} onRestart={startTest} />}
     </div>
   )
 }

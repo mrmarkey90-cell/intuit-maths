@@ -6,6 +6,7 @@ import CircleModule from './modules/CircleModule'
 import DragSortModule from './modules/DragSortModule'
 import NumberLineModule from './modules/NumberLineModule'
 import ShareModule from './modules/ShareModule'
+import PairSumModule from './modules/PairSumModule'
 
 const MODULE_COMPONENTS = {
   numpad: NumpadModule,
@@ -13,6 +14,7 @@ const MODULE_COMPONENTS = {
   drag_sort: DragSortModule,
   number_line: NumberLineModule,
   share: ShareModule,
+  pair_sum: PairSumModule,
 }
 
 function InsightModule({ subdomain, level, onAnswer, locked, revealed }) {
