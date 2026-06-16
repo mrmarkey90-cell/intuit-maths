@@ -1915,7 +1915,7 @@ button:hover:not(:disabled) {
   text-decoration: line-through;
 }
 
-/* Drag-sort module (tap-to-swap reordering) */
+/* Drag-sort module (real pointer-based drag) */
 
 .insight-dragsort-prompt {
   font-size: 13px;
@@ -1924,43 +1924,91 @@ button:hover:not(:disabled) {
   text-align: center;
 }
 
-.insight-dragsort-row {
-  flex: 1;
+.insight-dragsort-source {
   display: flex;
   gap: 6px;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
+  min-height: 38px;
+}
+
+.insight-dragsort-arrow-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #9ca3af;
+}
+
+.insight-dragsort-arrow {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.insight-dragsort-target-row {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+.insight-dragsort-slot {
+  width: 36px;
+  height: 36px;
+  border: 1.5px dashed #d1d5db;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fafafa;
+}
+
+.insight-dragsort-slot--correct {
+  border-color: #16a34a;
+  background: #f0fdf4;
+}
+
+.insight-dragsort-slot--wrong {
+  border-color: #dc2626;
+  background: #fef2f2;
 }
 
 .insight-dragsort-tile {
   background: #f9fafb;
   border: 1.5px solid #d1d5db;
   border-radius: 8px;
-  padding: 8px 10px;
-  font-size: 16px;
+  padding: 6px 10px;
+  font-size: 15px;
   font-weight: 700;
   color: #374151;
-  cursor: pointer;
-  min-width: 38px;
-  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
 }
 
-.insight-dragsort-tile--selected {
-  border-color: #4f46e5;
-  background: #eef2ff;
-  color: #4f46e5;
-}
-
-.insight-dragsort-tile--correct {
-  border-color: #16a34a;
-  background: #f0fdf4;
+.insight-dragsort-correct-hint {
+  font-size: 12px;
+  font-weight: 600;
   color: #16a34a;
+  text-align: center;
 }
 
-.insight-dragsort-tile--wrong {
-  border-color: #dc2626;
-  background: #fef2f2;
-  color: #dc2626;
+.insight-dragsort-ghost {
+  position: fixed;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 1100;
+  background: #4f46e5;
+  color: white;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 16px;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 /* Number line module (tap-to-place on a notch) */
@@ -2010,4 +2058,109 @@ button:hover:not(:disabled) {
   border-color: #dc2626;
   background: #fef2f2;
   color: #dc2626;
+}
+
+/* Domain colour dot on module labels */
+
+.insight-domain-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+/* Share module (6A — tap +/- to move sweets into boxes) */
+
+.insight-share-prompt {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  text-align: center;
+}
+
+.insight-share-pool {
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-size: 18px;
+  min-height: 22px;
+}
+
+.insight-share-pool-empty {
+  font-size: 12px;
+  font-weight: 600;
+  color: #16a34a;
+}
+
+.insight-share-boxes {
+  flex: 1;
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.insight-share-box {
+  background: #f9fafb;
+  border: 1.5px dashed #d1d5db;
+  border-radius: 8px;
+  padding: 4px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 44px;
+}
+
+.insight-share-box--correct {
+  border-color: #16a34a;
+  background: #f0fdf4;
+}
+
+.insight-share-box--wrong {
+  border-color: #dc2626;
+  background: #fef2f2;
+}
+
+.insight-share-box-sweets {
+  font-size: 13px;
+  min-height: 16px;
+  text-align: center;
+}
+
+.insight-share-box-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.insight-share-box-controls button {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border-radius: 5px;
+  border: 1px solid #d1d5db;
+  background: white;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* Carousel navigation (full test preview) */
+
+.insight-carousel-nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.insight-carousel-position {
+  font-weight: 600;
+  font-size: 14px;
+  color: #374151;
 }

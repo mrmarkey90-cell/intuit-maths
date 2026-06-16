@@ -1,16 +1,18 @@
 import { useState } from 'react'
-import { SUBDOMAIN_CONFIG } from './domainConfig'
+import { SUBDOMAIN_CONFIG, DOMAIN_COLORS } from './domainConfig'
 import { generateInsightQuestion } from './generators/index'
 import NumpadModule from './modules/NumpadModule'
 import CircleModule from './modules/CircleModule'
 import DragSortModule from './modules/DragSortModule'
 import NumberLineModule from './modules/NumberLineModule'
+import ShareModule from './modules/ShareModule'
 
 const MODULE_COMPONENTS = {
   numpad: NumpadModule,
   circle: CircleModule,
   drag_sort: DragSortModule,
   number_line: NumberLineModule,
+  share: ShareModule,
 }
 
 function InsightModule({ subdomain, level, onAnswer, locked, revealed }) {
@@ -29,12 +31,19 @@ function InsightModule({ subdomain, level, onAnswer, locked, revealed }) {
     revealed && answerState === 'wrong'   ? 'insight-module-card--wrong'   : '',
   ].filter(Boolean).join(' ')
 
+  const label = (
+    <span className="insight-module-label">
+      <span className="insight-domain-dot" style={{ background: DOMAIN_COLORS[config.domain] }} />
+      {subdomain} {config.label}
+    </span>
+  )
+
   const ModuleComponent = question && MODULE_COMPONENTS[question.moduleType]
 
   if (!ModuleComponent) {
     return (
       <div className={`${cardClass} insight-module-card--placeholder`}>
-        <span className="insight-module-label">{subdomain} {config.label}</span>
+        {label}
         <div className="insight-module-placeholder">Coming soon</div>
       </div>
     )
@@ -42,7 +51,7 @@ function InsightModule({ subdomain, level, onAnswer, locked, revealed }) {
 
   return (
     <div className={cardClass}>
-      <span className="insight-module-label">{subdomain} {config.label}</span>
+      {label}
       <ModuleComponent
         question={question}
         stage={level}

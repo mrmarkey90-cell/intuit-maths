@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 
-function NumberPad({ onSubmit, stage = 1, disabled = false }) {
-  const [value, setValue] = useState('')
+function NumberPad({ onSubmit, stage = 1, disabled = false, initialValue = '' }) {
+  const [value, setValue] = useState(initialValue)
   const showNegative = stage >= 5
 
   const append = useCallback((char) => {

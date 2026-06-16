@@ -1,6 +1,5 @@
 import { useState } from 'react'
 
-// Tap-to-place on a notch — more reliable than drag gestures on touch devices
 function NumberLineModule({ question, locked, revealed, onAnswer }) {
   const [selected, setSelected] = useState(null)
 
@@ -8,7 +7,7 @@ function NumberLineModule({ question, locked, revealed, onAnswer }) {
   for (let v = question.min; v <= question.max; v++) ticks.push(v)
 
   function handleTap(v) {
-    if (locked || selected !== null) return
+    if (locked) return
     setSelected(v)
     onAnswer({ correct: v === question.answer })
   }
@@ -25,7 +24,7 @@ function NumberLineModule({ question, locked, revealed, onAnswer }) {
             revealed && selected === v && v !== question.answer ? 'insight-numberline-tick--wrong' : '',
           ].filter(Boolean).join(' ')
           return (
-            <button key={v} className={cls} onClick={() => handleTap(v)} disabled={locked || selected !== null}>
+            <button key={v} className={cls} onClick={() => handleTap(v)} disabled={locked}>
               {v}
             </button>
           )

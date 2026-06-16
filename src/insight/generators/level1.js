@@ -6,14 +6,17 @@ function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
 }
 
-// 1A — Counting: "How many stars? ★★★★★"
+const COUNTING_EMOJIS = ['🐶', '🐱', '🐰', '🦋', '🐢', '🐠', '🌟', '🍎', '🚗', '⚽', '🐸', '🦄']
+
+// 1A — Counting: "How many? 🐶🐶🐶🐶🐶"
 export function L1_1A() {
   const n = rand(1, 10)
-  const row1 = Array(Math.min(n, 5)).fill('★').join(' ')
-  const row2 = n > 5 ? Array(n - 5).fill('★').join(' ') : ''
+  const emoji = COUNTING_EMOJIS[rand(0, COUNTING_EMOJIS.length - 1)]
+  const row1 = Array(Math.min(n, 5)).fill(emoji).join(' ')
+  const row2 = n > 5 ? Array(n - 5).fill(emoji).join(' ') : ''
   return {
     moduleType: 'numpad',
-    question: row2 ? `${row1}\n${row2}` : row1,
+    question: `How many?\n${row2 ? `${row1}\n${row2}` : row1}`,
     answer: String(n),
   }
 }
@@ -52,10 +55,10 @@ export function L1_3A() {
   }
 }
 
-// 4A — Subtracting by counting on: "7 - 4 = ?"
+// 4A — Subtracting by counting on: "7 - 4 = ?" (b always strictly less than a)
 export function L1_4A() {
   const a = rand(4, 10)
-  const b = rand(1, a)
+  const b = rand(1, a - 1)
   return {
     moduleType: 'numpad',
     question: `${a} − ${b}`,
@@ -63,21 +66,22 @@ export function L1_4A() {
   }
 }
 
-// 6A — Sharing: "Share 6 sweets between 2 children. How many each?"
+// 6A — Sharing: drag sweets into boxes equally
 export function L1_6A() {
-  const groups = rand(2, 5)
-  const each = rand(1, 5)
-  const total = groups * each
+  const boxes = rand(2, 5)
+  const each = rand(1, 6)
+  const totalSweets = boxes * each
   return {
-    moduleType: 'numpad',
-    question: `Share ${total} sweets between ${groups} children.\nHow many each?`,
-    answer: String(each),
+    moduleType: 'share',
+    totalSweets,
+    boxes,
+    answer: each,
   }
 }
 
-// 7A — Doubling: "Which is double 4? Circle: 2, 4, 6, 8"
+// 7A — Doubling: "Which is double 4? Circle: 2, 4, 6, 8" (kept under 10, avoids bridging)
 export function L1_7A() {
-  const n = rand(1, 10)
+  const n = rand(1, 5)
   const correct = n * 2
   const distractors = [...new Set([correct - 2, correct + 2, correct - 1, correct + 1, n])]
     .filter(v => v > 0 && v !== correct)

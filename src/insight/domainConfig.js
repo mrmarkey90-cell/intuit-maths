@@ -50,6 +50,23 @@ export const SUBDOMAIN_CONFIG = {
 
 export const MODULES_PER_TEST = 12
 
+// One accent colour per top-level domain, used on module card labels
+export const DOMAIN_COLORS = {
+  1: '#4f46e5', // Number System — indigo
+  2: '#7c3aed', // Ordering — violet
+  3: '#0ea5e9', // Addition — sky
+  4: '#06b6d4', // Subtraction — cyan
+  5: '#f59e0b', // Multiplication — amber
+  6: '#f97316', // Division — orange
+  7: '#ec4899', // Doubling & Halving — pink
+  8: '#14b8a6', // Proportionality — teal
+  9: '#c026d3', // Problem Solving — fuchsia
+}
+
+function shuffle(arr) {
+  return [...arr].sort(() => Math.random() - 0.5)
+}
+
 export function getActiveSubdomains(level) {
   return Object.entries(SUBDOMAIN_CONFIG)
     .filter(([, cfg]) => level >= cfg.minLevel && level <= cfg.maxLevel)
@@ -57,7 +74,9 @@ export function getActiveSubdomains(level) {
 }
 
 // One subdomain per domain that has content at this level (random if a domain
-// has several active subdomains), then random fill from the active pool to 12.
+// has several active subdomains), then fill to 12 — preferring subdomains not
+// already in the grid before allowing any repeats (repeats are unavoidable
+// once the active pool is smaller than 12, e.g. only 10 subdomains at Level 1).
 export function generateModuleSlots(level) {
   const active = getActiveSubdomains(level)
   const byDomain = {}
@@ -69,8 +88,15 @@ export function generateModuleSlots(level) {
   const slots = Object.values(byDomain).map(
     codes => codes[Math.floor(Math.random() * codes.length)]
   )
+  const used = new Set(slots)
+
   while (slots.length < MODULES_PER_TEST) {
-    slots.push(active[Math.floor(Math.random() * active.length)])
+    const unused = active.filter(c => !used.has(c))
+    const pick = unused.length > 0
+      ? unused[Math.floor(Math.random() * unused.length)]
+      : active[Math.floor(Math.random() * active.length)]
+    slots.push(pick)
+    used.add(pick)
   }
-  return slots
+  return shuffle(slots)
 }

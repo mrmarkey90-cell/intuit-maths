@@ -2,16 +2,13 @@ import { useEffect, useState } from 'react'
 import { SUBDOMAIN_CONFIG, getActiveSubdomains, generateModuleSlots } from '../insight/domainConfig'
 import InsightModule from '../insight/InsightModule'
 
-function InsightTest() {
+function QuickTester() {
   const [level, setLevel] = useState(1)
   const [activeSubdomains, setActiveSubdomains] = useState(() => getActiveSubdomains(1))
   const [subdomain, setSubdomain] = useState(activeSubdomains[0])
   const [key, setKey] = useState(0)
   const [answer, setAnswer] = useState(null)
   const [revealed, setRevealed] = useState(false)
-  const [gridKey, setGridKey] = useState(0)
-  const [showGrid, setShowGrid] = useState(false)
-  const [gridSlots, setGridSlots] = useState([])
 
   useEffect(() => {
     const subs = getActiveSubdomains(level)
@@ -25,14 +22,9 @@ function InsightTest() {
     setKey(k => k + 1)
   }
 
-  function newGrid() {
-    setGridSlots(generateModuleSlots(level))
-    setGridKey(k => k + 1)
-  }
-
   return (
-    <div style={{ padding: '24px', fontFamily: 'sans-serif' }}>
-      <h2 style={{ marginBottom: '1rem' }}>Insight Module Test</h2>
+    <div>
+      <h2 style={{ marginBottom: '1rem' }}>Quick Module Tester</h2>
 
       <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
         <label style={{ fontWeight: 600, fontSize: 14 }}>Level</label>
@@ -66,12 +58,12 @@ function InsightTest() {
           subdomain={subdomain}
           level={level}
           onAnswer={setAnswer}
-          locked={!!answer}
+          locked={revealed}
           revealed={revealed}
         />
       </div>
 
-      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', height: 36, marginBottom: '2rem' }}>
+      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', height: 36 }}>
         {answer && !revealed && (
           <button onClick={() => setRevealed(true)}>Reveal marking</button>
         )}
@@ -84,42 +76,102 @@ function InsightTest() {
           <button className="button-secondary" onClick={reset}>Next question</button>
         )}
       </div>
+    </div>
+  )
+}
 
-      <hr style={{ margin: '1.5rem 0', border: 'none', borderTop: '1px solid #e5e7eb' }} />
+function Carousel({ level }) {
+  const [slots] = useState(() => generateModuleSlots(level))
+  const [current, setCurrent] = useState(0)
+  const [results, setResults] = useState({})
+  const [finalSubmitted, setFinalSubmitted] = useState(false)
+  const [revealed, setRevealed] = useState(false)
 
-      <div style={{ marginBottom: '1rem' }}>
-        <button onClick={() => { setShowGrid(true); newGrid() }} className="button-secondary">
-          Preview full 12-module grid for Level {level}
+  const total = slots.length
+  const answeredCount = Object.keys(results).length
+  const correctCount = Object.values(results).filter(r => r.correct).length
+
+  return (
+    <div>
+      <div className="insight-carousel-nav">
+        <button
+          className="button-secondary"
+          onClick={() => setCurrent(c => Math.max(0, c - 1))}
+          disabled={current === 0}
+        >
+          ←
+        </button>
+        <span className="insight-carousel-position">Question {current + 1} of {total}</span>
+        <button
+          className="button-secondary"
+          onClick={() => setCurrent(c => Math.min(total - 1, c + 1))}
+          disabled={current === total - 1}
+        >
+          →
         </button>
       </div>
 
-      {showGrid && (
-        <div>
-          <div style={{ marginBottom: '0.75rem' }}>
-            <button onClick={newGrid} className="button-secondary">Reshuffle grid</button>
+      <div style={{ width: 280, margin: '1rem 0' }}>
+        {slots.map((code, i) => (
+          <div key={i} style={{ display: i === current ? 'block' : 'none' }}>
+            <InsightModule
+              subdomain={code}
+              level={level}
+              locked={finalSubmitted}
+              revealed={revealed}
+              onAnswer={result => setResults(r => ({ ...r, [i]: result }))}
+            />
           </div>
-          <div
-            key={gridKey}
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              gap: 12,
-              maxWidth: 1040,
-            }}
-          >
-            {gridSlots.map((code, i) => (
-              <InsightModule
-                key={`${gridKey}-${i}`}
-                subdomain={code}
-                level={level}
-                onAnswer={() => {}}
-                locked={false}
-                revealed={false}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+        ))}
+      </div>
+
+      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+        {!finalSubmitted && current === total - 1 && (
+          <button onClick={() => setFinalSubmitted(true)}>
+            Submit ({answeredCount}/{total} answered)
+          </button>
+        )}
+        {finalSubmitted && !revealed && (
+          <button onClick={() => setRevealed(true)}>Reveal marking</button>
+        )}
+        {revealed && (
+          <span style={{ fontWeight: 700 }}>{correctCount} / {total} correct</span>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function InsightTest() {
+  const [level, setLevel] = useState(1)
+  const [showCarousel, setShowCarousel] = useState(false)
+  const [carouselKey, setCarouselKey] = useState(0)
+
+  return (
+    <div style={{ padding: '24px', fontFamily: 'sans-serif' }}>
+      <QuickTester />
+
+      <hr style={{ margin: '2rem 0', border: 'none', borderTop: '1px solid #e5e7eb' }} />
+
+      <h2 style={{ marginBottom: '1rem' }}>Full Test Preview (one question at a time)</h2>
+      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginBottom: '1rem' }}>
+        <label style={{ fontWeight: 600, fontSize: 14 }}>Level</label>
+        <select
+          value={level}
+          onChange={e => setLevel(Number(e.target.value))}
+          style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #d1d5db' }}
+        >
+          {[1, 2, 3, 4, 5, 6].map(s => <option key={s} value={s}>Level {s}</option>)}
+        </select>
+        <button
+          className="button-secondary"
+          onClick={() => { setShowCarousel(true); setCarouselKey(k => k + 1) }}
+        >
+          Start new test
+        </button>
+      </div>
+
+      {showCarousel && <Carousel key={carouselKey} level={level} />}
     </div>
   )
 }

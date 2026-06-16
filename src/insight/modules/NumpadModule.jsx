@@ -2,18 +2,16 @@ import { useState } from 'react'
 import InsightNumpadOverlay from '../InsightNumpadOverlay'
 
 function NumpadModule({ question, stage, locked, revealed, onAnswer }) {
-  const [pupilAnswer, setPupilAnswer] = useState(null)
+  const [value, setValue] = useState(null)
   const [showOverlay, setShowOverlay] = useState(false)
 
-  const isCorrect = pupilAnswer !== null && pupilAnswer === question.answer
+  const isCorrect = value !== null && value === question.answer
 
-  function handleSubmit(value) {
-    setPupilAnswer(value)
+  function handleSubmit(v) {
+    setValue(v)
     setShowOverlay(false)
-    onAnswer({ correct: value === question.answer })
+    onAnswer({ correct: v === question.answer })
   }
-
-  const answered = pupilAnswer !== null
 
   return (
     <div className="insight-module-content">
@@ -21,24 +19,22 @@ function NumpadModule({ question, stage, locked, revealed, onAnswer }) {
         {question.question}
       </div>
 
-      {revealed && answered && !isCorrect ? (
+      {revealed && value !== null && !isCorrect ? (
         <div className="insight-answer-field insight-answer-field--wrong-revealed">
-          <span className="insight-answer-wrong-val">{pupilAnswer}</span>
+          <span className="insight-answer-wrong-val">{value}</span>
           <span className="insight-answer-correct-val">✓ {question.answer}</span>
         </div>
       ) : (
         <button
           className={[
             'insight-answer-field',
-            answered && !revealed ? 'insight-answer-field--filled' : '',
+            value !== null && !revealed ? 'insight-answer-field--filled' : '',
             revealed && isCorrect ? 'insight-answer-field--correct' : '',
           ].filter(Boolean).join(' ')}
-          onClick={() => { if (!locked && !answered) setShowOverlay(true) }}
-          disabled={locked || answered}
+          onClick={() => { if (!locked) setShowOverlay(true) }}
+          disabled={locked}
         >
-          {!answered && 'Tap to answer'}
-          {answered && !revealed && pupilAnswer}
-          {answered && revealed && isCorrect && `✓ ${pupilAnswer}`}
+          {value === null ? 'Tap to answer' : value}
         </button>
       )}
 
@@ -46,6 +42,7 @@ function NumpadModule({ question, stage, locked, revealed, onAnswer }) {
         <InsightNumpadOverlay
           question={question.question}
           stage={stage}
+          initialValue={value ?? ''}
           onSubmit={handleSubmit}
           onDismiss={() => setShowOverlay(false)}
         />

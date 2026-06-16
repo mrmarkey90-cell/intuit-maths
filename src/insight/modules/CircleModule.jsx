@@ -4,7 +4,7 @@ function CircleModule({ question, locked, revealed, onAnswer }) {
   const [selected, setSelected] = useState(null)
 
   function handleSelect(i) {
-    if (locked || selected !== null) return
+    if (locked) return
     setSelected(i)
     onAnswer({ correct: i === question.correctIndex })
   }
@@ -25,7 +25,7 @@ function CircleModule({ question, locked, revealed, onAnswer }) {
               key={i}
               className={cls}
               onClick={() => handleSelect(i)}
-              disabled={locked || selected !== null}
+              disabled={locked}
             >
               {opt}
             </button>
