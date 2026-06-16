@@ -1,18 +1,26 @@
 import { useState } from 'react'
-import { DOMAIN_CONFIG } from './domainConfig'
+import { SUBDOMAIN_CONFIG } from './domainConfig'
 import { generateInsightQuestion } from './generators/index'
 import NumpadModule from './modules/NumpadModule'
+import CircleModule from './modules/CircleModule'
+import DragSortModule from './modules/DragSortModule'
+import NumberLineModule from './modules/NumberLineModule'
 
-const IMPLEMENTED_TYPES = new Set(['numpad'])
+const MODULE_COMPONENTS = {
+  numpad: NumpadModule,
+  circle: CircleModule,
+  drag_sort: DragSortModule,
+  number_line: NumberLineModule,
+}
 
-function InsightModule({ domain, stage, onAnswer, locked, revealed }) {
-  const config = DOMAIN_CONFIG[domain] ?? { label: domain, moduleType: 'unknown', stage: 1 }
-  const [question] = useState(() => generateInsightQuestion(domain))
+function InsightModule({ subdomain, level, onAnswer, locked, revealed }) {
+  const config = SUBDOMAIN_CONFIG[subdomain] ?? { label: subdomain }
+  const [question] = useState(() => generateInsightQuestion(subdomain, level))
   const [answerState, setAnswerState] = useState(null) // null | 'correct' | 'wrong'
 
   function handleAnswer({ correct }) {
     setAnswerState(correct ? 'correct' : 'wrong')
-    onAnswer({ correct, domain })
+    onAnswer({ correct, subdomain })
   }
 
   const cardClass = [
@@ -21,10 +29,12 @@ function InsightModule({ domain, stage, onAnswer, locked, revealed }) {
     revealed && answerState === 'wrong'   ? 'insight-module-card--wrong'   : '',
   ].filter(Boolean).join(' ')
 
-  if (!question || !IMPLEMENTED_TYPES.has(config.moduleType)) {
+  const ModuleComponent = question && MODULE_COMPONENTS[question.moduleType]
+
+  if (!ModuleComponent) {
     return (
       <div className={`${cardClass} insight-module-card--placeholder`}>
-        <span className="insight-module-label">{config.label}</span>
+        <span className="insight-module-label">{subdomain} {config.label}</span>
         <div className="insight-module-placeholder">Coming soon</div>
       </div>
     )
@@ -32,16 +42,14 @@ function InsightModule({ domain, stage, onAnswer, locked, revealed }) {
 
   return (
     <div className={cardClass}>
-      <span className="insight-module-label">{config.label}</span>
-      {config.moduleType === 'numpad' && (
-        <NumpadModule
-          question={question}
-          stage={stage}
-          locked={locked}
-          revealed={revealed}
-          onAnswer={handleAnswer}
-        />
-      )}
+      <span className="insight-module-label">{subdomain} {config.label}</span>
+      <ModuleComponent
+        question={question}
+        stage={level}
+        locked={locked}
+        revealed={revealed}
+        onAnswer={handleAnswer}
+      />
     </div>
   )
 }

@@ -1,65 +1,76 @@
-export const DOMAIN_CONFIG = {
-  // Stage 1 — Early PS1
-  counting_quantity:        { label: 'Counting',              moduleType: 'numpad',          stage: 1 },
-  comparing_numbers:        { label: 'Comparing Numbers',     moduleType: 'multiple_choice', stage: 1 },
-  simple_addition:          { label: 'Addition',              moduleType: 'numpad',          stage: 1 },
-  simple_subtraction:       { label: 'Subtraction',           moduleType: 'numpad',          stage: 1 },
-  // Stage 2 — Late PS1
-  addition_20:              { label: 'Addition (to 20)',       moduleType: 'numpad',          stage: 2 },
-  subtraction_20:           { label: 'Subtraction (to 20)',    moduleType: 'numpad',          stage: 2 },
-  doubling_halving_simple:  { label: 'Doubling & Halving',    moduleType: 'numpad',          stage: 2 },
-  number_ordering:          { label: 'Number Ordering',       moduleType: 'ordering',        stage: 2 },
-  // Stage 3 — Early PS2
-  place_value_partitioning: { label: 'Place Value',           moduleType: 'partitioning',    stage: 3 },
-  addition_2digit:          { label: '2-Digit Addition',      moduleType: 'numpad',          stage: 3 },
-  subtraction_2digit:       { label: '2-Digit Subtraction',   moduleType: 'numpad',          stage: 3 },
-  multiplication_2510:      { label: 'Times Tables (2,5,10)', moduleType: 'numpad',          stage: 3 },
-  division_2510:            { label: 'Division (2,5,10)',     moduleType: 'numpad',          stage: 3 },
-  simple_fractions:         { label: 'Simple Fractions',      moduleType: 'multiple_choice', stage: 3 },
-  missing_number_simple:    { label: 'Missing Number',        moduleType: 'numpad',          stage: 3 },
-  mental_estimation:        { label: 'Estimation',            moduleType: 'multiple_choice', stage: 3 },
-  // Stage 4 — Late PS2
-  place_value_large:        { label: 'Place Value (Large)',   moduleType: 'number_line',     stage: 4 },
-  addition_3digit:          { label: '3-Digit Addition',      moduleType: 'numpad',          stage: 4 },
-  subtraction_3digit:       { label: '3-Digit Subtraction',   moduleType: 'numpad',          stage: 4 },
-  multiplication_all:       { label: 'Times Tables',          moduleType: 'numpad',          stage: 4 },
-  division_all:             { label: 'Division',              moduleType: 'numpad',          stage: 4 },
-  doubling_halving_large:   { label: 'Doubling & Halving',    moduleType: 'numpad',          stage: 4 },
-  fractions_of_amount:      { label: 'Fractions of Amount',   moduleType: 'numpad',          stage: 4 },
-  missing_number_complex:   { label: 'Missing Number',        moduleType: 'numpad',          stage: 4 },
-  // Stage 5 — Early PS3
-  large_number_arithmetic:  { label: 'Large Numbers',         moduleType: 'numpad',          stage: 5 },
-  negative_numbers:         { label: 'Negative Numbers',      moduleType: 'number_line',     stage: 5 },
-  decimal_operations:       { label: 'Decimal Operations',    moduleType: 'numpad',          stage: 5 },
-  fraction_operations:      { label: 'Fraction Operations',   moduleType: 'multiple_choice', stage: 5 },
-  powers_of_10:             { label: 'Powers of 10',          moduleType: 'numpad',          stage: 5 },
-  percentage_simple:        { label: 'Percentages',           moduleType: 'numpad',          stage: 5 },
-  ratio_proportion_simple:  { label: 'Ratio & Proportion',    moduleType: 'numpad',          stage: 5 },
-  // Stage 6 — Late PS3
-  fdp_equivalence:          { label: 'FDP Equivalence',       moduleType: 'multiple_choice', stage: 6 },
-  percentage_complex:       { label: 'Complex Percentages',   moduleType: 'numpad',          stage: 6 },
-  multi_step:               { label: 'Multi-Step',            moduleType: 'numpad',          stage: 6 },
-  negative_operations:      { label: 'Negatives',             moduleType: 'numpad',          stage: 6 },
-  decimal_mult_div:         { label: 'Decimal ×÷',            moduleType: 'numpad',          stage: 6 },
-  large_number_mult_div:    { label: 'Large Number ×÷',       moduleType: 'numpad',          stage: 6 },
-  ratio_proportion_complex: { label: 'Ratio & Proportion',    moduleType: 'numpad',          stage: 6 },
+// Curriculum source: "intuit question examples" Google Sheet
+// 9 domains, 36 subdomains, each active across a contiguous level range (1-6)
+
+export const SUBDOMAIN_CONFIG = {
+  '1A': { domain: 1, domainName: 'Number System', label: 'Counting',             minLevel: 1, maxLevel: 4 },
+  '1B': { domain: 1, domainName: 'Number System', label: 'Partitioning',         minLevel: 2, maxLevel: 5 },
+  '1C': { domain: 1, domainName: 'Number System', label: 'Decimals',             minLevel: 4, maxLevel: 5 },
+  '1D': { domain: 1, domainName: 'Number System', label: 'Negatives',            minLevel: 5, maxLevel: 6 },
+  '1E': { domain: 1, domainName: 'Number System', label: 'Even / Odd',           minLevel: 2, maxLevel: 4 },
+  '1F': { domain: 1, domainName: 'Number System', label: 'Multiples',            minLevel: 3, maxLevel: 6 },
+  '1G': { domain: 1, domainName: 'Number System', label: 'Factors',              minLevel: 3, maxLevel: 6 },
+  '1H': { domain: 1, domainName: 'Number System', label: 'Primes',               minLevel: 5, maxLevel: 6 },
+
+  '2A': { domain: 2, domainName: 'Ordering',       label: 'Sequencing',          minLevel: 1, maxLevel: 6 },
+  '2B': { domain: 2, domainName: 'Ordering',       label: 'Comparing',           minLevel: 1, maxLevel: 6 },
+  '2C': { domain: 2, domainName: 'Ordering',       label: 'Rounding',            minLevel: 2, maxLevel: 6 },
+
+  '3A': { domain: 3, domainName: 'Addition',       label: 'Bonds to 10',         minLevel: 1, maxLevel: 2 },
+  '3B': { domain: 3, domainName: 'Addition',       label: 'Bridging 10',         minLevel: 2, maxLevel: 4 },
+  '3C': { domain: 3, domainName: 'Addition',       label: 'Column Addition',     minLevel: 3, maxLevel: 6 },
+  '3D': { domain: 3, domainName: 'Addition',       label: 'Column w/ Decimals',  minLevel: 5, maxLevel: 6 },
+
+  '4A': { domain: 4, domainName: 'Subtraction',    label: 'Counting On',         minLevel: 1, maxLevel: 3 },
+  '4B': { domain: 4, domainName: 'Subtraction',    label: 'Column Subtraction',  minLevel: 3, maxLevel: 6 },
+  '4C': { domain: 4, domainName: 'Subtraction',    label: 'Column w/ Borrowing', minLevel: 4, maxLevel: 6 },
+  '4D': { domain: 4, domainName: 'Subtraction',    label: 'Decimals',            minLevel: 5, maxLevel: 6 },
+
+  '5A': { domain: 5, domainName: 'Multiplication', label: 'Times Tables',        minLevel: 2, maxLevel: 6 },
+  '5B': { domain: 5, domainName: 'Multiplication', label: 'Larger Numbers',      minLevel: 4, maxLevel: 6 },
+  '5C': { domain: 5, domainName: 'Multiplication', label: 'By Partition',        minLevel: 4, maxLevel: 6 },
+  '5D': { domain: 5, domainName: 'Multiplication', label: 'Decimals',            minLevel: 5, maxLevel: 6 },
+
+  '6A': { domain: 6, domainName: 'Division',       label: 'Sharing',             minLevel: 1, maxLevel: 3 },
+  '6B': { domain: 6, domainName: 'Division',       label: 'Grouping',            minLevel: 2, maxLevel: 4 },
+  '6C': { domain: 6, domainName: 'Division',       label: 'Multiple Digits',     minLevel: 4, maxLevel: 6 },
+  '6D': { domain: 6, domainName: 'Division',       label: 'Decimals',            minLevel: 5, maxLevel: 6 },
+
+  '7A': { domain: 7, domainName: 'Doubling & Halving', label: 'Doubling',        minLevel: 1, maxLevel: 6 },
+  '7B': { domain: 7, domainName: 'Doubling & Halving', label: 'Halving',         minLevel: 1, maxLevel: 6 },
+
+  '8A': { domain: 8, domainName: 'Proportionality', label: 'Fractions',         minLevel: 2, maxLevel: 6 },
+  '8B': { domain: 8, domainName: 'Proportionality', label: 'Ratios',            minLevel: 4, maxLevel: 6 },
+  '8C': { domain: 8, domainName: 'Proportionality', label: 'Percentages',       minLevel: 4, maxLevel: 6 },
+  '8D': { domain: 8, domainName: 'Proportionality', label: 'Conversions',       minLevel: 5, maxLevel: 6 },
+
+  '9A': { domain: 9, domainName: 'Problem Solving', label: 'Missing Numbers',    minLevel: 1, maxLevel: 6 },
+  '9B': { domain: 9, domainName: 'Problem Solving', label: 'Multi-Step Problems',minLevel: 3, maxLevel: 6 },
+  '9C': { domain: 9, domainName: 'Problem Solving', label: 'Patterns',           minLevel: 1, maxLevel: 6 },
 }
 
-export const DOMAINS_BY_STAGE = {
-  1: ['counting_quantity', 'comparing_numbers', 'simple_addition', 'simple_subtraction'],
-  2: ['addition_20', 'subtraction_20', 'doubling_halving_simple', 'number_ordering'],
-  3: ['place_value_partitioning', 'addition_2digit', 'subtraction_2digit', 'multiplication_2510', 'division_2510', 'simple_fractions', 'missing_number_simple', 'mental_estimation'],
-  4: ['place_value_large', 'addition_3digit', 'subtraction_3digit', 'multiplication_all', 'division_all', 'doubling_halving_large', 'fractions_of_amount', 'missing_number_complex'],
-  5: ['large_number_arithmetic', 'negative_numbers', 'decimal_operations', 'fraction_operations', 'powers_of_10', 'percentage_simple', 'ratio_proportion_simple'],
-  6: ['fdp_equivalence', 'percentage_complex', 'multi_step', 'negative_operations', 'decimal_mult_div', 'large_number_mult_div', 'ratio_proportion_complex'],
+export const MODULES_PER_TEST = 12
+
+export function getActiveSubdomains(level) {
+  return Object.entries(SUBDOMAIN_CONFIG)
+    .filter(([, cfg]) => level >= cfg.minLevel && level <= cfg.maxLevel)
+    .map(([code]) => code)
 }
 
-// Build 9 module slots for a stage: one per domain, repeats fill to 9
-export function generateModuleSlots(stage) {
-  const domains = DOMAINS_BY_STAGE[stage] ?? DOMAINS_BY_STAGE[1]
-  const slots = [...domains]
-  while (slots.length < 9) {
-    slots.push(domains[Math.floor(Math.random() * domains.length)])
+// One subdomain per domain that has content at this level (random if a domain
+// has several active subdomains), then random fill from the active pool to 12.
+export function generateModuleSlots(level) {
+  const active = getActiveSubdomains(level)
+  const byDomain = {}
+  for (const code of active) {
+    const d = SUBDOMAIN_CONFIG[code].domain
+    ;(byDomain[d] ??= []).push(code)
+  }
+
+  const slots = Object.values(byDomain).map(
+    codes => codes[Math.floor(Math.random() * codes.length)]
+  )
+  while (slots.length < MODULES_PER_TEST) {
+    slots.push(active[Math.floor(Math.random() * active.length)])
   }
   return slots
 }

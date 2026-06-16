@@ -1,15 +1,23 @@
-import { useState } from 'react'
-import { DOMAIN_CONFIG } from '../insight/domainConfig'
+import { useEffect, useState } from 'react'
+import { SUBDOMAIN_CONFIG, getActiveSubdomains, generateModuleSlots } from '../insight/domainConfig'
 import InsightModule from '../insight/InsightModule'
 
-const ALL_DOMAINS = Object.keys(DOMAIN_CONFIG)
-
 function InsightTest() {
-  const [domain, setDomain] = useState('simple_addition')
-  const [stage, setStage] = useState(1)
+  const [level, setLevel] = useState(1)
+  const [activeSubdomains, setActiveSubdomains] = useState(() => getActiveSubdomains(1))
+  const [subdomain, setSubdomain] = useState(activeSubdomains[0])
   const [key, setKey] = useState(0)
   const [answer, setAnswer] = useState(null)
   const [revealed, setRevealed] = useState(false)
+  const [gridKey, setGridKey] = useState(0)
+  const [showGrid, setShowGrid] = useState(false)
+  const [gridSlots, setGridSlots] = useState([])
+
+  useEffect(() => {
+    const subs = getActiveSubdomains(level)
+    setActiveSubdomains(subs)
+    if (!subs.includes(subdomain)) setSubdomain(subs[0])
+  }, [level]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function reset() {
     setAnswer(null)
@@ -17,14 +25,9 @@ function InsightTest() {
     setKey(k => k + 1)
   }
 
-  function handleDomainChange(d) {
-    setDomain(d)
-    reset()
-  }
-
-  function handleStageChange(s) {
-    setStage(Number(s))
-    reset()
+  function newGrid() {
+    setGridSlots(generateModuleSlots(level))
+    setGridKey(k => k + 1)
   }
 
   return (
@@ -32,46 +35,43 @@ function InsightTest() {
       <h2 style={{ marginBottom: '1rem' }}>Insight Module Test</h2>
 
       <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
-        <label style={{ fontWeight: 600, fontSize: 14 }}>Domain</label>
+        <label style={{ fontWeight: 600, fontSize: 14 }}>Level</label>
         <select
-          value={domain}
-          onChange={e => handleDomainChange(e.target.value)}
+          value={level}
+          onChange={e => setLevel(Number(e.target.value))}
           style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #d1d5db' }}
         >
-          {ALL_DOMAINS.map(d => (
-            <option key={d} value={d}>
-              {DOMAIN_CONFIG[d].label} — Stage {DOMAIN_CONFIG[d].stage}
-            </option>
-          ))}
+          {[1, 2, 3, 4, 5, 6].map(s => <option key={s} value={s}>Level {s}</option>)}
         </select>
 
-        <label style={{ fontWeight: 600, fontSize: 14 }}>Stage</label>
+        <label style={{ fontWeight: 600, fontSize: 14 }}>Subdomain</label>
         <select
-          value={stage}
-          onChange={e => handleStageChange(e.target.value)}
+          value={subdomain}
+          onChange={e => { setSubdomain(e.target.value); reset() }}
           style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #d1d5db' }}
         >
-          {[1, 2, 3, 4, 5, 6].map(s => (
-            <option key={s} value={s}>Stage {s}</option>
+          {activeSubdomains.map(code => (
+            <option key={code} value={code}>
+              {code} — {SUBDOMAIN_CONFIG[code].domainName} / {SUBDOMAIN_CONFIG[code].label}
+            </option>
           ))}
         </select>
 
         <button onClick={reset} className="button-secondary">New question</button>
       </div>
 
-      {/* Module at its real card size */}
-      <div style={{ width: 320, marginBottom: '1rem' }}>
+      <div style={{ width: 260, marginBottom: '1rem' }}>
         <InsightModule
           key={key}
-          domain={domain}
-          stage={stage}
+          subdomain={subdomain}
+          level={level}
           onAnswer={setAnswer}
           locked={!!answer}
           revealed={revealed}
         />
       </div>
 
-      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', height: 36 }}>
+      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', height: 36, marginBottom: '2rem' }}>
         {answer && !revealed && (
           <button onClick={() => setRevealed(true)}>Reveal marking</button>
         )}
@@ -84,6 +84,42 @@ function InsightTest() {
           <button className="button-secondary" onClick={reset}>Next question</button>
         )}
       </div>
+
+      <hr style={{ margin: '1.5rem 0', border: 'none', borderTop: '1px solid #e5e7eb' }} />
+
+      <div style={{ marginBottom: '1rem' }}>
+        <button onClick={() => { setShowGrid(true); newGrid() }} className="button-secondary">
+          Preview full 12-module grid for Level {level}
+        </button>
+      </div>
+
+      {showGrid && (
+        <div>
+          <div style={{ marginBottom: '0.75rem' }}>
+            <button onClick={newGrid} className="button-secondary">Reshuffle grid</button>
+          </div>
+          <div
+            key={gridKey}
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: 12,
+              maxWidth: 1040,
+            }}
+          >
+            {gridSlots.map((code, i) => (
+              <InsightModule
+                key={`${gridKey}-${i}`}
+                subdomain={code}
+                level={level}
+                onAnswer={() => {}}
+                locked={false}
+                revealed={false}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

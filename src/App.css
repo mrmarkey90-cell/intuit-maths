@@ -1860,3 +1860,154 @@ button:hover:not(:disabled) {
   padding-bottom: 12px;
   border-bottom: 1px solid #f3f4f6;
 }
+
+/* Circle module (tap-one-of-N) */
+
+.insight-circle-prompt {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1f2937;
+  text-align: center;
+}
+
+.insight-circle-options {
+  flex: 1;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.insight-circle-option {
+  background: #f9fafb;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #374151;
+  cursor: pointer;
+  min-width: 44px;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.insight-circle-option:hover:not(:disabled) {
+  border-color: #4f46e5;
+}
+
+.insight-circle-option--selected {
+  border-color: #6b7280;
+  background: white;
+  color: #1f2937;
+}
+
+.insight-circle-option--correct {
+  border-color: #16a34a;
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.insight-circle-option--wrong {
+  border-color: #dc2626;
+  background: #fef2f2;
+  color: #dc2626;
+  text-decoration: line-through;
+}
+
+/* Drag-sort module (tap-to-swap reordering) */
+
+.insight-dragsort-prompt {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  text-align: center;
+}
+
+.insight-dragsort-row {
+  flex: 1;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+}
+
+.insight-dragsort-tile {
+  background: #f9fafb;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #374151;
+  cursor: pointer;
+  min-width: 38px;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.insight-dragsort-tile--selected {
+  border-color: #4f46e5;
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+.insight-dragsort-tile--correct {
+  border-color: #16a34a;
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.insight-dragsort-tile--wrong {
+  border-color: #dc2626;
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* Number line module (tap-to-place on a notch) */
+
+.insight-numberline-prompt {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1f2937;
+  text-align: center;
+}
+
+.insight-numberline-track {
+  flex: 1;
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.insight-numberline-tick {
+  background: #f9fafb;
+  border: 1.5px solid #d1d5db;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  min-width: 28px;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.insight-numberline-tick--selected {
+  border-color: #6b7280;
+  background: white;
+  color: #1f2937;
+}
+
+.insight-numberline-tick--correct {
+  border-color: #16a34a;
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.insight-numberline-tick--wrong {
+  border-color: #dc2626;
+  background: #fef2f2;
+  color: #dc2626;
+}

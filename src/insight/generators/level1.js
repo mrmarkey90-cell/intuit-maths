@@ -1,0 +1,127 @@
+function rand(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
+function shuffle(arr) {
+  return [...arr].sort(() => Math.random() - 0.5)
+}
+
+// 1A — Counting: "How many stars? ★★★★★"
+export function L1_1A() {
+  const n = rand(1, 10)
+  const row1 = Array(Math.min(n, 5)).fill('★').join(' ')
+  const row2 = n > 5 ? Array(n - 5).fill('★').join(' ') : ''
+  return {
+    moduleType: 'numpad',
+    question: row2 ? `${row1}\n${row2}` : row1,
+    answer: String(n),
+  }
+}
+
+// 2A — Sequencing: drag smallest to largest
+export function L1_2A() {
+  const vals = new Set()
+  while (vals.size < 4) vals.add(rand(1, 20))
+  return {
+    moduleType: 'drag_sort',
+    prompt: 'Drag smallest to largest',
+    values: [...vals],
+  }
+}
+
+// 2B — Comparing: "Which is bigger: 3 or 7?"
+export function L1_2B() {
+  let a = rand(1, 20)
+  let b = rand(1, 20)
+  while (a === b) b = rand(1, 20)
+  return {
+    moduleType: 'circle',
+    prompt: 'Which is bigger?',
+    options: [String(a), String(b)],
+    correctIndex: a > b ? 0 : 1,
+  }
+}
+
+// 3A — Bonds to 10: "3 + ___ = 10"
+export function L1_3A() {
+  const a = rand(1, 9)
+  return {
+    moduleType: 'numpad',
+    question: `${a} + ___ = 10`,
+    answer: String(10 - a),
+  }
+}
+
+// 4A — Subtracting by counting on: "7 - 4 = ?"
+export function L1_4A() {
+  const a = rand(4, 10)
+  const b = rand(1, a)
+  return {
+    moduleType: 'numpad',
+    question: `${a} − ${b}`,
+    answer: String(a - b),
+  }
+}
+
+// 6A — Sharing: "Share 6 sweets between 2 children. How many each?"
+export function L1_6A() {
+  const groups = rand(2, 5)
+  const each = rand(1, 5)
+  const total = groups * each
+  return {
+    moduleType: 'numpad',
+    question: `Share ${total} sweets between ${groups} children.\nHow many each?`,
+    answer: String(each),
+  }
+}
+
+// 7A — Doubling: "Which is double 4? Circle: 2, 4, 6, 8"
+export function L1_7A() {
+  const n = rand(1, 10)
+  const correct = n * 2
+  const distractors = [...new Set([correct - 2, correct + 2, correct - 1, correct + 1, n])]
+    .filter(v => v > 0 && v !== correct)
+  const options = shuffle([correct, ...shuffle(distractors).slice(0, 3)]).map(String)
+  return {
+    moduleType: 'circle',
+    prompt: `Which is double ${n}?`,
+    options,
+    correctIndex: options.indexOf(String(correct)),
+  }
+}
+
+// 7B — Halving: drag arrow on number line (0–10): "Half of 8 = ?"
+export function L1_7B() {
+  const half = rand(1, 5)
+  const n = half * 2
+  return {
+    moduleType: 'number_line',
+    prompt: `Half of ${n} = ?`,
+    min: 0,
+    max: 10,
+    answer: half,
+  }
+}
+
+// 9A — Missing numbers: "___ + 3 = 7"
+export function L1_9A() {
+  const b = rand(1, 9)
+  const total = rand(b + 1, 10)
+  return {
+    moduleType: 'numpad',
+    question: `___ + ${b} = ${total}`,
+    answer: String(total - b),
+  }
+}
+
+// 9C — Patterns: "2, 4, 6, ___, 10"
+export function L1_9C() {
+  const step = rand(1, 3) * 2
+  const start = rand(1, 4) * 2
+  const seq = [start, start + step, start + 2 * step, null, start + 4 * step]
+  return {
+    moduleType: 'numpad',
+    question: seq.map(v => (v === null ? '___' : v)).join(', '),
+    answer: String(start + 3 * step),
+  }
+}
