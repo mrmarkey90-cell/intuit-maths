@@ -74,7 +74,7 @@ Admin support: `SELECT admin_reset_staff_pin('SCHOOLCODE');` resets staff PIN to
 
 ## Challenge session model
 
-- **Class Challenge** — teacher-initiated, once per week per class (resets Sunday). 60-second timer. Awards 10 credits per correct answer (2 base × 5x weekly multiplier).
+- **Instinct** — teacher-initiated, once per week per class (resets Sunday). 60-second timer. Awards 10 credits per correct answer (2 base × 5x weekly multiplier). Stored in DB as `challenge_type = 'challenge'`.
 - **Practice** — pupil self-initiated (not yet built). Awards 1 credit per correct answer.
 - Session join code: 6-char alphanumeric, generated fresh per session. Displayed as URL + QR code in lobby.
 - Timer: both teacher and pupil derive remaining time from `sessions.started_at` (absolute timestamp set 4 seconds in future when teacher clicks Begin, giving all clients time to sync).
@@ -229,11 +229,11 @@ id (uuid PK), attempt_id (FK), domain (text), subdomain (text), correct (bool)
 - **Leadership — Pupil Detail** — challenge history, Test Level, streak, credits, move class dropdown, delete pupil
 - **Ownership transfer** — `initiate_transfer` + `supabase.auth.signInWithOtp`; `complete_transfer` auto-fires in App.jsx when new auth session has no public.users row
 - Staff login — `/school/[code]` → PIN entry → class selection → class dashboard
-- Class dashboard — pupil list with levels + click-through to pupil detail, profile creator link, Start Class Challenge button
+- Class dashboard — pupil list with levels + click-through to pupil detail, profile creator link, Start Instinct button
 - Pupil detail view — challenge history, Test Level, streak progress (teacher-accessible)
 - Pupil profile creation — `/join/[code]` → name + avatar builder → profile saved
-- **Class Challenge session (teacher side)** — lobby with QR code + pupil ready grid, real-time answered count via Broadcast + ping sound, 5s marking grace period, results with class aggregate + comparison vs last session
-- **Class Challenge session (pupil side)** — `/play/[code]` → profile select → lobby wait → 60s question flow with numpad + skip → results with Test Level badge, streak dots, credits earned, comparison vs last time
+- **Instinct session (teacher side)** — lobby with QR code + pupil ready grid, real-time answered count via Broadcast + ping sound, 5s marking grace period, results with class aggregate + comparison vs last session
+- **Instinct session (pupil side)** — `/play/[code]` → profile select → lobby wait → 60s question flow with numpad + skip → results with Test Level badge, streak dots, credits earned, comparison vs last time
 - **FloatingLogos** — 12 bouncing logo instances (RAF physics, direct DOM mutation) behind all leadership screens; logo at `public/intuit-logo.svg`
 
 ### Not yet built
