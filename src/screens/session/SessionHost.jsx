@@ -29,6 +29,13 @@ function playPing() {
 }
 
 function SessionHost({ school, cls, session, classPupils, onEnd }) {
+  const [cancelling, setCancelling] = useState(false)
+
+  async function handleCancel() {
+    setCancelling(true)
+    await supabase.rpc('end_session', { p_session_id: session.session_id })
+    onEnd()
+  }
   const [view, setView] = useState('lobby') // lobby | active | marking | results
   const [participants, setParticipants] = useState([])
   // pupil_id → participant row, updated in real-time during active phase
@@ -150,6 +157,9 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
             <h1>Instinct — Lobby</h1>
             <span className="tier-badge">{cls.name}</span>
           </div>
+          <button className="button-secondary" onClick={handleCancel} disabled={cancelling}>
+            {cancelling ? 'Cancelling...' : 'Cancel session'}
+          </button>
         </header>
 
         <main className="dashboard-main" style={{ maxWidth: 720 }}>

@@ -6,10 +6,12 @@ import PupilDetail from './PupilDetail'
 
 function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
   const [view, setView] = useState('main')
-  const [session, setSession] = useState(null)
+  const [session, setSession] = useState(null)       // actively shown in SessionHost
+  const [activeSession, setActiveSession] = useState(null) // in DB but not yet resumed
   const [weeklyUsed, setWeeklyUsed] = useState(false)
   const [classPupils, setClassPupils] = useState([])
   const [starting, setStarting] = useState(false)
+  const [cancelling, setCancelling] = useState(false)
   const [selectedPupil, setSelectedPupil] = useState(null)
   const [hubCopied, setHubCopied] = useState(false)
   const [profileCopied, setProfileCopied] = useState(false)
@@ -23,7 +25,7 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
     supabase.rpc('get_class_session_status', { p_class_id: cls.id }).then(({ data }) => {
       if (!data) return
       setWeeklyUsed(data.weekly_used)
-      if (data.active_session) setSession(data.active_session)
+      if (data.active_session) setActiveSession(data.active_session)
     })
     loadPupils()
   }, [cls.id, cls.join_code])
@@ -44,6 +46,14 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
     await navigator.clipboard.writeText(profileUrl)
     setProfileCopied(true)
     setTimeout(() => setProfileCopied(false), 2000)
+  }
+
+  async function cancelSession() {
+    if (!activeSession) return
+    setCancelling(true)
+    await supabase.rpc('end_session', { p_session_id: activeSession.session_id })
+    setActiveSession(null)
+    setCancelling(false)
   }
 
   async function startChallenge() {
@@ -68,7 +78,7 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
         cls={cls}
         session={session}
         classPupils={classPupils}
-        onEnd={() => setSession(null)}
+        onEnd={() => { setSession(null); setActiveSession(null) }}
       />
     )
   }
@@ -193,23 +203,43 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
         <div className="dashboard-brand">intuit</div>
         <div className="dashboard-tiles">
 
-          <div className={`dashboard-tile dashboard-tile--instinct${weeklyUsed ? ' dashboard-tile--instinct-done' : ''}`}>
+          <div className={`dashboard-tile dashboard-tile--instinct${weeklyUsed && !activeSession ? ' dashboard-tile--instinct-done' : ''}`}>
             <div className="instinct-tile-content">
               <div>
                 <div className="instinct-tile-title">⚡ Instinct</div>
                 <div className="instinct-tile-sub">
-                  {weeklyUsed
-                    ? 'Completed this week — resets Sunday'
-                    : '60-second whole-class arithmetic challenge'}
+                  {activeSession
+                    ? 'A session is waiting — resume or cancel it'
+                    : weeklyUsed
+                      ? 'Completed this week — resets Sunday'
+                      : '60-second whole-class arithmetic challenge'}
                 </div>
               </div>
-              <button
-                className="instinct-start-btn"
-                onClick={startChallenge}
-                disabled={weeklyUsed || starting}
-              >
-                {starting ? 'Setting up...' : weeklyUsed ? 'Done this week ✓' : 'Start Instinct'}
-              </button>
+              {activeSession ? (
+                <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+                  <button
+                    className="instinct-start-btn"
+                    onClick={() => setSession(activeSession)}
+                  >
+                    Resume
+                  </button>
+                  <button
+                    className="instinct-cancel-btn"
+                    onClick={cancelSession}
+                    disabled={cancelling}
+                  >
+                    {cancelling ? '...' : 'Cancel'}
+                  </button>
+                </div>
+              ) : (
+                <button
+                  className="instinct-start-btn"
+                  onClick={startChallenge}
+                  disabled={weeklyUsed || starting}
+                >
+                  {starting ? 'Setting up...' : weeklyUsed ? 'Done this week ✓' : 'Start Instinct'}
+                </button>
+              )}
             </div>
           </div>
 
