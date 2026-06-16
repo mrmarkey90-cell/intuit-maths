@@ -36,6 +36,15 @@ function PupilHub() {
       if (!info) { setView('error'); return }
       setClassInfo(info)
       setPupils(pupilList ?? [])
+
+      // Returning from practice in the same browser session — skip re-selection
+      const storedId = sessionStorage.getItem(`hub_pupil_${joinCode}`)
+      if (storedId) {
+        const { data } = await supabase.rpc('get_pupil_history', { p_pupil_id: storedId })
+        if (data?.pupil) { setPupil(data.pupil); setView('hub'); return }
+        sessionStorage.removeItem(`hub_pupil_${joinCode}`)
+      }
+
       setView('select')
     }
     init()
@@ -45,6 +54,7 @@ function PupilHub() {
     const { data } = await supabase.rpc('get_pupil_history', { p_pupil_id: p.id })
     if (!data?.pupil) { setView('error'); return }
     setPupil(data.pupil)
+    sessionStorage.setItem(`hub_pupil_${joinCode}`, p.id)
     setView('hub')
   }
 
@@ -154,6 +164,18 @@ function PupilHub() {
           disabled={practicing}
         >
           {practicing ? 'Starting...' : 'Practice Instinct →'}
+        </button>
+
+        <button
+          className="button-secondary"
+          style={{ marginTop: '1.5rem' }}
+          onClick={() => {
+            sessionStorage.removeItem(`hub_pupil_${joinCode}`)
+            setPupil(null)
+            setView('select')
+          }}
+        >
+          Not {pupil.first_name}? Sign out
         </button>
       </div>
     )

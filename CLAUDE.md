@@ -162,7 +162,7 @@ id (uuid PK), session_id (FK), pupil_id (FK → pupil_profiles.id), ready (bool)
 - Has anon SELECT RLS policy (required for Realtime; data not sensitive)
 
 ### attempts
-id (uuid PK), session_id (FK), pupil_id (FK → pupil_profiles.id — NOT users.id), activity_type (challenge/practice), stage (int), score (int), total (int), completed_at
+id (uuid PK), session_id (FK), pupil_id (FK → pupil_profiles.id — NOT users.id), activity_type (challenge/practice/lesson/game), stage (int), score (int), total (int), completed_at
 
 ### domain_results
 id (uuid PK), attempt_id (FK), domain (text), subdomain (text), correct (bool)

@@ -107,17 +107,37 @@ function StaffApp() {
   const [staffClass, setStaffClass] = useState(null)
 
   if (!staffSchool) return (
-    <StaffLogin
-      onSuccess={school => {
-        localStorage.setItem('staffSession', JSON.stringify(school))
-        setStaffSchool(school)
-      }}
-    />
+    <>
+      <FloatingLogos />
+      <StaffLogin
+        onSuccess={school => {
+          localStorage.setItem('staffSession', JSON.stringify(school))
+          setStaffSchool(school)
+        }}
+      />
+    </>
   )
   if (!staffClass) return (
-    <StaffClassSelect school={staffSchool} onSelect={setStaffClass} />
+    <>
+      <FloatingLogos />
+      <StaffClassSelect school={staffSchool} onSelect={setStaffClass} />
+    </>
   )
-  return <StaffClassDashboard school={staffSchool} cls={staffClass} />
+  return (
+    <>
+      <FloatingLogos />
+      <StaffClassDashboard
+        school={staffSchool}
+        cls={staffClass}
+        onChangeClass={() => setStaffClass(null)}
+        onSignOut={() => {
+          localStorage.removeItem('staffSession')
+          setStaffSchool(null)
+          setStaffClass(null)
+        }}
+      />
+    </>
+  )
 }
 
 function App() {

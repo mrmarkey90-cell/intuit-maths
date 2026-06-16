@@ -99,48 +99,114 @@ function ScoreChart({ attempts }) {
   )
 }
 
-function PupilDetail({ pupilId, onBack }) {
+function PupilDetail({ pupilId, onBack, onLevelChanged }) {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [overrideInstinct, setOverrideInstinct] = useState(1)
+  const [overrideInsight, setOverrideInsight] = useState(1)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
 
-  useEffect(() => {
-    supabase.rpc('get_pupil_history', { p_pupil_id: pupilId }).then(({ data: result }) => {
-      setData(result)
-      setLoading(false)
+  async function loadData() {
+    const { data: result } = await supabase.rpc('get_pupil_history', { p_pupil_id: pupilId })
+    setData(result)
+    if (result?.pupil) {
+      setOverrideInstinct(result.pupil.instinct_level ?? 1)
+      setOverrideInsight(result.pupil.insight_level ?? 1)
+    }
+    setLoading(false)
+  }
+
+  useEffect(() => { loadData() }, [pupilId])
+
+  async function saveLevels() {
+    setSaving(true)
+    await supabase.rpc('set_pupil_levels', {
+      p_pupil_id: pupilId,
+      p_instinct_level: overrideInstinct,
+      p_insight_level: overrideInsight,
     })
-  }, [pupilId])
+    setSaving(false)
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2500)
+    onLevelChanged?.()
+    loadData()
+  }
 
   if (loading) return <div className="dashboard"><main className="dashboard-main"><p>Loading...</p></main></div>
   if (!data?.pupil) return <div className="dashboard"><main className="dashboard-main"><p>Pupil not found.</p></main></div>
 
   const { pupil, attempts } = data
-  const stage = pupil.instinct_level ?? 1
+  const instinctLevel = pupil.instinct_level ?? 1
+  const insightLevel = pupil.insight_level ?? 1
+  const streak = pupil.challenge_streak ?? 0
 
   return (
     <div className="dashboard">
       <header className="dashboard-header">
         <div className="dashboard-header-left">
           <h1>{pupil.first_name} {pupil.last_name}</h1>
-          <span className="tier-badge">Test Level {stage}</span>
         </div>
         <button className="button-secondary" onClick={onBack}>← Back</button>
       </header>
 
       <main className="dashboard-main" style={{ maxWidth: 640 }}>
         <section className="dashboard-section">
-          <div className="section-heading"><h2>Level progress</h2></div>
-          <div className="pupil-detail-level">
-            <div className="stat-box">
-              <div className="stat-number">{stage}</div>
-              <div className="stat-label">Test Level</div>
-            </div>
-            <div style={{ flex: 1 }}>
-              <p className="note" style={{ marginBottom: '0.5rem' }}>Progress to Level {stage + 1}</p>
-              <StreakDots streak={pupil.challenge_streak ?? 0} />
-              <p className="note" style={{ marginTop: '0.5rem' }}>
-                3 successful Instinct sessions in a row (10+ correct) advances to the next level
+          <div className="section-heading"><h2>Levels</h2></div>
+          <div className="pupil-detail-levels">
+            <div className="pupil-detail-level-block pupil-detail-level-block--instinct">
+              <div className="level-block-header">
+                <span className="level-block-label">Instinct</span>
+                <span className="level-block-number">{instinctLevel}</span>
+              </div>
+              <StreakDots streak={streak} />
+              <p className="note" style={{ marginTop: '0.25rem' }}>
+                {streak > 0 ? `${streak}/3` : '0/3'} towards Level {instinctLevel + 1}
               </p>
+              <p className="note">3 sessions with 12+ correct</p>
             </div>
+            <div className="pupil-detail-level-block pupil-detail-level-block--insight">
+              <div className="level-block-header">
+                <span className="level-block-label">Insight</span>
+                <span className="level-block-number">{insightLevel}</span>
+              </div>
+              <p className="note" style={{ marginTop: '0.75rem' }}>Insight coming soon</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="dashboard-section">
+          <div className="section-heading"><h2>Override levels</h2></div>
+          <p className="note" style={{ marginBottom: '1rem' }}>
+            Manually set this pupil's levels. This resets their streak and bad-streak progress.
+          </p>
+          <div className="level-override-form">
+            <div className="level-override-row">
+              <label className="level-override-label">Instinct</label>
+              <select
+                className="level-override-select"
+                value={overrideInstinct}
+                onChange={e => setOverrideInstinct(Number(e.target.value))}
+              >
+                {[1, 2, 3, 4, 5, 6].map(n => <option key={n} value={n}>{n}</option>)}
+              </select>
+            </div>
+            <div className="level-override-row">
+              <label className="level-override-label">Insight</label>
+              <select
+                className="level-override-select"
+                value={overrideInsight}
+                onChange={e => setOverrideInsight(Number(e.target.value))}
+              >
+                {[1, 2, 3, 4, 5, 6].map(n => <option key={n} value={n}>{n}</option>)}
+              </select>
+            </div>
+            <button
+              onClick={saveLevels}
+              disabled={saving || (overrideInstinct === instinctLevel && overrideInsight === insightLevel)}
+            >
+              {saving ? 'Saving...' : saved ? 'Saved ✓' : 'Save'}
+            </button>
           </div>
         </section>
 
