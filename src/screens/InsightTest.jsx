@@ -24,10 +24,10 @@ function QuickTester() {
   }
 
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <h2 style={{ marginBottom: '1rem' }}>Quick Module Tester</h2>
 
-      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '1.5rem' }}>
         <label style={{ fontWeight: 600, fontSize: 14 }}>Level</label>
         <select
           value={level}
@@ -53,7 +53,7 @@ function QuickTester() {
         <button onClick={reset} className="button-secondary">New question</button>
       </div>
 
-      <div style={{ width: 480, marginBottom: '1rem' }}>
+      <div style={{ width: 640, marginBottom: '1rem' }}>
         <InsightModule
           key={key}
           subdomain={subdomain}
@@ -93,11 +93,15 @@ function Carousel({ level, onRestart }) {
 
   const locked = view !== 'questions'
   const revealed = view === 'review'
+  const isLast = current === total - 1
 
   function handleSubmit() {
     setView('marking')
     setTimeout(() => setView('results'), 1800)
   }
+
+  function goPrev() { setCurrent(c => Math.max(0, c - 1)) }
+  function goNext() { setCurrent(c => Math.min(total - 1, c + 1)) }
 
   // IMPORTANT: the module grid below must stay mounted for the Carousel's
   // entire lifetime (toggled with CSS display, never removed from the
@@ -107,7 +111,7 @@ function Carousel({ level, onRestart }) {
   const showQuestions = view === 'questions' || view === 'review'
 
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div style={{ display: view === 'marking' ? 'block' : 'none' }}>
         <div className="session-active" style={{ minHeight: 280 }}>
           <div className="session-timer" style={{ fontSize: '2.5rem', color: '#818cf8' }}>
@@ -126,47 +130,47 @@ function Carousel({ level, onRestart }) {
         />
       </div>
 
-      <div style={{ display: showQuestions ? 'block' : 'none' }}>
+      <div style={{ display: showQuestions ? 'flex' : 'none', flexDirection: 'column', alignItems: 'center' }}>
         {view === 'review' && (
           <button className="button-secondary" onClick={() => setView('results')} style={{ marginBottom: '1rem' }}>
             ← Back to results
           </button>
         )}
 
-        <div className="insight-carousel-nav">
-          <button
-            className="button-secondary"
-            onClick={() => setCurrent(c => Math.max(0, c - 1))}
-            disabled={current === 0}
-          >
+        <span className="insight-carousel-position">Question {current + 1} of {total}</span>
+
+        <div className="insight-carousel-row">
+          <button className="insight-carousel-arrow" onClick={goPrev} disabled={current === 0} aria-label="Previous question">
             ←
           </button>
-          <span className="insight-carousel-position">Question {current + 1} of {total}</span>
-          <button
-            className="button-secondary"
-            onClick={() => setCurrent(c => Math.min(total - 1, c + 1))}
-            disabled={current === total - 1}
-          >
-            →
-          </button>
+
+          <div style={{ width: 640 }}>
+            {slots.map((code, i) => (
+              <div key={i} style={{ display: i === current ? 'block' : 'none' }}>
+                <InsightModule
+                  subdomain={code}
+                  level={level}
+                  locked={locked}
+                  revealed={revealed}
+                  onAnswer={result => setResults(r => ({ ...r, [i]: result }))}
+                />
+              </div>
+            ))}
+          </div>
+
+          {view === 'questions' && isLast ? (
+            <button className="insight-carousel-submit" onClick={handleSubmit}>
+              Submit
+            </button>
+          ) : (
+            <button className="insight-carousel-arrow" onClick={goNext} disabled={isLast} aria-label="Next question">
+              →
+            </button>
+          )}
         </div>
 
-        <div style={{ width: 560, margin: '1rem 0' }}>
-          {slots.map((code, i) => (
-            <div key={i} style={{ display: i === current ? 'block' : 'none' }}>
-              <InsightModule
-                subdomain={code}
-                level={level}
-                locked={locked}
-                revealed={revealed}
-                onAnswer={result => setResults(r => ({ ...r, [i]: result }))}
-              />
-            </div>
-          ))}
-        </div>
-
-        {view === 'questions' && current === total - 1 && (
-          <button onClick={handleSubmit}>Submit ({answeredCount}/{total} answered)</button>
+        {view === 'questions' && isLast && (
+          <span className="insight-carousel-answered-count">{answeredCount}/{total} answered</span>
         )}
       </div>
     </div>
@@ -184,13 +188,13 @@ function InsightTest() {
   }
 
   return (
-    <div style={{ padding: '24px', fontFamily: 'sans-serif' }}>
+    <div style={{ padding: '24px', fontFamily: 'sans-serif', maxWidth: 880, margin: '0 auto', textAlign: 'center' }}>
       <QuickTester />
 
       <hr style={{ margin: '2rem 0', border: 'none', borderTop: '1px solid #e5e7eb' }} />
 
       <h2 style={{ marginBottom: '1rem' }}>Full Test Preview (one question at a time)</h2>
-      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginBottom: '1rem' }}>
+      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
         <label style={{ fontWeight: 600, fontSize: 14 }}>Level</label>
         <select
           value={level}

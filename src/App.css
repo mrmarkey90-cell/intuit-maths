@@ -1708,12 +1708,12 @@ button:hover:not(:disabled) {
 .insight-module-card {
   background: white;
   border: 2px solid #e5e7eb;
-  border-radius: 20px;
-  padding: 28px 32px;
+  border-radius: 24px;
+  padding: 36px 40px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  min-height: 440px;
+  gap: 22px;
+  min-height: 520px;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
@@ -1734,7 +1734,7 @@ button:hover:not(:disabled) {
 }
 
 .insight-module-label {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -1745,7 +1745,7 @@ button:hover:not(:disabled) {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 28px;
 }
 
 .insight-module-question {
@@ -1753,7 +1753,7 @@ button:hover:not(:disabled) {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 48px;
+  font-size: 60px;
   font-weight: 700;
   color: #1f2937;
   text-align: center;
@@ -1765,16 +1765,16 @@ button:hover:not(:disabled) {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 20px;
   color: #9ca3af;
 }
 
 .insight-answer-field {
   background: #f9fafb;
   border: 2px dashed #d1d5db;
-  border-radius: 14px;
-  padding: 20px 26px;
-  font-size: 30px;
+  border-radius: 16px;
+  padding: 26px 32px;
+  font-size: 36px;
   font-weight: 700;
   color: #9ca3af;
   cursor: pointer;
@@ -1808,11 +1808,11 @@ button:hover:not(:disabled) {
 
 .insight-answer-field--wrong-revealed {
   border: 2px solid #dc2626;
-  border-radius: 14px;
-  padding: 18px 26px;
+  border-radius: 16px;
+  padding: 22px 32px;
   background: #fef2f2;
   display: flex;
-  gap: 18px;
+  gap: 22px;
   align-items: center;
   justify-content: center;
 }
@@ -1820,14 +1820,14 @@ button:hover:not(:disabled) {
 .insight-answer-wrong-val {
   text-decoration: line-through;
   color: #dc2626;
-  font-size: 22px;
+  font-size: 26px;
   font-weight: 600;
 }
 
 .insight-answer-correct-val {
   color: #16a34a;
   font-weight: 700;
-  font-size: 28px;
+  font-size: 34px;
 }
 
 /* Numpad overlay */
@@ -1866,7 +1866,7 @@ button:hover:not(:disabled) {
 /* Circle module (tap-one-of-N) */
 
 .insight-circle-prompt {
-  font-size: 28px;
+  font-size: 34px;
   font-weight: 700;
   color: #1f2937;
   text-align: center;
@@ -1875,7 +1875,7 @@ button:hover:not(:disabled) {
 .insight-circle-options {
   flex: 1;
   display: flex;
-  gap: 16px;
+  gap: 20px;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
@@ -1884,13 +1884,13 @@ button:hover:not(:disabled) {
 .insight-circle-option {
   background: #f9fafb;
   border: 2px solid #d1d5db;
-  border-radius: 14px;
-  padding: 20px 28px;
-  font-size: 30px;
+  border-radius: 16px;
+  padding: 26px 34px;
+  font-size: 36px;
   font-weight: 700;
   color: #374151;
   cursor: pointer;
-  min-width: 76px;
+  min-width: 92px;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
 
@@ -1920,7 +1920,7 @@ button:hover:not(:disabled) {
 /* Pair-sum module (choose two tiles that sum to the target) */
 
 .insight-pairsum-prompt {
-  font-size: 26px;
+  font-size: 32px;
   font-weight: 700;
   color: #1f2937;
   text-align: center;
@@ -1929,7 +1929,7 @@ button:hover:not(:disabled) {
 .insight-pairsum-options {
   flex: 1;
   display: flex;
-  gap: 16px;
+  gap: 20px;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
@@ -1938,13 +1938,13 @@ button:hover:not(:disabled) {
 .insight-pairsum-option {
   background: #f9fafb;
   border: 2px solid #d1d5db;
-  border-radius: 14px;
-  padding: 20px 26px;
-  font-size: 30px;
+  border-radius: 16px;
+  padding: 26px 32px;
+  font-size: 36px;
   font-weight: 700;
   color: #374151;
   cursor: pointer;
-  min-width: 76px;
+  min-width: 92px;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
 
@@ -1973,7 +1973,7 @@ button:hover:not(:disabled) {
 /* Drag-sort module (real pointer-based drag) */
 
 .insight-dragsort-prompt {
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 600;
   color: #6b7280;
   text-align: center;
@@ -1981,19 +1981,19 @@ button:hover:not(:disabled) {
 
 .insight-dragsort-source {
   display: flex;
-  gap: 14px;
+  gap: 18px;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  min-height: 80px;
+  min-height: 96px;
 }
 
 .insight-dragsort-arrow-row {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  font-size: 15px;
+  gap: 12px;
+  font-size: 17px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -2001,21 +2001,21 @@ button:hover:not(:disabled) {
 }
 
 .insight-dragsort-arrow {
-  font-size: 24px;
+  font-size: 28px;
   color: #6b7280;
 }
 
 .insight-dragsort-target-row {
   display: flex;
-  gap: 14px;
+  gap: 18px;
   justify-content: center;
 }
 
 .insight-dragsort-slot {
-  width: 72px;
-  height: 72px;
+  width: 88px;
+  height: 88px;
   border: 2px dashed #d1d5db;
-  border-radius: 14px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2035,9 +2035,9 @@ button:hover:not(:disabled) {
 .insight-dragsort-tile {
   background: #f9fafb;
   border: 2px solid #d1d5db;
-  border-radius: 12px;
-  padding: 14px 20px;
-  font-size: 28px;
+  border-radius: 14px;
+  padding: 18px 24px;
+  font-size: 34px;
   font-weight: 700;
   color: #374151;
   cursor: grab;
@@ -2046,7 +2046,7 @@ button:hover:not(:disabled) {
 }
 
 .insight-correct-hint {
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 600;
   color: #16a34a;
   text-align: center;
@@ -2059,9 +2059,9 @@ button:hover:not(:disabled) {
   z-index: 1100;
   background: #4f46e5;
   color: white;
-  border-radius: 12px;
-  padding: 14px 20px;
-  font-size: 26px;
+  border-radius: 14px;
+  padding: 18px 24px;
+  font-size: 32px;
   font-weight: 700;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
@@ -2069,7 +2069,7 @@ button:hover:not(:disabled) {
 /* Number line module (tap-to-place on a notch) */
 
 .insight-numberline-prompt {
-  font-size: 28px;
+  font-size: 34px;
   font-weight: 700;
   color: #1f2937;
   text-align: center;
@@ -2078,7 +2078,7 @@ button:hover:not(:disabled) {
 .insight-numberline-track {
   flex: 1;
   display: flex;
-  gap: 10px;
+  gap: 14px;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
@@ -2087,13 +2087,13 @@ button:hover:not(:disabled) {
 .insight-numberline-tick {
   background: #f9fafb;
   border: 2px solid #d1d5db;
-  border-radius: 10px;
-  padding: 14px 18px;
-  font-size: 22px;
+  border-radius: 12px;
+  padding: 18px 22px;
+  font-size: 28px;
   font-weight: 600;
   color: #6b7280;
   cursor: pointer;
-  min-width: 52px;
+  min-width: 64px;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
 
@@ -2119,17 +2119,17 @@ button:hover:not(:disabled) {
 
 .insight-domain-dot {
   display: inline-block;
-  width: 13px;
-  height: 13px;
+  width: 15px;
+  height: 15px;
   border-radius: 50%;
-  margin-right: 6px;
+  margin-right: 7px;
   vertical-align: middle;
 }
 
 /* Share module (6A — tap +/- to move sweets into boxes) */
 
 .insight-share-prompt {
-  font-size: 22px;
+  font-size: 26px;
   font-weight: 600;
   color: #374151;
   text-align: center;
@@ -2137,15 +2137,15 @@ button:hover:not(:disabled) {
 
 .insight-share-pool {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
   justify-content: center;
-  font-size: 32px;
-  min-height: 40px;
+  font-size: 40px;
+  min-height: 48px;
 }
 
 .insight-share-pool-empty {
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 600;
   color: #16a34a;
 }
@@ -2153,7 +2153,7 @@ button:hover:not(:disabled) {
 .insight-share-boxes {
   flex: 1;
   display: flex;
-  gap: 16px;
+  gap: 20px;
   justify-content: center;
   align-items: flex-end;
   flex-wrap: wrap;
@@ -2162,13 +2162,13 @@ button:hover:not(:disabled) {
 .insight-share-box {
   background: #f9fafb;
   border: 2px dashed #d1d5db;
-  border-radius: 14px;
-  padding: 14px 16px;
+  border-radius: 16px;
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  min-width: 96px;
+  gap: 12px;
+  min-width: 120px;
 }
 
 .insight-share-box--correct {
@@ -2182,29 +2182,29 @@ button:hover:not(:disabled) {
 }
 
 .insight-share-box-sweets {
-  font-size: 22px;
-  min-height: 28px;
+  font-size: 26px;
+  min-height: 32px;
   text-align: center;
 }
 
 .insight-share-box-controls {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .insight-share-box-count {
-  font-size: 22px;
+  font-size: 26px;
   font-weight: 800;
   color: #1f2937;
-  min-width: 28px;
+  min-width: 32px;
   text-align: center;
 }
 
 .insight-share-btn {
-  border-radius: 10px;
-  padding: 10px 12px;
-  font-size: 15px;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 17px;
   font-weight: 700;
   cursor: pointer;
   border: 2px solid transparent;
@@ -2237,14 +2237,53 @@ button:hover:not(:disabled) {
 
 /* Carousel navigation (full test preview) */
 
-.insight-carousel-nav {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+.insight-carousel-position {
+  font-weight: 700;
+  font-size: 18px;
+  color: #374151;
+  margin-bottom: 0.75rem;
 }
 
-.insight-carousel-position {
-  font-weight: 600;
+.insight-carousel-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.insight-carousel-arrow {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 2px solid #d1d5db;
+  background: white;
+  font-size: 32px;
+  color: #4f46e5;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.insight-carousel-arrow:hover:not(:disabled) {
+  border-color: #4f46e5;
+  background: #eef2ff;
+}
+
+.insight-carousel-arrow:disabled {
+  color: #d1d5db;
+  cursor: default;
+}
+
+.insight-carousel-submit {
+  height: 72px;
+  padding: 0 32px;
+  border-radius: 36px;
+  font-size: 22px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.insight-carousel-answered-count {
+  margin-top: 0.75rem;
   font-size: 14px;
-  color: #374151;
+  color: #6b7280;
 }
