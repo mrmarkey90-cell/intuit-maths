@@ -144,10 +144,10 @@ function PupilDetail({ pupilId, onBack, onLevelChanged }) {
   return (
     <div className="dashboard">
       <header className="dashboard-header">
-        <div className="dashboard-header-left">
+        <button className="button-secondary" onClick={onBack}>← Back</button>
+        <div className="dashboard-header-left" style={{ marginLeft: '1rem' }}>
           <h1>{pupil.first_name} {pupil.last_name}</h1>
         </div>
-        <button className="button-secondary" onClick={onBack}>← Back</button>
       </header>
 
       <main className="dashboard-main" style={{ maxWidth: 640 }}>
@@ -160,10 +160,6 @@ function PupilDetail({ pupilId, onBack, onLevelChanged }) {
                 <span className="level-block-number">{instinctLevel}</span>
               </div>
               <StreakDots streak={streak} />
-              <p className="note" style={{ marginTop: '0.25rem' }}>
-                {streak > 0 ? `${streak}/3` : '0/3'} towards Level {instinctLevel + 1}
-              </p>
-              <p className="note">3 sessions with 12+ correct</p>
             </div>
             <div className="pupil-detail-level-block pupil-detail-level-block--insight">
               <div className="level-block-header">

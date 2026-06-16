@@ -97,11 +97,11 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
     return (
       <div className="dashboard">
         <header className="dashboard-header">
-          <div className="dashboard-header-left">
+          <button className="button-secondary" onClick={() => setView('main')}>← Back</button>
+          <div className="dashboard-header-left" style={{ marginLeft: '1rem' }}>
             <h1>Pupils</h1>
             <span className="tier-badge">{cls.name}</span>
           </div>
-          <button className="button-secondary" onClick={() => setView('main')}>← Back</button>
         </header>
         <main className="dashboard-main">
           <section className="dashboard-section">
@@ -134,11 +134,11 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
     return (
       <div className="dashboard">
         <header className="dashboard-header">
-          <div className="dashboard-header-left">
+          <button className="button-secondary" onClick={() => setView('main')}>← Back</button>
+          <div className="dashboard-header-left" style={{ marginLeft: '1rem' }}>
             <h1>Pupil Hub</h1>
             <span className="tier-badge">{cls.name}</span>
           </div>
-          <button className="button-secondary" onClick={() => setView('main')}>← Back</button>
         </header>
         <main className="dashboard-main">
           <section className="dashboard-section qr-focus-section">
@@ -162,11 +162,11 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
     return (
       <div className="dashboard">
         <header className="dashboard-header">
-          <div className="dashboard-header-left">
+          <button className="button-secondary" onClick={() => setView('main')}>← Back</button>
+          <div className="dashboard-header-left" style={{ marginLeft: '1rem' }}>
             <h1>Add Pupil</h1>
             <span className="tier-badge">{cls.name}</span>
           </div>
-          <button className="button-secondary" onClick={() => setView('main')}>← Back</button>
         </header>
         <main className="dashboard-main">
           <section className="dashboard-section qr-focus-section">
@@ -189,14 +189,12 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
   return (
     <div className="dashboard">
       <header className="dashboard-header">
-        <div className="dashboard-header-left">
+        <button className="button-secondary" onClick={onChangeClass}>← Classes</button>
+        <div className="dashboard-header-left" style={{ marginLeft: '1rem', flex: 1 }}>
           <h1>{cls.name}</h1>
           <span className="tier-badge">{school.name}</span>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button className="button-secondary" onClick={onChangeClass}>← Classes</button>
-          <button className="button-secondary" onClick={onSignOut}>Sign out</button>
-        </div>
+        <button className="button-secondary" onClick={onSignOut}>Sign out</button>
       </header>
 
       <main className="dashboard-tiles-wrapper">
