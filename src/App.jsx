@@ -15,6 +15,7 @@ import StaffClassDashboard from './screens/StaffClassDashboard'
 import PupilJoin from './screens/PupilJoin'
 import PupilSession from './screens/session/PupilSession'
 import PupilHub from './screens/PupilHub'
+import InsightTest from './screens/InsightTest'
 
 function LeadershipApp() {
   const [session, setSession] = useState(null)
@@ -148,6 +149,7 @@ function App() {
         <Route path="/play/:code" element={<PupilSession />} />
         <Route path="/hub/:joinCode" element={<PupilHub />} />
         <Route path="/school/:code" element={<StaffApp />} />
+        <Route path="/insight-test" element={<InsightTest />} />
         <Route path="/*" element={<LeadershipApp />} />
       </Routes>
     </BrowserRouter>
