@@ -9,7 +9,7 @@ function LeadershipManagePupils({ schoolId, onBack, onSelectPupil }) {
   useEffect(() => {
     supabase
       .from('pupil_profiles')
-      .select('id, first_name, last_name, current_stage, credits, classes(id, name)')
+      .select('id, first_name, last_name, instinct_level, credits, classes(id, name)')
       .eq('school_id', schoolId)
       .order('last_name')
       .then(({ data }) => {
@@ -55,7 +55,7 @@ function LeadershipManagePupils({ schoolId, onBack, onSelectPupil }) {
                 <button key={p.id} className="pupil-list-row" onClick={() => onSelectPupil(p.id)}>
                   <span className="pupil-list-name">{p.first_name} {p.last_name}</span>
                   <span className="pupil-list-meta">
-                    <span className="pupil-list-level">L{p.current_stage}</span>
+                    <span className="pupil-list-level">L{p.instinct_level}</span>
                     <span className="note">{p.classes?.name ?? 'Unallocated'}</span>
                   </span>
                   <span className="pupil-list-arrow">›</span>

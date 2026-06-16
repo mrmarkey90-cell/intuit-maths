@@ -1036,14 +1036,9 @@ button:hover:not(:disabled) {
   text-align: center;
 }
 
-.question-display--correct {
-  border-color: #22c55e;
-  background: #f0fdf4;
-}
-
-.question-display--wrong {
-  border-color: #f87171;
-  background: #fef2f2;
+.question-display--submitted {
+  border-color: #a5b4fc;
+  background: #eef2ff;
 }
 
 .question-text {
@@ -1363,4 +1358,138 @@ button:hover:not(:disabled) {
 .history-row--good {
   border-color: #a7f3d0 !important;
   background: #f0fdf4 !important;
+}
+
+/* ── Pupil Hub ──────────────────────────────────── */
+
+.hub-screen {
+  min-height: 100vh;
+  background: #f0f4ff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2.5rem 1.5rem 3rem;
+  max-width: 480px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.hub-avatar-block {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.2s;
+}
+.hub-avatar-block:hover { transform: scale(1.05); }
+
+.hub-avatar-label {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+.hub-name {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1e1b4b;
+  margin: 0.75rem 0 1.25rem;
+}
+
+.hub-levels {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.hub-level-badge {
+  padding: 0.6rem 1.4rem;
+  border-radius: 14px;
+  font-weight: 700;
+  text-align: center;
+  min-width: 100px;
+}
+.hub-level-badge--instinct { background: #4f46e5; color: white; }
+.hub-level-badge--insight  { background: #059669; color: white; }
+
+.hub-level-badge-label {
+  font-size: 0.65rem;
+  opacity: 0.85;
+  display: block;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.hub-level-badge-number {
+  font-size: 1.6rem;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.hub-credits {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #92400e;
+  background: #fef3c7;
+  border: 2px solid #fcd34d;
+  padding: 0.45rem 1.4rem;
+  border-radius: 999px;
+  margin-bottom: 1.5rem;
+}
+
+.hub-practice-btn {
+  width: 100%;
+  max-width: 300px;
+  padding: 1rem 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border-radius: 16px;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
+}
+.hub-practice-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.5);
+}
+.hub-practice-btn:active:not(:disabled) { transform: translateY(0); }
+.hub-practice-btn:disabled { opacity: 0.6; cursor: default; }
+
+.hub-confirm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+.hub-confirm-question {
+  font-size: 1.1rem;
+  color: #6b7280;
+  margin-top: 1rem;
+  margin-bottom: 0;
+}
+.hub-confirm-name {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1e1b4b;
+  margin: 0 0 0.75rem;
+}
+.hub-confirm-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: 100%;
+  max-width: 260px;
+  margin-top: 0.5rem;
+}
+
+.hub-link-block { margin-top: 0.75rem; }
+.hub-link-qr-row {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
 }

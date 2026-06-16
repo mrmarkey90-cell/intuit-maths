@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
+import QRCode from 'react-qr-code'
 import { supabase } from '../supabaseClient'
 import SessionHost from './session/SessionHost'
 import PupilDetail from './PupilDetail'
 
 function StaffClassDashboard({ school, cls }) {
   const [copied, setCopied] = useState(false)
+  const [hubCopied, setHubCopied] = useState(false)
   const [session, setSession] = useState(null)
   const [weeklyUsed, setWeeklyUsed] = useState(false)
   const [classPupils, setClassPupils] = useState([])
@@ -12,6 +14,8 @@ function StaffClassDashboard({ school, cls }) {
   const [selectedPupil, setSelectedPupil] = useState(null)
 
   const profileUrl = `intuited.uk/join/${cls.join_code}`
+  const hubUrl = `https://intuited.uk/hub/${cls.join_code}`
+  const hubDisplayUrl = `intuited.uk/hub/${cls.join_code}`
 
   useEffect(() => {
     // Check weekly challenge status + any active session
@@ -33,6 +37,12 @@ function StaffClassDashboard({ school, cls }) {
     await navigator.clipboard.writeText(`https://${profileUrl}`)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  async function copyHubLink() {
+    await navigator.clipboard.writeText(hubUrl)
+    setHubCopied(true)
+    setTimeout(() => setHubCopied(false), 2000)
   }
 
   async function startChallenge() {
@@ -98,6 +108,26 @@ function StaffClassDashboard({ school, cls }) {
 
         <section className="dashboard-section">
           <div className="section-heading">
+            <h2>Pupil Hub</h2>
+          </div>
+          <p className="note">Children use this link to access their hub — practice Instinct and view their progress</p>
+          <div className="hub-link-block">
+            <div className="hub-link-qr-row">
+              <QRCode value={hubUrl} size={110} />
+              <div style={{ flex: 1 }}>
+                <code style={{ fontSize: '0.8rem', wordBreak: 'break-all', display: 'block', marginBottom: '0.5rem' }}>
+                  {hubDisplayUrl}
+                </code>
+                <button className="button-secondary" onClick={copyHubLink}>
+                  {hubCopied ? 'Copied!' : 'Copy link'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="dashboard-section">
+          <div className="section-heading">
             <h2>Pupil Profile Creator</h2>
           </div>
           <p className="note">Pupils use this link to create their profile for the first time</p>
@@ -122,7 +152,7 @@ function StaffClassDashboard({ school, cls }) {
                 onClick={() => setSelectedPupil(p)}
               >
                 <span className="pupil-list-name">{p.first_name} {p.last_name}</span>
-                <span className="pupil-list-level">Level {p.current_stage ?? '—'}</span>
+                <span className="pupil-list-level">Level {p.instinct_level ?? '—'}</span>
                 <span className="pupil-list-arrow">›</span>
               </button>
             ))}

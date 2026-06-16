@@ -62,7 +62,7 @@ function LeadershipClassDetail({ classId, onBack, onSelectPupil, onClassDeleted 
                 <button key={p.id} className="pupil-list-row" onClick={() => onSelectPupil(p.id)}>
                   <span className="pupil-list-name">{p.first_name} {p.last_name}</span>
                   <span className="pupil-list-meta">
-                    <span className="pupil-list-level">L{p.current_stage}</span>
+                    <span className="pupil-list-level">L{p.instinct_level}</span>
                     <span className="note">{lastActiveLabel(p.last_attempt_at)}</span>
                   </span>
                   <span className="pupil-list-arrow">›</span>

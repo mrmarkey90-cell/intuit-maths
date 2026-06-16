@@ -116,7 +116,7 @@ function LeadershipPupilDetail({ pupilId, onBack, onPupilDeleted }) {
   if (!data?.pupil) return <div className="screen"><p>Pupil not found.</p></div>
 
   const { pupil, attempts } = data
-  const stage = pupil.current_stage ?? 1
+  const stage = pupil.instinct_level ?? 1
   const lastAttempt = attempts?.length > 0
     ? attempts.slice().sort((a, b) => new Date(b.completed_at) - new Date(a.completed_at))[0]
     : null

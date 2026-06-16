@@ -114,7 +114,7 @@ function PupilDetail({ pupilId, onBack }) {
   if (!data?.pupil) return <div className="dashboard"><main className="dashboard-main"><p>Pupil not found.</p></main></div>
 
   const { pupil, attempts } = data
-  const stage = pupil.current_stage ?? 1
+  const stage = pupil.instinct_level ?? 1
 
   return (
     <div className="dashboard">

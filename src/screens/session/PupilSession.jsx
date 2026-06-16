@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../../supabaseClient'
 import AvatarDisplay from '../../components/AvatarDisplay'
 import NumberPad from '../../components/NumberPad'
@@ -38,6 +38,7 @@ function LevelDownOffer({ pupilId, currentStage }) {
 
 function PupilSession() {
   const { code } = useParams()
+  const navigate = useNavigate()
   const sessionCode = code.toUpperCase()
 
   const [view, setView] = useState('loading')
@@ -75,6 +76,25 @@ function PupilSession() {
 
       const { data: pupilData } = await supabase.rpc('get_class_pupils', { p_join_code: data.class_join_code })
       setPupils(pupilData ?? [])
+
+      // Practice auto-join: pupil pre-specified and session already active
+      const prePupilId = new URLSearchParams(window.location.search).get('pupil')
+      if (prePupilId && data.status === 'active') {
+        const p = (pupilData ?? []).find(p => p.id === prePupilId)
+        if (p) {
+          pupilRef.current = p
+          setPupil(p)
+          setView('ready')
+          const startTime = new Date(data.started_at).getTime()
+          const msUntilStart = startTime - Date.now()
+          if (msUntilStart > 0) {
+            setTimeout(() => beginQuestions(data.started_at), msUntilStart)
+          } else {
+            beginQuestions(data.started_at)
+          }
+          return
+        }
+      }
 
       setView('join')
     }
@@ -124,7 +144,7 @@ function PupilSession() {
     if (!p) return
     feedbackRef.current = null
     setFeedback(null)
-    const q = generateQuestion(p.current_stage ?? 1)
+    const q = generateQuestion(p.instinct_level ?? 1)
     questionRef.current = q
     setQuestion(q)
   }
@@ -158,8 +178,8 @@ function PupilSession() {
     const entered = parseFloat(inputValue)
     const correct = entered === q.answer
 
-    feedbackRef.current = correct ? 'correct' : 'wrong'
-    setFeedback(correct ? 'correct' : 'wrong')
+    feedbackRef.current = 'submitted'
+    setFeedback('submitted')
 
     const updated = [...answersRef.current, { ...q, entered, correct }]
     answersRef.current = updated
@@ -208,6 +228,11 @@ function PupilSession() {
     const total = all.length
     const si = sessionInfoRef.current
 
+    // Practice sessions have no teacher to call end_session — do it here
+    if (si.challenge_type === 'practice') {
+      supabase.rpc('end_session', { p_session_id: si.session_id })
+    }
+
     const { data, error } = await supabase.rpc('submit_attempt', {
       p_session_id: si.session_id,
       p_pupil_id: pupilRef.current.id,
@@ -221,6 +246,15 @@ function PupilSession() {
   // ── Views ──────────────────────────────────────
 
   if (view === 'loading') return <div className="screen"><p>Loading...</p></div>
+
+  if (view === 'ready') return (
+    <div className="screen">
+      <AvatarDisplay avatar={pupil?.avatar ?? { face: 0, hat: 0, glasses: 0, scarf: 0 }} size={90} />
+      <h1 style={{ marginTop: '1rem' }}>{pupil?.first_name}</h1>
+      <p className="tagline">Get ready...</p>
+      <div className="lobby-waiting-dots"><span /><span /><span /></div>
+    </div>
+  )
 
   if (view === 'error') return (
     <div className="screen">
@@ -258,7 +292,6 @@ function PupilSession() {
     const isDisabled = feedbackRef.current !== null || skipCooldown > 0
     return (
       <div className="question-screen">
-        <TimerBar timeLeft={timeLeft} />
         <div className="question-body">
           {skipCooldown > 0 && (
             <div className="skip-penalty">+{skipCooldown}s penalty</div>
@@ -268,7 +301,7 @@ function PupilSession() {
           </div>
           <NumberPad
             onSubmit={handleSubmit}
-            stage={pupil?.current_stage ?? 1}
+            stage={pupil?.instinct_level ?? 1}
             disabled={isDisabled}
           />
           <button className="skip-btn" onClick={handleSkip} disabled={skipCooldown > 0}>
@@ -299,7 +332,7 @@ function PupilSession() {
 
     if (!results) return <div className="screen"><p>Submitting...</p></div>
 
-    const currentStage = pupil?.current_stage ?? 1
+    const currentStage = pupil?.instinct_level ?? 1
     const displayStage = levelUp ? newStage : currentStage
     const streak = results?.new_streak ?? 0
 
@@ -331,7 +364,18 @@ function PupilSession() {
         {levelDownOffer && !levelUp && (
           <LevelDownOffer pupilId={pupil?.id} currentStage={currentStage} />
         )}
-        <p className="note" style={{ marginTop: '2rem' }}>Write your score in your book!</p>
+        {sessionInfoRef.current?.challenge_type !== 'practice' && (
+          <p className="note" style={{ marginTop: '2rem' }}>Write your score in your book!</p>
+        )}
+        {sessionInfoRef.current?.class_join_code && (
+          <button
+            className="button-secondary"
+            style={{ marginTop: '1.5rem' }}
+            onClick={() => navigate(`/hub/${sessionInfoRef.current.class_join_code}`)}
+          >
+            My Hub
+          </button>
+        )}
       </div>
     )
   }
