@@ -138,7 +138,7 @@ function PupilDetail({ pupilId, onBack }) {
               <p className="note" style={{ marginBottom: '0.5rem' }}>Progress to Level {stage + 1}</p>
               <StreakDots streak={pupil.challenge_streak ?? 0} />
               <p className="note" style={{ marginTop: '0.5rem' }}>
-                3 successful challenges in a row (10+ correct) advances to the next level
+                3 successful Instinct sessions in a row (10+ correct) advances to the next level
               </p>
             </div>
           </div>
@@ -146,11 +146,11 @@ function PupilDetail({ pupilId, onBack }) {
 
         <section className="dashboard-section">
           <div className="section-heading">
-            <h2>Challenge history</h2>
+            <h2>Instinct history</h2>
             <span className="section-count">{attempts.length} sessions</span>
           </div>
           {attempts.length === 0 ? (
-            <p className="note">No challenge sessions completed yet.</p>
+            <p className="note">No Instinct sessions completed yet.</p>
           ) : (
             <ScoreChart attempts={attempts} />
           )}

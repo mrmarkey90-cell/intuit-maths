@@ -147,7 +147,7 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
       <div className="dashboard">
         <header className="dashboard-header">
           <div className="dashboard-header-left">
-            <h1>Class Challenge — Lobby</h1>
+            <h1>Instinct — Lobby</h1>
             <span className="tier-badge">{cls.name}</span>
           </div>
         </header>
@@ -205,7 +205,7 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
         <div className="session-timer" style={{ color: timeLeft <= 15 ? '#f87171' : undefined }}>
           {fmt(timeLeft)}
         </div>
-        <p className="session-active-label">Maths Challenge in progress</p>
+        <p className="session-active-label">Instinct in progress</p>
         <div className="session-stats">
           <div className="stat-box">
             <div className="stat-number">{allRows.length}</div>
@@ -240,7 +240,7 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
     <div className="dashboard">
       <header className="dashboard-header">
         <div className="dashboard-header-left">
-          <h1>Challenge Complete</h1>
+          <h1>Instinct Complete</h1>
           <span className="tier-badge">{cls.name}</span>
         </div>
       </header>

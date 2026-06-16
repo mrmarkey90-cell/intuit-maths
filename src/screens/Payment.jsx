@@ -11,7 +11,7 @@ function Payment({ onFree, onPaid }) {
           <ul className="plan-features">
             <li>1 class</li>
             <li>Up to 40 pupils</li>
-            <li>Full challenge functionality</li>
+            <li>Full Instinct functionality</li>
             <li>Per-pupil reporting</li>
           </ul>
           <button onClick={onFree}>Start free</button>
@@ -23,7 +23,7 @@ function Payment({ onFree, onPaid }) {
           <ul className="plan-features">
             <li>Unlimited classes</li>
             <li>Unlimited pupils</li>
-            <li>Full challenge functionality</li>
+            <li>Full Instinct functionality</li>
             <li>Per-pupil and whole-school reporting</li>
           </ul>
           <button disabled>Coming soon</button>

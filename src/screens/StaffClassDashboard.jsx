@@ -80,19 +80,19 @@ function StaffClassDashboard({ school, cls }) {
       <main className="dashboard-main">
         <section className="dashboard-section">
           <div className="section-heading">
-            <h2>Class Challenge</h2>
+            <h2>Instinct</h2>
           </div>
           <p className="note">
             {weeklyUsed
-              ? 'This week\'s challenge has been completed. Available again on Sunday.'
-              : 'Start a 90-second class-wide maths challenge. Each pupil gets questions at their own level.'}
+              ? 'This week\'s Instinct has been completed. Available again on Sunday.'
+              : 'Start a 60-second class-wide Instinct session. Each pupil gets questions at their own level.'}
           </p>
           <button
             onClick={startChallenge}
             disabled={weeklyUsed || starting}
             style={{ marginTop: '1rem', width: '100%' }}
           >
-            {starting ? 'Setting up...' : weeklyUsed ? 'Done this week' : 'Start Class Challenge'}
+            {starting ? 'Setting up...' : weeklyUsed ? 'Done this week' : 'Start Instinct'}
           </button>
         </section>
 

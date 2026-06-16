@@ -155,7 +155,7 @@ function LeadershipPupilDetail({ pupilId, onBack, onPupilDeleted }) {
 
         <section className="dashboard-section">
           <div className="section-heading">
-            <h2>Challenge history</h2>
+            <h2>Instinct history</h2>
             <span className="section-count">{attempts?.length ?? 0} sessions</span>
           </div>
           {!attempts?.length ? (
@@ -190,7 +190,7 @@ function LeadershipPupilDetail({ pupilId, onBack, onPupilDeleted }) {
           {!confirmingDelete ? (
             <>
               <p className="note" style={{ marginBottom: '1rem' }}>
-                Permanent and cannot be undone. All challenge history for this pupil will be deleted.
+                Permanent and cannot be undone. All Instinct history for this pupil will be deleted.
               </p>
               <button className="button-danger" onClick={() => setConfirmingDelete(true)}>
                 Delete pupil
