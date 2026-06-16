@@ -70,6 +70,10 @@ function ShareModule({ question, locked, revealed, onAnswer }) {
           )
         })}
       </div>
+
+      {revealed && !isCorrect && (
+        <div className="insight-correct-hint">Correct: {answer} sweets in each box</div>
+      )}
     </div>
   )
 }

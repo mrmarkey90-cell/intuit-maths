@@ -19,9 +19,9 @@ function NumpadModule({ question, stage, locked, revealed, onAnswer }) {
         {question.question}
       </div>
 
-      {revealed && value !== null && !isCorrect ? (
+      {revealed && !isCorrect ? (
         <div className="insight-answer-field insight-answer-field--wrong-revealed">
-          <span className="insight-answer-wrong-val">{value}</span>
+          {value !== null && <span className="insight-answer-wrong-val">{value}</span>}
           <span className="insight-answer-correct-val">✓ {question.answer}</span>
         </div>
       ) : (

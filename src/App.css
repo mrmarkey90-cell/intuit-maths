@@ -2045,7 +2045,7 @@ button:hover:not(:disabled) {
   user-select: none;
 }
 
-.insight-dragsort-correct-hint {
+.insight-correct-hint {
   font-size: 18px;
   font-weight: 600;
   color: #16a34a;

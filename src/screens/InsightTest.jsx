@@ -99,71 +99,76 @@ function Carousel({ level, onRestart }) {
     setTimeout(() => setView('results'), 1800)
   }
 
-  if (view === 'marking') {
-    return (
-      <div className="session-active" style={{ minHeight: 280 }}>
-        <div className="session-timer" style={{ fontSize: '2.5rem', color: '#818cf8' }}>
-          Marking your answers...
-        </div>
-        <p className="session-active-label">One moment</p>
-      </div>
-    )
-  }
-
-  if (view === 'results') {
-    return (
-      <InsightResults
-        score={correctCount}
-        total={total}
-        onReviewMarking={() => { setCurrent(0); setView('review') }}
-        onRestart={onRestart}
-      />
-    )
-  }
+  // IMPORTANT: the module grid below must stay mounted for the Carousel's
+  // entire lifetime (toggled with CSS display, never removed from the
+  // React tree) — conditionally returning different JSX per view would
+  // unmount all 12 InsightModules, regenerating fresh random questions
+  // and losing every answer when navigating back in for "review".
+  const showQuestions = view === 'questions' || view === 'review'
 
   return (
     <div>
-      {view === 'review' && (
-        <button className="button-secondary" onClick={() => setView('results')} style={{ marginBottom: '1rem' }}>
-          ← Back to results
-        </button>
-      )}
-
-      <div className="insight-carousel-nav">
-        <button
-          className="button-secondary"
-          onClick={() => setCurrent(c => Math.max(0, c - 1))}
-          disabled={current === 0}
-        >
-          ←
-        </button>
-        <span className="insight-carousel-position">Question {current + 1} of {total}</span>
-        <button
-          className="button-secondary"
-          onClick={() => setCurrent(c => Math.min(total - 1, c + 1))}
-          disabled={current === total - 1}
-        >
-          →
-        </button>
-      </div>
-
-      <div style={{ width: 560, margin: '1rem 0' }}>
-        {slots.map((code, i) => (
-          <div key={i} style={{ display: i === current ? 'block' : 'none' }}>
-            <InsightModule
-              subdomain={code}
-              level={level}
-              locked={locked}
-              revealed={revealed}
-              onAnswer={result => setResults(r => ({ ...r, [i]: result }))}
-            />
+      <div style={{ display: view === 'marking' ? 'block' : 'none' }}>
+        <div className="session-active" style={{ minHeight: 280 }}>
+          <div className="session-timer" style={{ fontSize: '2.5rem', color: '#818cf8' }}>
+            Marking your answers...
           </div>
-        ))}
+          <p className="session-active-label">One moment</p>
+        </div>
       </div>
 
-      {view === 'questions' && current === total - 1 && (
-        <button onClick={handleSubmit}>Submit ({answeredCount}/{total} answered)</button>
-      )}
+      <div style={{ display: view === 'results' ? 'block' : 'none' }}>
+        <InsightResults
+          score={correctCount}
+          total={total}
+          onReviewMarking={() => { setCurrent(0); setView('review') }}
+          onRestart={onRestart}
+        />
+      </div>
+
+      <div style={{ display: showQuestions ? 'block' : 'none' }}>
+        {view === 'review' && (
+          <button className="button-secondary" onClick={() => setView('results')} style={{ marginBottom: '1rem' }}>
+            ← Back to results
+          </button>
+        )}
+
+        <div className="insight-carousel-nav">
+          <button
+            className="button-secondary"
+            onClick={() => setCurrent(c => Math.max(0, c - 1))}
+            disabled={current === 0}
+          >
+            ←
+          </button>
+          <span className="insight-carousel-position">Question {current + 1} of {total}</span>
+          <button
+            className="button-secondary"
+            onClick={() => setCurrent(c => Math.min(total - 1, c + 1))}
+            disabled={current === total - 1}
+          >
+            →
+          </button>
+        </div>
+
+        <div style={{ width: 560, margin: '1rem 0' }}>
+          {slots.map((code, i) => (
+            <div key={i} style={{ display: i === current ? 'block' : 'none' }}>
+              <InsightModule
+                subdomain={code}
+                level={level}
+                locked={locked}
+                revealed={revealed}
+                onAnswer={result => setResults(r => ({ ...r, [i]: result }))}
+              />
+            </div>
+          ))}
+        </div>
+
+        {view === 'questions' && current === total - 1 && (
+          <button onClick={handleSubmit}>Submit ({answeredCount}/{total} answered)</button>
+        )}
+      </div>
     </div>
   )
 }

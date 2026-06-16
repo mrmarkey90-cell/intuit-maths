@@ -126,7 +126,7 @@ function DragSortModule({ question, locked, revealed, onAnswer }) {
       </div>
 
       {revealed && !isCorrect && (
-        <div className="insight-dragsort-correct-hint">Correct order: {correctOrder.join(', ')}</div>
+        <div className="insight-correct-hint">Correct order: {correctOrder.join(', ')}</div>
       )}
 
       {drag && (

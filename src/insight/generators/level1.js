@@ -122,14 +122,16 @@ export function L1_9A() {
   }
 }
 
-// 9C — Patterns: "2, 4, 6, ___, 10"
+// 9C — Patterns: always counting in 2s (e.g. "2, 4, 6, ___, 10"), blank moves around
 export function L1_9C() {
-  const step = rand(1, 3) * 2
-  const start = rand(1, 4) * 2
-  const seq = [start, start + step, start + 2 * step, null, start + 4 * step]
+  const step = 2
+  const start = rand(1, 3) * 2
+  const seq = [start, start + step, start + 2 * step, start + 3 * step, start + 4 * step]
+  const hideIndex = rand(0, 4)
+  const answer = seq[hideIndex]
   return {
     moduleType: 'numpad',
-    question: seq.map(v => (v === null ? '___' : v)).join(', '),
-    answer: String(start + 3 * step),
+    question: seq.map((v, i) => (i === hideIndex ? '___' : v)).join(', '),
+    answer: String(answer),
   }
 }
