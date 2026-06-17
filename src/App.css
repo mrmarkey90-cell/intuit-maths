@@ -1825,6 +1825,15 @@ button:hover:not(:disabled) {
   line-height: 1.3;
 }
 
+/* Multi-line word problems read like a short paragraph, not a single
+   equation -- the equation-sized font is far too large for 3-4 lines
+   of text. */
+.insight-module-question--wordproblem {
+  font-size: clamp(18px, 3.2vw, 26px);
+  line-height: 1.5;
+  text-align: left;
+}
+
 /* Numpad's optional column layout -- models writing the problem out in
    their book (one number above the other, ruled line below) instead of
    a plain inline "a − b" string. */

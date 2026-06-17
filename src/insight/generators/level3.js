@@ -1,4 +1,4 @@
-import { w } from './words'
+import { w, randomItemIndex } from './words'
 
 function rand(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min
@@ -250,23 +250,26 @@ export function L3_9A() {
   }
 }
 
-// 9B — Multi-step problems: "24 sweets, give away 6, get 5 more. How many?"
+// 9B — Multi-step problems: "You have 24 sweets. You give 6 away.
+// You get 5 back. How many sweets do you have?" -- item noun varies
 export function L3_9B(lang) {
   const start = rand(15, 30)
   const giveAway = rand(3, 10)
   const getMore = rand(2, 8)
+  const itemIndex = randomItemIndex()
   return {
     moduleType: 'numpad',
-    question: w(lang).wordProblemSweets(start, giveAway, getMore),
+    question: w(lang).wordProblemItems(start, giveAway, getMore, itemIndex),
     answer: String(start - giveAway + getMore),
   }
 }
 
-// 9C — Patterns: starts at 1, steps up by a consistent gap of either 3
-// or 4 (picked once, same gap the whole way through) — e.g. 1, 4, 7, 10, 13
+// 9C — Patterns: starts at 1, 2 or 3 (for variety), steps up by a
+// consistent gap of either 3 or 4 (picked once, same gap the whole way
+// through) — e.g. 2, 5, 8, 11, 14
 export function L3_9C() {
   const step = pick([3, 4])
-  const seq = [1]
+  const seq = [pick([1, 2, 3])]
   for (let i = 1; i < 5; i++) seq.push(seq[i - 1] + step)
   const hideIndex = rand(1, 4)
   const answer = seq[hideIndex]

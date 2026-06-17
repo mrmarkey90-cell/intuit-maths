@@ -8,6 +8,20 @@
 // w(lang) rather than redefining its own copies, so new levels get
 // the same vocabulary for free and only need to add genuinely new terms.
 
+// Shared noun list for word problems that need a countable item --
+// generators pick an index once with randomItemIndex() and pass it
+// through so the same noun is used consistently within one question.
+const ITEM_NOUNS = [
+  { en: 'sweets', cy: 'losin' },
+  { en: 'marbles', cy: 'marblis' },
+  { en: 'stickers', cy: 'sticeri' },
+  { en: 'pencils', cy: 'pensiliau' },
+]
+
+export function randomItemIndex() {
+  return Math.floor(Math.random() * ITEM_NOUNS.length)
+}
+
 const WORDS = {
   en: {
     find: 'Find',
@@ -29,8 +43,10 @@ const WORDS = {
     whatComesAfter: n => `What comes after ${n}?`,
     findEvenNumbers: 'Find the even numbers',
     whichAreInTimesTable: n => `Which are in the ${n} times table?`,
-    wordProblemSweets: (start, giveAway, getMore) =>
-      `You have ${start} sweets.\nYou give ${giveAway} away.\nYou get ${getMore} back.\nHow many sweets do you have?`,
+    wordProblemItems: (start, giveAway, getMore, itemIndex) => {
+      const item = ITEM_NOUNS[itemIndex].en
+      return `You have ${start} ${item}.\nYou give ${giveAway} away.\nYou get ${getMore} back.\nHow many ${item} do you have?`
+    },
   },
   cy: {
     find: 'Canfod',
@@ -52,8 +68,10 @@ const WORDS = {
     whatComesAfter: n => `Beth sy'n dod ar ôl ${n}?`,
     findEvenNumbers: 'Canfod y rhifau eilrif',
     whichAreInTimesTable: n => `Pa rifau sydd yn nhabl ${n}?`,
-    wordProblemSweets: (start, giveAway, getMore) =>
-      `Mae gennych chi ${start} losin.\nRydych chi'n rhoi ${giveAway} i ffwrdd.\nRydych chi'n cael ${getMore} yn ôl.\nFaint o losin sydd gennych chi?`,
+    wordProblemItems: (start, giveAway, getMore, itemIndex) => {
+      const item = ITEM_NOUNS[itemIndex].cy
+      return `Mae gennych chi ${start} ${item}.\nRydych chi'n rhoi ${giveAway} i ffwrdd.\nRydych chi'n cael ${getMore} yn ôl.\nFaint o ${item} sydd gennych chi?`
+    },
   },
 }
 

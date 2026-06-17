@@ -35,7 +35,13 @@ function NumpadModule({ question, stage, locked, revealed, onAnswer }) {
           </div>
         </div>
       ) : (
-        <div className="insight-module-question" style={{ whiteSpace: 'pre-wrap' }}>
+        <div
+          className={[
+            'insight-module-question',
+            question.question?.includes('\n') ? 'insight-module-question--wordproblem' : '',
+          ].filter(Boolean).join(' ')}
+          style={{ whiteSpace: 'pre-wrap' }}
+        >
           {question.question}
         </div>
       )}
