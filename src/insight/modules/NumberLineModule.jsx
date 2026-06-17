@@ -8,7 +8,7 @@ import { useRef, useState } from 'react'
 // is revealed, when every notch gets a label and (if wrong) a second
 // marker shows where the correct answer was.
 function NumberLineModule({ question, locked, revealed, onAnswer }) {
-  const { min, max, answer } = question
+  const { min, max, answer, labelPoints = [min, max] } = question
   const [value, setValue] = useState(min)
   const [dragValue, setDragValue] = useState(null)
   const [dragging, setDragging] = useState(false)
@@ -68,8 +68,7 @@ function NumberLineModule({ question, locked, revealed, onAnswer }) {
         <div className="insight-numberline-line" />
 
         {ticks.map(v => {
-          const isEnd = v === min || v === max
-          const showLabel = isEnd || revealed
+          const showLabel = labelPoints.includes(v) || revealed
           return (
             <div key={v} className="insight-numberline-notch" style={{ left: `${pctForValue(v)}%` }}>
               <span className="insight-numberline-mark" />

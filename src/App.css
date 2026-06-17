@@ -1993,6 +1993,64 @@ button:hover:not(:disabled) {
   text-decoration: line-through;
 }
 
+/* True/False module — two large tap buttons (e.g. Even / Odd) */
+
+.insight-truefalse-prompt {
+  font-size: clamp(22px, 4.5vw, 34px);
+  font-weight: 700;
+  color: #1f2937;
+  text-align: center;
+}
+
+.insight-truefalse-options {
+  flex: 1;
+  display: flex;
+  gap: clamp(14px, 3vw, 28px);
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.insight-truefalse-option,
+.insight-truefalse-option:disabled {
+  background: #f9fafb;
+  border: 3px solid #d1d5db;
+  border-radius: clamp(14px, 2vw, 22px);
+  padding: clamp(24px, 5vw, 40px) clamp(32px, 7vw, 64px);
+  font-size: clamp(26px, 5.5vw, 44px);
+  font-weight: 700;
+  color: #374151;
+  cursor: pointer;
+  min-width: clamp(140px, 28vw, 220px);
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.insight-truefalse-option:hover:not(:disabled) {
+  border-color: #4f46e5;
+}
+
+.insight-truefalse-option--selected,
+.insight-truefalse-option--selected:disabled {
+  border-color: #4f46e5;
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+.insight-truefalse-option--correct,
+.insight-truefalse-option--correct:disabled {
+  border-color: #16a34a;
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.insight-truefalse-option--wrong,
+.insight-truefalse-option--wrong:disabled {
+  border-color: #dc2626;
+  background: #fef2f2;
+  color: #dc2626;
+  text-decoration: line-through;
+}
+
 /* Pair-sum module (choose two tiles that sum to the target) */
 
 .insight-pairsum-prompt {

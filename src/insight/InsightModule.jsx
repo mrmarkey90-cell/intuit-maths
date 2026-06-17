@@ -8,6 +8,7 @@ import NumberLineModule from './modules/NumberLineModule'
 import ShareModule from './modules/ShareModule'
 import PairSumModule from './modules/PairSumModule'
 import FillBlankModule from './modules/FillBlankModule'
+import TrueFalseModule from './modules/TrueFalseModule'
 
 const MODULE_COMPONENTS = {
   numpad: NumpadModule,
@@ -17,6 +18,7 @@ const MODULE_COMPONENTS = {
   share: ShareModule,
   pair_sum: PairSumModule,
   fill_blank: FillBlankModule,
+  true_false: TrueFalseModule,
 }
 
 function InsightModule({ subdomain, level, onAnswer, locked, revealed }) {
