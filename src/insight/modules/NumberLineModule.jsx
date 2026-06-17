@@ -1,56 +1,101 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
-// A true ruled number line: one tick per integer, but only the two end
-// values are labelled — the child has to count notches to find the
-// answer rather than just read a number off a button.
+// A true ruled number line with a draggable arrow (Pointer Events, same
+// approach as DragSortModule's tiles). Tap anywhere on the line to jump
+// the arrow there and start dragging, or grab the arrow itself — it
+// snaps to the nearest notch the whole time, so it's always resting on
+// an exact integer. Only the two end values are labelled until marking
+// is revealed, when every notch gets a label and (if wrong) a second
+// marker shows where the correct answer was.
 function NumberLineModule({ question, locked, revealed, onAnswer }) {
-  const [selected, setSelected] = useState(null)
   const { min, max, answer } = question
+  const [value, setValue] = useState(null)
+  const [dragValue, setDragValue] = useState(null)
+  const [dragging, setDragging] = useState(false)
+  const trackRef = useRef(null)
 
   const ticks = []
   for (let v = min; v <= max; v++) ticks.push(v)
 
-  function pct(v) {
+  function pctForValue(v) {
     return ((v - min) / (max - min)) * 100
   }
 
-  function handleTap(v) {
+  function valueForClientX(clientX) {
+    const rect = trackRef.current.getBoundingClientRect()
+    const pct = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width))
+    return Math.round(min + pct * (max - min))
+  }
+
+  function handleDown(e) {
     if (locked) return
-    setSelected(v)
+    e.currentTarget.setPointerCapture?.(e.pointerId)
+    setDragging(true)
+    setDragValue(valueForClientX(e.clientX))
+  }
+
+  function handleMove(e) {
+    if (!dragging) return
+    setDragValue(valueForClientX(e.clientX))
+  }
+
+  function handleUp(e) {
+    if (!dragging) return
+    const v = valueForClientX(e.clientX)
+    setDragging(false)
+    setValue(v)
     onAnswer({ correct: v === answer })
   }
+
+  const displayValue = dragging ? dragValue : value
+  const isCorrect = displayValue === answer
 
   return (
     <div className="insight-module-content">
       <div className="insight-numberline-prompt">{question.prompt}</div>
-      <div className="insight-numberline-rule">
+      <div
+        className="insight-numberline-rule"
+        ref={trackRef}
+        onPointerDown={handleDown}
+        onPointerMove={handleMove}
+        onPointerUp={handleUp}
+        role="slider"
+        aria-valuemin={min}
+        aria-valuemax={max}
+        aria-valuenow={displayValue ?? min}
+      >
         <div className="insight-numberline-line" />
+
         {ticks.map(v => {
           const isEnd = v === min || v === max
-          // Endpoints are always labelled; once marking is revealed, every
-          // notch is labelled so the child can clearly see where the
-          // correct answer sat relative to their own tap.
           const showLabel = isEnd || revealed
-          const cls = [
-            'insight-numberline-tick',
-            selected === v && !revealed ? 'insight-numberline-tick--selected' : '',
-            revealed && v === answer ? 'insight-numberline-tick--correct' : '',
-            revealed && selected === v && v !== answer ? 'insight-numberline-tick--wrong' : '',
-          ].filter(Boolean).join(' ')
           return (
-            <button
-              key={v}
-              className={cls}
-              style={{ left: `${pct(v)}%` }}
-              onClick={() => handleTap(v)}
-              disabled={locked}
-              aria-label={`Choose ${v}`}
-            >
+            <div key={v} className="insight-numberline-notch" style={{ left: `${pctForValue(v)}%` }}>
               <span className="insight-numberline-mark" />
               {showLabel && <span className="insight-numberline-label">{v}</span>}
-            </button>
+            </div>
           )
         })}
+
+        {revealed && !isCorrect && (
+          <div className="insight-numberline-target" style={{ left: `${pctForValue(answer)}%` }}>
+            <span className="insight-numberline-handle-arrow">▲</span>
+          </div>
+        )}
+
+        {displayValue !== null && (
+          <div
+            className={[
+              'insight-numberline-handle',
+              !dragging && revealed && isCorrect ? 'insight-numberline-handle--correct' : '',
+              !dragging && revealed && !isCorrect ? 'insight-numberline-handle--wrong' : '',
+            ].filter(Boolean).join(' ')}
+            style={{ left: `${pctForValue(displayValue)}%`, transition: dragging ? 'none' : 'left 0.12s ease-out' }}
+          >
+            <span className="insight-numberline-handle-value">{displayValue}</span>
+            <span className="insight-numberline-handle-arrow">▲</span>
+          </div>
+        )}
       </div>
     </div>
   )

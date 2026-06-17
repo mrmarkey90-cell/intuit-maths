@@ -2117,8 +2117,11 @@ button:hover:not(:disabled) {
   position: relative;
   display: flex;
   align-items: center;
-  margin: 0 clamp(18px, 4vw, 30px);
+  margin: clamp(40px, 7vw, 56px) clamp(18px, 4vw, 30px) clamp(20px, 3.5vw, 30px);
   min-height: 64px;
+  touch-action: none;
+  cursor: pointer;
+  user-select: none;
 }
 
 .insight-numberline-line {
@@ -2131,30 +2134,14 @@ button:hover:not(:disabled) {
   border-radius: 2px;
 }
 
-.insight-numberline-tick {
-  /* Fixed-size hit area, independent of whether a label is shown below it
-     — this is what keeps the mark itself exactly on the line, rather than
-     labelled ticks (taller, with mark+label stacked) getting nudged up
-     relative to unlabelled ones when the whole button was centred as one
-     flex column. */
+.insight-numberline-notch {
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: clamp(36px, 7vw, 52px);
-  height: clamp(32px, 6vw, 44px);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-.insight-numberline-tick:disabled {
-  /* The global button:disabled rule (higher specificity than a single
-     class) was painting a lavender background box over every notch
-     once the question is locked/revealed — this restores "no box". */
-  background: none;
+  pointer-events: none;
 }
 
 .insight-numberline-mark {
@@ -2162,7 +2149,6 @@ button:hover:not(:disabled) {
   height: clamp(14px, 3vw, 22px);
   background: #9ca3af;
   border-radius: 2px;
-  transition: background 0.15s, height 0.15s, width 0.15s;
 }
 
 .insight-numberline-label {
@@ -2177,20 +2163,65 @@ button:hover:not(:disabled) {
   white-space: nowrap;
 }
 
-.insight-numberline-tick--selected .insight-numberline-mark {
-  background: #4f46e5;
-  width: 6px;
-  height: clamp(20px, 4vw, 30px);
+/* The draggable arrow — grab it, or tap anywhere on the line to jump it
+   there and start dragging. Snaps to the nearest notch at all times.
+   Sits above the line (value label, then arrow tip touching the line). */
+.insight-numberline-handle {
+  position: absolute;
+  bottom: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding-bottom: 2px;
+  pointer-events: none;
+  z-index: 2;
 }
 
-.insight-numberline-tick--correct .insight-numberline-mark {
-  background: #16a34a;
-  width: 6px;
-  height: clamp(20px, 4vw, 30px);
+.insight-numberline-handle-value {
+  font-size: clamp(16px, 3.2vw, 24px);
+  font-weight: 800;
+  color: #4f46e5;
+  background: white;
+  border: 2px solid #4f46e5;
+  border-radius: 8px;
+  padding: 2px 8px;
+  white-space: nowrap;
 }
 
-.insight-numberline-tick--wrong .insight-numberline-mark {
-  background: #dc2626;
+.insight-numberline-handle-arrow {
+  font-size: clamp(20px, 4vw, 30px);
+  color: #4f46e5;
+  line-height: 1;
+}
+
+.insight-numberline-handle--correct .insight-numberline-handle-value,
+.insight-numberline-handle--correct .insight-numberline-handle-arrow {
+  color: #16a34a;
+  border-color: #16a34a;
+}
+
+.insight-numberline-handle--wrong .insight-numberline-handle-value,
+.insight-numberline-handle--wrong .insight-numberline-handle-arrow {
+  color: #dc2626;
+  border-color: #dc2626;
+}
+
+/* Shows where the correct answer was, alongside the child's own (wrong)
+   placement, once marking is revealed. Sits below the line so it never
+   overlaps the child's own handle above. */
+.insight-numberline-target {
+  position: absolute;
+  top: 50%;
+  transform: translateX(-50%);
+  padding-top: 2px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.insight-numberline-target .insight-numberline-handle-arrow {
+  color: #16a34a;
 }
 
 /* Domain colour dot on module labels */
