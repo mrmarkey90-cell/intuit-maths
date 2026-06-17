@@ -102,7 +102,7 @@ function Dashboard({ session }) {
     <div className="dashboard">
       <header className="dashboard-header">
         <button className="button-secondary" onClick={() => setView('main')}>← Back</button>
-        <div className="dashboard-header-brand" style={{ flex: 1 }}><img src="/intuit-name.svg" alt="intuit" /></div>
+        <div className="dashboard-header-brand"><img src="/intuit-name.svg" alt="intuit" /></div>
       </header>
       <main className="dashboard-main">
         <div className="page-title">
@@ -135,7 +135,7 @@ function Dashboard({ session }) {
   return (
     <div className="dashboard">
       <header className="dashboard-header">
-        <div className="dashboard-header-brand" style={{ flex: 1 }}><img src="/intuit-name.svg" alt="intuit" /></div>
+        <div className="dashboard-header-brand"><img src="/intuit-name.svg" alt="intuit" /></div>
       </header>
 
       <main className="dashboard-tiles-wrapper">

@@ -153,7 +153,7 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
     return (
       <div className="dashboard">
         <header className="dashboard-header">
-          <div className="dashboard-header-brand" style={{ flex: 1 }}><img src="/intuit-name.svg" alt="intuit" /></div>
+          <div className="dashboard-header-brand"><img src="/intuit-name.svg" alt="intuit" /></div>
           <button className="button-secondary" onClick={handleCancel} disabled={cancelling}>
             {cancelling ? 'Cancelling...' : 'Cancel session'}
           </button>
@@ -250,7 +250,7 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
   return (
     <div className="dashboard">
       <header className="dashboard-header">
-        <div className="dashboard-header-brand" style={{ flex: 1 }}><img src="/intuit-name.svg" alt="intuit" /></div>
+        <div className="dashboard-header-brand"><img src="/intuit-name.svg" alt="intuit" /></div>
       </header>
 
       <main className="dashboard-main" style={{ maxWidth: 720 }}>

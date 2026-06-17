@@ -431,11 +431,15 @@ button:hover:not(:disabled) {
   padding: 1.25rem 2rem;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  position: relative;
 }
 
 .dashboard-header-brand {
-  display: flex;
-  justify-content: center;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .dashboard-header-brand img {

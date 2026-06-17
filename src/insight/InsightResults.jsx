@@ -9,7 +9,7 @@ function InsightResults({ score, total, onReviewMarking, onRestart }) {
   return (
     <div className="dashboard">
       <header className="dashboard-header">
-        <div className="dashboard-header-brand" style={{ flex: 1 }}><img src="/intuit-name.svg" alt="intuit" /></div>
+        <div className="dashboard-header-brand"><img src="/intuit-name.svg" alt="intuit" /></div>
       </header>
 
       <main className="dashboard-main" style={{ maxWidth: 480 }}>

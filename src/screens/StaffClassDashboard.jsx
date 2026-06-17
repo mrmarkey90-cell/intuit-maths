@@ -98,7 +98,7 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
       <div className="dashboard">
         <header className="dashboard-header">
           <button className="button-secondary" onClick={() => setView('main')}>← Back</button>
-          <div className="dashboard-header-brand" style={{ flex: 1 }}><img src="/intuit-name.svg" alt="intuit" /></div>
+          <div className="dashboard-header-brand"><img src="/intuit-name.svg" alt="intuit" /></div>
         </header>
         <main className="dashboard-main">
           <div className="page-title">
@@ -136,7 +136,7 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
       <div className="dashboard">
         <header className="dashboard-header">
           <button className="button-secondary" onClick={() => setView('main')}>← Back</button>
-          <div className="dashboard-header-brand" style={{ flex: 1 }}><img src="/intuit-name.svg" alt="intuit" /></div>
+          <div className="dashboard-header-brand"><img src="/intuit-name.svg" alt="intuit" /></div>
         </header>
         <main className="dashboard-main">
           <div className="page-title">
@@ -165,7 +165,7 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
       <div className="dashboard">
         <header className="dashboard-header">
           <button className="button-secondary" onClick={() => setView('main')}>← Back</button>
-          <div className="dashboard-header-brand" style={{ flex: 1 }}><img src="/intuit-name.svg" alt="intuit" /></div>
+          <div className="dashboard-header-brand"><img src="/intuit-name.svg" alt="intuit" /></div>
         </header>
         <main className="dashboard-main">
           <div className="page-title">
@@ -193,7 +193,7 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
     <div className="dashboard">
       <header className="dashboard-header">
         <button className="button-secondary" onClick={onChangeClass}>← Classes</button>
-        <div className="dashboard-header-brand" style={{ flex: 1 }}><img src="/intuit-name.svg" alt="intuit" /></div>
+        <div className="dashboard-header-brand"><img src="/intuit-name.svg" alt="intuit" /></div>
         <button className="button-secondary" onClick={onSignOut}>Sign out</button>
       </header>
 

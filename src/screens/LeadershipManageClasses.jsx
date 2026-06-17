@@ -104,7 +104,7 @@ function LeadershipManageClasses({ school, onBack, onSelectClass }) {
     <div className="dashboard">
       <header className="dashboard-header">
         <button className="button-secondary" onClick={onBack}>← Back</button>
-        <div className="dashboard-header-brand" style={{ flex: 1 }}><img src="/intuit-name.svg" alt="intuit" /></div>
+        <div className="dashboard-header-brand"><img src="/intuit-name.svg" alt="intuit" /></div>
       </header>
 
       <main className="dashboard-main">
