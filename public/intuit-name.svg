@@ -1,0 +1,19 @@
+<svg width="260" height="80" viewBox="0 0 260 80" xmlns="http://www.w3.org/2000/svg">
+  <rect width="260" height="80" fill="white"/>
+
+  <!-- Wordmark with selective bolding: InTuIt (but all lowercase visually) -->
+  <text x="40" y="50"
+        font-size="34"
+        font-family="Segoe UI Rounded, Nunito, system-ui, sans-serif"
+        fill="#111827"
+        letter-spacing="0.25">
+
+    <tspan font-weight="550">i</tspan><!-- I -->
+    <tspan font-weight="400">n</tspan><!-- n -->
+    <tspan font-weight="550">t</tspan><!-- T -->
+    <tspan font-weight="400">u</tspan><!-- u -->
+    <tspan font-weight="550">i</tspan><!-- I -->
+    <tspan font-weight="400">t</tspan><!-- t -->
+
+  </text>
+</svg>

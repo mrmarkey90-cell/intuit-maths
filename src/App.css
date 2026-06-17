@@ -434,10 +434,14 @@ button:hover:not(:disabled) {
 }
 
 .dashboard-header-brand {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #4f46e5;
-  letter-spacing: 0.02em;
+  display: flex;
+  justify-content: center;
+}
+
+.dashboard-header-brand img {
+  height: 28px;
+  width: auto;
+  display: block;
 }
 
 .page-title {
