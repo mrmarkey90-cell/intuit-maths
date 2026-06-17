@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { supabase } from '../supabaseClient'
+import { useTranslation } from '../i18n/LanguageContext'
 import AvatarBuilder from '../components/AvatarBuilder'
 
 const DEFAULT_AVATAR = { face: 0, hat: 0, glasses: 0, scarf: 0 }
 const DEFAULT_UNLOCKED = { faces: [0], hats: [0], glasses: [0], scarves: [0] }
 
 function PupilProfileCreate({ joinCode, classInfo, onComplete }) {
+  const { t } = useTranslation()
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [avatar, setAvatar] = useState(DEFAULT_AVATAR)
@@ -13,8 +15,8 @@ function PupilProfileCreate({ joinCode, classInfo, onComplete }) {
   const [error, setError] = useState(null)
 
   async function handleSubmit() {
-    if (!firstName.trim()) { setError('Enter your first name'); return }
-    if (!lastName.trim()) { setError('Enter your last name'); return }
+    if (!firstName.trim()) { setError(t('pupilProfileCreate.errFirstName')); return }
+    if (!lastName.trim()) { setError(t('pupilProfileCreate.errLastName')); return }
     setLoading(true)
     setError(null)
 
@@ -37,19 +39,19 @@ function PupilProfileCreate({ joinCode, classInfo, onComplete }) {
 
   return (
     <div className="screen">
-      <h1>Create your profile</h1>
+      <h1>{t('pupilProfileCreate.title')}</h1>
       <p className="tagline">{classInfo.class_name} — {classInfo.school_name}</p>
 
       <div className="form">
         <input
           type="text"
-          placeholder="First name"
+          placeholder={t('pupilProfileCreate.firstNamePlaceholder')}
           value={firstName}
           onChange={e => { setFirstName(e.target.value); setError(null) }}
         />
         <input
           type="text"
-          placeholder="Last name"
+          placeholder={t('pupilProfileCreate.lastNamePlaceholder')}
           value={lastName}
           onChange={e => { setLastName(e.target.value); setError(null) }}
         />
@@ -64,7 +66,7 @@ function PupilProfileCreate({ joinCode, classInfo, onComplete }) {
         disabled={!firstName.trim() || !lastName.trim() || loading}
         style={{ marginTop: '1.5rem' }}
       >
-        {loading ? 'Saving...' : "That's me!"}
+        {loading ? t('common.saving') : t('pupilProfileCreate.thatsMe')}
       </button>
     </div>
   )

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import QRCode from 'react-qr-code'
 import { supabase } from '../../supabaseClient'
+import { useTranslation } from '../../i18n/LanguageContext'
 import AvatarDisplay from '../../components/AvatarDisplay'
 
 const SESSION_DURATION = 60
@@ -29,6 +30,7 @@ function playPing() {
 }
 
 function SessionHost({ school, cls, session, classPupils, onEnd }) {
+  const { t } = useTranslation()
   const [cancelling, setCancelling] = useState(false)
 
   async function handleCancel() {
@@ -155,26 +157,26 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
         <header className="dashboard-header">
           <div className="dashboard-header-brand"><img src="/intuit-name.svg" alt="intuit" /></div>
           <button className="button-secondary" onClick={handleCancel} disabled={cancelling}>
-            {cancelling ? 'Cancelling...' : 'Cancel session'}
+            {cancelling ? t('sessionHost.cancelling') : t('sessionHost.cancelSession')}
           </button>
         </header>
 
         <main className="dashboard-main" style={{ maxWidth: 720 }}>
           <div className="page-title">
-            <h1>Instinct — Lobby</h1>
+            <h1>{t('sessionHost.lobbyTitle')}</h1>
             <span className="tier-badge">{cls.name}</span>
           </div>
           <section className="dashboard-section">
-            <div className="section-heading"><h2>Session link</h2></div>
+            <div className="section-heading"><h2>{t('sessionHost.sessionLink')}</h2></div>
             <div className="session-link-block">
               <div className="session-qr">
                 <QRCode value={joinUrl} size={140} />
               </div>
               <div className="session-link-info">
-                <p className="note" style={{ marginBottom: '0.5rem' }}>Pupils go to:</p>
+                <p className="note" style={{ marginBottom: '0.5rem' }}>{t('sessionHost.pupilsGoTo')}</p>
                 <code className="session-code-display">{joinUrl.replace('https://', '')}</code>
                 <p className="note" style={{ marginTop: '0.5rem' }}>
-                  Session code: <strong>{session.join_code}</strong>
+                  {t('sessionHost.sessionCode')} <strong>{session.join_code}</strong>
                 </p>
               </div>
             </div>
@@ -182,8 +184,8 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
 
           <section className="dashboard-section">
             <div className="section-heading">
-              <h2>Pupils ready</h2>
-              <span className="section-count">{joinedCount} / {totalPupils} joined</span>
+              <h2>{t('sessionHost.pupilsReady')}</h2>
+              <span className="section-count">{t('sessionHost.joinedCount').replace('{n}', joinedCount).replace('{m}', totalPupils)}</span>
             </div>
             <div className="lobby-grid">
               {pupilsWithStatus.map(p => (
@@ -199,7 +201,7 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
               disabled={joinedCount === 0}
               style={{ marginTop: '1.5rem', width: '100%' }}
             >
-              {joinedCount === 0 ? 'Waiting for pupils...' : `Begin! (${joinedCount} ready)`}
+              {joinedCount === 0 ? t('sessionHost.waitingForPupils') : t('sessionHost.begin').replace('{n}', joinedCount)}
             </button>
           </section>
         </main>
@@ -216,15 +218,15 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
         <div className="session-timer" style={{ color: timeLeft <= 15 ? '#f87171' : undefined }}>
           {fmt(timeLeft)}
         </div>
-        <p className="session-active-label">Instinct in progress</p>
+        <p className="session-active-label">{t('sessionHost.inProgress')}</p>
         <div className="session-stats">
           <div className="stat-box">
             <div className="stat-number">{allRows.length}</div>
-            <div className="stat-label">Playing</div>
+            <div className="stat-label">{t('sessionHost.playing')}</div>
           </div>
           <div className="stat-box">
             <div className="stat-number">{totalAnswered}</div>
-            <div className="stat-label">Answered</div>
+            <div className="stat-label">{t('sessionHost.answered')}</div>
           </div>
         </div>
       </div>
@@ -235,9 +237,9 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
     return (
       <div className="session-active">
         <div className="session-timer" style={{ fontSize: '3rem', color: '#818cf8' }}>
-          Marking your answers...
+          {t('sessionHost.marking')}
         </div>
-        <p className="session-active-label">Results in {graceLeft}s</p>
+        <p className="session-active-label">{t('sessionHost.resultsIn').replace('{n}', graceLeft)}</p>
       </div>
     )
   }
@@ -255,39 +257,43 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
 
       <main className="dashboard-main" style={{ maxWidth: 720 }}>
         <div className="page-title">
-          <h1>Instinct Complete</h1>
+          <h1>{t('sessionHost.complete')}</h1>
           <span className="tier-badge">{cls.name}</span>
         </div>
         <section className="dashboard-section">
           <div className="results-summary">
             <div className="stat-box stat-box--large">
               <div className="stat-number">{totalAnswered}</div>
-              <div className="stat-label">Questions attempted</div>
+              <div className="stat-label">{t('sessionHost.questionsAttempted')}</div>
             </div>
             <div className="stat-box stat-box--large">
               <div className="stat-number">{totalCorrect}</div>
-              <div className="stat-label">Correct</div>
+              <div className="stat-label">{t('sessionHost.correct')}</div>
             </div>
             <div className="stat-box stat-box--large">
               <div className="stat-number">{pct}%</div>
-              <div className="stat-label">Class accuracy</div>
+              <div className="stat-label">{t('sessionHost.classAccuracy')}</div>
             </div>
           </div>
           {comparison?.previous && (() => {
             const prev = comparison.previous
             const prevPct = prev.answered > 0 ? Math.round((prev.correct / prev.answered) * 100) : 0
             const diff = pct - prevPct
+            const key = diff > 0 ? 'sessionHost.vsLastSessionUp' : diff < 0 ? 'sessionHost.vsLastSessionDown' : 'sessionHost.vsLastSessionSame'
             return (
               <p className="results-comparison" style={{ marginTop: '1rem', textAlign: 'center' }}>
-                {diff > 0 ? `▲ ${diff}%` : diff < 0 ? `▼ ${Math.abs(diff)}%` : '—'} vs last session
-                {' '}({prev.correct}/{prev.answered}, {prevPct}%)
+                {t(key)
+                  .replace('{n}', Math.abs(diff))
+                  .replace('{a}', prev.correct)
+                  .replace('{b}', prev.answered)
+                  .replace('{pct}', prevPct)}
               </p>
             )
           })()}
         </section>
 
         <button className="button-secondary" onClick={onEnd} style={{ marginTop: '0.5rem' }}>
-          Back to class dashboard
+          {t('sessionHost.backToClassDashboard')}
         </button>
       </main>
     </div>

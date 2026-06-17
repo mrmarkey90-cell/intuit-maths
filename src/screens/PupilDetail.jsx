@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
+import { useTranslation } from '../i18n/LanguageContext'
 
-function StreakDots({ streak }) {
+function StreakDots({ streak, t }) {
   return (
     <div className="streak-display">
       <div className="streak-dots">
@@ -10,13 +11,13 @@ function StreakDots({ streak }) {
         ))}
       </div>
       <span className="streak-label">
-        {streak === 0 ? 'No streak yet' : `${streak}/3 towards next level`}
+        {streak === 0 ? t('staffPupilDetail.streakLabelNone') : t('staffPupilDetail.streakLabelProgress').replace('{n}', streak)}
       </span>
     </div>
   )
 }
 
-function ScoreChart({ attempts }) {
+function ScoreChart({ attempts, t }) {
   if (attempts.length === 0) return null
 
   const sorted = [...attempts].sort((a, b) => new Date(a.completed_at) - new Date(b.completed_at))
@@ -65,7 +66,7 @@ function ScoreChart({ attempts }) {
         x={10} y={PAD.top + innerH / 2}
         textAnchor="middle" fontSize="11" fill="#9ca3af"
         transform={`rotate(-90, 10, ${PAD.top + innerH / 2})`}
-      >Correct</text>
+      >{t('staffPupilDetail.correctAxisLabel')}</text>
 
       {/* Line */}
       {pts.length > 1 && (
@@ -100,6 +101,7 @@ function ScoreChart({ attempts }) {
 }
 
 function PupilDetail({ pupilId, onBack, onLevelChanged }) {
+  const { t } = useTranslation()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [overrideInstinct, setOverrideInstinct] = useState(1)
@@ -133,8 +135,8 @@ function PupilDetail({ pupilId, onBack, onLevelChanged }) {
     loadData()
   }
 
-  if (loading) return <div className="dashboard"><main className="dashboard-main"><p>Loading...</p></main></div>
-  if (!data?.pupil) return <div className="dashboard"><main className="dashboard-main"><p>Pupil not found.</p></main></div>
+  if (loading) return <div className="dashboard"><main className="dashboard-main"><p>{t('common.loading')}</p></main></div>
+  if (!data?.pupil) return <div className="dashboard"><main className="dashboard-main"><p>{t('staffPupilDetail.pupilNotFound')}</p></main></div>
 
   const { pupil, attempts } = data
   const instinctLevel = pupil.instinct_level ?? 1
@@ -144,7 +146,7 @@ function PupilDetail({ pupilId, onBack, onLevelChanged }) {
   return (
     <div className="dashboard">
       <header className="dashboard-header">
-        <button className="button-secondary" onClick={onBack}>← Back</button>
+        <button className="button-secondary" onClick={onBack}>← {t('common.back')}</button>
         <div className="dashboard-header-brand"><img src="/intuit-name.svg" alt="intuit" /></div>
       </header>
 
@@ -154,29 +156,29 @@ function PupilDetail({ pupilId, onBack, onLevelChanged }) {
         </div>
 
         <section className="dashboard-section">
-          <div className="section-heading"><h2>Levels</h2></div>
+          <div className="section-heading"><h2>{t('staffPupilDetail.levels')}</h2></div>
           <div className="pupil-detail-levels">
             <div className="pupil-detail-level-block pupil-detail-level-block--instinct">
               <div className="level-block-header">
                 <span className="level-block-label">Instinct</span>
                 <span className="level-block-number">{instinctLevel}</span>
               </div>
-              <StreakDots streak={streak} />
+              <StreakDots streak={streak} t={t} />
             </div>
             <div className="pupil-detail-level-block pupil-detail-level-block--insight">
               <div className="level-block-header">
                 <span className="level-block-label">Insight</span>
                 <span className="level-block-number">{insightLevel}</span>
               </div>
-              <p className="note" style={{ marginTop: '0.75rem' }}>Insight coming soon</p>
+              <p className="note" style={{ marginTop: '0.75rem' }}>{t('staffPupilDetail.insightComingSoon')}</p>
             </div>
           </div>
         </section>
 
         <section className="dashboard-section">
-          <div className="section-heading"><h2>Override levels</h2></div>
+          <div className="section-heading"><h2>{t('staffPupilDetail.overrideLevels')}</h2></div>
           <p className="note" style={{ marginBottom: '1rem' }}>
-            Manually set this pupil's levels. This resets their streak and bad-streak progress.
+            {t('staffPupilDetail.overrideNote')}
           </p>
           <div className="level-override-form">
             <div className="level-override-row">
@@ -203,20 +205,20 @@ function PupilDetail({ pupilId, onBack, onLevelChanged }) {
               onClick={saveLevels}
               disabled={saving || (overrideInstinct === instinctLevel && overrideInsight === insightLevel)}
             >
-              {saving ? 'Saving...' : saved ? 'Saved ✓' : 'Save'}
+              {saving ? t('common.saving') : saved ? t('staffPupilDetail.saved') : t('common.save')}
             </button>
           </div>
         </section>
 
         <section className="dashboard-section">
           <div className="section-heading">
-            <h2>Instinct history</h2>
-            <span className="section-count">{attempts.length} sessions</span>
+            <h2>{t('staffPupilDetail.instinctHistory')}</h2>
+            <span className="section-count">{t('staffPupilDetail.sessionsCount').replace('{n}', attempts.length)}</span>
           </div>
           {attempts.length === 0 ? (
-            <p className="note">No Instinct sessions completed yet.</p>
+            <p className="note">{t('staffPupilDetail.noSessions')}</p>
           ) : (
-            <ScoreChart attempts={attempts} />
+            <ScoreChart attempts={attempts} t={t} />
           )}
         </section>
       </main>

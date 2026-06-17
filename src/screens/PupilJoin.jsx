@@ -7,7 +7,7 @@ import PupilProfileCreate from './PupilProfileCreate'
 function PupilJoin() {
   const { code } = useParams()
   const joinCode = code.toUpperCase()
-  const { setLanguage } = useTranslation()
+  const { t, setLanguage } = useTranslation()
 
   const [classInfo, setClassInfo] = useState(null)
   const [notFound, setNotFound] = useState(false)
@@ -26,17 +26,17 @@ function PupilJoin() {
 
   if (notFound) return (
     <div className="screen">
-      <h1>Class not found</h1>
-      <p className="tagline">Check the link and try again</p>
+      <h1>{t('pupilJoin.classNotFound')}</h1>
+      <p className="tagline">{t('pupilJoin.checkLink')}</p>
     </div>
   )
 
-  if (!classInfo) return <div className="screen"><p>Loading...</p></div>
+  if (!classInfo) return <div className="screen"><p>{t('common.loading')}</p></div>
 
   if (pupil) return (
     <div className="screen">
-      <h1>Welcome, {pupil.first_name}!</h1>
-      <p className="tagline">Wait for your teacher to start the session</p>
+      <h1>{t('pupilJoin.welcome').replace('{name}', pupil.first_name)}</h1>
+      <p className="tagline">{t('pupilJoin.waitForTeacher')}</p>
     </div>
   )
 

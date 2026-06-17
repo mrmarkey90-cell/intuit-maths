@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
+import { useTranslation } from '../i18n/LanguageContext'
 import AvatarDisplay from '../components/AvatarDisplay'
 
 function PupilClassGrid({ joinCode, classInfo, onSelect }) {
+  const { t } = useTranslation()
   const [pupils, setPupils] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -14,15 +16,15 @@ function PupilClassGrid({ joinCode, classInfo, onSelect }) {
       })
   }, [joinCode])
 
-  if (loading) return <div className="screen"><p>Loading...</p></div>
+  if (loading) return <div className="screen"><p>{t('common.loading')}</p></div>
 
   return (
     <div className="screen">
-      <h1>Who are you?</h1>
+      <h1>{t('pupilHub.whoAreYou')}</h1>
       <p className="tagline">{classInfo.class_name}</p>
 
       {pupils.length === 0 ? (
-        <p className="note">No profiles yet — ask your teacher to check the join link</p>
+        <p className="note">{t('pupilClassGrid.noProfiles')}</p>
       ) : (
         <div className="pupil-grid">
           {pupils.map(p => (

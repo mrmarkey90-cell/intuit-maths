@@ -4,7 +4,7 @@ import { supabase } from '../supabaseClient'
 import { useTranslation } from '../i18n/LanguageContext'
 import AvatarDisplay from '../components/AvatarDisplay'
 
-function StreakDots({ streak }) {
+function StreakDots({ streak, t }) {
   return (
     <div className="streak-display">
       <div className="streak-dots">
@@ -19,7 +19,7 @@ function StreakDots({ streak }) {
 function PupilHub() {
   const { joinCode } = useParams()
   const navigate = useNavigate()
-  const { setLanguage } = useTranslation()
+  const { t, setLanguage } = useTranslation()
 
   const [view, setView] = useState('loading')
   const [classInfo, setClassInfo] = useState(null)
@@ -73,18 +73,18 @@ function PupilHub() {
     navigate(`/play/${sessionCode}?pupil=${pupil.id}&hub=${joinCode}`)
   }
 
-  if (view === 'loading') return <div className="screen"><p>Loading...</p></div>
+  if (view === 'loading') return <div className="screen"><p>{t('common.loading')}</p></div>
 
   if (view === 'error') return (
     <div className="screen">
-      <h1>Class not found</h1>
-      <p className="tagline">Ask your teacher for the link</p>
+      <h1>{t('pupilHub.classNotFound')}</h1>
+      <p className="tagline">{t('pupilHub.askTeacher')}</p>
     </div>
   )
 
   if (view === 'select') return (
     <div className="screen">
-      <h1>Who are you?</h1>
+      <h1>{t('pupilHub.whoAreYou')}</h1>
       <p className="tagline">{classInfo?.class_name}</p>
       <div className="pupil-grid">
         {pupils.map(p => (
@@ -108,15 +108,15 @@ function PupilHub() {
         avatar={pendingPupil?.avatar ?? { face: 0, hat: 0, glasses: 0, scarf: 0 }}
         size={100}
       />
-      <p className="hub-confirm-question">Is this you?</p>
+      <p className="hub-confirm-question">{t('pupilHub.isThisYou')}</p>
       <p className="hub-confirm-name">{pendingPupil?.first_name} {pendingPupil?.last_name}</p>
       <div className="hub-confirm-btns">
-        <button onClick={() => confirmPupil(pendingPupil)}>Yes, that's me!</button>
+        <button onClick={() => confirmPupil(pendingPupil)}>{t('pupilHub.yesThatsMe')}</button>
         <button
           className="button-secondary"
           onClick={() => { setPendingPupil(null); setView('select') }}
         >
-          That's not me
+          {t('pupilHub.notMe')}
         </button>
       </div>
     </div>
@@ -134,10 +134,10 @@ function PupilHub() {
             avatar={pupil.avatar ?? { face: 0, hat: 0, glasses: 0, scarf: 0 }}
             size={110}
           />
-          <span className="hub-avatar-label">{avatarMsg ? 'Coming soon!' : 'Edit avatar'}</span>
+          <span className="hub-avatar-label">{avatarMsg ? t('pupilHub.comingSoon') : t('pupilHub.editAvatar')}</span>
         </div>
 
-        <h1 className="hub-name">Hi, {pupil.first_name}!</h1>
+        <h1 className="hub-name">{t('pupilHub.hi').replace('{name}', pupil.first_name)}</h1>
 
         <div className="hub-levels">
           <div className="hub-level-badge hub-level-badge--instinct">
@@ -150,14 +150,14 @@ function PupilHub() {
           </div>
         </div>
 
-        <div className="hub-credits">⭐ {pupil.credits ?? 0} credits</div>
+        <div className="hub-credits">⭐ {pupil.credits ?? 0} {t('pupilHub.credits')}</div>
 
         <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
-          <StreakDots streak={streak} />
+          <StreakDots streak={streak} t={t} />
           <span className="streak-label" style={{ marginTop: '0.35rem', display: 'block' }}>
             {streak > 0
-              ? `${streak}/3 towards Instinct Level ${instinctLevel + 1}`
-              : `Towards Instinct Level ${instinctLevel + 1}`}
+              ? t('pupilHub.streakTowardsInstinctLevel').replace('{streak}', streak).replace('{n}', instinctLevel + 1)
+              : t('pupilHub.towardsInstinctLevel').replace('{n}', instinctLevel + 1)}
           </span>
         </div>
 
@@ -166,7 +166,7 @@ function PupilHub() {
           onClick={startPractice}
           disabled={practicing}
         >
-          {practicing ? 'Starting...' : 'Practice Instinct →'}
+          {practicing ? t('pupilHub.startingPractice') : t('pupilHub.practiceInstinct')}
         </button>
 
         <button
@@ -178,7 +178,7 @@ function PupilHub() {
             setView('select')
           }}
         >
-          Not {pupil.first_name}? Sign out
+          {t('pupilHub.notYouSignOut').replace('{name}', pupil.first_name)}
         </button>
       </div>
     )

@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import QRCode from 'react-qr-code'
 import { supabase } from '../supabaseClient'
+import { useTranslation } from '../i18n/LanguageContext'
 import SessionHost from './session/SessionHost'
 import PupilDetail from './PupilDetail'
 
 function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
+  const { t } = useTranslation()
   const [view, setView] = useState('main')
   const [session, setSession] = useState(null)       // actively shown in SessionHost
   const [activeSession, setActiveSession] = useState(null) // in DB but not yet resumed
@@ -97,17 +99,17 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
     return (
       <div className="dashboard">
         <header className="dashboard-header">
-          <button className="button-secondary" onClick={() => setView('main')}>← Back</button>
+          <button className="button-secondary" onClick={() => setView('main')}>← {t('common.back')}</button>
           <div className="dashboard-header-brand"><img src="/intuit-name.svg" alt="intuit" /></div>
         </header>
         <main className="dashboard-main">
           <div className="page-title">
-            <h1>Pupils</h1>
+            <h1>{t('staffDashboard.pupilsTitle')}</h1>
             <span className="tier-badge">{cls.name}</span>
           </div>
           <section className="dashboard-section">
             <div className="section-heading">
-              <h2>Class list</h2>
+              <h2>{t('staffDashboard.classList')}</h2>
               <span className="section-count">{classPupils.length}</span>
             </div>
             <div className="pupil-list">
@@ -122,7 +124,7 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
                 </button>
               ))}
               {classPupils.length === 0 && (
-                <p className="note">No pupils yet — use Add Pupil to share the profile link.</p>
+                <p className="note">{t('staffDashboard.noPupilsYet')}</p>
               )}
             </div>
           </section>
@@ -135,24 +137,24 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
     return (
       <div className="dashboard">
         <header className="dashboard-header">
-          <button className="button-secondary" onClick={() => setView('main')}>← Back</button>
+          <button className="button-secondary" onClick={() => setView('main')}>← {t('common.back')}</button>
           <div className="dashboard-header-brand"><img src="/intuit-name.svg" alt="intuit" /></div>
         </header>
         <main className="dashboard-main">
           <div className="page-title">
-            <h1>Pupil Hub</h1>
+            <h1>{t('staffDashboard.pupilHubTitle')}</h1>
             <span className="tier-badge">{cls.name}</span>
           </div>
           <section className="dashboard-section qr-focus-section">
             <p className="note" style={{ marginBottom: '1.5rem' }}>
-              Display or share this so pupils can access their hub
+              {t('staffDashboard.displayOrShare')}
             </p>
             <div className="qr-display-box">
               <QRCode value={hubUrl} size={220} />
             </div>
             <code className="qr-url-display">{hubDisplayUrl}</code>
             <button onClick={copyHubLink} style={{ marginTop: '1rem' }}>
-              {hubCopied ? 'Copied!' : 'Copy link'}
+              {hubCopied ? t('common.copied') : t('staffDashboard.copyLink')}
             </button>
           </section>
         </main>
@@ -164,24 +166,24 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
     return (
       <div className="dashboard">
         <header className="dashboard-header">
-          <button className="button-secondary" onClick={() => setView('main')}>← Back</button>
+          <button className="button-secondary" onClick={() => setView('main')}>← {t('common.back')}</button>
           <div className="dashboard-header-brand"><img src="/intuit-name.svg" alt="intuit" /></div>
         </header>
         <main className="dashboard-main">
           <div className="page-title">
-            <h1>Add Pupil</h1>
+            <h1>{t('staffDashboard.addPupilTitle')}</h1>
             <span className="tier-badge">{cls.name}</span>
           </div>
           <section className="dashboard-section qr-focus-section">
             <p className="note" style={{ marginBottom: '1.5rem' }}>
-              New pupils follow this link to create their profile
+              {t('staffDashboard.newPupilsFollow')}
             </p>
             <div className="qr-display-box">
               <QRCode value={profileUrl} size={220} />
             </div>
             <code className="qr-url-display">{profileDisplayUrl}</code>
             <button onClick={copyProfileLink} style={{ marginTop: '1rem' }}>
-              {profileCopied ? 'Copied!' : 'Copy link'}
+              {profileCopied ? t('common.copied') : t('staffDashboard.copyLink')}
             </button>
           </section>
         </main>
@@ -192,9 +194,9 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
   return (
     <div className="dashboard">
       <header className="dashboard-header">
-        <button className="button-secondary" onClick={onChangeClass}>← Classes</button>
+        <button className="button-secondary" onClick={onChangeClass}>← {t('staffDashboard.classes')}</button>
         <div className="dashboard-header-brand"><img src="/intuit-name.svg" alt="intuit" /></div>
-        <button className="button-secondary" onClick={onSignOut}>Sign out</button>
+        <button className="button-secondary" onClick={onSignOut}>{t('common.signOut')}</button>
       </header>
 
       <main className="dashboard-tiles-wrapper">
@@ -207,10 +209,10 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
                 <div className="instinct-tile-title">⚡ Instinct</div>
                 <div className="instinct-tile-sub">
                   {activeSession
-                    ? 'A session is waiting — resume or cancel it'
+                    ? t('staffDashboard.sessionWaiting')
                     : weeklyUsed
-                      ? 'Completed this week — resets Sunday'
-                      : '60-second whole-class arithmetic challenge'}
+                      ? t('staffDashboard.completedThisWeek')
+                      : t('staffDashboard.challengeDescription')}
                 </div>
               </div>
               {activeSession ? (
@@ -219,14 +221,14 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
                     className="instinct-start-btn"
                     onClick={() => setSession(activeSession)}
                   >
-                    Resume
+                    {t('staffDashboard.resume')}
                   </button>
                   <button
                     className="instinct-cancel-btn"
                     onClick={cancelSession}
                     disabled={cancelling}
                   >
-                    {cancelling ? '...' : 'Cancel'}
+                    {cancelling ? '...' : t('common.cancel')}
                   </button>
                 </div>
               ) : (
@@ -235,7 +237,7 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
                   onClick={startChallenge}
                   disabled={weeklyUsed || starting}
                 >
-                  {starting ? 'Setting up...' : weeklyUsed ? 'Done this week ✓' : 'Start Instinct'}
+                  {starting ? t('staffDashboard.settingUp') : weeklyUsed ? t('staffDashboard.doneThisWeek') : t('staffDashboard.startInstinct')}
                 </button>
               )}
             </div>
@@ -243,21 +245,21 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
 
           <button className="dashboard-tile" onClick={() => setView('hub-link')}>
             <div className="dashboard-tile-icon">🏠</div>
-            <div className="dashboard-tile-title">Pupil Hub</div>
-            <div className="dashboard-tile-sub">Link &amp; QR for pupils</div>
+            <div className="dashboard-tile-title">{t('staffDashboard.pupilHubTitle')}</div>
+            <div className="dashboard-tile-sub">{t('staffDashboard.pupilHubSub')}</div>
           </button>
 
           <button className="dashboard-tile" onClick={() => setView('add-pupil')}>
             <div className="dashboard-tile-icon">➕</div>
-            <div className="dashboard-tile-title">Add Pupil</div>
-            <div className="dashboard-tile-sub">Profile creator link &amp; QR</div>
+            <div className="dashboard-tile-title">{t('staffDashboard.addPupilTitle')}</div>
+            <div className="dashboard-tile-sub">{t('staffDashboard.addPupilSub')}</div>
           </button>
 
           <button className="dashboard-tile" onClick={() => setView('pupils')}>
             <div className="dashboard-tile-icon">👥</div>
-            <div className="dashboard-tile-title">Pupils</div>
+            <div className="dashboard-tile-title">{t('staffDashboard.pupilsTitle')}</div>
             <div className="dashboard-tile-sub">
-              {classPupils.length} pupil{classPupils.length !== 1 ? 's' : ''}
+              {t('dashboard.pupilsCount').replace('{n}', classPupils.length)}
             </div>
           </button>
 

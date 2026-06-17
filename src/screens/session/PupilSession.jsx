@@ -19,19 +19,19 @@ function TimerBar({ timeLeft }) {
   )
 }
 
-function LevelDownOffer({ pupilId, currentStage }) {
+function LevelDownOffer({ pupilId, currentStage, t }) {
   const [accepted, setAccepted] = useState(false)
   async function accept() {
     await supabase.rpc('lower_pupil_stage', { p_pupil_id: pupilId })
     setAccepted(true)
   }
-  if (accepted) return <p className="streak-info">Dropped to Stage {currentStage - 1}</p>
+  if (accepted) return <p className="streak-info">{t('pupilSession.droppedToStage').replace('{n}', currentStage - 1)}</p>
   return (
     <div className="level-down-offer">
-      <p>You've had a few tricky sessions. Drop to Stage {currentStage - 1}?</p>
+      <p>{t('pupilSession.trickyLevelDown').replace('{n}', currentStage - 1)}</p>
       <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 8 }}>
-        <button onClick={accept} className="button-secondary">Yes please</button>
-        <button onClick={() => setAccepted(true)} className="button-secondary">Stay here</button>
+        <button onClick={accept} className="button-secondary">{t('pupilSession.yesPlease')}</button>
+        <button onClick={() => setAccepted(true)} className="button-secondary">{t('pupilSession.stayHere')}</button>
       </div>
     </div>
   )
@@ -41,7 +41,7 @@ function PupilSession() {
   const { code } = useParams()
   const navigate = useNavigate()
   const sessionCode = code.toUpperCase()
-  const { setLanguage } = useTranslation()
+  const { t, setLanguage } = useTranslation()
 
   const [view, setView] = useState('loading')
   const [sessionInfo, setSessionInfo] = useState(null)
@@ -248,27 +248,27 @@ function PupilSession() {
 
   // ── Views ──────────────────────────────────────
 
-  if (view === 'loading') return <div className="screen"><p>Loading...</p></div>
+  if (view === 'loading') return <div className="screen"><p>{t('common.loading')}</p></div>
 
   if (view === 'ready') return (
     <div className="screen">
       <AvatarDisplay avatar={pupil?.avatar ?? { face: 0, hat: 0, glasses: 0, scarf: 0 }} size={90} />
       <h1 style={{ marginTop: '1rem' }}>{pupil?.first_name}</h1>
-      <p className="tagline">Get ready...</p>
+      <p className="tagline">{t('pupilSession.getReady')}</p>
       <div className="lobby-waiting-dots"><span /><span /><span /></div>
     </div>
   )
 
   if (view === 'error') return (
     <div className="screen">
-      <h1>Session not found</h1>
-      <p className="tagline">Ask your teacher for the link</p>
+      <h1>{t('pupilSession.sessionNotFound')}</h1>
+      <p className="tagline">{t('pupilHub.askTeacher')}</p>
     </div>
   )
 
   if (view === 'join') return (
     <div className="screen">
-      <h1>Who are you?</h1>
+      <h1>{t('pupilHub.whoAreYou')}</h1>
       <p className="tagline">{sessionInfo?.class_name}</p>
       <div className="pupil-grid">
         {pupils.map(p => (
@@ -286,7 +286,7 @@ function PupilSession() {
     <div className="screen">
       <AvatarDisplay avatar={pupil?.avatar ?? { face: 0, hat: 0, glasses: 0, scarf: 0 }} size={100} />
       <h1 style={{ marginTop: '1rem' }}>{pupil?.first_name}</h1>
-      <p className="tagline">You're in! Waiting for your teacher...</p>
+      <p className="tagline">{t('pupilSession.youreIn')}</p>
       <div className="lobby-waiting-dots"><span /><span /><span /></div>
     </div>
   )
@@ -297,7 +297,7 @@ function PupilSession() {
       <div className="question-screen">
         <div className="question-body">
           {skipCooldown > 0 && (
-            <div className="skip-penalty">+{skipCooldown}s penalty</div>
+            <div className="skip-penalty">{t('pupilSession.skipPenalty').replace('{n}', skipCooldown)}</div>
           )}
           <div className={`question-display ${feedback ? `question-display--${feedback}` : ''}`}>
             <p className="question-text">{question?.question ?? '...'}</p>
@@ -308,7 +308,7 @@ function PupilSession() {
             disabled={isDisabled}
           />
           <button className="skip-btn" onClick={handleSkip} disabled={skipCooldown > 0}>
-            {skipCooldown > 0 ? `Skip (${skipCooldown}s)` : 'Skip'}
+            {skipCooldown > 0 ? t('pupilSession.skipCooldown').replace('{n}', skipCooldown) : t('pupilSession.skip')}
           </button>
         </div>
       </div>
@@ -330,10 +330,14 @@ function PupilSession() {
     if (prevScore != null && prevTotal > 0) {
       const prevPct = Math.round((prevScore / prevTotal) * 100)
       const diff = pct - prevPct
-      comparison = diff > 0 ? `+${diff}% from last time` : diff < 0 ? `${diff}% from last time` : 'Same as last time'
+      comparison = diff > 0
+        ? t('pupilSession.fromLastTimeUp').replace('{n}', diff)
+        : diff < 0
+          ? t('pupilSession.fromLastTimeDown').replace('{n}', diff)
+          : t('pupilSession.sameAsLastTime')
     }
 
-    if (!results) return <div className="screen"><p>Submitting...</p></div>
+    if (!results) return <div className="screen"><p>{t('pupilSession.submitting')}</p></div>
 
     const currentStage = pupil?.instinct_level ?? 1
     const displayStage = levelUp ? newStage : currentStage
@@ -342,14 +346,14 @@ function PupilSession() {
     return (
       <div className="screen">
         {levelUp && (
-          <div className="level-up-banner">Level up! Now on Test Level {newStage}</div>
+          <div className="level-up-banner">{t('pupilSession.levelUp').replace('{n}', newStage)}</div>
         )}
         <AvatarDisplay avatar={pupil?.avatar ?? { face: 0, hat: 0, glasses: 0, scarf: 0 }} size={80} />
-        <div className="test-level-badge">Test Level {displayStage}</div>
-        <h1 style={{ marginTop: '0.5rem' }}>{score} correct</h1>
-        <p className="tagline">out of {total} attempted — {pct}%</p>
+        <div className="test-level-badge">{t('pupilSession.testLevelBadge').replace('{n}', displayStage)}</div>
+        <h1 style={{ marginTop: '0.5rem' }}>{t('pupilSession.correct').replace('{n}', score)}</h1>
+        <p className="tagline">{t('pupilSession.outOfAttempted').replace('{n}', total).replace('{pct}', pct)}</p>
         {comparison && <p className="results-comparison">{comparison}</p>}
-        <div className="credits-earned">+{creditsEarned} credits</div>
+        <div className="credits-earned">{t('pupilSession.creditsEarned').replace('{n}', creditsEarned)}</div>
         {!levelUp && (
           <div className="streak-display">
             <div className="streak-dots">
@@ -359,16 +363,16 @@ function PupilSession() {
             </div>
             <span className="streak-label">
               {streak === 0
-                ? `Towards Test Level ${displayStage + 1}`
-                : `${streak}/3 towards Test Level ${displayStage + 1}`}
+                ? t('pupilSession.towardsTestLevel').replace('{n}', displayStage + 1)
+                : t('pupilSession.streakTowardsTestLevel').replace('{streak}', streak).replace('{n}', displayStage + 1)}
             </span>
           </div>
         )}
         {levelDownOffer && !levelUp && (
-          <LevelDownOffer pupilId={pupil?.id} currentStage={currentStage} />
+          <LevelDownOffer pupilId={pupil?.id} currentStage={currentStage} t={t} />
         )}
         {sessionInfoRef.current?.challenge_type !== 'practice' && (
-          <p className="note" style={{ marginTop: '2rem' }}>Write your score in your book!</p>
+          <p className="note" style={{ marginTop: '2rem' }}>{t('pupilSession.writeScoreNote')}</p>
         )}
         {sessionInfoRef.current?.class_join_code && (
           <button
@@ -376,7 +380,7 @@ function PupilSession() {
             style={{ marginTop: '1.5rem' }}
             onClick={() => navigate(`/hub/${sessionInfoRef.current.class_join_code}`)}
           >
-            My Hub
+            {t('pupilSession.myHub')}
           </button>
         )}
       </div>
