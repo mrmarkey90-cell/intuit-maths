@@ -18,6 +18,7 @@ function DragSortModule({ question, locked, revealed, onAnswer }) {
   const correctOrder = [...question.values].sort((a, b) => a - b)
   const isCorrect = placement.every((v, i) => v === correctOrder[i])
   const sourceItems = values.filter(v => !placement.includes(v))
+  const allPlaced = placement.every(v => v !== null)
 
   useEffect(() => {
     onAnswer({ correct: isCorrect })
@@ -104,6 +105,7 @@ function DragSortModule({ question, locked, revealed, onAnswer }) {
         {placement.map((v, i) => {
           const cls = [
             'insight-dragsort-slot',
+            allPlaced && !revealed ? 'insight-dragsort-slot--filled' : '',
             revealed && isCorrect ? 'insight-dragsort-slot--correct' : '',
             revealed && !isCorrect ? 'insight-dragsort-slot--wrong' : '',
           ].filter(Boolean).join(' ')

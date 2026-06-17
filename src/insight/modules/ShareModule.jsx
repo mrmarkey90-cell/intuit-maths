@@ -41,6 +41,7 @@ function ShareModule({ question, locked, revealed, onAnswer }) {
         {boxCounts.map((count, i) => {
           const cls = [
             'insight-share-box',
+            remaining === 0 && !revealed ? 'insight-share-box--filled' : '',
             revealed && count === answer ? 'insight-share-box--correct' : '',
             revealed && count !== answer ? 'insight-share-box--wrong' : '',
           ].filter(Boolean).join(' ')
