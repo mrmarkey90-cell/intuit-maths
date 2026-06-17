@@ -70,10 +70,12 @@ export function L1_4A() {
   }
 }
 
-// 6A — Sharing: drag sweets into boxes equally
+// 6A — Sharing: drag sweets into boxes equally (capped so the pool/boxes
+// always fit on screen without scrolling, regardless of card size)
 export function L1_6A() {
   const boxes = rand(2, 5)
-  const each = rand(1, 6)
+  const maxEach = Math.max(1, Math.floor(12 / boxes))
+  const each = rand(1, maxEach)
   const totalSweets = boxes * each
   return {
     moduleType: 'share',

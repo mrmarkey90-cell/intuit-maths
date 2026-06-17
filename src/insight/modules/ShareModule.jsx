@@ -1,5 +1,19 @@
 import { useEffect, useState } from 'react'
 
+// Renders individual sweets for small counts (useful for counting by eye),
+// but falls back to a compact "x N" badge above that — guarantees the pool
+// and boxes never need to wrap/scroll regardless of how big a future
+// level's numbers get.
+const COMPACT_THRESHOLD = 8
+
+function SweetCount({ count }) {
+  if (count === 0) return null
+  if (count <= COMPACT_THRESHOLD) {
+    return Array(count).fill('🍬').map((s, i) => <span key={i}>{s}</span>)
+  }
+  return <span className="insight-share-compact">🍬 ×{count}</span>
+}
+
 // Tap +/- to move sweets between the pool and each box — simpler and more
 // touch-reliable than literal dragging, same "share equally" goal.
 function ShareModule({ question, locked, revealed, onAnswer }) {
@@ -33,7 +47,7 @@ function ShareModule({ question, locked, revealed, onAnswer }) {
 
       <div className="insight-share-pool">
         {remaining > 0
-          ? Array(remaining).fill('🍬').map((s, i) => <span key={i}>{s}</span>)
+          ? <SweetCount count={remaining} />
           : <span className="insight-share-pool-empty">All shared!</span>}
       </div>
 
@@ -47,7 +61,7 @@ function ShareModule({ question, locked, revealed, onAnswer }) {
           ].filter(Boolean).join(' ')
           return (
             <div key={i} className={cls}>
-              <div className="insight-share-box-sweets">{Array(count).fill('🍬').join(' ')}</div>
+              <div className="insight-share-box-sweets"><SweetCount count={count} /></div>
               <div className="insight-share-box-controls">
                 <button
                   className="insight-share-btn insight-share-btn--remove"

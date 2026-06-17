@@ -2175,6 +2175,12 @@ button:hover:not(:disabled) {
   color: #16a34a;
 }
 
+.insight-share-compact {
+  font-size: clamp(20px, 4vw, 30px);
+  font-weight: 700;
+  color: #374151;
+}
+
 .insight-share-boxes {
   flex: 1;
   display: flex;
@@ -2285,18 +2291,17 @@ button:hover:not(:disabled) {
 }
 
 .insight-carousel-module-wrap {
-  width: 100%;
-  max-width: 640px;
+  /* A fixed function of viewport width only — never of flex-sibling
+     distribution or this question's content — so the card is the exact
+     same width on every question, with zero jitter when navigating. */
+  width: clamp(280px, 70vw, 640px);
 }
 
 .insight-carousel-row .insight-carousel-module-wrap {
-  /* flex-basis: 0 (not a px value) keeps this out of the flex-wrap
-     line-breaking sum, so only the two small arrow/submit buttons are
-     weighed against the row width — this item then grows to fill
-     whatever's left, up to max-width. A px basis here was causing the
-     row to wrap (Submit dropping to its own line) far more eagerly
-     than necessary, since Submit's auto width is wider than an arrow. */
-  flex: 1 1 0;
+  /* flex-grow:0 (default) means this never grows beyond the width
+     above; flex-shrink:1 (default) lets it compress on narrow screens
+     before the row resorts to wrapping. */
+  flex-shrink: 1;
   min-width: 200px;
 }
 
