@@ -558,12 +558,14 @@ button:hover:not(:disabled) {
   font-size: 1.75rem;
   line-height: 1;
   margin-bottom: 0.25rem;
+  text-align: center;
 }
 
 .dashboard-tile-title {
   font-size: 1.05rem;
   font-weight: 600;
   color: #111;
+  text-align: center;
 }
 
 .dashboard-tile-sub {
@@ -571,8 +573,10 @@ button:hover:not(:disabled) {
   color: #888;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.4rem;
   margin-top: auto;
+  text-align: center;
 }
 
 .dashboard-tile-link-row {
