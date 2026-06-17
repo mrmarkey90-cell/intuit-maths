@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { supabase } from '../supabaseClient'
+import { useTranslation } from '../i18n/LanguageContext'
 
 function PinSetup({ userData, onComplete }) {
+  const { t } = useTranslation()
   const [leadershipPin, setLeadershipPin] = useState('')
   const [confirmLeadershipPin, setConfirmLeadershipPin] = useState('')
   const [staffPin, setStaffPin] = useState('')
@@ -12,10 +14,10 @@ function PinSetup({ userData, onComplete }) {
   const schoolUrl = `intuited.uk/school/${userData.school_code}`
 
   function validate() {
-    if (!/^\d{4,6}$/.test(leadershipPin)) return 'Your PIN must be 4–6 digits'
-    if (leadershipPin !== confirmLeadershipPin) return 'Your PINs do not match'
-    if (!/^\d{4,6}$/.test(staffPin)) return 'Staff PIN must be 4–6 digits'
-    if (staffPin !== confirmStaffPin) return 'Staff PINs do not match'
+    if (!/^\d{4,6}$/.test(leadershipPin)) return t('pinSetup.errPinLength')
+    if (leadershipPin !== confirmLeadershipPin) return t('pinSetup.errPinsDontMatch')
+    if (!/^\d{4,6}$/.test(staffPin)) return t('pinSetup.errStaffPinLength')
+    if (staffPin !== confirmStaffPin) return t('pinSetup.errStaffPinsDontMatch')
     return null
   }
 
@@ -39,16 +41,16 @@ function PinSetup({ userData, onComplete }) {
 
   return (
     <div className="screen">
-      <h1>Set your PINs</h1>
-      <p className="tagline">Two PINs — one for you, one for your staff</p>
+      <h1>{t('pinSetup.title')}</h1>
+      <p className="tagline">{t('pinSetup.tagline')}</p>
 
       <div className="form">
-        <p className="pin-section-label">Your leadership PIN</p>
-        <p className="note" style={{ marginBottom: '0.5rem' }}>Used to log in and authorise changes</p>
+        <p className="pin-section-label">{t('pinSetup.yourLeadershipPin')}</p>
+        <p className="note" style={{ marginBottom: '0.5rem' }}>{t('pinSetup.leadershipPinNote')}</p>
         <input
           type="password"
           inputMode="numeric"
-          placeholder="Enter PIN (4–6 digits)"
+          placeholder={t('pinSetup.enterPinPlaceholder')}
           value={leadershipPin}
           maxLength={6}
           onChange={e => { setLeadershipPin(e.target.value.replace(/\D/g, '')); setError(null) }}
@@ -56,18 +58,18 @@ function PinSetup({ userData, onComplete }) {
         <input
           type="password"
           inputMode="numeric"
-          placeholder="Confirm PIN"
+          placeholder={t('pinSetup.confirmPinPlaceholder')}
           value={confirmLeadershipPin}
           maxLength={6}
           onChange={e => { setConfirmLeadershipPin(e.target.value.replace(/\D/g, '')); setError(null) }}
         />
 
-        <p className="pin-section-label" style={{ marginTop: '1rem' }}>Staff PIN</p>
-        <p className="note" style={{ marginBottom: '0.5rem' }}>Shared with teachers to access their class</p>
+        <p className="pin-section-label" style={{ marginTop: '1rem' }}>{t('pinSetup.staffPin')}</p>
+        <p className="note" style={{ marginBottom: '0.5rem' }}>{t('pinSetup.staffPinNote')}</p>
         <input
           type="password"
           inputMode="numeric"
-          placeholder="Enter PIN (4–6 digits)"
+          placeholder={t('pinSetup.enterPinPlaceholder')}
           value={staffPin}
           maxLength={6}
           onChange={e => { setStaffPin(e.target.value.replace(/\D/g, '')); setError(null) }}
@@ -75,7 +77,7 @@ function PinSetup({ userData, onComplete }) {
         <input
           type="password"
           inputMode="numeric"
-          placeholder="Confirm PIN"
+          placeholder={t('pinSetup.confirmPinPlaceholder')}
           value={confirmStaffPin}
           maxLength={6}
           onChange={e => { setConfirmStaffPin(e.target.value.replace(/\D/g, '')); setError(null) }}
@@ -85,7 +87,7 @@ function PinSetup({ userData, onComplete }) {
       </div>
 
       <div className="school-link">
-        <p className="note">Your school's staff link:</p>
+        <p className="note">{t('pinSetup.staffLinkLabel')}</p>
         <div className="school-link-row">
           <code>{schoolUrl}</code>
         </div>
@@ -96,7 +98,7 @@ function PinSetup({ userData, onComplete }) {
         disabled={!leadershipPin || !confirmLeadershipPin || !staffPin || !confirmStaffPin || loading}
         style={{ marginTop: '2rem' }}
       >
-        {loading ? 'Saving...' : 'Go to dashboard'}
+        {loading ? t('common.saving') : t('pinSetup.goToDashboard')}
       </button>
     </div>
   )

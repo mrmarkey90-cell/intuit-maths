@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
+import { useTranslation } from '../i18n/LanguageContext'
 import LeadershipManageClasses from './LeadershipManageClasses'
 import LeadershipManagePupils from './LeadershipManagePupils'
 import LeadershipAccount from './LeadershipAccount'
@@ -9,6 +10,7 @@ import LeadershipPupilDetail from './LeadershipPupilDetail'
 const TIER_LABELS = { free: 'Free', pilot: 'Pilot', paid: 'Pro' }
 
 function Dashboard({ session }) {
+  const { t } = useTranslation()
   const [school, setSchool] = useState(null)
   const [activeClassCount, setActiveClassCount] = useState(0)
   const [totalPupils, setTotalPupils] = useState(0)
@@ -101,23 +103,23 @@ function Dashboard({ session }) {
   if (!loading && view === 'support') return (
     <div className="dashboard">
       <header className="dashboard-header">
-        <button className="button-secondary" onClick={() => setView('main')}>← Back</button>
+        <button className="button-secondary" onClick={() => setView('main')}>← {t('common.back')}</button>
         <div className="dashboard-header-brand"><img src="/intuit-name.svg" alt="intuit" /></div>
       </header>
       <main className="dashboard-main">
         <div className="page-title">
-          <h1>Support</h1>
+          <h1>{t('dashboard.supportTitle')}</h1>
         </div>
         <section className="dashboard-section">
-          <h2 style={{ marginBottom: '0.75rem' }}>Get in touch</h2>
+          <h2 style={{ marginBottom: '0.75rem' }}>{t('dashboard.getInTouch')}</h2>
           <p className="note" style={{ marginBottom: '0.75rem' }}>
-            If you need help with anything, have a question, or want to report a problem, email us and we'll get back to you as soon as we can.
+            {t('dashboard.supportNote')}
           </p>
           <a href="mailto:support@intuited.uk" className="support-email">support@intuited.uk</a>
         </section>
         <section className="dashboard-section">
-          <h2 style={{ marginBottom: '0.75rem' }}>About Intuit Education</h2>
-          <p className="note">Intuit Education builds digital tools for Welsh primary schools. This platform is currently in pilot.</p>
+          <h2 style={{ marginBottom: '0.75rem' }}>{t('dashboard.aboutTitle')}</h2>
+          <p className="note">{t('dashboard.aboutNote')}</p>
         </section>
       </main>
     </div>
@@ -125,11 +127,11 @@ function Dashboard({ session }) {
 
   // ── Main tile grid ────────────────────────────────────
 
-  if (loading) return <div className="screen"><p>Loading...</p></div>
+  if (loading) return <div className="screen"><p>{t('common.loading')}</p></div>
 
   const tier = school.tier ?? 'free'
   const tierLabel = TIER_LABELS[tier] ?? tier
-  const slotSub = tier === 'pilot' ? 'Unlimited classes' : `${activeClassCount} class${activeClassCount !== 1 ? 'es' : ''}`
+  const slotSub = tier === 'pilot' ? t('dashboard.unlimitedClasses') : t('dashboard.classesCount').replace('{n}', activeClassCount)
   const staffLink = `intuited.uk/school/${school.school_code}`
 
   return (
@@ -149,26 +151,26 @@ function Dashboard({ session }) {
             <div className="dashboard-tile-link-row">
               <code className="dashboard-tile-code">{staffLink}</code>
               <button className="button-secondary" onClick={copyLink} style={{ flexShrink: 0 }}>
-                {copied ? 'Copied!' : 'Copy'}
+                {copied ? t('common.copied') : t('common.copy')}
               </button>
             </div>
           </div>
 
           <button className="dashboard-tile" onClick={() => setView('classes')}>
             <div className="dashboard-tile-icon">🏫</div>
-            <div className="dashboard-tile-title">Manage Classes</div>
+            <div className="dashboard-tile-title">{t('dashboard.manageClasses')}</div>
             <div className="dashboard-tile-sub">{slotSub}</div>
           </button>
 
           <button className="dashboard-tile" onClick={() => setView('pupils')}>
             <div className="dashboard-tile-icon">👥</div>
-            <div className="dashboard-tile-title">Manage Pupils</div>
-            <div className="dashboard-tile-sub">{totalPupils} pupil{totalPupils !== 1 ? 's' : ''}</div>
+            <div className="dashboard-tile-title">{t('dashboard.managePupils')}</div>
+            <div className="dashboard-tile-sub">{t('dashboard.pupilsCount').replace('{n}', totalPupils)}</div>
           </button>
 
           <button className="dashboard-tile" onClick={() => setView('account')}>
             <div className="dashboard-tile-icon">⭐</div>
-            <div className="dashboard-tile-title">Tier</div>
+            <div className="dashboard-tile-title">{t('dashboard.tier')}</div>
             <div className="dashboard-tile-sub">
               <span className={`tier-badge${tier !== 'free' ? ' tier-badge--pro' : ''}`}>{tierLabel}</span>
             </div>
@@ -176,19 +178,19 @@ function Dashboard({ session }) {
 
           <button className="dashboard-tile" onClick={() => setView('account')}>
             <div className="dashboard-tile-icon">⚙️</div>
-            <div className="dashboard-tile-title">Manage Account</div>
-            <div className="dashboard-tile-sub">PIN · transfer</div>
+            <div className="dashboard-tile-title">{t('dashboard.manageAccount')}</div>
+            <div className="dashboard-tile-sub">{t('dashboard.accountSub')}</div>
           </button>
 
           <button className="dashboard-tile" onClick={() => setView('support')}>
             <div className="dashboard-tile-icon">💬</div>
-            <div className="dashboard-tile-title">Support</div>
-            <div className="dashboard-tile-sub">Get help</div>
+            <div className="dashboard-tile-title">{t('dashboard.support')}</div>
+            <div className="dashboard-tile-sub">{t('dashboard.getHelp')}</div>
           </button>
 
           <button className="dashboard-tile dashboard-tile--signout" onClick={handleSignOut}>
             <div className="dashboard-tile-icon">🚪</div>
-            <div className="dashboard-tile-title">Sign Out</div>
+            <div className="dashboard-tile-title">{t('dashboard.signOut')}</div>
           </button>
 
         </div>

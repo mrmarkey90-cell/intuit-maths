@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { supabase } from '../supabaseClient'
+import { useTranslation } from '../i18n/LanguageContext'
 
 function AddClasses({ userData, onComplete }) {
+  const { t } = useTranslation()
   const [className, setClassName] = useState('')
   const [classes, setClasses] = useState([])
   const [loading, setLoading] = useState(false)
@@ -32,26 +34,24 @@ function AddClasses({ userData, onComplete }) {
 
   return (
     <div className="screen">
-      <h1>Add your classes</h1>
+      <h1>{t('addClasses.title')}</h1>
       <p className="tagline">
-        {isFree
-          ? 'Free plan includes one class. Upgrade for unlimited.'
-          : 'Add as many classes as you need.'}
+        {isFree ? t('addClasses.taglineFree') : t('addClasses.taglinePaid')}
       </p>
 
       <div className="form">
         <input
           type="text"
-          placeholder="Class name (e.g. Year 4, Dosbarth Melyn)"
+          placeholder={t('addClasses.namePlaceholder')}
           value={className}
           onChange={(e) => setClassName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && addClass()}
           disabled={atLimit}
         />
         <button onClick={addClass} disabled={!className.trim() || loading || atLimit}>
-          {loading ? 'Adding...' : 'Add class'}
+          {loading ? t('addClasses.adding') : t('addClasses.addClass')}
         </button>
-        {atLimit && <p className="note">Free plan limit reached. Upgrade for unlimited classes.</p>}
+        {atLimit && <p className="note">{t('addClasses.limitReached')}</p>}
         {error && <p className="error">{error}</p>}
       </div>
 
@@ -70,7 +70,7 @@ function AddClasses({ userData, onComplete }) {
         disabled={classes.length === 0}
         style={{ marginTop: '2rem' }}
       >
-        Continue
+        {t('common.continue')}
       </button>
     </div>
   )

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
+import { useTranslation } from '../i18n/LanguageContext'
 
-function StreakDots({ streak }) {
+function StreakDots({ streak, t }) {
   return (
     <div className="streak-display">
       <div className="streak-dots">
@@ -10,13 +11,13 @@ function StreakDots({ streak }) {
         ))}
       </div>
       <span className="streak-label">
-        {streak === 0 ? 'No streak' : `${streak}/3 towards next level`}
+        {streak === 0 ? t('leadershipPupilDetail.noStreak') : t('leadershipPupilDetail.streakProgress').replace('{n}', streak)}
       </span>
     </div>
   )
 }
 
-function ScoreChart({ attempts }) {
+function ScoreChart({ attempts, t }) {
   if (attempts.length === 0) return null
   const sorted = [...attempts].sort((a, b) => new Date(a.completed_at) - new Date(b.completed_at))
   const W = 560, H = 220
@@ -48,7 +49,7 @@ function ScoreChart({ attempts }) {
       <line x1={PAD.left} y1={PAD.top} x2={PAD.left} y2={PAD.top + innerH} stroke="#e5e7eb" strokeWidth="1" />
       <line x1={PAD.left} y1={PAD.top + innerH} x2={PAD.left + innerW} y2={PAD.top + innerH} stroke="#e5e7eb" strokeWidth="1" />
       <text x={10} y={PAD.top + innerH / 2} textAnchor="middle" fontSize="11" fill="#9ca3af"
-        transform={`rotate(-90, 10, ${PAD.top + innerH / 2})`}>Correct</text>
+        transform={`rotate(-90, 10, ${PAD.top + innerH / 2})`}>{t('leadershipPupilDetail.correctAxisLabel')}</text>
       {pts.length > 1 && <path d={linePath} fill="none" stroke="#c4b5fd" strokeWidth="2" strokeLinejoin="round" />}
       {pts.map((p, i) => (
         <g key={i}>
@@ -62,16 +63,17 @@ function ScoreChart({ attempts }) {
   )
 }
 
-function lastActiveLabel(dateStr) {
-  if (!dateStr) return 'Never'
+function lastActiveLabel(dateStr, t) {
+  if (!dateStr) return t('common.never')
   const days = Math.floor((Date.now() - new Date(dateStr)) / 86400000)
-  if (days === 0) return 'Today'
-  if (days === 1) return 'Yesterday'
-  if (days < 7) return `${days} days ago`
+  if (days === 0) return t('common.today')
+  if (days === 1) return t('common.yesterday')
+  if (days < 7) return t('common.daysAgo').replace('{n}', days)
   return new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
 function LeadershipPupilDetail({ pupilId, onBack, onPupilDeleted }) {
+  const { t } = useTranslation()
   const [data, setData] = useState(null)
   const [allClasses, setAllClasses] = useState([])
   const [loading, setLoading] = useState(true)
@@ -112,8 +114,8 @@ function LeadershipPupilDetail({ pupilId, onBack, onPupilDeleted }) {
     else setDeleting(false)
   }
 
-  if (loading) return <div className="screen"><p>Loading...</p></div>
-  if (!data?.pupil) return <div className="screen"><p>Pupil not found.</p></div>
+  if (loading) return <div className="screen"><p>{t('common.loading')}</p></div>
+  if (!data?.pupil) return <div className="screen"><p>{t('leadershipPupilDetail.pupilNotFound')}</p></div>
 
   const { pupil, attempts } = data
   const stage = pupil.instinct_level ?? 1
@@ -124,91 +126,91 @@ function LeadershipPupilDetail({ pupilId, onBack, onPupilDeleted }) {
   return (
     <div className="dashboard">
       <header className="dashboard-header">
-        <button className="button-secondary" onClick={onBack}>← Back</button>
+        <button className="button-secondary" onClick={onBack}>← {t('common.back')}</button>
         <div className="dashboard-header-brand"><img src="/intuit-name.svg" alt="intuit" /></div>
       </header>
 
       <main className="dashboard-main" style={{ maxWidth: 640 }}>
         <div className="page-title">
           <h1>{pupil.first_name} {pupil.last_name}</h1>
-          <span className="tier-badge tier-badge--pro">Test Level {stage}</span>
+          <span className="tier-badge tier-badge--pro">{t('leadershipPupilDetail.testLevel')} {stage}</span>
         </div>
 
         <section className="dashboard-section">
           <div className="pupil-detail-stats">
             <div className="stat-box">
               <div className="stat-number">{stage}</div>
-              <div className="stat-label">Test Level</div>
+              <div className="stat-label">{t('leadershipPupilDetail.testLevel')}</div>
             </div>
             <div className="stat-box">
               <div className="stat-number">{pupil.credits ?? 0}</div>
-              <div className="stat-label">Credits</div>
+              <div className="stat-label">{t('leadershipPupilDetail.credits')}</div>
             </div>
             <div className="stat-box">
-              <div className="stat-number" style={{ fontSize: '1rem' }}>{lastActiveLabel(lastAttempt?.completed_at)}</div>
-              <div className="stat-label">Last active</div>
+              <div className="stat-number" style={{ fontSize: '1rem' }}>{lastActiveLabel(lastAttempt?.completed_at, t)}</div>
+              <div className="stat-label">{t('leadershipPupilDetail.lastActive')}</div>
             </div>
           </div>
           <div style={{ marginTop: '1rem' }}>
-            <p className="note" style={{ marginBottom: '0.4rem' }}>Progress to Level {stage + 1}</p>
-            <StreakDots streak={pupil.challenge_streak ?? 0} />
+            <p className="note" style={{ marginBottom: '0.4rem' }}>{t('leadershipPupilDetail.progressTo').replace('{n}', stage + 1)}</p>
+            <StreakDots streak={pupil.challenge_streak ?? 0} t={t} />
           </div>
         </section>
 
         <section className="dashboard-section">
           <div className="section-heading">
-            <h2>Instinct history</h2>
-            <span className="section-count">{attempts?.length ?? 0} sessions</span>
+            <h2>{t('leadershipPupilDetail.instinctHistory')}</h2>
+            <span className="section-count">{t('leadershipPupilDetail.sessionsCount').replace('{n}', attempts?.length ?? 0)}</span>
           </div>
           {!attempts?.length ? (
-            <p className="note">No sessions completed yet.</p>
+            <p className="note">{t('leadershipPupilDetail.noSessions')}</p>
           ) : (
-            <ScoreChart attempts={attempts} />
+            <ScoreChart attempts={attempts} t={t} />
           )}
         </section>
 
         <section className="dashboard-section">
-          <h2 style={{ marginBottom: '0.75rem' }}>Move to class</h2>
+          <h2 style={{ marginBottom: '0.75rem' }}>{t('leadershipPupilDetail.moveToClass')}</h2>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             <select
               value={selectedClassId}
               onChange={e => { setSelectedClassId(e.target.value); setMoveSuccess(false) }}
               style={{ flex: 1, padding: '8px 12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '15px' }}
             >
-              <option value="">— Unallocated —</option>
+              <option value="">{t('leadershipPupilDetail.unallocatedOption')}</option>
               {allClasses.map(c => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>
             <button onClick={handleMove} disabled={moving} className="button-secondary">
-              {moving ? 'Saving...' : 'Save'}
+              {moving ? t('common.saving') : t('common.save')}
             </button>
           </div>
-          {moveSuccess && <p className="success" style={{ marginTop: '0.5rem' }}>Moved successfully</p>}
+          {moveSuccess && <p className="success" style={{ marginTop: '0.5rem' }}>{t('leadershipPupilDetail.movedSuccessfully')}</p>}
         </section>
 
         <section className="dashboard-section dashboard-section--danger">
-          <h2 style={{ marginBottom: '0.75rem' }}>Delete pupil</h2>
+          <h2 style={{ marginBottom: '0.75rem' }}>{t('leadershipPupilDetail.deletePupil')}</h2>
           {!confirmingDelete ? (
             <>
               <p className="note" style={{ marginBottom: '1rem' }}>
-                Permanent and cannot be undone. All Instinct history for this pupil will be deleted.
+                {t('leadershipPupilDetail.deleteNote')}
               </p>
               <button className="button-danger" onClick={() => setConfirmingDelete(true)}>
-                Delete pupil
+                {t('leadershipPupilDetail.deletePupil')}
               </button>
             </>
           ) : (
             <>
               <p style={{ marginBottom: '1rem', fontWeight: 600 }}>
-                Delete <em>{pupil.first_name} {pupil.last_name}</em> and all their data? This cannot be undone.
+                {t('leadershipPupilDetail.confirmDelete').replace('{name}', `${pupil.first_name} ${pupil.last_name}`)}
               </p>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button className="button-danger" onClick={handleDelete} disabled={deleting}>
-                  {deleting ? 'Deleting...' : 'Yes, delete permanently'}
+                  {deleting ? t('common.deleting') : t('classDetail.yesDeletePermanently')}
                 </button>
                 <button className="button-secondary" onClick={() => setConfirmingDelete(false)}>
-                  Cancel
+                  {t('common.cancel')}
                 </button>
               </div>
             </>

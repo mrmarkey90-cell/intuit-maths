@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
+import { useTranslation } from '../i18n/LanguageContext'
 
 function LeadershipManagePupils({ schoolId, onBack, onSelectPupil }) {
+  const { t } = useTranslation()
   const [pupils, setPupils] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -27,29 +29,29 @@ function LeadershipManagePupils({ schoolId, onBack, onSelectPupil }) {
   return (
     <div className="dashboard">
       <header className="dashboard-header">
-        <button className="button-secondary" onClick={onBack}>← Back</button>
+        <button className="button-secondary" onClick={onBack}>← {t('common.back')}</button>
         <div className="dashboard-header-brand"><img src="/intuit-name.svg" alt="intuit" /></div>
       </header>
 
       <main className="dashboard-main">
         <div className="page-title">
-          <h1>Manage Pupils</h1>
+          <h1>{t('managePupils.title')}</h1>
           <span className="section-count" style={{ fontSize: '14px', color: '#888' }}>
-            {pupils.length} total
+            {t('managePupils.totalCount').replace('{n}', pupils.length)}
           </span>
         </div>
         <section className="dashboard-section">
           <input
             type="search"
-            placeholder="Search pupils..."
+            placeholder={t('managePupils.searchPlaceholder')}
             value={search}
             onChange={e => setSearch(e.target.value)}
             style={{ marginBottom: '1rem' }}
           />
           {loading ? (
-            <p className="note">Loading...</p>
+            <p className="note">{t('common.loading')}</p>
           ) : filtered.length === 0 ? (
-            <p className="note">{search ? 'No pupils match that search.' : 'No pupils yet.'}</p>
+            <p className="note">{search ? t('managePupils.noMatch') : t('managePupils.noneYet')}</p>
           ) : (
             <div className="pupil-list">
               {filtered.map(p => (
@@ -57,7 +59,7 @@ function LeadershipManagePupils({ schoolId, onBack, onSelectPupil }) {
                   <span className="pupil-list-name">{p.first_name} {p.last_name}</span>
                   <span className="pupil-list-meta">
                     <span className="pupil-list-level">L{p.instinct_level}</span>
-                    <span className="note">{p.classes?.name ?? 'Unallocated'}</span>
+                    <span className="note">{p.classes?.name ?? t('managePupils.unallocated')}</span>
                   </span>
                   <span className="pupil-list-arrow">›</span>
                 </button>

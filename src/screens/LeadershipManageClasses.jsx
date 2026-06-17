@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
+import { useTranslation } from '../i18n/LanguageContext'
 
 function LeadershipManageClasses({ school, onBack, onSelectClass }) {
+  const { t } = useTranslation()
   const [classes, setClasses] = useState([])
   const [pupils, setPupils] = useState([])
   const [loading, setLoading] = useState(true)
@@ -103,37 +105,37 @@ function LeadershipManageClasses({ school, onBack, onSelectClass }) {
   return (
     <div className="dashboard">
       <header className="dashboard-header">
-        <button className="button-secondary" onClick={onBack}>← Back</button>
+        <button className="button-secondary" onClick={onBack}>← {t('common.back')}</button>
         <div className="dashboard-header-brand"><img src="/intuit-name.svg" alt="intuit" /></div>
       </header>
 
       <main className="dashboard-main">
         <div className="page-title">
-          <h1>Manage Classes</h1>
+          <h1>{t('manageClasses.title')}</h1>
         </div>
 
         {selected.size > 0 && (
           <section className="dashboard-section" style={{ borderColor: '#fca5a5', background: '#fff9f9' }}>
             {!confirmingUnallocate ? (
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
-                <span className="note">{selected.size} class{selected.size !== 1 ? 'es' : ''} selected</span>
+                <span className="note">{t('manageClasses.classesSelected').replace('{n}', selected.size)}</span>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button className="button-secondary" onClick={() => setSelected(new Set())}>Clear</button>
+                  <button className="button-secondary" onClick={() => setSelected(new Set())}>{t('common.clear')}</button>
                   <button className="button-danger" onClick={() => setConfirmingUnallocate(true)}>
-                    Unallocate pupils
+                    {t('manageClasses.unallocatePupils')}
                   </button>
                 </div>
               </div>
             ) : (
               <div>
                 <p style={{ marginBottom: '1rem', fontWeight: 600 }}>
-                  Unallocate all {selectedPupilCount} pupil{selectedPupilCount !== 1 ? 's' : ''} from the {selected.size} selected class{selected.size !== 1 ? 'es' : ''}? They are not deleted — just unparented, and can be moved to a class again later.
+                  {t('manageClasses.confirmUnallocate').replace('{n}', selectedPupilCount).replace('{m}', selected.size)}
                 </p>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button className="button-danger" onClick={handleMassUnallocate} disabled={unallocating}>
-                    {unallocating ? 'Unallocating...' : 'Yes, unallocate'}
+                    {unallocating ? t('common.unallocating') : t('manageClasses.yesUnallocate')}
                   </button>
-                  <button className="button-secondary" onClick={() => setConfirmingUnallocate(false)}>Cancel</button>
+                  <button className="button-secondary" onClick={() => setConfirmingUnallocate(false)}>{t('common.cancel')}</button>
                 </div>
               </div>
             )}
@@ -142,9 +144,9 @@ function LeadershipManageClasses({ school, onBack, onSelectClass }) {
 
         <section className="dashboard-section">
           {loading ? (
-            <p className="note">Loading...</p>
+            <p className="note">{t('common.loading')}</p>
           ) : classes.length === 0 && !adding ? (
-            <p className="note">No classes yet.</p>
+            <p className="note">{t('manageClasses.noClasses')}</p>
           ) : (
             <div className="pupil-list">
               {classes.map(c => (
@@ -168,9 +170,9 @@ function LeadershipManageClasses({ school, onBack, onSelectClass }) {
                         style={{ flex: 1 }}
                       />
                       <button onClick={saveRename} disabled={!renameValue.trim() || renameLoading}>
-                        {renameLoading ? '...' : 'Save'}
+                        {renameLoading ? '...' : t('common.save')}
                       </button>
-                      <button className="button-secondary" onClick={cancelRename}>Cancel</button>
+                      <button className="button-secondary" onClick={cancelRename}>{t('common.cancel')}</button>
                     </div>
                   ) : (
                     <>
@@ -178,13 +180,13 @@ function LeadershipManageClasses({ school, onBack, onSelectClass }) {
                         {c.name}
                       </span>
                       <span className="pupil-list-meta">
-                        <span className="note">{pupilsByClass[c.id] ?? 0} pupils</span>
+                        <span className="note">{t('manageClasses.pupilsCount').replace('{n}', pupilsByClass[c.id] ?? 0)}</span>
                         <button
                           className="button-secondary"
                           onClick={e => { e.stopPropagation(); startRename(c) }}
                           style={{ padding: '4px 10px', fontSize: '13px' }}
                         >
-                          Rename
+                          {t('manageClasses.rename')}
                         </button>
                       </span>
                       <span className="pupil-list-arrow" onClick={() => onSelectClass(c.id)} style={{ cursor: 'pointer' }}>›</span>
@@ -200,7 +202,7 @@ function LeadershipManageClasses({ school, onBack, onSelectClass }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <input
                   type="text"
-                  placeholder="Class name"
+                  placeholder={t('manageClasses.classNamePlaceholder')}
                   value={newName}
                   onChange={e => { setNewName(e.target.value); setAddError(null) }}
                   onKeyDown={e => e.key === 'Enter' && handleAddClass()}
@@ -210,14 +212,14 @@ function LeadershipManageClasses({ school, onBack, onSelectClass }) {
                 {addError && <p className="error">{addError}</p>}
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <button onClick={handleAddClass} disabled={!newName.trim() || addLoading}>
-                    {addLoading ? 'Adding...' : 'Add class'}
+                    {addLoading ? t('manageClasses.adding') : t('manageClasses.addClass')}
                   </button>
-                  <button className="button-secondary" onClick={cancelAdd}>Cancel</button>
+                  <button className="button-secondary" onClick={cancelAdd}>{t('common.cancel')}</button>
                 </div>
               </div>
             ) : (
               <button className="button-secondary" onClick={() => setAdding(true)}>
-                + Add a class
+                {t('manageClasses.addAClass')}
               </button>
             )}
           </div>
