@@ -72,6 +72,7 @@ function NumpadModule({ question, stage, locked, revealed, onAnswer }) {
           initialValue={value ?? ''}
           onSubmit={handleSubmit}
           onDismiss={() => setShowOverlay(false)}
+          allowDecimal={!!question.decimal}
         />
       )}
     </div>

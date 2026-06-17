@@ -5,9 +5,10 @@ import InsightNumpadOverlay from '../InsightNumpadOverlay'
 // Shows the number itself with real angled arrows (SVG, measured against
 // each digit and box's actual position) pointing from every digit down to
 // its own numpad box — no words, so it reads the same in any language.
-// Generalises to any number of parts: each part is assumed to map 1:1 to
-// a digit position left-to-right (e.g. 4382 -> [4000, 300, 80, 2]). Every
-// box is always required at every level — there's no hidden slot.
+// Generalises to any number of parts: each *digit* character (skipping
+// punctuation like the decimal point, e.g. 3.6 -> ['3','.','6']) maps
+// 1:1 to a part left-to-right (3.6 -> [3, 0.6]). Every box is always
+// required at every level — there's no hidden slot.
 function PartitionModule({ question, stage, locked, revealed, onAnswer }) {
   const { t } = useTranslation()
   const { number, parts } = question
@@ -18,7 +19,9 @@ function PartitionModule({ question, stage, locked, revealed, onAnswer }) {
   const wrapRef = useRef(null)
   const digitRefs = useRef([])
   const boxRefs = useRef([])
-  const digits = String(number).split('')
+  const chars = String(number).split('')
+  let digitCounter = 0
+  const charDigitIndex = chars.map(c => (/[0-9]/.test(c) ? digitCounter++ : null))
 
   // Targets sit a fixed distance below each digit and above each box,
   // rather than right on their edges — gives the arrow a clear start/end
@@ -73,9 +76,18 @@ function PartitionModule({ question, stage, locked, revealed, onAnswer }) {
     <div className="insight-module-content">
       <div className="insight-partition-wrap" ref={wrapRef}>
         <div className="insight-partition-number">
-          {digits.map((d, i) => (
-            <span key={i} ref={el => { digitRefs.current[i] = el }} className="insight-partition-digit">{d}</span>
-          ))}
+          {chars.map((c, i) => {
+            const idx = charDigitIndex[i]
+            return (
+              <span
+                key={i}
+                ref={idx === null ? null : el => { digitRefs.current[idx] = el }}
+                className="insight-partition-digit"
+              >
+                {c}
+              </span>
+            )
+          })}
         </div>
 
         <svg className="insight-partition-arrows-svg">
@@ -134,6 +146,7 @@ function PartitionModule({ question, stage, locked, revealed, onAnswer }) {
           initialValue={values[activeBox] != null ? String(values[activeBox]) : ''}
           onSubmit={handleSubmit}
           onDismiss={() => setActiveBox(null)}
+          allowDecimal={!!question.decimal}
         />
       )}
     </div>

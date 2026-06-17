@@ -2,6 +2,7 @@ import * as level1 from './level1'
 import * as level2 from './level2'
 import * as level3 from './level3'
 import * as level4 from './level4'
+import * as level5 from './level5'
 
 const generators = {
   1: {
@@ -89,7 +90,34 @@ const generators = {
     '9B': level4.L4_9B,
     '9C': level4.L4_9C,
   },
-  // Level 5+ generators added here as each level is built
+  5: {
+    '1B': level5.L5_1B,
+    '1C': level5.L5_1C,
+    '1D': level5.L5_1D,
+    '1F': level5.L5_1F,
+    '1G': level5.L5_1G,
+    '1H': level5.L5_1H,
+    '2A': level5.L5_2A,
+    '2B': level5.L5_2B,
+    '2C': level5.L5_2C,
+    '3C': level5.L5_3C,
+    '3D': level5.L5_3D,
+    '4C': level4.L4_4C, // held back from Level 4, reused here -- see note above
+    '4D': level5.L5_4D,
+    '5A': level5.L5_5A,
+    '5B': level5.L5_5B,
+    '5D': level5.L5_5D,
+    '6C': level5.L5_6C,
+    '7A': level5.L5_7A,
+    '7B': level5.L5_7B,
+    '8A': level5.L5_8A,
+    '8C': level5.L5_8C,
+    '8D': level5.L5_8D,
+    '9A': level5.L5_9A,
+    '9B': level5.L5_9B,
+    '9C': level5.L5_9C,
+  },
+  // Level 6+ generators added here as each level is built
 }
 
 export function generateInsightQuestion(subdomain, level, language = 'en') {

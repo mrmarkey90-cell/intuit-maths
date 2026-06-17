@@ -18,9 +18,17 @@ function decimalPlaces(step) {
 // a decimal step (e.g. 0.1) for fractional number lines -- all rounding
 // goes through `snap()` so both the drag value and the stored answer
 // are normalised the same way, avoiding floating-point equality bugs.
+//
+// `continuous: true` hides the notches entirely and lets the handle
+// move freely (internally still snapped to a fine 0.01 step so the
+// value is measurable, but no visible stepping) -- for "estimate where
+// this is" questions with no ruled marks to count. Pair with
+// `tolerance` to accept anything within that distance of the answer
+// rather than requiring an exact match.
 function NumberLineModule({ question, locked, revealed, onAnswer }) {
-  const { min, max, answer, labelPoints = [min, max], step = 1 } = question
-  const decimals = decimalPlaces(step)
+  const { min, max, answer, labelPoints = [min, max], step = 1, continuous = false, tolerance = 0 } = question
+  const effectiveStep = continuous ? 0.01 : step
+  const decimals = decimalPlaces(effectiveStep)
   const factor = 10 ** decimals
 
   function snap(v) {
@@ -32,9 +40,11 @@ function NumberLineModule({ question, locked, revealed, onAnswer }) {
   const [dragging, setDragging] = useState(false)
   const trackRef = useRef(null)
 
-  const tickCount = Math.round((max - min) / step)
+  const tickCount = Math.round((max - min) / effectiveStep)
   const ticks = []
-  for (let i = 0; i <= tickCount; i++) ticks.push(snap(min + i * step))
+  if (!continuous) {
+    for (let i = 0; i <= tickCount; i++) ticks.push(snap(min + i * effectiveStep))
+  }
 
   function pctForValue(v) {
     return ((v - min) / (max - min)) * 100
@@ -44,7 +54,7 @@ function NumberLineModule({ question, locked, revealed, onAnswer }) {
     const rect = trackRef.current.getBoundingClientRect()
     const pct = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width))
     const raw = min + pct * (max - min)
-    return snap(Math.round((raw - min) / step) * step + min)
+    return snap(Math.round((raw - min) / effectiveStep) * effectiveStep + min)
   }
 
   function handleDown(e) {
@@ -59,16 +69,20 @@ function NumberLineModule({ question, locked, revealed, onAnswer }) {
     setDragValue(valueForClientX(e.clientX))
   }
 
+  function isWithinTolerance(v) {
+    return tolerance > 0 ? Math.abs(v - answer) <= tolerance : v === answer
+  }
+
   function handleUp(e) {
     if (!dragging) return
     const v = valueForClientX(e.clientX)
     setDragging(false)
     setValue(v)
-    onAnswer({ correct: v === answer })
+    onAnswer({ correct: isWithinTolerance(v) })
   }
 
   const displayValue = dragging ? dragValue : value
-  const isCorrect = displayValue === answer
+  const isCorrect = isWithinTolerance(displayValue)
 
   return (
     <div className="insight-module-content">
@@ -86,6 +100,12 @@ function NumberLineModule({ question, locked, revealed, onAnswer }) {
         style={{ cursor: dragging ? 'grabbing' : 'grab' }}
       >
         <div className="insight-numberline-line" />
+
+        {continuous && labelPoints.map(v => (
+          <div key={v} className="insight-numberline-notch" style={{ left: `${pctForValue(v)}%` }}>
+            <span className="insight-numberline-label">{v}</span>
+          </div>
+        ))}
 
         {ticks.map(v => {
           const showLabel = labelPoints.includes(v) || revealed

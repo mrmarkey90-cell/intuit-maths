@@ -70,6 +70,13 @@ const WORDS = {
       const item = SHOP_ITEM_NOUNS[itemIndex].en
       return `A ${item} costs £${cost}.\nI buy ${quantity}.\nI pay with £${paid}.\nHow much change do I get?`
     },
+    roundToNearestWhole: n => `Round ${n} to the nearest whole number`,
+    whichArePrime: 'Which of these are prime?',
+    wordProblemShoppingPence: (itemIndex, pence, quantity, hadPounds) => {
+      const item = ITEM_NOUNS[itemIndex].en
+      const Item = item.charAt(0).toUpperCase() + item.slice(1)
+      return `${Item} are ${pence}p each.\nI buy ${quantity}.\nI had £${hadPounds}.\nHow much change do you get?`
+    },
   },
   cy: {
     find: 'Canfod',
@@ -103,6 +110,12 @@ const WORDS = {
     wordProblemShopping: (cost, quantity, paid, itemIndex) => {
       const item = SHOP_ITEM_NOUNS[itemIndex].cy
       return `Mae ${item} yn costio £${cost}.\nRwy'n prynu ${quantity}.\nRwy'n talu gyda £${paid}.\nFaint o newid rwy'n ei gael?`
+    },
+    roundToNearestWhole: n => `Crynhowch ${n} i'r rhif cyfan nesaf`,
+    whichArePrime: "Pa rai o'r rhain sy'n rhifau cysefin?",
+    wordProblemShoppingPence: (itemIndex, pence, quantity, hadPounds) => {
+      const item = ITEM_NOUNS[itemIndex].cy
+      return `Mae ${item} yn costio ${pence}c yr un.\nRydych chi'n prynu ${quantity}.\nRoedd gennych chi £${hadPounds}.\nFaint o newid ydych chi'n ei gael?`
     },
   },
 }

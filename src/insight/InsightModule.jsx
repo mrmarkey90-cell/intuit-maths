@@ -12,6 +12,7 @@ import FillBlankModule from './modules/FillBlankModule'
 import TrueFalseModule from './modules/TrueFalseModule'
 import PartitionModule from './modules/PartitionModule'
 import MultiSelectModule from './modules/MultiSelectModule'
+import MatchModule from './modules/MatchModule'
 
 const MODULE_COMPONENTS = {
   numpad: NumpadModule,
@@ -24,6 +25,7 @@ const MODULE_COMPONENTS = {
   true_false: TrueFalseModule,
   partition: PartitionModule,
   multi_select: MultiSelectModule,
+  match: MatchModule,
 }
 
 function InsightModule({ subdomain, level, onAnswer, locked, revealed }) {

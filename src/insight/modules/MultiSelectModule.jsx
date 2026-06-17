@@ -29,7 +29,10 @@ function MultiSelectModule({ question, locked, revealed, onAnswer }) {
   return (
     <div className="insight-module-content">
       <div className="insight-multiselect-prompt">{question.prompt}</div>
-      <div className="insight-multiselect-grid">
+      <div
+        className="insight-multiselect-grid"
+        style={question.columns ? { gridTemplateColumns: `repeat(${question.columns}, minmax(0, 1fr))` } : undefined}
+      >
         {question.options.map((opt, i) => {
           const isSelected = selected.has(i)
           const cls = [

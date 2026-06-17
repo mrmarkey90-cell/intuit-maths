@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 
-function NumberPad({ onSubmit, stage = 1, disabled = false, initialValue = '' }) {
+function NumberPad({ onSubmit, stage = 1, disabled = false, initialValue = '', allowDecimal = false }) {
   const [value, setValue] = useState(initialValue)
   const showNegative = stage >= 5
 
@@ -12,6 +12,11 @@ function NumberPad({ onSubmit, stage = 1, disabled = false, initialValue = '' })
     })
   }, [disabled])
 
+  const appendDecimal = useCallback(() => {
+    if (disabled || value.includes('.')) return
+    setValue(v => v + '.')
+  }, [disabled, value])
+
   const backspace = useCallback(() => {
     if (disabled) return
     setValue(v => v.slice(0, -1))
@@ -22,11 +27,14 @@ function NumberPad({ onSubmit, stage = 1, disabled = false, initialValue = '' })
     setValue(v => v.startsWith('-') ? v.slice(1) : '-' + v)
   }, [disabled])
 
+  const isIncomplete = value === '' || value === '-' || value.endsWith('.')
+
   const submit = useCallback(() => {
-    if (disabled || value === '' || value === '-') return
+    if (disabled || isIncomplete) return
     onSubmit(value)
     setValue('')
-  }, [disabled, value, onSubmit])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [disabled, value, onSubmit, isIncomplete])
 
   useEffect(() => {
     const handle = (e) => {
@@ -35,10 +43,11 @@ function NumberPad({ onSubmit, stage = 1, disabled = false, initialValue = '' })
       else if (e.key === 'Backspace') backspace()
       else if (e.key === 'Enter') submit()
       else if (e.key === '-' && showNegative) toggleNegative()
+      else if (e.key === '.' && allowDecimal) appendDecimal()
     }
     window.addEventListener('keydown', handle)
     return () => window.removeEventListener('keydown', handle)
-  }, [append, backspace, submit, toggleNegative, disabled, showNegative])
+  }, [append, backspace, submit, toggleNegative, appendDecimal, disabled, showNegative, allowDecimal])
 
   return (
     <div className="numpad">
@@ -57,7 +66,14 @@ function NumberPad({ onSubmit, stage = 1, disabled = false, initialValue = '' })
         <button className="numpad-btn" onClick={() => append('0')} disabled={disabled}>0</button>
         <button className="numpad-btn numpad-btn--secondary" onClick={backspace} disabled={disabled}>⌫</button>
       </div>
-      <button className="numpad-submit" onClick={submit} disabled={disabled || value === '' || value === '-'}>
+      {allowDecimal && (
+        <button
+          className="numpad-btn numpad-btn--secondary numpad-btn--decimal"
+          onClick={appendDecimal}
+          disabled={disabled || value.includes('.')}
+        >.</button>
+      )}
+      <button className="numpad-submit" onClick={submit} disabled={disabled || isIncomplete}>
         Submit
       </button>
     </div>
