@@ -63,6 +63,7 @@ function NumberLineModule({ question, locked, revealed, onAnswer }) {
         aria-valuemin={min}
         aria-valuemax={max}
         aria-valuenow={displayValue ?? min}
+        style={{ cursor: dragging ? 'grabbing' : 'grab' }}
       >
         <div className="insight-numberline-line" />
 
@@ -87,11 +88,13 @@ function NumberLineModule({ question, locked, revealed, onAnswer }) {
           <div
             className={[
               'insight-numberline-handle',
+              dragging ? 'insight-numberline-handle--dragging' : '',
               !dragging && revealed && isCorrect ? 'insight-numberline-handle--correct' : '',
               !dragging && revealed && !isCorrect ? 'insight-numberline-handle--wrong' : '',
             ].filter(Boolean).join(' ')}
             style={{ left: `${pctForValue(displayValue)}%`, transition: dragging ? 'none' : 'left 0.12s ease-out' }}
           >
+            <span className="insight-numberline-handle-knob" />
             <span className="insight-numberline-handle-arrow">▼</span>
           </div>
         )}
