@@ -1,14 +1,51 @@
-import { useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import InsightNumpadOverlay from '../InsightNumpadOverlay'
 
-// Shows the number itself with arrows down to one numpad box per part —
-// no words, just the number splitting into "(X + Y)" boxes, so it reads
-// the same regardless of language. Both boxes must be filled in; there's
-// no single hidden slot.
+// Shows the number itself with real angled arrows (SVG, measured against
+// each digit and box's actual position) pointing from every digit down to
+// its own numpad box — no words, so it reads the same in any language.
+// Generalises to any number of parts: each part is assumed to map 1:1 to
+// a digit position left-to-right (e.g. 4382 -> [4000, 300, 80, 2]). Every
+// box is always required at every level — there's no hidden slot.
 function PartitionModule({ question, stage, locked, revealed, onAnswer }) {
   const { number, parts } = question
   const [values, setValues] = useState(() => parts.map(() => null))
   const [activeBox, setActiveBox] = useState(null)
+  const [lines, setLines] = useState([])
+
+  const wrapRef = useRef(null)
+  const digitRefs = useRef([])
+  const boxRefs = useRef([])
+  const digits = String(number).split('')
+
+  function recalcLines() {
+    const wrap = wrapRef.current
+    if (!wrap) return
+    const wrapRect = wrap.getBoundingClientRect()
+    setLines(parts.map((_, i) => {
+      const d = digitRefs.current[i]
+      const b = boxRefs.current[i]
+      if (!d || !b) return null
+      const dr = d.getBoundingClientRect()
+      const br = b.getBoundingClientRect()
+      return {
+        x1: dr.left + dr.width / 2 - wrapRect.left,
+        y1: dr.bottom - wrapRect.top,
+        x2: br.left + br.width / 2 - wrapRect.left,
+        y2: br.top - wrapRect.top,
+      }
+    }))
+  }
+
+  useLayoutEffect(() => {
+    recalcLines()
+    const wrap = wrapRef.current
+    if (!wrap) return
+    const ro = new ResizeObserver(recalcLines)
+    ro.observe(wrap)
+    return () => ro.disconnect()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [values, revealed])
 
   function handleSubmit(v) {
     const next = [...values]
@@ -26,30 +63,53 @@ function PartitionModule({ question, stage, locked, revealed, onAnswer }) {
 
   return (
     <div className="insight-module-content">
-      <div className="insight-partition-number">{number}</div>
+      <div className="insight-partition-wrap" ref={wrapRef}>
+        <div className="insight-partition-number">
+          {digits.map((d, i) => (
+            <span key={i} ref={el => { digitRefs.current[i] = el }} className="insight-partition-digit">{d}</span>
+          ))}
+        </div>
 
-      <div className="insight-partition-arrows">
-        {parts.map((_, i) => <span key={i} className="insight-partition-arrow">↓</span>)}
-      </div>
+        <svg className="insight-partition-arrows-svg">
+          <defs>
+            <marker id="insight-partition-arrowhead" markerWidth="8" markerHeight="8" refX="3.5" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 Z" fill="#9ca3af" />
+            </marker>
+          </defs>
+          {lines.map((l, i) => l && (
+            <line
+              key={i}
+              x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2}
+              stroke="#9ca3af" strokeWidth="2.5"
+              markerEnd="url(#insight-partition-arrowhead)"
+            />
+          ))}
+        </svg>
 
-      <div className="insight-partition-row">
-        {parts.map((p, i) => {
-          const filled = values[i] !== null
-          const cls = [
-            'insight-partition-box',
-            filled && !revealed ? 'insight-partition-box--filled' : '',
-            revealed && values[i] === p ? 'insight-partition-box--correct' : '',
-            revealed && values[i] !== p ? 'insight-partition-box--wrong' : '',
-          ].filter(Boolean).join(' ')
-          return (
-            <span key={i} className="insight-partition-group">
-              {i > 0 && <span className="insight-partition-plus">+</span>}
-              <button className={cls} onClick={() => { if (!locked) setActiveBox(i) }} disabled={locked}>
-                {values[i] ?? ''}
-              </button>
-            </span>
-          )
-        })}
+        <div className="insight-partition-row">
+          {parts.map((p, i) => {
+            const filled = values[i] !== null
+            const cls = [
+              'insight-partition-box',
+              filled && !revealed ? 'insight-partition-box--filled' : '',
+              revealed && values[i] === p ? 'insight-partition-box--correct' : '',
+              revealed && values[i] !== p ? 'insight-partition-box--wrong' : '',
+            ].filter(Boolean).join(' ')
+            return (
+              <span key={i} className="insight-partition-group">
+                {i > 0 && <span className="insight-partition-plus">+</span>}
+                <button
+                  ref={el => { boxRefs.current[i] = el }}
+                  className={cls}
+                  onClick={() => { if (!locked) setActiveBox(i) }}
+                  disabled={locked}
+                >
+                  {values[i] ?? ''}
+                </button>
+              </span>
+            )
+          })}
+        </div>
       </div>
 
       {revealed && !parts.every((p, i) => values[i] === p) && (
