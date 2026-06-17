@@ -15,7 +15,7 @@ function NumpadModule({ question, stage, locked, revealed, onAnswer }) {
 
   return (
     <div className="insight-module-content">
-      <div className="insight-module-question" style={{ whiteSpace: 'pre' }}>
+      <div className="insight-module-question" style={{ whiteSpace: 'pre-wrap' }}>
         {question.question}
       </div>
 

@@ -53,7 +53,7 @@ function QuickTester() {
         <button onClick={reset} className="button-secondary">New question</button>
       </div>
 
-      <div style={{ width: 640, marginBottom: '1rem' }}>
+      <div className="insight-carousel-module-wrap" style={{ marginBottom: '1rem' }}>
         <InsightModule
           key={key}
           subdomain={subdomain}
@@ -144,7 +144,7 @@ function Carousel({ level, onRestart }) {
             ←
           </button>
 
-          <div style={{ width: 640 }}>
+          <div className="insight-carousel-module-wrap">
             {slots.map((code, i) => (
               <div key={i} style={{ display: i === current ? 'block' : 'none' }}>
                 <InsightModule
