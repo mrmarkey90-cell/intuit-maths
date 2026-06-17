@@ -433,13 +433,20 @@ button:hover:not(:disabled) {
   align-items: center;
 }
 
-.dashboard-header-left {
+.dashboard-header-brand {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #4f46e5;
+  letter-spacing: 0.02em;
+}
+
+.page-title {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.dashboard-header h1 {
+.page-title h1 {
   font-size: 1.5rem;
   margin: 0;
 }

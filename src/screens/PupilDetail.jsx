@@ -145,12 +145,14 @@ function PupilDetail({ pupilId, onBack, onLevelChanged }) {
     <div className="dashboard">
       <header className="dashboard-header">
         <button className="button-secondary" onClick={onBack}>← Back</button>
-        <div className="dashboard-header-left" style={{ marginLeft: '1rem' }}>
-          <h1>{pupil.first_name} {pupil.last_name}</h1>
-        </div>
+        <div className="dashboard-header-brand" style={{ flex: 1, textAlign: 'center' }}>intuit</div>
       </header>
 
       <main className="dashboard-main" style={{ maxWidth: 640 }}>
+        <div className="page-title">
+          <h1>{pupil.first_name} {pupil.last_name}</h1>
+        </div>
+
         <section className="dashboard-section">
           <div className="section-heading"><h2>Levels</h2></div>
           <div className="pupil-detail-levels">

@@ -153,16 +153,17 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
     return (
       <div className="dashboard">
         <header className="dashboard-header">
-          <div className="dashboard-header-left">
-            <h1>Instinct — Lobby</h1>
-            <span className="tier-badge">{cls.name}</span>
-          </div>
+          <div className="dashboard-header-brand" style={{ flex: 1, textAlign: 'center' }}>intuit</div>
           <button className="button-secondary" onClick={handleCancel} disabled={cancelling}>
             {cancelling ? 'Cancelling...' : 'Cancel session'}
           </button>
         </header>
 
         <main className="dashboard-main" style={{ maxWidth: 720 }}>
+          <div className="page-title">
+            <h1>Instinct — Lobby</h1>
+            <span className="tier-badge">{cls.name}</span>
+          </div>
           <section className="dashboard-section">
             <div className="section-heading"><h2>Session link</h2></div>
             <div className="session-link-block">
@@ -249,13 +250,14 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
   return (
     <div className="dashboard">
       <header className="dashboard-header">
-        <div className="dashboard-header-left">
-          <h1>Instinct Complete</h1>
-          <span className="tier-badge">{cls.name}</span>
-        </div>
+        <div className="dashboard-header-brand" style={{ flex: 1, textAlign: 'center' }}>intuit</div>
       </header>
 
       <main className="dashboard-main" style={{ maxWidth: 720 }}>
+        <div className="page-title">
+          <h1>Instinct Complete</h1>
+          <span className="tier-badge">{cls.name}</span>
+        </div>
         <section className="dashboard-section">
           <div className="results-summary">
             <div className="stat-box stat-box--large">

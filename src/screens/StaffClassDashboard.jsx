@@ -98,12 +98,13 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
       <div className="dashboard">
         <header className="dashboard-header">
           <button className="button-secondary" onClick={() => setView('main')}>← Back</button>
-          <div className="dashboard-header-left" style={{ marginLeft: '1rem' }}>
+          <div className="dashboard-header-brand" style={{ flex: 1, textAlign: 'center' }}>intuit</div>
+        </header>
+        <main className="dashboard-main">
+          <div className="page-title">
             <h1>Pupils</h1>
             <span className="tier-badge">{cls.name}</span>
           </div>
-        </header>
-        <main className="dashboard-main">
           <section className="dashboard-section">
             <div className="section-heading">
               <h2>Class list</h2>
@@ -135,12 +136,13 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
       <div className="dashboard">
         <header className="dashboard-header">
           <button className="button-secondary" onClick={() => setView('main')}>← Back</button>
-          <div className="dashboard-header-left" style={{ marginLeft: '1rem' }}>
+          <div className="dashboard-header-brand" style={{ flex: 1, textAlign: 'center' }}>intuit</div>
+        </header>
+        <main className="dashboard-main">
+          <div className="page-title">
             <h1>Pupil Hub</h1>
             <span className="tier-badge">{cls.name}</span>
           </div>
-        </header>
-        <main className="dashboard-main">
           <section className="dashboard-section qr-focus-section">
             <p className="note" style={{ marginBottom: '1.5rem' }}>
               Display or share this so pupils can access their hub
@@ -163,12 +165,13 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
       <div className="dashboard">
         <header className="dashboard-header">
           <button className="button-secondary" onClick={() => setView('main')}>← Back</button>
-          <div className="dashboard-header-left" style={{ marginLeft: '1rem' }}>
+          <div className="dashboard-header-brand" style={{ flex: 1, textAlign: 'center' }}>intuit</div>
+        </header>
+        <main className="dashboard-main">
+          <div className="page-title">
             <h1>Add Pupil</h1>
             <span className="tier-badge">{cls.name}</span>
           </div>
-        </header>
-        <main className="dashboard-main">
           <section className="dashboard-section qr-focus-section">
             <p className="note" style={{ marginBottom: '1.5rem' }}>
               New pupils follow this link to create their profile
@@ -190,15 +193,12 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
     <div className="dashboard">
       <header className="dashboard-header">
         <button className="button-secondary" onClick={onChangeClass}>← Classes</button>
-        <div className="dashboard-header-left" style={{ marginLeft: '1rem', flex: 1 }}>
-          <h1>{cls.name}</h1>
-          <span className="tier-badge">{school.name}</span>
-        </div>
+        <div className="dashboard-header-brand" style={{ flex: 1, textAlign: 'center' }}>intuit</div>
         <button className="button-secondary" onClick={onSignOut}>Sign out</button>
       </header>
 
       <main className="dashboard-tiles-wrapper">
-        <div className="dashboard-brand">intuit</div>
+        <div className="dashboard-brand">{cls.name} — {school.name}</div>
         <div className="dashboard-tiles">
 
           <div className={`dashboard-tile dashboard-tile--instinct${weeklyUsed && !activeSession ? ' dashboard-tile--instinct-done' : ''}`}>

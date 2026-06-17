@@ -83,12 +83,14 @@ function LeadershipAccount({ school, onBack }) {
     <div className="dashboard">
       <header className="dashboard-header">
         <button className="button-secondary" onClick={onBack} aria-label={t('common.back')}>←</button>
-        <div className="dashboard-header-left" style={{ marginLeft: '1rem' }}>
-          <h1>{t('account.title')}</h1>
-        </div>
+        <div className="dashboard-header-brand" style={{ flex: 1, textAlign: 'center' }}>intuit</div>
       </header>
 
       <main className="dashboard-main">
+        <div className="page-title">
+          <h1>{t('account.title')}</h1>
+        </div>
+
         <section className="dashboard-section">
           <div className="section-heading">
             <h2>{t('account.language')}</h2>

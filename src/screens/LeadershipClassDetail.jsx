@@ -17,6 +17,10 @@ function LeadershipClassDetail({ classId, onBack, onSelectPupil, onClassDeleted 
   const [confirming, setConfirming] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
+  const [selected, setSelected] = useState(new Set())
+  const [confirmingUnallocate, setConfirmingUnallocate] = useState(false)
+  const [unallocating, setUnallocating] = useState(false)
+
   useEffect(() => {
     supabase.rpc('get_leadership_class_detail', { p_class_id: classId }).then(({ data: result }) => {
       setData(result)
@@ -31,6 +35,24 @@ function LeadershipClassDetail({ classId, onBack, onSelectPupil, onClassDeleted 
     else setDeleting(false)
   }
 
+  function toggleSelected(id) {
+    setSelected(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  async function handleUnallocate() {
+    setUnallocating(true)
+    await supabase.rpc('unallocate_pupils', { p_pupil_ids: [...selected] })
+    setData(prev => ({ ...prev, pupils: prev.pupils.filter(p => !selected.has(p.id)) }))
+    setSelected(new Set())
+    setConfirmingUnallocate(false)
+    setUnallocating(false)
+  }
+
   if (loading) return <div className="screen"><p>Loading...</p></div>
   if (!data || data.error) return <div className="screen"><p>Class not found.</p></div>
 
@@ -40,15 +62,42 @@ function LeadershipClassDetail({ classId, onBack, onSelectPupil, onClassDeleted 
     <div className="dashboard">
       <header className="dashboard-header">
         <button className="button-secondary" onClick={onBack}>← Back</button>
-        <div className="dashboard-header-left" style={{ marginLeft: '1rem' }}>
-          <h1>{cls.name}</h1>
-          <span className={`tier-badge${cls.active ? ' tier-badge--pro' : ''}`}>
-            {cls.active ? 'Active' : 'Inactive'}
-          </span>
-        </div>
+        <div className="dashboard-header-brand" style={{ flex: 1, textAlign: 'center' }}>intuit</div>
       </header>
 
       <main className="dashboard-main">
+        <div className="page-title">
+          <h1>{cls.name}</h1>
+        </div>
+
+        {selected.size > 0 && (
+          <section className="dashboard-section" style={{ borderColor: '#fca5a5', background: '#fff9f9' }}>
+            {!confirmingUnallocate ? (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
+                <span className="note">{selected.size} pupil{selected.size !== 1 ? 's' : ''} selected</span>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button className="button-secondary" onClick={() => setSelected(new Set())}>Clear</button>
+                  <button className="button-danger" onClick={() => setConfirmingUnallocate(true)}>
+                    Unallocate
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <p style={{ marginBottom: '1rem', fontWeight: 600 }}>
+                  Unallocate {selected.size} pupil{selected.size !== 1 ? 's' : ''} from {cls.name}? They are not deleted — just unparented, and can be moved to a class again later.
+                </p>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button className="button-danger" onClick={handleUnallocate} disabled={unallocating}>
+                    {unallocating ? 'Unallocating...' : 'Yes, unallocate'}
+                  </button>
+                  <button className="button-secondary" onClick={() => setConfirmingUnallocate(false)}>Cancel</button>
+                </div>
+              </div>
+            )}
+          </section>
+        )}
+
         <section className="dashboard-section">
           <div className="section-heading">
             <h2>Pupils</h2>
@@ -59,14 +108,22 @@ function LeadershipClassDetail({ classId, onBack, onSelectPupil, onClassDeleted 
           ) : (
             <div className="pupil-list">
               {pupils.map(p => (
-                <button key={p.id} className="pupil-list-row" onClick={() => onSelectPupil(p.id)}>
-                  <span className="pupil-list-name">{p.first_name} {p.last_name}</span>
+                <div key={p.id} className="pupil-list-row">
+                  <input
+                    type="checkbox"
+                    checked={selected.has(p.id)}
+                    onChange={() => toggleSelected(p.id)}
+                    style={{ marginRight: '0.75rem', width: 18, height: 18, flexShrink: 0 }}
+                  />
+                  <span className="pupil-list-name" onClick={() => onSelectPupil(p.id)} style={{ cursor: 'pointer' }}>
+                    {p.first_name} {p.last_name}
+                  </span>
                   <span className="pupil-list-meta">
                     <span className="pupil-list-level">L{p.instinct_level}</span>
                     <span className="note">{lastActiveLabel(p.last_attempt_at)}</span>
                   </span>
-                  <span className="pupil-list-arrow">›</span>
-                </button>
+                  <span className="pupil-list-arrow" onClick={() => onSelectPupil(p.id)} style={{ cursor: 'pointer' }}>›</span>
+                </div>
               ))}
             </div>
           )}

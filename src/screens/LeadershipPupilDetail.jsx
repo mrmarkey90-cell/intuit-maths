@@ -125,13 +125,15 @@ function LeadershipPupilDetail({ pupilId, onBack, onPupilDeleted }) {
     <div className="dashboard">
       <header className="dashboard-header">
         <button className="button-secondary" onClick={onBack}>← Back</button>
-        <div className="dashboard-header-left" style={{ marginLeft: '1rem' }}>
-          <h1>{pupil.first_name} {pupil.last_name}</h1>
-          <span className="tier-badge tier-badge--pro">Test Level {stage}</span>
-        </div>
+        <div className="dashboard-header-brand" style={{ flex: 1, textAlign: 'center' }}>intuit</div>
       </header>
 
       <main className="dashboard-main" style={{ maxWidth: 640 }}>
+        <div className="page-title">
+          <h1>{pupil.first_name} {pupil.last_name}</h1>
+          <span className="tier-badge tier-badge--pro">Test Level {stage}</span>
+        </div>
+
         <section className="dashboard-section">
           <div className="pupil-detail-stats">
             <div className="stat-box">

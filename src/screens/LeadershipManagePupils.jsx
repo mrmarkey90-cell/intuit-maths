@@ -28,15 +28,16 @@ function LeadershipManagePupils({ schoolId, onBack, onSelectPupil }) {
     <div className="dashboard">
       <header className="dashboard-header">
         <button className="button-secondary" onClick={onBack}>← Back</button>
-        <div className="dashboard-header-left" style={{ marginLeft: '1rem' }}>
+        <div className="dashboard-header-brand" style={{ flex: 1, textAlign: 'center' }}>intuit</div>
+      </header>
+
+      <main className="dashboard-main">
+        <div className="page-title">
           <h1>Manage Pupils</h1>
           <span className="section-count" style={{ fontSize: '14px', color: '#888' }}>
             {pupils.length} total
           </span>
         </div>
-      </header>
-
-      <main className="dashboard-main">
         <section className="dashboard-section">
           <input
             type="search"

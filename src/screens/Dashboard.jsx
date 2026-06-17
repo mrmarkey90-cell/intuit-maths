@@ -102,11 +102,12 @@ function Dashboard({ session }) {
     <div className="dashboard">
       <header className="dashboard-header">
         <button className="button-secondary" onClick={() => setView('main')}>← Back</button>
-        <div className="dashboard-header-left" style={{ marginLeft: '1rem' }}>
-          <h1>Support</h1>
-        </div>
+        <div className="dashboard-header-brand" style={{ flex: 1, textAlign: 'center' }}>intuit</div>
       </header>
       <main className="dashboard-main">
+        <div className="page-title">
+          <h1>Support</h1>
+        </div>
         <section className="dashboard-section">
           <h2 style={{ marginBottom: '0.75rem' }}>Get in touch</h2>
           <p className="note" style={{ marginBottom: '0.75rem' }}>
@@ -128,19 +129,17 @@ function Dashboard({ session }) {
 
   const tier = school.tier ?? 'free'
   const tierLabel = TIER_LABELS[tier] ?? tier
-  const slotSub = tier === 'pilot' ? 'Unlimited classes' : `${activeClassCount} / ${school.class_slots ?? 1} active`
+  const slotSub = tier === 'pilot' ? 'Unlimited classes' : `${activeClassCount} class${activeClassCount !== 1 ? 'es' : ''}`
   const staffLink = `intuited.uk/school/${school.school_code}`
 
   return (
     <div className="dashboard">
       <header className="dashboard-header">
-        <div className="dashboard-header-left">
-          <h1>{school.name}</h1>
-        </div>
+        <div className="dashboard-header-brand" style={{ flex: 1, textAlign: 'center' }}>intuit</div>
       </header>
 
       <main className="dashboard-tiles-wrapper">
-        <div className="dashboard-brand">intuit</div>
+        <div className="dashboard-brand">{school.name}</div>
         <div className="dashboard-tiles">
 
           {/* Staff Link — content inline, no navigation */}

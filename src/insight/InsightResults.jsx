@@ -9,13 +9,15 @@ function InsightResults({ score, total, onReviewMarking, onRestart }) {
   return (
     <div className="dashboard">
       <header className="dashboard-header">
-        <div className="dashboard-header-left">
-          <h1>Insight Complete</h1>
-          <span className="tier-badge">Preview — no real pupil session</span>
-        </div>
+        <div className="dashboard-header-brand" style={{ flex: 1, textAlign: 'center' }}>intuit</div>
       </header>
 
       <main className="dashboard-main" style={{ maxWidth: 480 }}>
+        <div className="page-title">
+          <h1>Insight Complete</h1>
+          <span className="tier-badge">Preview — no real pupil session</span>
+        </div>
+
         <section className="dashboard-section">
           <div className="results-summary">
             <div className="stat-box stat-box--large">
