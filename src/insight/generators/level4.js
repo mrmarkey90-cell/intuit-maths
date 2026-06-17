@@ -126,10 +126,13 @@ export function L4_2A(lang) {
   }
 }
 
-// 2B — Comparing: "Which is bigger?" with 2-decimal-place numbers (e.g. 4.21 vs 4.12)
+// 2B — Comparing: "Which is bigger?" with 2-digit, 1-decimal-place
+// numbers (e.g. 4.2 vs 4.1)
 export function L4_2B(lang) {
   function randDecimal() {
-    return Math.round((rand(100, 999) / 100) * 100) / 100
+    const whole = rand(1, 9)
+    const tenths = rand(0, 9)
+    return Math.round((whole + tenths / 10) * 10) / 10
   }
   let a = randDecimal()
   let b = randDecimal()
@@ -137,7 +140,7 @@ export function L4_2B(lang) {
   return {
     moduleType: 'circle',
     prompt: w(lang).whichIsBigger,
-    options: [a.toFixed(2), b.toFixed(2)],
+    options: [a.toFixed(1), b.toFixed(1)],
     correctIndex: a > b ? 0 : 1,
   }
 }
