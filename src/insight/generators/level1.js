@@ -68,10 +68,10 @@ export function L1_4A() {
   }
 }
 
-// 6A — Sharing: drag sweets into boxes equally (capped so the pool/boxes
-// always fit on screen without scrolling, regardless of card size)
+// 6A — Sharing: drag sweets into boxes equally (boxes capped at 4 and
+// totals capped so the pool/boxes always fit on screen without scrolling)
 export function L1_6A() {
-  const boxes = rand(2, 5)
+  const boxes = rand(2, 4)
   const maxEach = Math.max(1, Math.floor(12 / boxes))
   const each = rand(1, maxEach)
   const totalSweets = boxes * each
@@ -124,12 +124,10 @@ export function L1_9A() {
   }
 }
 
-// 9C — Patterns: always counting in 2s (e.g. "2, 4, 6, ___, 10"), blank moves around
+// 9C — Patterns: always "2, 4, 6, 8, 10", hiding one of 4/6/8/10 (never 2)
 export function L1_9C() {
-  const step = 2
-  const start = rand(1, 3) * 2
-  const seq = [start, start + step, start + 2 * step, start + 3 * step, start + 4 * step]
-  const hideIndex = rand(0, 4)
+  const seq = [2, 4, 6, 8, 10]
+  const hideIndex = rand(1, 4)
   const answer = seq[hideIndex]
   return {
     moduleType: 'numpad',

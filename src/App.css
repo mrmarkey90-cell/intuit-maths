@@ -1104,6 +1104,7 @@ button:hover:not(:disabled) {
   gap: 10px;
   width: 100%;
   max-width: 280px;
+  margin: 0 auto;
 }
 
 .numpad-display {
@@ -1720,7 +1721,7 @@ button:hover:not(:disabled) {
   display: flex;
   flex-direction: column;
   gap: clamp(12px, 2.5vw, 22px);
-  height: clamp(340px, 60vh, 520px);
+  height: clamp(380px, 68vh, 580px);
   width: 100%;
   box-sizing: border-box;
   transition: border-color 0.2s, box-shadow 0.2s;
@@ -1804,7 +1805,8 @@ button:hover:not(:disabled) {
   color: #4f46e5;
 }
 
-.insight-answer-field--filled {
+.insight-answer-field--filled,
+.insight-answer-field--filled:disabled {
   border-style: solid;
   border-color: #4f46e5;
   color: #4f46e5;
@@ -1812,7 +1814,8 @@ button:hover:not(:disabled) {
   cursor: default;
 }
 
-.insight-answer-field--correct {
+.insight-answer-field--correct,
+.insight-answer-field--correct:disabled {
   border-style: solid;
   border-color: #16a34a;
   background: #f0fdf4;
@@ -1899,7 +1902,8 @@ button:hover:not(:disabled) {
   justify-content: center;
 }
 
-.insight-circle-option {
+.insight-circle-option,
+.insight-circle-option:disabled {
   background: #f9fafb;
   border: 2px solid #d1d5db;
   border-radius: clamp(10px, 1.5vw, 16px);
@@ -1916,19 +1920,22 @@ button:hover:not(:disabled) {
   border-color: #4f46e5;
 }
 
-.insight-circle-option--selected {
+.insight-circle-option--selected,
+.insight-circle-option--selected:disabled {
   border-color: #4f46e5;
   background: #eef2ff;
   color: #4f46e5;
 }
 
-.insight-circle-option--correct {
+.insight-circle-option--correct,
+.insight-circle-option--correct:disabled {
   border-color: #16a34a;
   background: #f0fdf4;
   color: #16a34a;
 }
 
-.insight-circle-option--wrong {
+.insight-circle-option--wrong,
+.insight-circle-option--wrong:disabled {
   border-color: #dc2626;
   background: #fef2f2;
   color: #dc2626;
@@ -1953,7 +1960,8 @@ button:hover:not(:disabled) {
   justify-content: center;
 }
 
-.insight-pairsum-option {
+.insight-pairsum-option,
+.insight-pairsum-option:disabled {
   background: #f9fafb;
   border: 2px solid #d1d5db;
   border-radius: clamp(10px, 1.5vw, 16px);
@@ -1970,19 +1978,22 @@ button:hover:not(:disabled) {
   border-color: #4f46e5;
 }
 
-.insight-pairsum-option--selected {
+.insight-pairsum-option--selected,
+.insight-pairsum-option--selected:disabled {
   border-color: #4f46e5;
   background: #eef2ff;
   color: #4f46e5;
 }
 
-.insight-pairsum-option--correct {
+.insight-pairsum-option--correct,
+.insight-pairsum-option--correct:disabled {
   border-color: #16a34a;
   background: #f0fdf4;
   color: #16a34a;
 }
 
-.insight-pairsum-option--wrong {
+.insight-pairsum-option--wrong,
+.insight-pairsum-option--wrong:disabled {
   border-color: #dc2626;
   background: #fef2f2;
   color: #dc2626;
@@ -2137,6 +2148,13 @@ button:hover:not(:disabled) {
   background: none;
   border: none;
   cursor: pointer;
+}
+
+.insight-numberline-tick:disabled {
+  /* The global button:disabled rule (higher specificity than a single
+     class) was painting a lavender background box over every notch
+     once the question is locked/revealed — this restores "no box". */
+  background: none;
 }
 
 .insight-numberline-mark {
