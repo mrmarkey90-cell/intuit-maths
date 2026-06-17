@@ -255,7 +255,8 @@ export function L3_9A() {
 export function L3_9B(lang) {
   const start = rand(15, 30)
   const giveAway = rand(3, 10)
-  const getMore = rand(2, 8)
+  let getMore
+  do { getMore = rand(2, 8) } while (getMore === giveAway) // avoid the trivial X - Y + Y = X case
   const itemIndex = randomItemIndex()
   return {
     moduleType: 'numpad',
