@@ -42,6 +42,7 @@ const WORDS = {
     howManyXInY: (x, y) => `How many ${x}s in ${y}?`,
     whatComesAfter: n => `What comes after ${n}?`,
     findEvenNumbers: 'Find the even numbers',
+    findOddNumbers: 'Find the odd numbers',
     whichAreInTimesTable: n => `Which are in the ${n} times table?`,
     wordProblemItems: (start, giveAway, getMore, itemIndex) => {
       const item = ITEM_NOUNS[itemIndex].en
@@ -67,6 +68,7 @@ const WORDS = {
     howManyXInY: (x, y) => `Sawl ${x} sydd yn ${y}?`,
     whatComesAfter: n => `Beth sy'n dod ar ôl ${n}?`,
     findEvenNumbers: 'Canfod y rhifau eilrif',
+    findOddNumbers: 'Canfod y rhifau odrif',
     whichAreInTimesTable: n => `Pa rifau sydd yn nhabl ${n}?`,
     wordProblemItems: (start, giveAway, getMore, itemIndex) => {
       const item = ITEM_NOUNS[itemIndex].cy

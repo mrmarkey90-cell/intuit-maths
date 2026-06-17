@@ -35,18 +35,21 @@ export function L3_1B() {
   }
 }
 
-// 1E — Even / Odd: "Find the even numbers" from 5 random 1-30 values
+// 1E — Even / Odd: asks for one or the other at random, never both in
+// the same question — "Find the even numbers" or "Find the odd numbers"
+// from 5 random 1-30 values. Level 4 should follow the same approach.
 export function L3_1E(lang) {
+  const wantEven = Math.random() < 0.5
   let values, correctIndices
   do {
     const pool = new Set()
     while (pool.size < 5) pool.add(rand(1, 30))
     values = [...pool]
-    correctIndices = values.map((v, i) => (v % 2 === 0 ? i : -1)).filter(i => i !== -1)
+    correctIndices = values.map((v, i) => ((v % 2 === 0) === wantEven ? i : -1)).filter(i => i !== -1)
   } while (correctIndices.length === 0 || correctIndices.length === values.length)
   return {
     moduleType: 'multi_select',
-    prompt: w(lang).findEvenNumbers,
+    prompt: wantEven ? w(lang).findEvenNumbers : w(lang).findOddNumbers,
     options: values,
     correctIndices,
   }
