@@ -37,13 +37,14 @@ export function L3_1B() {
 
 // 1E — Even / Odd: asks for one or the other at random, never both in
 // the same question — "Find the even numbers" or "Find the odd numbers"
-// from 5 random 1-30 values. Level 4 should follow the same approach.
+// from 6 random 1-30 values (a full 3x2 grid, never an uneven last row).
+// Level 4 should follow the same approach.
 export function L3_1E(lang) {
   const wantEven = Math.random() < 0.5
   let values, correctIndices
   do {
     const pool = new Set()
-    while (pool.size < 5) pool.add(rand(1, 30))
+    while (pool.size < 6) pool.add(rand(1, 30))
     values = [...pool]
     correctIndices = values.map((v, i) => ((v % 2 === 0) === wantEven ? i : -1)).filter(i => i !== -1)
   } while (correctIndices.length === 0 || correctIndices.length === values.length)
@@ -55,13 +56,13 @@ export function L3_1E(lang) {
   }
 }
 
-// 1F — Multiples: "Which are in the 2 times table?" from 5 random 1-20 values
+// 1F — Multiples: "Which are in the 2 times table?" from 6 random 1-20 values
 export function L3_1F(lang) {
   const table = 2
   let values, correctIndices
   do {
     const pool = new Set()
-    while (pool.size < 5) pool.add(rand(1, 20))
+    while (pool.size < 6) pool.add(rand(1, 20))
     values = [...pool]
     correctIndices = values.map((v, i) => (v % table === 0 ? i : -1)).filter(i => i !== -1)
   } while (correctIndices.length === 0 || correctIndices.length === values.length)

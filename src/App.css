@@ -2122,6 +2122,7 @@ button:hover:not(:disabled) {
   justify-content: center;
   width: 100%;
   max-width: 420px;
+  margin: 0 auto;
 }
 
 .insight-circle-option,
@@ -2242,6 +2243,7 @@ button:hover:not(:disabled) {
   justify-content: center;
   width: 100%;
   max-width: 480px;
+  margin: 0 auto;
 }
 
 .insight-multiselect-option,

@@ -131,7 +131,7 @@ function PartitionModule({ question, stage, locked, revealed, onAnswer }) {
         <InsightNumpadOverlay
           question={overlayQuestion}
           stage={stage}
-          initialValue={values[activeBox] ?? ''}
+          initialValue={values[activeBox] != null ? String(values[activeBox]) : ''}
           onSubmit={handleSubmit}
           onDismiss={() => setActiveBox(null)}
         />

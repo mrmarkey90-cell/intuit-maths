@@ -56,13 +56,14 @@ export function L4_1C(lang) {
   }
 }
 
-// 1E — Even / Odd: same approach as Level 3, wider range
+// 1E — Even / Odd: same approach as Level 3, wider range. 6 tiles (not
+// 5) so the 3x2 grid is always full, never an unevenly-filled last row
 export function L4_1E(lang) {
   const wantEven = Math.random() < 0.5
   let values, correctIndices
   do {
     const pool = new Set()
-    while (pool.size < 5) pool.add(rand(25, 99))
+    while (pool.size < 6) pool.add(rand(25, 99))
     values = [...pool]
     correctIndices = values.map((v, i) => ((v % 2 === 0) === wantEven ? i : -1)).filter(i => i !== -1)
   } while (correctIndices.length === 0 || correctIndices.length === values.length)
@@ -74,13 +75,13 @@ export function L4_1E(lang) {
   }
 }
 
-// 1F — Multiples: "Which are in the 3 times table?" from 1-30
+// 1F — Multiples: "Which are in the 3 times table?" from 1-30, 6 tiles
 export function L4_1F(lang) {
   const table = 3
   let values, correctIndices
   do {
     const pool = new Set()
-    while (pool.size < 5) pool.add(rand(1, 30))
+    while (pool.size < 6) pool.add(rand(1, 30))
     values = [...pool]
     correctIndices = values.map((v, i) => (v % table === 0 ? i : -1)).filter(i => i !== -1)
   } while (correctIndices.length === 0 || correctIndices.length === values.length)
