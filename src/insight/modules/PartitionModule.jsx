@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react'
+import { Fragment, useLayoutEffect, useRef, useState } from 'react'
 import InsightNumpadOverlay from '../InsightNumpadOverlay'
 
 // Shows the number itself with real angled arrows (SVG, measured against
@@ -18,6 +18,12 @@ function PartitionModule({ question, stage, locked, revealed, onAnswer }) {
   const boxRefs = useRef([])
   const digits = String(number).split('')
 
+  // Targets sit a fixed distance below each digit and above each box,
+  // rather than right on their edges — gives the arrow a clear start/end
+  // point of its own instead of touching (and on small screens, slightly
+  // overlapping) the digit or the box.
+  const TARGET_GAP = 14
+
   function recalcLines() {
     const wrap = wrapRef.current
     if (!wrap) return
@@ -30,9 +36,9 @@ function PartitionModule({ question, stage, locked, revealed, onAnswer }) {
       const br = b.getBoundingClientRect()
       return {
         x1: dr.left + dr.width / 2 - wrapRect.left,
-        y1: dr.bottom - wrapRect.top,
+        y1: dr.bottom - wrapRect.top + TARGET_GAP,
         x2: br.left + br.width / 2 - wrapRect.left,
-        y2: br.top - wrapRect.top,
+        y2: br.top - wrapRect.top - TARGET_GAP,
       }
     }))
   }
@@ -77,12 +83,15 @@ function PartitionModule({ question, stage, locked, revealed, onAnswer }) {
             </marker>
           </defs>
           {lines.map((l, i) => l && (
-            <line
-              key={i}
-              x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2}
-              stroke="#9ca3af" strokeWidth="2.5"
-              markerEnd="url(#insight-partition-arrowhead)"
-            />
+            <g key={i}>
+              <circle cx={l.x1} cy={l.y1} r="4" fill="#9ca3af" />
+              <circle cx={l.x2} cy={l.y2} r="4" fill="#9ca3af" />
+              <line
+                x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2}
+                stroke="#9ca3af" strokeWidth="2.5"
+                markerEnd="url(#insight-partition-arrowhead)"
+              />
+            </g>
           ))}
         </svg>
 
@@ -96,7 +105,7 @@ function PartitionModule({ question, stage, locked, revealed, onAnswer }) {
               revealed && values[i] !== p ? 'insight-partition-box--wrong' : '',
             ].filter(Boolean).join(' ')
             return (
-              <span key={i} className="insight-partition-group">
+              <Fragment key={i}>
                 {i > 0 && <span className="insight-partition-plus">+</span>}
                 <button
                   ref={el => { boxRefs.current[i] = el }}
@@ -106,7 +115,7 @@ function PartitionModule({ question, stage, locked, revealed, onAnswer }) {
                 >
                   {values[i] ?? ''}
                 </button>
-              </span>
+              </Fragment>
             )
           })}
         </div>

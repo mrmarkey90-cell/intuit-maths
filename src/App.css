@@ -1973,13 +1973,7 @@ button:hover:not(:disabled) {
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: clamp(32px, 7vw, 64px);
-}
-
-.insight-partition-group {
-  display: flex;
-  align-items: center;
-  gap: clamp(10px, 2vw, 18px);
+  gap: clamp(22px, 4.5vw, 38px);
 }
 
 .insight-partition-plus {
