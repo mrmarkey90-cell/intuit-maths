@@ -1,6 +1,7 @@
 import * as level1 from './level1'
 import * as level2 from './level2'
 import * as level3 from './level3'
+import * as level4 from './level4'
 
 const generators = {
   1: {
@@ -56,7 +57,35 @@ const generators = {
     '9B': level3.L3_9B,
     '9C': level3.L3_9C,
   },
-  // Level 4+ generators added here as each level is built
+  4: {
+    '1A': level4.L4_1A,
+    '1B': level4.L4_1B,
+    '1C': level4.L4_1C,
+    '1E': level4.L4_1E,
+    '1F': level4.L4_1F,
+    '1G': level4.L4_1G,
+    '2A': level4.L4_2A,
+    '2B': level4.L4_2B,
+    '2C': level4.L4_2C,
+    '3C': level4.L4_3C,
+    '4B': level4.L4_4B,
+    '4C': level4.L4_4C,
+    '5A': level4.L4_5A,
+    '5B': level4.L4_5B,
+    '5C': level4.L4_5C,
+    '6B': level4.L4_6B,
+    '6C': level4.L4_6C,
+    '7A': level4.L4_7A,
+    '7B': level4.L4_7B,
+    '8A': level4.L4_8A,
+    // 8B (Ratios) intentionally has no generator -- kept in domainConfig
+    // but not being implemented at any level, per explicit instruction.
+    '8C': level4.L4_8C,
+    '9A': level4.L4_9A,
+    '9B': level4.L4_9B,
+    '9C': level4.L4_9C,
+  },
+  // Level 5+ generators added here as each level is built
 }
 
 export function generateInsightQuestion(subdomain, level, language = 'en') {

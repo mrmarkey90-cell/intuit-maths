@@ -22,6 +22,20 @@ export function randomItemIndex() {
   return Math.floor(Math.random() * ITEM_NOUNS.length)
 }
 
+// Separate singular-noun list for "an X costs..." style shopping word
+// problems -- chosen to all start with a consonant so the English
+// template never has to handle "a" vs "an".
+const SHOP_ITEM_NOUNS = [
+  { en: 'pencil', cy: 'pensil' },
+  { en: 'sticker', cy: 'sticer' },
+  { en: 'comic', cy: 'comic' },
+  { en: 'rubber', cy: 'rwber' },
+]
+
+export function randomShopItemIndex() {
+  return Math.floor(Math.random() * SHOP_ITEM_NOUNS.length)
+}
+
 const WORDS = {
   en: {
     find: 'Find',
@@ -48,6 +62,14 @@ const WORDS = {
       const item = ITEM_NOUNS[itemIndex].en
       return `You have ${start} ${item}.\nYou give ${giveAway} away.\nYou get ${getMore} back.\nHow many ${item} do you have?`
     },
+    roundToNearest1000: n => `Round ${n} to the nearest 1,000`,
+    findAllFactorsOf: n => `Find all factors of ${n}`,
+    fractionOfEq: (numerator, denominator, n) => `${numerator}/${denominator} of ${n} =`,
+    percentOfEq: (percent, n) => `${percent}% of ${n} =`,
+    wordProblemShopping: (cost, quantity, paid, itemIndex) => {
+      const item = SHOP_ITEM_NOUNS[itemIndex].en
+      return `A ${item} costs £${cost}.\nI buy ${quantity}.\nI pay with £${paid}.\nHow much change do I get?`
+    },
   },
   cy: {
     find: 'Canfod',
@@ -73,6 +95,14 @@ const WORDS = {
     wordProblemItems: (start, giveAway, getMore, itemIndex) => {
       const item = ITEM_NOUNS[itemIndex].cy
       return `Mae gennych chi ${start} ${item}.\nRydych chi'n rhoi ${giveAway} i ffwrdd.\nRydych chi'n cael ${getMore} yn ôl.\nFaint o ${item} sydd gennych chi?`
+    },
+    roundToNearest1000: n => `Crynhowch ${n} i'r 1,000 nesaf`,
+    findAllFactorsOf: n => `Canfod holl ffactorau ${n}`,
+    fractionOfEq: (numerator, denominator, n) => `${numerator}/${denominator} o ${n} =`,
+    percentOfEq: (percent, n) => `${percent}% o ${n} =`,
+    wordProblemShopping: (cost, quantity, paid, itemIndex) => {
+      const item = SHOP_ITEM_NOUNS[itemIndex].cy
+      return `Mae ${item} yn costio £${cost}.\nRwy'n prynu ${quantity}.\nRwy'n talu gyda £${paid}.\nFaint o newid rwy'n ei gael?`
     },
   },
 }

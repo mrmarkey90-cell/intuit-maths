@@ -8,7 +8,7 @@ export const SUBDOMAIN_CONFIG = {
   '1D': { domain: 1, domainName: 'Number System', label: 'Negatives',            minLevel: 5, maxLevel: 6 },
   '1E': { domain: 1, domainName: 'Number System', label: 'Even / Odd',           minLevel: 2, maxLevel: 4 },
   '1F': { domain: 1, domainName: 'Number System', label: 'Multiples',            minLevel: 3, maxLevel: 6 },
-  '1G': { domain: 1, domainName: 'Number System', label: 'Factors',              minLevel: 4, maxLevel: 6 }, // TODO: confirm real minLevel once Level 4 sheet content is reviewed -- only known constraint so far is "not Level 3"
+  '1G': { domain: 1, domainName: 'Number System', label: 'Factors',              minLevel: 4, maxLevel: 6 },
   '1H': { domain: 1, domainName: 'Number System', label: 'Primes',               minLevel: 5, maxLevel: 6 },
 
   '2A': { domain: 2, domainName: 'Ordering',       label: 'Sequencing',          minLevel: 1, maxLevel: 6 },
@@ -16,7 +16,7 @@ export const SUBDOMAIN_CONFIG = {
   '2C': { domain: 2, domainName: 'Ordering',       label: 'Rounding',            minLevel: 2, maxLevel: 6 },
 
   '3A': { domain: 3, domainName: 'Addition',       label: 'Bonds to 10',         minLevel: 1, maxLevel: 2 },
-  '3B': { domain: 3, domainName: 'Addition',       label: 'Bridging 10',         minLevel: 2, maxLevel: 4 },
+  '3B': { domain: 3, domainName: 'Addition',       label: 'Bridging 10',         minLevel: 2, maxLevel: 3 },
   '3C': { domain: 3, domainName: 'Addition',       label: 'Column Addition',     minLevel: 3, maxLevel: 6 },
   '3D': { domain: 3, domainName: 'Addition',       label: 'Column w/ Decimals',  minLevel: 5, maxLevel: 6 },
 
