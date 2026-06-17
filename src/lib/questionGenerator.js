@@ -6,6 +6,12 @@ function pick(arr) {
   return arr[Math.floor(Math.random() * arr.length)]
 }
 
+// Maths vocabulary checked against Y Termiadur Addysg.
+const WORDS = {
+  en: { double: 'Double', halfOf: 'Half of' },
+  cy: { double: 'Dyblu', halfOf: 'Hanner o' },
+}
+
 // Shared: all times tables where both factors are 2–9
 function timesTables() {
   const a = rnd(2, 9), b = rnd(2, 9)
@@ -27,9 +33,9 @@ const stages = {
       const a = rnd(1, 9), b = rnd(1, 9)
       return { question: `${a} + ${b} =`, answer: a + b, domain: 'addition', subdomain: '1d-bridge' }
     },
-    () => {
+    (lang) => {
       const a = rnd(1, 5)
-      return { question: `Double ${a} =`, answer: a * 2, domain: 'multiplication', subdomain: 'doubling' }
+      return { question: `${WORDS[lang].double} ${a} =`, answer: a * 2, domain: 'multiplication', subdomain: 'doubling' }
     },
   ],
 
@@ -47,9 +53,9 @@ const stages = {
       const a = rnd(1, 9), b = rnd(10, 19 - a)
       return { question: `${b} + ${a} =`, answer: a + b, domain: 'addition', subdomain: '2d-1d' }
     },
-    () => {
+    (lang) => {
       const a = rnd(5, 10)
-      return { question: `Double ${a} =`, answer: a * 2, domain: 'multiplication', subdomain: 'doubling' }
+      return { question: `${WORDS[lang].double} ${a} =`, answer: a * 2, domain: 'multiplication', subdomain: 'doubling' }
     },
   ],
 
@@ -60,9 +66,9 @@ const stages = {
       const a = rnd(1, 9), b = rnd(10, 39 - a)
       return { question: `${b} + ${a} =`, answer: a + b, domain: 'addition', subdomain: '1d-2d' }
     },
-    () => {
+    (lang) => {
       const a = rnd(10, 20)
-      return { question: `Double ${a} =`, answer: a * 2, domain: 'multiplication', subdomain: 'doubling' }
+      return { question: `${WORDS[lang].double} ${a} =`, answer: a * 2, domain: 'multiplication', subdomain: 'doubling' }
     },
   ],
 
@@ -78,13 +84,13 @@ const stages = {
       const b = rnd(1, 9), a = rnd(10, 79 - b)
       return { question: `${a} + ${b} =`, answer: a + b, domain: 'addition', subdomain: '2d-1d' }
     },
-    () => {
+    (lang) => {
       const a = rnd(15, 30)
-      return { question: `Double ${a} =`, answer: a * 2, domain: 'multiplication', subdomain: 'doubling' }
+      return { question: `${WORDS[lang].double} ${a} =`, answer: a * 2, domain: 'multiplication', subdomain: 'doubling' }
     },
-    () => {
+    (lang) => {
       const a = rnd(1, 20)
-      return { question: `Half of ${a * 2} =`, answer: a, domain: 'division', subdomain: 'halving' }
+      return { question: `${WORDS[lang].halfOf} ${a * 2} =`, answer: a, domain: 'division', subdomain: 'halving' }
     },
   ],
 
@@ -104,20 +110,21 @@ const stages = {
       const a = rnd(10, 99), b = rnd(1, 9)
       return { question: `${a} + ${b} =`, answer: a + b, domain: 'addition', subdomain: '2d-1d' }
     },
-    () => {
+    (lang) => {
       const a = rnd(25, 50)
-      return { question: `Double ${a} =`, answer: a * 2, domain: 'multiplication', subdomain: 'doubling' }
+      return { question: `${WORDS[lang].double} ${a} =`, answer: a * 2, domain: 'multiplication', subdomain: 'doubling' }
     },
-    () => {
+    (lang) => {
       const a = rnd(1, 50)
-      return { question: `Half of ${a * 2} =`, answer: a, domain: 'division', subdomain: 'halving' }
+      return { question: `${WORDS[lang].halfOf} ${a * 2} =`, answer: a, domain: 'division', subdomain: 'halving' }
     },
   ],
 }
 
-export function generateQuestion(stage) {
+export function generateQuestion(stage, language = 'en') {
+  const lang = WORDS[language] ? language : 'en'
   const gens = stages[Math.min(Math.max(stage, 1), 6)]
-  const q = pick(gens)()
-  if (!Number.isInteger(q.answer)) return generateQuestion(stage)
+  const q = pick(gens)(lang)
+  if (!Number.isInteger(q.answer)) return generateQuestion(stage, lang)
   return q
 }

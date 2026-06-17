@@ -41,7 +41,9 @@ function PupilSession() {
   const { code } = useParams()
   const navigate = useNavigate()
   const sessionCode = code.toUpperCase()
-  const { t, setLanguage } = useTranslation()
+  const { t, language, setLanguage } = useTranslation()
+  const languageRef = useRef(language)
+  useEffect(() => { languageRef.current = language }, [language])
 
   const [view, setView] = useState('loading')
   const [sessionInfo, setSessionInfo] = useState(null)
@@ -147,7 +149,7 @@ function PupilSession() {
     if (!p) return
     feedbackRef.current = null
     setFeedback(null)
-    const q = generateQuestion(p.instinct_level ?? 1)
+    const q = generateQuestion(p.instinct_level ?? 1, languageRef.current)
     questionRef.current = q
     setQuestion(q)
   }
