@@ -6,9 +6,10 @@ function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
 }
 
-// 1A — Counting: find a number on a 1-10 number line
+// 1A — Counting: find a number on a 1-10 number line (2-9 — the endpoints
+// are already labelled, so asking for those would be trivial)
 export function L1_1A() {
-  const n = rand(1, 10)
+  const n = rand(2, 9)
   return {
     moduleType: 'number_line',
     prompt: `Find ${n}`,
@@ -97,16 +98,18 @@ export function L1_7A() {
   }
 }
 
-// 7B — Halving: drag arrow on number line (0–10): "Half of 8 = ?"
+// 7B — Halving: "Half of 8?" with 4 multiple-choice options
 export function L1_7B() {
   const half = rand(1, 5)
   const n = half * 2
+  const candidates = [half - 2, half - 1, half + 1, half + 2, half + 3, n, n + 1]
+  const distractors = [...new Set(candidates)].filter(v => v > 0 && v !== half)
+  const options = shuffle([half, ...shuffle(distractors).slice(0, 3)]).map(String)
   return {
-    moduleType: 'number_line',
-    prompt: `Half of ${n} = ?`,
-    min: 0,
-    max: 10,
-    answer: half,
+    moduleType: 'circle',
+    prompt: `Half of ${n}?`,
+    options,
+    correctIndex: options.indexOf(String(half)),
   }
 }
 

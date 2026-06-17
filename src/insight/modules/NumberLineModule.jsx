@@ -27,6 +27,10 @@ function NumberLineModule({ question, locked, revealed, onAnswer }) {
         <div className="insight-numberline-line" />
         {ticks.map(v => {
           const isEnd = v === min || v === max
+          // Endpoints are always labelled; once marking is revealed, every
+          // notch is labelled so the child can clearly see where the
+          // correct answer sat relative to their own tap.
+          const showLabel = isEnd || revealed
           const cls = [
             'insight-numberline-tick',
             selected === v && !revealed ? 'insight-numberline-tick--selected' : '',
@@ -43,7 +47,7 @@ function NumberLineModule({ question, locked, revealed, onAnswer }) {
               aria-label={`Choose ${v}`}
             >
               <span className="insight-numberline-mark" />
-              {isEnd && <span className="insight-numberline-label">{v}</span>}
+              {showLabel && <span className="insight-numberline-label">{v}</span>}
             </button>
           )
         })}
