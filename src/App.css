@@ -439,7 +439,7 @@ button:hover:not(:disabled) {
 }
 
 .dashboard-header-brand img {
-  height: 28px;
+  height: 56px;
   width: auto;
   display: block;
 }
