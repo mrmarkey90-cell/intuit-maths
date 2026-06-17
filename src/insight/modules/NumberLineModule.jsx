@@ -92,7 +92,6 @@ function NumberLineModule({ question, locked, revealed, onAnswer }) {
             ].filter(Boolean).join(' ')}
             style={{ left: `${pctForValue(displayValue)}%`, transition: dragging ? 'none' : 'left 0.12s ease-out' }}
           >
-            <span className="insight-numberline-handle-value">{displayValue}</span>
             <span className="insight-numberline-handle-arrow">▲</span>
           </div>
         )}
