@@ -1952,11 +1952,13 @@ button:hover:not(:disabled) {
   gap: clamp(6px, 1.5vw, 14px);
   font-size: clamp(40px, 9vw, 72px);
   font-weight: 800;
+  line-height: 1;
   color: #1f2937;
 }
 
 .insight-partition-digit {
   display: inline-block;
+  line-height: 1;
 }
 
 .insight-partition-arrows-svg {
