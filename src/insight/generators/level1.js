@@ -6,18 +6,15 @@ function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
 }
 
-const COUNTING_EMOJIS = ['🐶', '🐱', '🐰', '🦋', '🐢', '🐠', '🌟', '🍎', '🚗', '⚽', '🐸', '🦄']
-
-// 1A — Counting: "How many? 🐶🐶🐶🐶🐶"
+// 1A — Counting: find a number on a 1-10 number line
 export function L1_1A() {
   const n = rand(1, 10)
-  const emoji = COUNTING_EMOJIS[rand(0, COUNTING_EMOJIS.length - 1)]
-  const row1 = Array(Math.min(n, 5)).fill(emoji).join(' ')
-  const row2 = n > 5 ? Array(n - 5).fill(emoji).join(' ') : ''
   return {
-    moduleType: 'numpad',
-    question: `How many?\n${row2 ? `${row1}\n${row2}` : row1}`,
-    answer: String(n),
+    moduleType: 'number_line',
+    prompt: `Find ${n}`,
+    min: 1,
+    max: 10,
+    answer: n,
   }
 }
 

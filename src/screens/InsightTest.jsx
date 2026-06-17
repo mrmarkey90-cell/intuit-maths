@@ -159,8 +159,8 @@ function Carousel({ level, onRestart }) {
           </div>
 
           {view === 'questions' && isLast ? (
-            <button className="insight-carousel-submit" onClick={handleSubmit}>
-              Submit
+            <button className="insight-carousel-submit" onClick={handleSubmit} aria-label="Submit">
+              ✓
             </button>
           ) : (
             <button className="insight-carousel-arrow" onClick={goNext} disabled={isLast} aria-label="Next question">
@@ -170,7 +170,7 @@ function Carousel({ level, onRestart }) {
         </div>
 
         {view === 'questions' && isLast && (
-          <span className="insight-carousel-answered-count">{answeredCount}/{total} answered</span>
+          <span className="insight-carousel-answered-count">Tap ✓ to submit — {answeredCount}/{total} answered</span>
         )}
       </div>
     </div>

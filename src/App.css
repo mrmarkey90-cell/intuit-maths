@@ -2091,7 +2091,8 @@ button:hover:not(:disabled) {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
-/* Number line module (tap-to-place on a notch) */
+/* Number line module — a true ruled line, ticks every 1, only the two
+   end values labelled (the child counts notches to find the answer) */
 
 .insight-numberline-prompt {
   font-size: clamp(22px, 4.5vw, 34px);
@@ -2100,44 +2101,67 @@ button:hover:not(:disabled) {
   text-align: center;
 }
 
-.insight-numberline-track {
+.insight-numberline-rule {
   flex: 1;
-  display: grid;
-  gap: clamp(6px, 1.5vw, 14px);
-  align-content: center;
-  justify-content: center;
-  justify-items: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 0 clamp(18px, 4vw, 30px);
+  min-height: 64px;
+}
+
+.insight-numberline-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 3px;
+  background: #d1d5db;
+  border-radius: 2px;
 }
 
 .insight-numberline-tick {
-  background: #f9fafb;
-  border: 2px solid #d1d5db;
-  border-radius: clamp(8px, 1.2vw, 12px);
-  padding: clamp(10px, 2vw, 18px) clamp(12px, 2.5vw, 22px);
-  font-size: clamp(16px, 3.5vw, 28px);
-  font-weight: 600;
-  color: #6b7280;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(4px, 1vw, 8px);
+  background: none;
+  border: none;
+  padding: clamp(10px, 2vw, 16px) clamp(8px, 1.5vw, 12px);
   cursor: pointer;
-  min-width: clamp(40px, 8vw, 64px);
-  transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
 
-.insight-numberline-tick--selected {
-  border-color: #4f46e5;
-  background: #eef2ff;
-  color: #4f46e5;
+.insight-numberline-mark {
+  width: 4px;
+  height: clamp(14px, 3vw, 22px);
+  background: #9ca3af;
+  border-radius: 2px;
+  transition: background 0.15s, height 0.15s, width 0.15s;
 }
 
-.insight-numberline-tick--correct {
-  border-color: #16a34a;
-  background: #f0fdf4;
-  color: #16a34a;
+.insight-numberline-label {
+  font-size: clamp(15px, 3vw, 22px);
+  font-weight: 700;
+  color: #374151;
 }
 
-.insight-numberline-tick--wrong {
-  border-color: #dc2626;
-  background: #fef2f2;
-  color: #dc2626;
+.insight-numberline-tick--selected .insight-numberline-mark {
+  background: #4f46e5;
+  width: 6px;
+  height: clamp(20px, 4vw, 30px);
+}
+
+.insight-numberline-tick--correct .insight-numberline-mark {
+  background: #16a34a;
+  width: 6px;
+  height: clamp(20px, 4vw, 30px);
+}
+
+.insight-numberline-tick--wrong .insight-numberline-mark {
+  background: #dc2626;
 }
 
 /* Domain colour dot on module labels */
@@ -2329,12 +2353,26 @@ button:hover:not(:disabled) {
 }
 
 .insight-carousel-submit {
+  /* Same footprint as .insight-carousel-arrow, on purpose — a wider
+     button here (e.g. text "Submit") made the row's required width
+     jump on the last question, since the module's width is now fixed
+     rather than shrinking to make room. Keeping this circular and the
+     same size means the row's width need never changes between
+     questions, so it never wraps unexpectedly. */
+  width: clamp(44px, 9vw, 72px);
   height: clamp(44px, 9vw, 72px);
-  padding: 0 clamp(18px, 4vw, 32px);
-  border-radius: 36px;
-  font-size: clamp(16px, 3vw, 22px);
+  border-radius: 50%;
+  background: #16a34a;
+  color: white;
+  font-size: clamp(20px, 4vw, 32px);
   font-weight: 700;
+  border: none;
+  cursor: pointer;
   flex-shrink: 0;
+}
+
+.insight-carousel-submit:hover {
+  background: #15803d;
 }
 
 .insight-carousel-answered-count {

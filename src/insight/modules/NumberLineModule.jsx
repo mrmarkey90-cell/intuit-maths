@@ -1,37 +1,49 @@
 import { useState } from 'react'
 
+// A true ruled number line: one tick per integer, but only the two end
+// values are labelled — the child has to count notches to find the
+// answer rather than just read a number off a button.
 function NumberLineModule({ question, locked, revealed, onAnswer }) {
   const [selected, setSelected] = useState(null)
+  const { min, max, answer } = question
 
   const ticks = []
-  for (let v = question.min; v <= question.max; v++) ticks.push(v)
+  for (let v = min; v <= max; v++) ticks.push(v)
 
-  // Balance ticks evenly across rows (e.g. 11 ticks -> 6+5, not a lopsided
-  // 7+4) instead of letting flex-wrap greedily fill the first row.
-  const maxPerRow = 6
-  const rowCount = Math.ceil(ticks.length / maxPerRow)
-  const columns = Math.ceil(ticks.length / rowCount)
+  function pct(v) {
+    return ((v - min) / (max - min)) * 100
+  }
 
   function handleTap(v) {
     if (locked) return
     setSelected(v)
-    onAnswer({ correct: v === question.answer })
+    onAnswer({ correct: v === answer })
   }
 
   return (
     <div className="insight-module-content">
       <div className="insight-numberline-prompt">{question.prompt}</div>
-      <div className="insight-numberline-track" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
+      <div className="insight-numberline-rule">
+        <div className="insight-numberline-line" />
         {ticks.map(v => {
+          const isEnd = v === min || v === max
           const cls = [
             'insight-numberline-tick',
             selected === v && !revealed ? 'insight-numberline-tick--selected' : '',
-            revealed && v === question.answer ? 'insight-numberline-tick--correct' : '',
-            revealed && selected === v && v !== question.answer ? 'insight-numberline-tick--wrong' : '',
+            revealed && v === answer ? 'insight-numberline-tick--correct' : '',
+            revealed && selected === v && v !== answer ? 'insight-numberline-tick--wrong' : '',
           ].filter(Boolean).join(' ')
           return (
-            <button key={v} className={cls} onClick={() => handleTap(v)} disabled={locked}>
-              {v}
+            <button
+              key={v}
+              className={cls}
+              style={{ left: `${pct(v)}%` }}
+              onClick={() => handleTap(v)}
+              disabled={locked}
+              aria-label={`Choose ${v}`}
+            >
+              <span className="insight-numberline-mark" />
+              {isEnd && <span className="insight-numberline-label">{v}</span>}
             </button>
           )
         })}
