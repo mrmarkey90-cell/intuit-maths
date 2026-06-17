@@ -1,4 +1,5 @@
 import { Fragment, useLayoutEffect, useRef, useState } from 'react'
+import { useTranslation } from '../../i18n/LanguageContext'
 import InsightNumpadOverlay from '../InsightNumpadOverlay'
 
 // Shows the number itself with real angled arrows (SVG, measured against
@@ -8,6 +9,7 @@ import InsightNumpadOverlay from '../InsightNumpadOverlay'
 // a digit position left-to-right (e.g. 4382 -> [4000, 300, 80, 2]). Every
 // box is always required at every level — there's no hidden slot.
 function PartitionModule({ question, stage, locked, revealed, onAnswer }) {
+  const { t } = useTranslation()
   const { number, parts } = question
   const [values, setValues] = useState(() => parts.map(() => null))
   const [activeBox, setActiveBox] = useState(null)
@@ -122,7 +124,7 @@ function PartitionModule({ question, stage, locked, revealed, onAnswer }) {
       </div>
 
       {revealed && !parts.every((p, i) => values[i] === p) && (
-        <div className="insight-correct-hint">Correct: {parts.join(' + ')}</div>
+        <div className="insight-correct-hint">{t('insight.correct')} {parts.join(' + ')}</div>
       )}
 
       {activeBox !== null && (

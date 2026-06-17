@@ -1,7 +1,9 @@
 import { useState } from 'react'
+import { useTranslation } from '../../i18n/LanguageContext'
 import InsightNumpadOverlay from '../InsightNumpadOverlay'
 
 function NumpadModule({ question, stage, locked, revealed, onAnswer }) {
+  const { t } = useTranslation()
   const [value, setValue] = useState(null)
   const [showOverlay, setShowOverlay] = useState(false)
 
@@ -34,7 +36,7 @@ function NumpadModule({ question, stage, locked, revealed, onAnswer }) {
           onClick={() => { if (!locked) setShowOverlay(true) }}
           disabled={locked}
         >
-          {value === null ? 'Tap to answer' : value}
+          {value === null ? t('insight.tapToAnswer') : value}
         </button>
       )}
 

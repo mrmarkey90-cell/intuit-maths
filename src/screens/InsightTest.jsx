@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from '../i18n/LanguageContext'
 import { SUBDOMAIN_CONFIG, getActiveSubdomains, generateModuleSlots } from '../insight/domainConfig'
 import InsightModule from '../insight/InsightModule'
 import InsightResults from '../insight/InsightResults'
@@ -178,6 +179,7 @@ function Carousel({ level, onRestart }) {
 }
 
 function InsightTest() {
+  const { language, setLanguage } = useTranslation()
   const [level, setLevel] = useState(1)
   const [showCarousel, setShowCarousel] = useState(false)
   const [carouselKey, setCarouselKey] = useState(0)
@@ -189,7 +191,25 @@ function InsightTest() {
 
   return (
     <div style={{ padding: '24px', fontFamily: 'sans-serif', maxWidth: 880, margin: '0 auto', textAlign: 'center' }}>
-      <QuickTester />
+      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' }}>
+        <label style={{ fontWeight: 600, fontSize: 14 }}>Question language (dev only)</label>
+        <button
+          className="button-secondary"
+          style={{ fontWeight: language === 'en' ? 700 : 400 }}
+          onClick={() => setLanguage('en')}
+        >
+          English
+        </button>
+        <button
+          className="button-secondary"
+          style={{ fontWeight: language === 'cy' ? 700 : 400 }}
+          onClick={() => setLanguage('cy')}
+        >
+          Cymraeg
+        </button>
+      </div>
+
+      <QuickTester key={language} />
 
       <hr style={{ margin: '2rem 0', border: 'none', borderTop: '1px solid #e5e7eb' }} />
 

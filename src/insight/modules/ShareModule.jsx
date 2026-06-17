@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from '../../i18n/LanguageContext'
 
 // Renders individual sweets for small counts (useful for counting by eye),
 // but falls back to a compact "x N" badge above that — guarantees the pool
@@ -17,6 +18,7 @@ function SweetCount({ count }) {
 // Tap +/- to move sweets between the pool and each box — simpler and more
 // touch-reliable than literal dragging, same "share equally" goal.
 function ShareModule({ question, locked, revealed, onAnswer }) {
+  const { t } = useTranslation()
   const { totalSweets, boxes, answer } = question
   const [boxCounts, setBoxCounts] = useState(() => Array(boxes).fill(0))
 
@@ -42,13 +44,16 @@ function ShareModule({ question, locked, revealed, onAnswer }) {
   return (
     <div className="insight-module-content">
       <div className="insight-share-prompt">
-        Share {totalSweets} sweets between {boxes} {boxes === 1 ? 'box' : 'boxes'}
+        {t('insight.sharePrompt')
+          .replace('{n}', totalSweets)
+          .replace('{m}', boxes)
+          .replace('{box}', t(boxes === 1 ? 'insight.shareBoxSingular' : 'insight.shareBoxPlural'))}
       </div>
 
       <div className="insight-share-pool">
         {remaining > 0
           ? <SweetCount count={remaining} />
-          : <span className="insight-share-pool-empty">All shared!</span>}
+          : <span className="insight-share-pool-empty">{t('insight.allShared')}</span>}
       </div>
 
       <div className="insight-share-boxes">
@@ -87,7 +92,7 @@ function ShareModule({ question, locked, revealed, onAnswer }) {
       </div>
 
       {revealed && !isCorrect && (
-        <div className="insight-correct-hint">Correct: {answer} sweets in each box</div>
+        <div className="insight-correct-hint">{t('insight.correctSweetsInEachBox').replace('{n}', answer)}</div>
       )}
     </div>
   )

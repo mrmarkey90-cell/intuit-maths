@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from '../i18n/LanguageContext'
 import { SUBDOMAIN_CONFIG, DOMAIN_COLORS } from './domainConfig'
 import { generateInsightQuestion } from './generators/index'
 import NumpadModule from './modules/NumpadModule'
@@ -24,8 +25,9 @@ const MODULE_COMPONENTS = {
 }
 
 function InsightModule({ subdomain, level, onAnswer, locked, revealed }) {
+  const { t, language } = useTranslation()
   const config = SUBDOMAIN_CONFIG[subdomain] ?? { label: subdomain }
-  const [question] = useState(() => generateInsightQuestion(subdomain, level))
+  const [question] = useState(() => generateInsightQuestion(subdomain, level, language))
   const [answerState, setAnswerState] = useState(null) // null | 'correct' | 'wrong'
 
   function handleAnswer({ correct }) {
@@ -42,7 +44,7 @@ function InsightModule({ subdomain, level, onAnswer, locked, revealed }) {
   const label = (
     <span className="insight-module-label">
       <span className="insight-domain-dot" style={{ background: DOMAIN_COLORS[config.domain] }} />
-      {subdomain} {config.label}
+      {subdomain} {SUBDOMAIN_CONFIG[subdomain] ? t(`insightSubdomain.${subdomain}`) : config.label}
     </span>
   )
 
@@ -52,7 +54,7 @@ function InsightModule({ subdomain, level, onAnswer, locked, revealed }) {
     return (
       <div className={`${cardClass} insight-module-card--placeholder`}>
         {label}
-        <div className="insight-module-placeholder">Coming soon</div>
+        <div className="insight-module-placeholder">{t('insight.comingSoon')}</div>
       </div>
     )
   }

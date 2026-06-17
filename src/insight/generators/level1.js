@@ -1,3 +1,5 @@
+import { w } from './words'
+
 function rand(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
@@ -8,11 +10,11 @@ function shuffle(arr) {
 
 // 1A — Counting: find a number on a 1-10 number line (2-9 — the endpoints
 // are already labelled, so asking for those would be trivial)
-export function L1_1A() {
+export function L1_1A(lang) {
   const n = rand(2, 9)
   return {
     moduleType: 'number_line',
-    prompt: `Find ${n}`,
+    prompt: `${w(lang).find} ${n}`,
     min: 1,
     max: 10,
     answer: n,
@@ -20,38 +22,38 @@ export function L1_1A() {
 }
 
 // 2A — Sequencing: drag smallest to largest
-export function L1_2A() {
+export function L1_2A(lang) {
   const vals = new Set()
   while (vals.size < 4) vals.add(rand(1, 20))
   return {
     moduleType: 'drag_sort',
-    prompt: 'Drag smallest to largest',
+    prompt: w(lang).dragSmallestToLargest,
     values: [...vals],
   }
 }
 
 // 2B — Comparing: "Which is bigger: 3 or 7?"
-export function L1_2B() {
+export function L1_2B(lang) {
   let a = rand(1, 20)
   let b = rand(1, 20)
   while (a === b) b = rand(1, 20)
   return {
     moduleType: 'circle',
-    prompt: 'Which is bigger?',
+    prompt: w(lang).whichIsBigger,
     options: [String(a), String(b)],
     correctIndex: a > b ? 0 : 1,
   }
 }
 
 // 3A — Bonds to 10: choose two numbers from a selection that add up to 10
-export function L1_3A() {
+export function L1_3A(lang) {
   const a = rand(1, 9)
   const b = 10 - a
   const pool = new Set([a, b])
   while (pool.size < 5) pool.add(rand(1, 9))
   return {
     moduleType: 'pair_sum',
-    prompt: 'Choose two numbers that add up to 10',
+    prompt: w(lang).chooseTwoAddTo10,
     options: shuffle([...pool]),
     target: 10,
   }
@@ -84,7 +86,7 @@ export function L1_6A() {
 }
 
 // 7A — Doubling: "Which is double 4? Circle: 2, 4, 6, 8" (kept under 10, avoids bridging)
-export function L1_7A() {
+export function L1_7A(lang) {
   const n = rand(1, 5)
   const correct = n * 2
   const distractors = [...new Set([correct - 2, correct + 2, correct - 1, correct + 1, n])]
@@ -92,14 +94,14 @@ export function L1_7A() {
   const options = shuffle([correct, ...shuffle(distractors).slice(0, 3)]).map(String)
   return {
     moduleType: 'circle',
-    prompt: `Which is double ${n}?`,
+    prompt: w(lang).whichIsDouble(n),
     options,
     correctIndex: options.indexOf(String(correct)),
   }
 }
 
 // 7B — Halving: "Half of 8?" with 4 multiple-choice options
-export function L1_7B() {
+export function L1_7B(lang) {
   const half = rand(1, 5)
   const n = half * 2
   const candidates = [half - 2, half - 1, half + 1, half + 2, half + 3, n, n + 1]
@@ -107,7 +109,7 @@ export function L1_7B() {
   const options = shuffle([half, ...shuffle(distractors).slice(0, 3)]).map(String)
   return {
     moduleType: 'circle',
-    prompt: `Half of ${n}?`,
+    prompt: w(lang).halfOfQ(n),
     options,
     correctIndex: options.indexOf(String(half)),
   }

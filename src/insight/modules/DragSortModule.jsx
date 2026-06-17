@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from '../../i18n/LanguageContext'
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
@@ -9,6 +10,7 @@ function shuffle(arr) {
 // "Lowest → Highest" arrow. Dragging between source/target is freely
 // reversible until the module is locked.
 function DragSortModule({ question, locked, revealed, onAnswer }) {
+  const { t } = useTranslation()
   const [values] = useState(() => shuffle(question.values))
   const [placement, setPlacement] = useState(() => Array(values.length).fill(null))
   const [drag, setDrag] = useState(null) // { value, origin: 'source' | slotIndex, x, y }
@@ -96,9 +98,9 @@ function DragSortModule({ question, locked, revealed, onAnswer }) {
       </div>
 
       <div className="insight-dragsort-arrow-row">
-        <span>Lowest</span>
+        <span>{t('insight.lowest')}</span>
         <span className="insight-dragsort-arrow">→</span>
-        <span>Highest</span>
+        <span>{t('insight.highest')}</span>
       </div>
 
       <div className="insight-dragsort-target-row">
@@ -128,7 +130,7 @@ function DragSortModule({ question, locked, revealed, onAnswer }) {
       </div>
 
       {revealed && !isCorrect && (
-        <div className="insight-correct-hint">Correct order: {correctOrder.join(', ')}</div>
+        <div className="insight-correct-hint">{t('insight.correctOrder')} {correctOrder.join(', ')}</div>
       )}
 
       {drag && (

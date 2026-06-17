@@ -1,3 +1,5 @@
+import { w } from './words'
+
 function rand(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
@@ -13,13 +15,13 @@ function shuffle(arr) {
 // 1A — Counting: find a number on a 1-20 number line, now with labels at
 // 1, 5, 10, 15, 20 (not just the endpoints) — so the target is never one
 // of the already-labelled points, same trivial-answer reasoning as L1.
-export function L2_1A() {
+export function L2_1A(lang) {
   const labelPoints = [1, 5, 10, 15, 20]
   let n
   do { n = rand(2, 19) } while (labelPoints.includes(n))
   return {
     moduleType: 'number_line',
-    prompt: `Find ${n}`,
+    prompt: `${w(lang).find} ${n}`,
     min: 1,
     max: 20,
     labelPoints,
@@ -40,36 +42,36 @@ export function L2_1B() {
 }
 
 // 1E — Even / Odd: "17 is..." with two large Even/Odd buttons
-export function L2_1E() {
+export function L2_1E(lang) {
   const n = rand(1, 50)
   const isEven = n % 2 === 0
   return {
     moduleType: 'true_false',
-    prompt: `${n} is...`,
-    options: ['Even', 'Odd'],
+    prompt: w(lang).isQuestion(n),
+    options: [w(lang).even, w(lang).odd],
     correctIndex: isEven ? 0 : 1,
   }
 }
 
 // 2A — Sequencing: drag smallest to largest, now with 2-digit numbers
-export function L2_2A() {
+export function L2_2A(lang) {
   const vals = new Set()
   while (vals.size < 4) vals.add(rand(10, 99))
   return {
     moduleType: 'drag_sort',
-    prompt: 'Drag smallest to largest',
+    prompt: w(lang).dragSmallestToLargest,
     values: [...vals],
   }
 }
 
 // 2B — Comparing: "Which is bigger?" with 2-digit numbers
-export function L2_2B() {
+export function L2_2B(lang) {
   let a = rand(10, 99)
   let b = rand(10, 99)
   while (a === b) b = rand(10, 99)
   return {
     moduleType: 'circle',
-    prompt: 'Which is bigger?',
+    prompt: w(lang).whichIsBigger,
     options: [String(a), String(b)],
     correctIndex: a > b ? 0 : 1,
   }
@@ -77,12 +79,12 @@ export function L2_2B() {
 
 // 2C — Rounding: round a 2-digit number (never already a multiple of 10)
 // to the nearest 10
-export function L2_2C() {
+export function L2_2C(lang) {
   let n
   do { n = rand(10, 40) } while (n % 10 === 0)
   return {
     moduleType: 'numpad',
-    question: `Round ${n} to the nearest 10`,
+    question: w(lang).roundToNearest10(n),
     answer: String(Math.round(n / 10) * 10),
   }
 }
@@ -138,7 +140,7 @@ export function L2_6A() {
 }
 
 // 6B — Grouping: "How many 3s in 12?" (factor 2-4, multiple 9-12)
-export function L2_6B() {
+export function L2_6B(lang) {
   let divisor, total
   do {
     divisor = rand(2, 4)
@@ -146,13 +148,13 @@ export function L2_6B() {
   } while (total % divisor !== 0)
   return {
     moduleType: 'numpad',
-    question: `How many ${divisor}s in ${total}?`,
+    question: w(lang).howManyXInY(divisor, total),
     answer: String(total / divisor),
   }
 }
 
 // 7A — Doubling: 2-digit numbers up to 20 (picks up where L1's 1-5 left off)
-export function L2_7A() {
+export function L2_7A(lang) {
   const n = rand(6, 20)
   const correct = n * 2
   const distractors = [...new Set([correct - 2, correct + 2, correct - 1, correct + 1, correct - 10, correct + 10])]
@@ -160,7 +162,7 @@ export function L2_7A() {
   const options = shuffle([correct, ...shuffle(distractors).slice(0, 3)]).map(String)
   return {
     moduleType: 'circle',
-    prompt: `Double ${n} =`,
+    prompt: w(lang).doubleEq(n),
     options,
     correctIndex: options.indexOf(String(correct)),
   }
@@ -182,13 +184,13 @@ function halvingQuestion(promptFor) {
 }
 
 // 7B — Halving: "Half of 20 ="
-export function L2_7B() {
-  return halvingQuestion(n => `Half of ${n} =`)
+export function L2_7B(lang) {
+  return halvingQuestion(n => w(lang).halfOfEq(n))
 }
 
 // 8A — Fractions: "½ of 10 =" (half only at this level)
-export function L2_8A() {
-  return halvingQuestion(n => `½ of ${n} =`)
+export function L2_8A(lang) {
+  return halvingQuestion(n => w(lang).halfOfFraction(n))
 }
 
 // 9A — Missing numbers: "___ + 14 = 20"

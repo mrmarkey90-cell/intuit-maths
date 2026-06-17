@@ -36,8 +36,8 @@ const generators = {
   // Level 3+ generators added here as each level is built
 }
 
-export function generateInsightQuestion(subdomain, level) {
+export function generateInsightQuestion(subdomain, level, language = 'en') {
   const gen = generators[level]?.[subdomain]
   if (!gen) return null
-  return gen()
+  return gen(language)
 }

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from '../../i18n/LanguageContext'
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
@@ -9,6 +10,7 @@ function shuffle(arr) {
 // — drag one onto the gap to fill it, or drag the filled tile back down
 // to the row to clear it. Only one slot, so no slot-index bookkeeping.
 function FillBlankModule({ question, locked, revealed, onAnswer }) {
+  const { t } = useTranslation()
   const { sequence, options, answer } = question
   const [order] = useState(() => shuffle(options))
   const [placed, setPlaced] = useState(null)
@@ -94,7 +96,7 @@ function FillBlankModule({ question, locked, revealed, onAnswer }) {
       </div>
 
       {revealed && !isCorrect && (
-        <div className="insight-correct-hint">Correct answer: {answer}</div>
+        <div className="insight-correct-hint">{t('insight.correctAnswer')} {answer}</div>
       )}
 
       <div className="insight-fillblank-options" ref={rowRef}>
