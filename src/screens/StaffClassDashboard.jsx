@@ -12,6 +12,8 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
   const [activeSession, setActiveSession] = useState(null) // in DB but not yet resumed
   const [weeklyUsed, setWeeklyUsed] = useState(false)
   const [classPupils, setClassPupils] = useState([])
+  const [unallocatedPupils, setUnallocatedPupils] = useState([])
+  const [claimingId, setClaimingId] = useState(null)
   const [starting, setStarting] = useState(false)
   const [cancelling, setCancelling] = useState(false)
   const [selectedPupil, setSelectedPupil] = useState(null)
@@ -32,10 +34,30 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
     loadPupils()
   }, [cls.id, cls.join_code])
 
+  useEffect(() => {
+    if (view === 'add-pupil') loadUnallocated()
+  }, [view]) // eslint-disable-line react-hooks/exhaustive-deps
+
   function loadPupils() {
     supabase.rpc('get_class_pupils', { p_join_code: cls.join_code }).then(({ data }) => {
       setClassPupils(data ?? [])
     })
+  }
+
+  function loadUnallocated() {
+    supabase.rpc('get_unallocated_pupils', { p_school_id: school.id }).then(({ data }) => {
+      setUnallocatedPupils(data ?? [])
+    })
+  }
+
+  async function handleClaim(pupilId) {
+    setClaimingId(pupilId)
+    const { data } = await supabase.rpc('claim_pupil_for_class', { p_pupil_id: pupilId, p_class_id: cls.id })
+    if (data?.ok) {
+      setUnallocatedPupils(prev => prev.filter(p => p.id !== pupilId))
+      loadPupils()
+    }
+    setClaimingId(null)
   }
 
   async function copyHubLink() {
@@ -127,6 +149,13 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
                 <p className="note">{t('staffDashboard.noPupilsYet')}</p>
               )}
             </div>
+            <button
+              className="button-secondary"
+              style={{ marginTop: '0.75rem' }}
+              onClick={() => setView('add-pupil')}
+            >
+              {t('staffDashboard.addPupilButton')}
+            </button>
           </section>
         </main>
       </div>
@@ -166,7 +195,7 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
     return (
       <div className="dashboard">
         <header className="dashboard-header">
-          <button className="button-secondary" onClick={() => setView('main')}>← {t('common.back')}</button>
+          <button className="button-secondary" onClick={() => setView('pupils')}>← {t('common.back')}</button>
           <div className="dashboard-header-brand"><img src="/intuit-name.svg" alt="intuit" /></div>
         </header>
         <main className="dashboard-main">
@@ -186,6 +215,32 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
               {profileCopied ? t('common.copied') : t('staffDashboard.copyLink')}
             </button>
           </section>
+
+          <section className="dashboard-section">
+            <div className="section-heading">
+              <h2>{t('staffDashboard.unallocatedPupils')}</h2>
+              <span className="section-count">{unallocatedPupils.length}</span>
+            </div>
+            {unallocatedPupils.length === 0 ? (
+              <p className="note">{t('staffDashboard.noUnallocatedPupils')}</p>
+            ) : (
+              <div className="pupil-list">
+                {unallocatedPupils.map(p => (
+                  <div key={p.id} className="pupil-list-row">
+                    <span className="pupil-list-name">{p.first_name} {p.last_name}</span>
+                    <button
+                      className="button-secondary"
+                      onClick={() => handleClaim(p.id)}
+                      disabled={claimingId === p.id}
+                      style={{ padding: '4px 10px', fontSize: '13px' }}
+                    >
+                      {claimingId === p.id ? t('staffDashboard.claiming') : t('staffDashboard.claim')}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
         </main>
       </div>
     )
@@ -196,7 +251,6 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
       <header className="dashboard-header">
         <button className="button-secondary" onClick={onChangeClass}>← {t('staffDashboard.classes')}</button>
         <div className="dashboard-header-brand"><img src="/intuit-name.svg" alt="intuit" /></div>
-        <button className="button-secondary" onClick={onSignOut}>{t('common.signOut')}</button>
       </header>
 
       <main className="dashboard-tiles-wrapper">
@@ -249,18 +303,17 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
             <div className="dashboard-tile-sub">{t('staffDashboard.pupilHubSub')}</div>
           </button>
 
-          <button className="dashboard-tile" onClick={() => setView('add-pupil')}>
-            <div className="dashboard-tile-icon">➕</div>
-            <div className="dashboard-tile-title">{t('staffDashboard.addPupilTitle')}</div>
-            <div className="dashboard-tile-sub">{t('staffDashboard.addPupilSub')}</div>
-          </button>
-
           <button className="dashboard-tile" onClick={() => setView('pupils')}>
             <div className="dashboard-tile-icon">👥</div>
             <div className="dashboard-tile-title">{t('staffDashboard.pupilsTitle')}</div>
             <div className="dashboard-tile-sub">
               {t('dashboard.pupilsCount').replace('{n}', classPupils.length)}
             </div>
+          </button>
+
+          <button className="dashboard-tile dashboard-tile--signout" onClick={onSignOut}>
+            <div className="dashboard-tile-icon">🚪</div>
+            <div className="dashboard-tile-title">{t('common.signOut')}</div>
           </button>
 
         </div>
