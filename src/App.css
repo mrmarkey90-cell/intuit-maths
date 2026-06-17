@@ -1935,10 +1935,98 @@ button:hover:not(:disabled) {
   white-space: pre-wrap;
 }
 
+/* Partition module — the number on top, arrows down to one numpad box
+   per part (e.g. 34 -> [30] + [4]). No words, so it reads the same in
+   any language. */
+
+.insight-partition-number {
+  font-size: clamp(40px, 9vw, 72px);
+  font-weight: 800;
+  color: #1f2937;
+  text-align: center;
+}
+
+.insight-partition-arrows {
+  display: flex;
+  justify-content: center;
+  gap: clamp(28px, 8vw, 64px);
+}
+
+.insight-partition-arrow {
+  font-size: clamp(22px, 4vw, 30px);
+  color: #9ca3af;
+}
+
+.insight-partition-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: clamp(10px, 2vw, 18px);
+}
+
+.insight-partition-group {
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 2vw, 18px);
+}
+
+.insight-partition-plus {
+  font-size: clamp(26px, 5vw, 38px);
+  font-weight: 700;
+  color: #6b7280;
+}
+
+.insight-partition-box,
+.insight-partition-box:disabled {
+  background: #f9fafb;
+  border: 2px dashed #d1d5db;
+  border-radius: clamp(10px, 1.5vw, 16px);
+  padding: clamp(14px, 2.5vw, 22px) clamp(18px, 3vw, 28px);
+  font-size: clamp(24px, 5vw, 38px);
+  font-weight: 700;
+  color: #9ca3af;
+  cursor: pointer;
+  min-width: clamp(64px, 13vw, 100px);
+  text-align: center;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.insight-partition-box:hover:not(:disabled) {
+  border-color: #4f46e5;
+  border-style: solid;
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+.insight-partition-box--filled,
+.insight-partition-box--filled:disabled {
+  border-style: solid;
+  border-color: #4f46e5;
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+.insight-partition-box--correct,
+.insight-partition-box--correct:disabled {
+  border-style: solid;
+  border-color: #16a34a;
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.insight-partition-box--wrong,
+.insight-partition-box--wrong:disabled {
+  border-style: solid;
+  border-color: #dc2626;
+  background: #fef2f2;
+  color: #dc2626;
+}
+
 /* Circle module (tap-one-of-N) */
 
 .insight-circle-prompt {
-  font-size: clamp(22px, 4.5vw, 34px);
+  font-size: clamp(28px, 6vw, 46px);
   font-weight: 700;
   color: #1f2937;
   text-align: center;
@@ -1996,7 +2084,7 @@ button:hover:not(:disabled) {
 /* True/False module — two large tap buttons (e.g. Even / Odd) */
 
 .insight-truefalse-prompt {
-  font-size: clamp(22px, 4.5vw, 34px);
+  font-size: clamp(28px, 6vw, 46px);
   font-weight: 700;
   color: #1f2937;
   text-align: center;
@@ -2054,7 +2142,7 @@ button:hover:not(:disabled) {
 /* Pair-sum module (choose two tiles that sum to the target) */
 
 .insight-pairsum-prompt {
-  font-size: clamp(20px, 4.2vw, 32px);
+  font-size: clamp(28px, 6vw, 46px);
   font-weight: 700;
   color: #1f2937;
   text-align: center;
@@ -2151,8 +2239,8 @@ button:hover:not(:disabled) {
 }
 
 .insight-dragsort-slot {
-  width: clamp(56px, 11vw, 88px);
-  height: clamp(56px, 11vw, 88px);
+  width: clamp(76px, 15vw, 116px);
+  height: clamp(76px, 15vw, 116px);
   border: 2px dashed #d1d5db;
   border-radius: clamp(10px, 1.5vw, 16px);
   display: flex;
@@ -2241,11 +2329,6 @@ button:hover:not(:disabled) {
   color: #9ca3af;
 }
 
-.insight-fillblank-slot {
-  width: clamp(56px, 11vw, 80px);
-  height: clamp(56px, 11vw, 80px);
-}
-
 .insight-fillblank-options {
   display: flex;
   gap: clamp(10px, 2vw, 18px);
@@ -2259,7 +2342,7 @@ button:hover:not(:disabled) {
    end values labelled (the child counts notches to find the answer) */
 
 .insight-numberline-prompt {
-  font-size: clamp(22px, 4.5vw, 34px);
+  font-size: clamp(28px, 6vw, 46px);
   font-weight: 700;
   color: #1f2937;
   text-align: center;
@@ -2487,9 +2570,10 @@ button:hover:not(:disabled) {
 
 .insight-share-btn {
   border-radius: 12px;
-  padding: clamp(8px, 1.5vw, 12px) clamp(10px, 1.8vw, 14px);
-  font-size: clamp(13px, 2vw, 17px);
-  font-weight: 700;
+  padding: clamp(8px, 1.5vw, 12px) clamp(14px, 2.5vw, 20px);
+  font-size: clamp(24px, 4.5vw, 34px);
+  font-weight: 800;
+  line-height: 1;
   cursor: pointer;
   border: 2px solid transparent;
   white-space: nowrap;

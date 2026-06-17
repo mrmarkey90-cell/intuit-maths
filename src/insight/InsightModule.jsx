@@ -9,6 +9,7 @@ import ShareModule from './modules/ShareModule'
 import PairSumModule from './modules/PairSumModule'
 import FillBlankModule from './modules/FillBlankModule'
 import TrueFalseModule from './modules/TrueFalseModule'
+import PartitionModule from './modules/PartitionModule'
 
 const MODULE_COMPONENTS = {
   numpad: NumpadModule,
@@ -19,6 +20,7 @@ const MODULE_COMPONENTS = {
   pair_sum: PairSumModule,
   fill_blank: FillBlankModule,
   true_false: TrueFalseModule,
+  partition: PartitionModule,
 }
 
 function InsightModule({ subdomain, level, onAnswer, locked, revealed }) {

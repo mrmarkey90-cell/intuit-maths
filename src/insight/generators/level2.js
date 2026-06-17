@@ -27,17 +27,15 @@ export function L2_1A() {
   }
 }
 
-// 1B — Partitioning: "Partition 34: 30 + ___?" — randomises which of the
-// two slots (tens or units) is hidden.
+// 1B — Partitioning: the number splits into tens + units, both boxes
+// always required (no hidden slot — see PartitionModule)
 export function L2_1B() {
   const tens = rand(1, 9)
   const units = rand(0, 9)
-  const n = tens * 10 + units
-  const hideTens = Math.random() < 0.5
   return {
-    moduleType: 'numpad',
-    question: hideTens ? `Partition ${n}: ___ + ${units}?` : `Partition ${n}: ${tens * 10} + ___?`,
-    answer: String(hideTens ? tens * 10 : units),
+    moduleType: 'partition',
+    number: tens * 10 + units,
+    parts: [tens * 10, units],
   }
 }
 
@@ -139,14 +137,17 @@ export function L2_6A() {
   }
 }
 
-// 6B — Grouping: "How many 3s in 12?"
+// 6B — Grouping: "How many 3s in 12?" (factor 2-4, multiple 9-12)
 export function L2_6B() {
-  const divisor = rand(2, 5)
-  const groups = rand(2, 6)
+  let divisor, total
+  do {
+    divisor = rand(2, 4)
+    total = rand(9, 12)
+  } while (total % divisor !== 0)
   return {
     moduleType: 'numpad',
-    question: `How many ${divisor}s in ${divisor * groups}?`,
-    answer: String(groups),
+    question: `How many ${divisor}s in ${total}?`,
+    answer: String(total / divisor),
   }
 }
 
@@ -165,10 +166,9 @@ export function L2_7A() {
   }
 }
 
-// Shared by 7B and 8A — halving a number strictly between 10 and 20
-// (so the half itself is always a whole number)
+// Shared by 7B and 8A — the question number is always between 10 and 20
 function halvingQuestion(promptFor) {
-  const half = rand(6, 9)
+  const half = rand(5, 10)
   const n = half * 2
   const distractors = [...new Set([half - 2, half - 1, half + 1, half + 2, half + 3, n, n + 1])]
     .filter(v => v > 0 && v !== half)

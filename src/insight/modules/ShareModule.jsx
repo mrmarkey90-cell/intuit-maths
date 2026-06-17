@@ -69,7 +69,7 @@ function ShareModule({ question, locked, revealed, onAnswer }) {
                   disabled={locked || count === 0}
                   aria-label="Take a sweet out"
                 >
-                  − Take
+                  −
                 </button>
                 <span className="insight-share-box-count">{count}</span>
                 <button
@@ -78,7 +78,7 @@ function ShareModule({ question, locked, revealed, onAnswer }) {
                   disabled={locked || remaining === 0}
                   aria-label="Add a sweet"
                 >
-                  + Add
+                  +
                 </button>
               </div>
             </div>
