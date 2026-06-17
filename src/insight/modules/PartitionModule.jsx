@@ -97,7 +97,7 @@ function PartitionModule({ question, stage, locked, revealed, onAnswer }) {
           ))}
         </svg>
 
-        <div className="insight-partition-row">
+        <div className={`insight-partition-row${parts.length >= 4 ? ' insight-partition-row--compact' : ''}`}>
           {parts.map((p, i) => {
             const filled = values[i] !== null
             const cls = [

@@ -22,7 +22,7 @@ export const SUBDOMAIN_CONFIG = {
 
   '4A': { domain: 4, domainName: 'Subtraction',    label: 'Counting On',         minLevel: 1, maxLevel: 3 },
   '4B': { domain: 4, domainName: 'Subtraction',    label: 'Column Subtraction',  minLevel: 3, maxLevel: 6 },
-  '4C': { domain: 4, domainName: 'Subtraction',    label: 'Column w/ Borrowing', minLevel: 4, maxLevel: 6 },
+  '4C': { domain: 4, domainName: 'Subtraction',    label: 'Column w/ Borrowing', minLevel: 5, maxLevel: 6 },
   '4D': { domain: 4, domainName: 'Subtraction',    label: 'Decimals',            minLevel: 5, maxLevel: 6 },
 
   '5A': { domain: 5, domainName: 'Multiplication', label: 'Times Tables',        minLevel: 2, maxLevel: 6 },

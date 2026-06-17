@@ -69,10 +69,14 @@ const generators = {
     '2C': level4.L4_2C,
     '3C': level4.L4_3C,
     '4B': level4.L4_4B,
-    '4C': level4.L4_4C,
+    // 4C (Column w/ Borrowing) works fine but is deliberately held back
+    // to Level 5 -- too difficult for Level 4. Function stays exported
+    // from level4.js, ready to be reused once Level 5 is built.
     '5A': level4.L4_5A,
     '5B': level4.L4_5B,
-    '5C': level4.L4_5C,
+    // 5C is functionally redundant with 5B at this level (same "2 digit
+    // x 1 digit" shape) -- left unregistered for Level 4 pending a
+    // decision on whether to keep 5C as a subdomain at all.
     '6B': level4.L4_6B,
     '6C': level4.L4_6C,
     '7A': level4.L4_7A,

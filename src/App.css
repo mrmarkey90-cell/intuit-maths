@@ -2034,6 +2034,24 @@ button:hover:not(:disabled) {
   gap: clamp(22px, 4.5vw, 38px);
 }
 
+/* 4+ boxes (e.g. a 4-digit number split into 4 parts) don't fit at the
+   2-3 box sizing without wrapping onto a second row -- shrink boxes,
+   gaps and plus signs so everything stays on one line instead. */
+.insight-partition-row--compact {
+  gap: clamp(10px, 2vw, 18px);
+}
+
+.insight-partition-row--compact .insight-partition-box,
+.insight-partition-row--compact .insight-partition-box:disabled {
+  padding: clamp(8px, 1.5vw, 14px) clamp(10px, 1.8vw, 16px);
+  font-size: clamp(16px, 3.2vw, 26px);
+  min-width: clamp(44px, 8vw, 64px);
+}
+
+.insight-partition-row--compact .insight-partition-plus {
+  font-size: clamp(16px, 3vw, 24px);
+}
+
 .insight-partition-plus {
   font-size: clamp(26px, 5vw, 38px);
   font-weight: 700;
@@ -2097,11 +2115,13 @@ button:hover:not(:disabled) {
 
 .insight-circle-options {
   flex: 1;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(10px, 2vw, 20px);
-  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  max-width: 420px;
 }
 
 .insight-circle-option,
@@ -2109,12 +2129,13 @@ button:hover:not(:disabled) {
   background: #f9fafb;
   border: 2px solid #d1d5db;
   border-radius: clamp(10px, 1.5vw, 16px);
-  padding: clamp(16px, 3vw, 26px) clamp(18px, 3.5vw, 34px);
-  font-size: clamp(22px, 4.5vw, 36px);
+  padding: clamp(16px, 3vw, 26px) clamp(12px, 2.5vw, 24px);
+  font-size: clamp(20px, 4.2vw, 34px);
   font-weight: 700;
   color: #374151;
   cursor: pointer;
-  min-width: clamp(56px, 10vw, 92px);
+  width: 100%;
+  box-sizing: border-box;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
 
@@ -2214,11 +2235,13 @@ button:hover:not(:disabled) {
 
 .insight-multiselect-grid {
   flex: 1;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: clamp(10px, 2vw, 18px);
-  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  max-width: 480px;
 }
 
 .insight-multiselect-option,
@@ -2226,12 +2249,13 @@ button:hover:not(:disabled) {
   background: #f9fafb;
   border: 2px solid #d1d5db;
   border-radius: clamp(10px, 1.5vw, 16px);
-  padding: clamp(14px, 2.5vw, 22px) clamp(16px, 3vw, 28px);
-  font-size: clamp(20px, 4vw, 32px);
+  padding: clamp(14px, 2.5vw, 22px) clamp(10px, 2vw, 20px);
+  font-size: clamp(18px, 3.5vw, 28px);
   font-weight: 700;
   color: #374151;
   cursor: pointer;
-  min-width: clamp(56px, 10vw, 88px);
+  width: 100%;
+  box-sizing: border-box;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
 

@@ -62,7 +62,7 @@ export function L4_1E(lang) {
   let values, correctIndices
   do {
     const pool = new Set()
-    while (pool.size < 5) pool.add(rand(25, 100))
+    while (pool.size < 5) pool.add(rand(25, 99))
     values = [...pool]
     correctIndices = values.map((v, i) => ((v % 2 === 0) === wantEven ? i : -1)).filter(i => i !== -1)
   } while (correctIndices.length === 0 || correctIndices.length === values.length)
@@ -93,15 +93,17 @@ export function L4_1F(lang) {
 }
 
 // 1G — Factors: "Find all factors of 10" -- mixes the real factors with
-// plausible non-factor distractors into a 5-8 tile grid
+// plausible non-factor distractors into a fixed 6-tile (3x2) grid
 export function L4_1G(lang) {
-  const n = rand(6, 15)
-  const factors = []
-  for (let i = 1; i <= n; i++) if (n % i === 0) factors.push(i)
+  let n, factors
+  do {
+    n = rand(6, 15)
+    factors = []
+    for (let i = 1; i <= n; i++) if (n % i === 0) factors.push(i)
+  } while (factors.length > 5) // leave room for at least 1 distractor
   const nonFactors = []
   for (let i = 1; i <= n + 2; i++) if (n % i !== 0) nonFactors.push(i)
-  const distractorCount = Math.max(1, Math.min(nonFactors.length, 7 - factors.length))
-  const distractors = shuffle(nonFactors).slice(0, distractorCount)
+  const distractors = shuffle(nonFactors).slice(0, 6 - factors.length)
   const values = shuffle([...factors, ...distractors])
   const correctIndices = values.map((v, i) => (n % v === 0 ? i : -1)).filter(i => i !== -1)
   return {
@@ -280,11 +282,11 @@ export function L4_7B(lang) {
   }
 }
 
-// 8A — Fractions: varying numerators of quarters (1/4, 2/4 or 3/4) of a
-// number 40-100 that's always a multiple of 4
+// 8A — Fractions: varying numerators of quarters (2/4 or 3/4 -- 1/4
+// excluded at this level) of a number 40-100 that's always a multiple of 4
 export function L4_8A(lang) {
   const base = rand(10, 25) * 4
-  const numerator = rand(1, 3)
+  const numerator = pick([2, 3])
   return {
     moduleType: 'numpad',
     question: w(lang).fractionOfEq(numerator, 4, base),
