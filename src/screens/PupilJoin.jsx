@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
+import { useTranslation } from '../i18n/LanguageContext'
 import PupilProfileCreate from './PupilProfileCreate'
 
 function PupilJoin() {
   const { code } = useParams()
   const joinCode = code.toUpperCase()
+  const { setLanguage } = useTranslation()
 
   const [classInfo, setClassInfo] = useState(null)
   const [notFound, setNotFound] = useState(false)
@@ -15,9 +17,12 @@ function PupilJoin() {
     supabase.rpc('get_class_by_join_code', { p_join_code: joinCode })
       .then(({ data, error }) => {
         if (error || !data) setNotFound(true)
-        else setClassInfo(data)
+        else {
+          setClassInfo(data)
+          if (data.language) setLanguage(data.language)
+        }
       })
-  }, [joinCode])
+  }, [joinCode]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (notFound) return (
     <div className="screen">

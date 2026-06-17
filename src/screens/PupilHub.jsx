@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
+import { useTranslation } from '../i18n/LanguageContext'
 import AvatarDisplay from '../components/AvatarDisplay'
 
 function StreakDots({ streak }) {
@@ -18,6 +19,7 @@ function StreakDots({ streak }) {
 function PupilHub() {
   const { joinCode } = useParams()
   const navigate = useNavigate()
+  const { setLanguage } = useTranslation()
 
   const [view, setView] = useState('loading')
   const [classInfo, setClassInfo] = useState(null)
@@ -35,6 +37,7 @@ function PupilHub() {
       ])
       if (!info) { setView('error'); return }
       setClassInfo(info)
+      if (info.language) setLanguage(info.language)
       setPupils(pupilList ?? [])
 
       // Returning from practice in the same browser session — skip re-selection

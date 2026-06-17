@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../../supabaseClient'
+import { useTranslation } from '../../i18n/LanguageContext'
 import AvatarDisplay from '../../components/AvatarDisplay'
 import NumberPad from '../../components/NumberPad'
 import { generateQuestion } from '../../lib/questionGenerator'
@@ -40,6 +41,7 @@ function PupilSession() {
   const { code } = useParams()
   const navigate = useNavigate()
   const sessionCode = code.toUpperCase()
+  const { setLanguage } = useTranslation()
 
   const [view, setView] = useState('loading')
   const [sessionInfo, setSessionInfo] = useState(null)
@@ -73,6 +75,7 @@ function PupilSession() {
       if (error || !data || data.error) { setView('error'); return }
       setSessionInfo(data)
       sessionInfoRef.current = data
+      if (data.language) setLanguage(data.language)
 
       const { data: pupilData } = await supabase.rpc('get_class_pupils', { p_join_code: data.class_join_code })
       setPupils(pupilData ?? [])

@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { supabase } from '../supabaseClient'
+import { useTranslation } from '../i18n/LanguageContext'
 
 function SchoolSetup({ session, onComplete }) {
   const [schoolName, setSchoolName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const { language, setLanguage, t } = useTranslation()
 
   async function handleSubmit() {
     if (!schoolName.trim()) return
@@ -20,7 +22,8 @@ function SchoolSetup({ session, onComplete }) {
     const { data: school, error: schoolError } = await supabase
       .rpc('create_school', {
         school_name: schoolName,
-        school_code: code
+        school_code: code,
+        p_language: language,
       })
 
     if (schoolError) {
@@ -50,19 +53,34 @@ function SchoolSetup({ session, onComplete }) {
 
   return (
     <div className="screen">
-      <h1>Welcome to Intuit Education</h1>
-      <p className="tagline">Let's get your school set up</p>
+      <div className="language-toggle">
+        <button
+          className={`language-toggle-btn${language === 'en' ? ' language-toggle-btn--active' : ''}`}
+          onClick={() => setLanguage('en')}
+        >
+          English
+        </button>
+        <button
+          className={`language-toggle-btn${language === 'cy' ? ' language-toggle-btn--active' : ''}`}
+          onClick={() => setLanguage('cy')}
+        >
+          Cymraeg
+        </button>
+      </div>
+
+      <h1>{t('schoolSetup.title')}</h1>
+      <p className="tagline">{t('schoolSetup.subtitle')}</p>
 
       <div className="form">
         <input
           type="text"
-          placeholder="Your school name"
+          placeholder={t('schoolSetup.namePlaceholder')}
           value={schoolName}
           onChange={(e) => setSchoolName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
         />
         <button onClick={handleSubmit} disabled={!schoolName.trim() || loading}>
-          {loading ? 'Setting up...' : 'Continue'}
+          {loading ? t('schoolSetup.settingUp') : t('common.continue')}
         </button>
         {error && <p className="error">{error}</p>}
       </div>

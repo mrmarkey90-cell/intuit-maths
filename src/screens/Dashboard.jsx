@@ -23,7 +23,7 @@ function Dashboard({ session }) {
   const load = useCallback(async () => {
     const { data: user } = await supabase
       .from('users')
-      .select('school_id, schools(id, name, school_code, tier, class_slots)')
+      .select('school_id, schools(id, name, school_code, tier, class_slots, language)')
       .eq('id', session.user.id)
       .maybeSingle()
     if (!user) return

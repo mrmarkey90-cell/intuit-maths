@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { supabase } from './supabaseClient'
 import './App.css'
+import { LanguageProvider, useTranslation } from './i18n/LanguageContext'
 import FloatingLogos from './components/FloatingLogos'
 import Landing from './screens/Landing'
 import SchoolSetup from './screens/SchoolSetup'
@@ -22,6 +23,13 @@ function LeadershipApp() {
   const [userData, setUserData] = useState(null)
   const [onboarding, setOnboarding] = useState(null)
   const [loading, setLoading] = useState(true)
+  const { setLanguage } = useTranslation()
+
+  useEffect(() => {
+    if (!userData?.school_id) return
+    supabase.from('schools').select('language').eq('id', userData.school_id).maybeSingle()
+      .then(({ data }) => { if (data?.language) setLanguage(data.language) })
+  }, [userData?.school_id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -106,6 +114,7 @@ function LeadershipApp() {
 function StaffApp() {
   const [staffSchool, setStaffSchool] = useState(null)
   const [staffClass, setStaffClass] = useState(null)
+  const { setLanguage } = useTranslation()
 
   if (!staffSchool) return (
     <>
@@ -113,6 +122,7 @@ function StaffApp() {
       <StaffLogin
         onSuccess={school => {
           localStorage.setItem('staffSession', JSON.stringify(school))
+          if (school?.language) setLanguage(school.language)
           setStaffSchool(school)
         }}
       />
@@ -143,16 +153,18 @@ function StaffApp() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/join/:code" element={<PupilJoin />} />
-        <Route path="/play/:code" element={<PupilSession />} />
-        <Route path="/hub/:joinCode" element={<PupilHub />} />
-        <Route path="/school/:code" element={<StaffApp />} />
-        <Route path="/insight-test" element={<InsightTest />} />
-        <Route path="/*" element={<LeadershipApp />} />
-      </Routes>
-    </BrowserRouter>
+    <LanguageProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/join/:code" element={<PupilJoin />} />
+          <Route path="/play/:code" element={<PupilSession />} />
+          <Route path="/hub/:joinCode" element={<PupilHub />} />
+          <Route path="/school/:code" element={<StaffApp />} />
+          <Route path="/insight-test" element={<InsightTest />} />
+          <Route path="/*" element={<LeadershipApp />} />
+        </Routes>
+      </BrowserRouter>
+    </LanguageProvider>
   )
 }
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
+import { useTranslation } from '../i18n/LanguageContext'
 
 function StaffLogin({ onSuccess }) {
   const { code: schoolCode } = useParams()
@@ -8,11 +9,15 @@ function StaffLogin({ onSuccess }) {
   const [pin, setPin] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const { t, setLanguage } = useTranslation()
 
   useEffect(() => {
     supabase.rpc('get_school_name', { p_school_code: schoolCode })
-      .then(({ data }) => setSchoolName(data))
-  }, [schoolCode])
+      .then(({ data }) => {
+        setSchoolName(data?.name)
+        if (data?.language) setLanguage(data.language)
+      })
+  }, [schoolCode]) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleSubmit() {
     if (!pin) return
@@ -25,7 +30,7 @@ function StaffLogin({ onSuccess }) {
     })
 
     if (rpcError) {
-      setError(rpcError.message === 'Incorrect PIN' ? 'Incorrect PIN' : 'School not found')
+      setError(rpcError.message === 'Incorrect PIN' ? t('staffLogin.incorrectPin') : t('staffLogin.schoolNotFound'))
       setLoading(false)
       return
     }
@@ -36,13 +41,13 @@ function StaffLogin({ onSuccess }) {
   return (
     <div className="screen">
       <h1>{schoolName ?? schoolCode}</h1>
-      <p className="tagline">Enter your school PIN to continue</p>
+      <p className="tagline">{t('staffLogin.subtitle')}</p>
 
       <div className="form">
         <input
           type="password"
           inputMode="numeric"
-          placeholder="School PIN"
+          placeholder={t('staffLogin.pinPlaceholder')}
           value={pin}
           maxLength={6}
           onChange={e => { setPin(e.target.value.replace(/\D/g, '')); setError(null) }}
@@ -51,7 +56,7 @@ function StaffLogin({ onSuccess }) {
         />
         {error && <p className="error">{error}</p>}
         <button onClick={handleSubmit} disabled={!pin || loading}>
-          {loading ? 'Checking...' : 'Enter'}
+          {loading ? t('staffLogin.checking') : t('staffLogin.enter')}
         </button>
       </div>
     </div>
