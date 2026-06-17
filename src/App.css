@@ -2146,6 +2146,65 @@ button:hover:not(:disabled) {
   text-decoration: line-through;
 }
 
+/* Multi-select module — grid of tiles, tap any number on/off, no
+   internal submit (the carousel's own Next/Submit handles moving on) */
+
+.insight-multiselect-prompt {
+  font-size: clamp(24px, 5vw, 38px);
+  font-weight: 700;
+  color: #1f2937;
+  text-align: center;
+}
+
+.insight-multiselect-grid {
+  flex: 1;
+  display: flex;
+  gap: clamp(10px, 2vw, 18px);
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.insight-multiselect-option,
+.insight-multiselect-option:disabled {
+  background: #f9fafb;
+  border: 2px solid #d1d5db;
+  border-radius: clamp(10px, 1.5vw, 16px);
+  padding: clamp(14px, 2.5vw, 22px) clamp(16px, 3vw, 28px);
+  font-size: clamp(20px, 4vw, 32px);
+  font-weight: 700;
+  color: #374151;
+  cursor: pointer;
+  min-width: clamp(56px, 10vw, 88px);
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.insight-multiselect-option:hover:not(:disabled) {
+  border-color: #4f46e5;
+}
+
+.insight-multiselect-option--selected,
+.insight-multiselect-option--selected:disabled {
+  border-color: #4f46e5;
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+.insight-multiselect-option--correct,
+.insight-multiselect-option--correct:disabled {
+  border-color: #16a34a;
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.insight-multiselect-option--wrong,
+.insight-multiselect-option--wrong:disabled {
+  border-color: #dc2626;
+  background: #fef2f2;
+  color: #dc2626;
+  text-decoration: line-through;
+}
+
 /* Pair-sum module (choose two tiles that sum to the target) */
 
 .insight-pairsum-prompt {

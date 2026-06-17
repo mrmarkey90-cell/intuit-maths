@@ -11,6 +11,7 @@ import PairSumModule from './modules/PairSumModule'
 import FillBlankModule from './modules/FillBlankModule'
 import TrueFalseModule from './modules/TrueFalseModule'
 import PartitionModule from './modules/PartitionModule'
+import MultiSelectModule from './modules/MultiSelectModule'
 
 const MODULE_COMPONENTS = {
   numpad: NumpadModule,
@@ -22,6 +23,7 @@ const MODULE_COMPONENTS = {
   fill_blank: FillBlankModule,
   true_false: TrueFalseModule,
   partition: PartitionModule,
+  multi_select: MultiSelectModule,
 }
 
 function InsightModule({ subdomain, level, onAnswer, locked, revealed }) {

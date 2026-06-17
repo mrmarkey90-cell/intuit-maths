@@ -8,7 +8,7 @@ export const SUBDOMAIN_CONFIG = {
   '1D': { domain: 1, domainName: 'Number System', label: 'Negatives',            minLevel: 5, maxLevel: 6 },
   '1E': { domain: 1, domainName: 'Number System', label: 'Even / Odd',           minLevel: 2, maxLevel: 4 },
   '1F': { domain: 1, domainName: 'Number System', label: 'Multiples',            minLevel: 3, maxLevel: 6 },
-  '1G': { domain: 1, domainName: 'Number System', label: 'Factors',              minLevel: 3, maxLevel: 6 },
+  '1G': { domain: 1, domainName: 'Number System', label: 'Factors',              minLevel: 4, maxLevel: 6 }, // TODO: confirm real minLevel once Level 4 sheet content is reviewed -- only known constraint so far is "not Level 3"
   '1H': { domain: 1, domainName: 'Number System', label: 'Primes',               minLevel: 5, maxLevel: 6 },
 
   '2A': { domain: 2, domainName: 'Ordering',       label: 'Sequencing',          minLevel: 1, maxLevel: 6 },
