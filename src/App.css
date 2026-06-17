@@ -2153,6 +2153,50 @@ button:hover:not(:disabled) {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
+/* Fill-blank module — a pattern sequence with one gap; drag the right
+   answer up from the options row below. Reuses dragsort's tile/slot/
+   ghost styling so draggable chips look consistent across modules. */
+
+.insight-fillblank-sequence {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: clamp(8px, 1.6vw, 14px);
+}
+
+.insight-fillblank-item {
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 1.6vw, 14px);
+}
+
+.insight-fillblank-value {
+  font-size: clamp(24px, 5vw, 40px);
+  font-weight: 700;
+  color: #374151;
+}
+
+.insight-fillblank-comma {
+  font-size: clamp(24px, 5vw, 40px);
+  font-weight: 700;
+  color: #9ca3af;
+}
+
+.insight-fillblank-slot {
+  width: clamp(56px, 11vw, 80px);
+  height: clamp(56px, 11vw, 80px);
+}
+
+.insight-fillblank-options {
+  display: flex;
+  gap: clamp(10px, 2vw, 18px);
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  min-height: clamp(64px, 10vw, 96px);
+}
+
 /* Number line module — a true ruled line, ticks every 1, only the two
    end values labelled (the child counts notches to find the answer) */
 

@@ -124,14 +124,19 @@ export function L1_9A() {
   }
 }
 
-// 9C — Patterns: always "2, 4, 6, 8, 10", hiding one of 4/6/8/10 (never 2)
+// 9C — Patterns: always "2, 4, 6, 8, 10", hiding one of 4/6/8/10 (never 2).
+// Child drags the correct value into the gap from 4 plausible options.
 export function L1_9C() {
   const seq = [2, 4, 6, 8, 10]
   const hideIndex = rand(1, 4)
   const answer = seq[hideIndex]
+  const distractorPool = [answer - 2, answer - 1, answer + 1, answer + 2, answer + 3]
+    .filter(v => v > 0 && v !== answer && !seq.includes(v))
+  const distractors = shuffle([...new Set(distractorPool)]).slice(0, 3)
   return {
-    moduleType: 'numpad',
-    question: seq.map((v, i) => (i === hideIndex ? '___' : v)).join(', '),
-    answer: String(answer),
+    moduleType: 'fill_blank',
+    sequence: seq.map((v, i) => (i === hideIndex ? null : v)),
+    options: shuffle([answer, ...distractors]),
+    answer,
   }
 }
