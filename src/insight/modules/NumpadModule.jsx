@@ -8,6 +8,9 @@ function NumpadModule({ question, stage, locked, revealed, onAnswer }) {
   const [showOverlay, setShowOverlay] = useState(false)
 
   const isCorrect = value !== null && value === question.answer
+  const overlayTitle = question.column
+    ? `${question.column.a} ${question.column.operator} ${question.column.b}`
+    : question.question
 
   function handleSubmit(v) {
     setValue(v)
@@ -17,9 +20,25 @@ function NumpadModule({ question, stage, locked, revealed, onAnswer }) {
 
   return (
     <div className="insight-module-content">
-      <div className="insight-module-question" style={{ whiteSpace: 'pre-wrap' }}>
-        {question.question}
-      </div>
+      {question.column ? (
+        <div className="insight-column-problem">
+          <div className="insight-column-inner">
+            <div className="insight-column-row">
+              <span className="insight-column-operator" />
+              <span className="insight-column-number">{question.column.a}</span>
+            </div>
+            <div className="insight-column-row">
+              <span className="insight-column-operator">{question.column.operator}</span>
+              <span className="insight-column-number">{question.column.b}</span>
+            </div>
+            <div className="insight-column-rule" />
+          </div>
+        </div>
+      ) : (
+        <div className="insight-module-question" style={{ whiteSpace: 'pre-wrap' }}>
+          {question.question}
+        </div>
+      )}
 
       {revealed && !isCorrect ? (
         <div className="insight-answer-field insight-answer-field--wrong-revealed">
@@ -42,7 +61,7 @@ function NumpadModule({ question, stage, locked, revealed, onAnswer }) {
 
       {showOverlay && (
         <InsightNumpadOverlay
-          question={question.question}
+          question={overlayTitle}
           stage={stage}
           initialValue={value ?? ''}
           onSubmit={handleSubmit}

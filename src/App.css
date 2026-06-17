@@ -1825,6 +1825,53 @@ button:hover:not(:disabled) {
   line-height: 1.3;
 }
 
+/* Numpad's optional column layout -- models writing the problem out in
+   their book (one number above the other, ruled line below) instead of
+   a plain inline "a − b" string. */
+
+.insight-column-problem {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.insight-column-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: fit-content;
+}
+
+.insight-column-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: clamp(8px, 1.5vw, 14px);
+}
+
+.insight-column-operator {
+  width: clamp(18px, 3vw, 28px);
+  font-size: clamp(28px, 7vw, 60px);
+  font-weight: 700;
+  color: #1f2937;
+  text-align: left;
+}
+
+.insight-column-number {
+  font-size: clamp(28px, 7vw, 60px);
+  font-weight: 700;
+  color: #1f2937;
+  font-variant-numeric: tabular-nums;
+}
+
+.insight-column-rule {
+  align-self: stretch;
+  height: 3px;
+  background: #1f2937;
+  margin-top: 6px;
+}
+
 .insight-module-placeholder {
   flex: 1;
   display: flex;

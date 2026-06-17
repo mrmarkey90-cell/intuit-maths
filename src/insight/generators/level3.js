@@ -35,7 +35,7 @@ export function L3_1B() {
   }
 }
 
-// 1E — Even / Odd: "Circle the even numbers" from 5 random 1-30 values
+// 1E — Even / Odd: "Find the even numbers" from 5 random 1-30 values
 export function L3_1E(lang) {
   let values, correctIndices
   do {
@@ -46,7 +46,7 @@ export function L3_1E(lang) {
   } while (correctIndices.length === 0 || correctIndices.length === values.length)
   return {
     moduleType: 'multi_select',
-    prompt: w(lang).circleEvenNumbers,
+    prompt: w(lang).findEvenNumbers,
     options: values,
     correctIndices,
   }
@@ -106,11 +106,13 @@ export function L3_2C(lang) {
   }
 }
 
-// 3B — Bridging 10: 2-digit + 1-digit, always crosses a tens boundary
+// 3B — Bridging 10: 2-digit + 1-digit, must overshoot past the next ten
+// (not land exactly on it -- units digit must be 2-9 so a single-digit b
+// can push it strictly past, e.g. 17 + 6 = 23, never 64 + 6 = 70)
 export function L3_3B() {
-  let a, b
-  do { a = rand(10, 99) } while (a % 10 === 0)
-  b = rand(Math.max(1, 10 - (a % 10)), 9)
+  let a
+  do { a = rand(10, 99) } while (a % 10 < 2)
+  const b = rand(11 - (a % 10), 9)
   return {
     moduleType: 'numpad',
     question: `${a} + ${b}`,
@@ -141,7 +143,9 @@ export function L3_4A() {
   }
 }
 
-// 4B — Column subtraction: both 2-digit, no borrowing required
+// 4B — Column subtraction: both 2-digit, no borrowing required. Laid out
+// as an actual column (one number above the other, ruled line below) to
+// model how it should be written in their book, not just "a − b" inline.
 export function L3_4B() {
   let a, b
   do {
@@ -150,7 +154,7 @@ export function L3_4B() {
   } while ((a % 10) < (b % 10))
   return {
     moduleType: 'numpad',
-    question: `${a} − ${b}`,
+    column: { a, b, operator: '−' },
     answer: String(a - b),
   }
 }
@@ -166,16 +170,16 @@ export function L3_5A() {
   }
 }
 
-// 6A — Sharing: now a plain numpad question (the Share drag/tap module
-// scaffolding comes off once the concept's embedded), max 20 sweets / 4 boxes
-export function L3_6A(lang) {
+// 6A — Sharing: still the Share drag/tap module, max 20 sweets / 4 boxes
+export function L3_6A() {
   const boxes = rand(2, 4)
   const maxEach = Math.max(1, Math.floor(20 / boxes))
   const each = rand(1, maxEach)
   return {
-    moduleType: 'numpad',
-    question: w(lang).shareBetween(boxes * each, boxes),
-    answer: String(each),
+    moduleType: 'share',
+    totalSweets: boxes * each,
+    boxes,
+    answer: each,
   }
 }
 
@@ -258,11 +262,12 @@ export function L3_9B(lang) {
   }
 }
 
-// 9C — Patterns: starts at 1, each step up by a varying 3 or 4 (not a
-// fixed step for the whole sequence) — e.g. 1, 4, 7, 11
+// 9C — Patterns: starts at 1, steps up by a consistent gap of either 3
+// or 4 (picked once, same gap the whole way through) — e.g. 1, 4, 7, 10, 13
 export function L3_9C() {
+  const step = pick([3, 4])
   const seq = [1]
-  for (let i = 1; i < 5; i++) seq.push(seq[i - 1] + rand(3, 4))
+  for (let i = 1; i < 5; i++) seq.push(seq[i - 1] + step)
   const hideIndex = rand(1, 4)
   const answer = seq[hideIndex]
   const distractorPool = [answer - 2, answer - 1, answer + 1, answer + 2, answer + 3]

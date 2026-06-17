@@ -27,11 +27,10 @@ const WORDS = {
     roundToNearest100: n => `Round ${n} to the nearest 100`,
     howManyXInY: (x, y) => `How many ${x}s in ${y}?`,
     whatComesAfter: n => `What comes after ${n}?`,
-    circleEvenNumbers: 'Circle the even numbers',
+    findEvenNumbers: 'Find the even numbers',
     whichAreInTimesTable: n => `Which are in the ${n} times table?`,
     wordProblemSweets: (start, giveAway, getMore) =>
-      `${start} sweets, give away ${giveAway},\nget ${getMore} more.\nHow many?`,
-    shareBetween: (n, m) => `Share ${n} between ${m}.`,
+      `You have ${start} sweets.\nYou give ${giveAway} away.\nYou get ${getMore} back.\nHow many sweets do you have?`,
   },
   cy: {
     find: 'Canfod',
@@ -51,11 +50,10 @@ const WORDS = {
     roundToNearest100: n => `Crynhowch ${n} i'r 100 nesaf`,
     howManyXInY: (x, y) => `Sawl ${x} sydd yn ${y}?`,
     whatComesAfter: n => `Beth sy'n dod ar ôl ${n}?`,
-    circleEvenNumbers: 'Cylchwch y rhifau eilrif',
+    findEvenNumbers: 'Canfod y rhifau eilrif',
     whichAreInTimesTable: n => `Pa rifau sydd yn nhabl ${n}?`,
     wordProblemSweets: (start, giveAway, getMore) =>
-      `${start} losin, rhoi ${giveAway} i ffwrdd,\ncael ${getMore} yn fwy.\nFaint sydd?`,
-    shareBetween: (n, m) => `Rhannwch ${n} rhwng ${m}.`,
+      `Mae gennych chi ${start} losin.\nRydych chi'n rhoi ${giveAway} i ffwrdd.\nRydych chi'n cael ${getMore} yn ôl.\nFaint o losin sydd gennych chi?`,
   },
 }
 
