@@ -9,7 +9,7 @@ import { useRef, useState } from 'react'
 // marker shows where the correct answer was.
 function NumberLineModule({ question, locked, revealed, onAnswer }) {
   const { min, max, answer } = question
-  const [value, setValue] = useState(null)
+  const [value, setValue] = useState(min)
   const [dragValue, setDragValue] = useState(null)
   const [dragging, setDragging] = useState(false)
   const trackRef = useRef(null)
@@ -92,7 +92,7 @@ function NumberLineModule({ question, locked, revealed, onAnswer }) {
             ].filter(Boolean).join(' ')}
             style={{ left: `${pctForValue(displayValue)}%`, transition: dragging ? 'none' : 'left 0.12s ease-out' }}
           >
-            <span className="insight-numberline-handle-arrow">▲</span>
+            <span className="insight-numberline-handle-arrow">▼</span>
           </div>
         )}
       </div>
