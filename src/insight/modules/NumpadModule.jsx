@@ -11,6 +11,7 @@ function NumpadModule({ question, stage, locked, revealed, onAnswer }) {
   const overlayTitle = question.column
     ? `${question.column.a} ${question.column.operator} ${question.column.b}`
     : question.question
+  const prefix = question.prefix ?? ''
 
   function handleSubmit(v) {
     setValue(v)
@@ -48,8 +49,8 @@ function NumpadModule({ question, stage, locked, revealed, onAnswer }) {
 
       {revealed && !isCorrect ? (
         <div className="insight-answer-field insight-answer-field--wrong-revealed">
-          {value !== null && <span className="insight-answer-wrong-val">{value}</span>}
-          <span className="insight-answer-correct-val">✓ {question.answer}</span>
+          {value !== null && <span className="insight-answer-wrong-val">{prefix}{value}</span>}
+          <span className="insight-answer-correct-val">✓ {prefix}{question.answer}</span>
         </div>
       ) : (
         <button
@@ -61,7 +62,7 @@ function NumpadModule({ question, stage, locked, revealed, onAnswer }) {
           onClick={() => { if (!locked) setShowOverlay(true) }}
           disabled={locked}
         >
-          {value === null ? t('insight.tapToAnswer') : value}
+          {value === null ? (prefix ? `${prefix}?` : t('insight.tapToAnswer')) : `${prefix}${value}`}
         </button>
       )}
 

@@ -55,6 +55,7 @@ export function L5_1D() {
     prompt: `${a} + ${b}`,
     min: -10,
     max: 10,
+    labelPoints: [-10, 0, 10],
     answer: a + b,
   }
 }
@@ -320,15 +321,20 @@ export function L5_9A() {
 // 9B — Multi-step problems: "Pencils are 45p each. I buy 6. I had £5.
 // How much change do you get?" -- answer given in pence
 export function L5_9B(lang) {
-  const pence = rand(20, 50)
-  const quantity = rand(3, 5)
-  const hadPounds = rand(5, 10)
+  let pence, quantity, hadPounds, changePence
+  do {
+    pence = rand(20, 50)
+    quantity = rand(3, 5)
+    hadPounds = rand(5, 10)
+    changePence = hadPounds * 100 - pence * quantity
+  } while (changePence % 10 === 0) // keep the pence digit non-zero so "2.34" can't be mistyped as "2.3"
   const itemIndex = randomItemIndex()
-  const changePence = hadPounds * 100 - pence * quantity
   return {
     moduleType: 'numpad',
     question: w(lang).wordProblemShoppingPence(itemIndex, pence, quantity, hadPounds),
-    answer: String(changePence),
+    answer: (changePence / 100).toFixed(2),
+    decimal: true,
+    prefix: '£',
   }
 }
 

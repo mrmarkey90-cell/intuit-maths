@@ -125,6 +125,7 @@ function MatchModule({ question, locked, revealed, onAnswer }) {
               className={[
                 'insight-match-item',
                 connections[i] !== null && !revealed ? 'insight-match-item--connected' : '',
+                drag?.leftIndex === i ? 'insight-match-item--dragging' : '',
                 revealed && connections[i] === correctIndices[i] ? 'insight-match-item--correct' : '',
                 revealed && connections[i] !== correctIndices[i] ? 'insight-match-item--wrong' : '',
               ].filter(Boolean).join(' ')}

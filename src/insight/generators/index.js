@@ -125,3 +125,10 @@ export function generateInsightQuestion(subdomain, level, language = 'en') {
   if (!gen) return null
   return gen(language)
 }
+
+// Used by domainConfig's slot selection to exclude subdomains that are
+// "active" by level range but don't have a generator written yet --
+// those should never be picked for a real test (no "Coming soon" cards).
+export function hasGenerator(subdomain, level) {
+  return !!generators[level]?.[subdomain]
+}

@@ -1,6 +1,8 @@
 // Curriculum source: "intuit question examples" Google Sheet
 // 9 domains, 36 subdomains, each active across a contiguous level range (1-6)
 
+import { hasGenerator } from './generators/index'
+
 export const SUBDOMAIN_CONFIG = {
   '1A': { domain: 1, domainName: 'Number System', label: 'Counting',             minLevel: 1, maxLevel: 4 },
   '1B': { domain: 1, domainName: 'Number System', label: 'Partitioning',         minLevel: 2, maxLevel: 5 },
@@ -67,9 +69,14 @@ function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
 }
 
+// "Active by level range" isn't enough on its own -- a subdomain only
+// counts if it actually has a generator written for this level, so an
+// unbuilt or deliberately-skipped-at-this-level subdomain (e.g. 8B,
+// which is never implemented) never gets selected and shown as a
+// "Coming soon" placeholder.
 export function getActiveSubdomains(level) {
   return Object.entries(SUBDOMAIN_CONFIG)
-    .filter(([, cfg]) => level >= cfg.minLevel && level <= cfg.maxLevel)
+    .filter(([code, cfg]) => level >= cfg.minLevel && level <= cfg.maxLevel && hasGenerator(code, level))
     .map(([code]) => code)
 }
 

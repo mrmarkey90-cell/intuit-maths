@@ -2251,6 +2251,10 @@ button:hover:not(:disabled) {
   margin: 0 auto;
 }
 
+.insight-multiselect-grid--compact {
+  gap: clamp(5px, 1vw, 8px);
+}
+
 .insight-multiselect-option,
 .insight-multiselect-option:disabled {
   background: #f9fafb;
@@ -2264,6 +2268,15 @@ button:hover:not(:disabled) {
   width: 100%;
   box-sizing: border-box;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+/* Larger grids (e.g. 1G's full 1-25 range, 5 columns) need much smaller
+   tiles to fit without the module card needing to scroll. */
+.insight-multiselect-option--compact,
+.insight-multiselect-option--compact:disabled {
+  padding: clamp(6px, 1.2vw, 10px) clamp(4px, 1vw, 8px);
+  font-size: clamp(13px, 2.5vw, 18px);
+  border-radius: clamp(6px, 1vw, 10px);
 }
 
 .insight-multiselect-option:hover:not(:disabled) {
@@ -2342,6 +2355,15 @@ button:hover:not(:disabled) {
   border-color: #4f46e5;
   background: #eef2ff;
   color: #4f46e5;
+}
+
+/* While actively being dragged from -- solid fill needs white text,
+   not the dark text used for the lighter "connected" background. */
+.insight-match-item--dragging,
+.insight-match-item--dragging:disabled {
+  border-color: #4f46e5;
+  background: #4f46e5;
+  color: #fff;
 }
 
 .insight-match-item--correct,
