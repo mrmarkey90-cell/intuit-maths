@@ -3,6 +3,7 @@ import * as level2 from './level2'
 import * as level3 from './level3'
 import * as level4 from './level4'
 import * as level5 from './level5'
+import * as level6 from './level6'
 
 const generators = {
   1: {
@@ -117,7 +118,34 @@ const generators = {
     '9B': level5.L5_9B,
     '9C': level5.L5_9C,
   },
-  // Level 6+ generators added here as each level is built
+  6: {
+    '1B': level6.L6_1B,
+    '1D': level6.L6_1D,
+    '1F': level6.L6_1F,
+    '1G': level6.L6_1G,
+    '1H': level6.L6_1H,
+    '2A': level6.L6_2A,
+    '2B': level6.L6_2B,
+    '2C': level6.L6_2C,
+    '3C': level6.L6_3C,
+    '3D': level6.L6_3D,
+    '4C': level6.L6_4C,
+    '4D': level6.L6_4D,
+    '5A': level6.L6_5A,
+    '5B': level6.L6_5B,
+    // 5C marked "Redundant" -- no generator, same as Levels 4-5.
+    '5D': level6.L6_5D,
+    '6D': level6.L6_6D,
+    '7A': level6.L6_7A,
+    '7B': level6.L6_7B,
+    '8A': level6.L6_8A,
+    // 8B (Ratios) still never implemented, per standing instruction.
+    '8C': level6.L6_8C,
+    '8D': level6.L6_8D,
+    // 9A marked "Redundant" at this level -- no fresh generator needed.
+    '9B': level6.L6_9B,
+    '9C': level6.L6_9C,
+  },
 }
 
 export function generateInsightQuestion(subdomain, level, language = 'en') {

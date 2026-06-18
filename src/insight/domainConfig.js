@@ -23,7 +23,7 @@ export const SUBDOMAIN_CONFIG = {
   '3D': { domain: 3, domainName: 'Addition',       label: 'Column w/ Decimals',  minLevel: 5, maxLevel: 6 },
 
   '4A': { domain: 4, domainName: 'Subtraction',    label: 'Counting On',         minLevel: 1, maxLevel: 3 },
-  '4B': { domain: 4, domainName: 'Subtraction',    label: 'Column Subtraction',  minLevel: 3, maxLevel: 6 },
+  '4B': { domain: 4, domainName: 'Subtraction',    label: 'Column Subtraction',  minLevel: 3, maxLevel: 4 },
   '4C': { domain: 4, domainName: 'Subtraction',    label: 'Column w/ Borrowing', minLevel: 5, maxLevel: 6 },
   '4D': { domain: 4, domainName: 'Subtraction',    label: 'Decimals',            minLevel: 5, maxLevel: 6 },
 
@@ -34,8 +34,8 @@ export const SUBDOMAIN_CONFIG = {
 
   '6A': { domain: 6, domainName: 'Division',       label: 'Sharing',             minLevel: 1, maxLevel: 3 },
   '6B': { domain: 6, domainName: 'Division',       label: 'Grouping',            minLevel: 2, maxLevel: 4 },
-  '6C': { domain: 6, domainName: 'Division',       label: 'Multiple Digits',     minLevel: 4, maxLevel: 6 },
-  '6D': { domain: 6, domainName: 'Division',       label: 'Decimals',            minLevel: 5, maxLevel: 6 },
+  '6C': { domain: 6, domainName: 'Division',       label: 'Multiple Digits',     minLevel: 4, maxLevel: 5 },
+  '6D': { domain: 6, domainName: 'Division',       label: 'Decimals',            minLevel: 6, maxLevel: 6 },
 
   '7A': { domain: 7, domainName: 'Doubling & Halving', label: 'Doubling',        minLevel: 1, maxLevel: 6 },
   '7B': { domain: 7, domainName: 'Doubling & Halving', label: 'Halving',         minLevel: 1, maxLevel: 6 },

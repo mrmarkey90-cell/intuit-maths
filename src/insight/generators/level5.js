@@ -265,7 +265,7 @@ export function L5_7B(lang) {
 // 8A — Fractions: varying numerators of fifths and tenths, base 60-150
 export function L5_8A(lang) {
   const denominator = pick([5, 10])
-  const base = rand(6, 15) * denominator
+  const base = rand(Math.ceil(60 / denominator), Math.floor(150 / denominator)) * denominator
   const numerator = rand(1, denominator - 1)
   return {
     moduleType: 'numpad',

@@ -77,6 +77,11 @@ const WORDS = {
       const Item = item.charAt(0).toUpperCase() + item.slice(1)
       return `${Item} are ${pence}p each.\nI buy ${quantity}.\nI had £${hadPounds}.\nHow much change do you get?`
     },
+    whichIsHigher: 'Which is higher?',
+    roundToOneDecimalPlace: n => `Round ${n} to 1 decimal place`,
+    largestPrimeBelow: n => `What is the largest prime below ${n}?`,
+    factorSharedBy: (a, b) => `Write a factor shared by both ${a} and ${b}`,
+    areaLeft: 'Area left?',
   },
   cy: {
     find: 'Canfod',
@@ -117,6 +122,11 @@ const WORDS = {
       const item = ITEM_NOUNS[itemIndex].cy
       return `Mae ${item} yn costio ${pence}c yr un.\nRydych chi'n prynu ${quantity}.\nRoedd gennych chi £${hadPounds}.\nFaint o newid ydych chi'n ei gael?`
     },
+    whichIsHigher: "Pa un sy'n uwch?",
+    roundToOneDecimalPlace: n => `Crynhowch ${n} i 1 lle degol`,
+    largestPrimeBelow: n => `Beth yw'r rhif cysefin mwyaf o dan ${n}?`,
+    factorSharedBy: (a, b) => `Ysgrifennwch ffactor sy'n gyffredin i ${a} a ${b}`,
+    areaLeft: "Arwynebedd sy'n weddill?",
   },
 }
 

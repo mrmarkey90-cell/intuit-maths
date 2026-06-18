@@ -1886,6 +1886,42 @@ button:hover:not(:disabled) {
   margin-top: 6px;
 }
 
+/* Geometry diagram (e.g. a rectangle with a corner notched out) --
+   not to scale, every edge labelled directly on the shape. */
+
+.insight-diagram-block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(10px, 2vw, 18px);
+}
+
+.insight-diagram-svg {
+  width: 100%;
+  max-width: 280px;
+  height: auto;
+}
+
+.insight-diagram-label {
+  font-size: 13px;
+  font-weight: 700;
+  fill: #1f2937;
+}
+
+.insight-diagram-label--small {
+  font-size: 11px;
+  fill: #4f46e5;
+}
+
+.insight-diagram-caption {
+  font-size: clamp(18px, 3.5vw, 26px);
+  font-weight: 700;
+  color: #1f2937;
+  text-align: center;
+}
+
 .insight-module-placeholder {
   flex: 1;
   display: flex;
