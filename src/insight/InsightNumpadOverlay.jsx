@@ -1,6 +1,8 @@
+import { useTranslation } from '../i18n/LanguageContext'
 import NumberPad from '../components/NumberPad'
 
 function InsightNumpadOverlay({ question, stage, initialValue, onSubmit, onDismiss, allowDecimal }) {
+  const { t } = useTranslation()
   return (
     <>
       <div className="insight-numpad-backdrop" onClick={onDismiss} />
@@ -12,7 +14,7 @@ function InsightNumpadOverlay({ question, stage, initialValue, onSubmit, onDismi
           style={{ width: '100%', marginTop: '0.5rem' }}
           onClick={onDismiss}
         >
-          Cancel
+          {t('common.cancel')}
         </button>
       </div>
     </>

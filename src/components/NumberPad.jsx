@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from '../i18n/LanguageContext'
 
 function NumberPad({ onSubmit, stage = 1, disabled = false, initialValue = '', allowDecimal = false }) {
+  const { t } = useTranslation()
   const [value, setValue] = useState(initialValue)
   const showNegative = stage >= 5
 
@@ -74,7 +76,7 @@ function NumberPad({ onSubmit, stage = 1, disabled = false, initialValue = '', a
         >.</button>
       )}
       <button className="numpad-submit" onClick={submit} disabled={disabled || isIncomplete}>
-        Submit
+        {t('common.submit')}
       </button>
     </div>
   )

@@ -1,7 +1,10 @@
+import { useTranslation } from '../i18n/LanguageContext'
+
 // Mirrors the Instinct results screen layout. This is a preview only —
 // the real version will be driven by submit_insight_attempt (credits,
 // level, streak) once a live pupil session exists.
 function InsightResults({ score, total, onReviewMarking, onRestart }) {
+  const { t } = useTranslation()
   const credits = 50 + score
   const allCorrect = score === total
   const pct = total > 0 ? Math.round((score / total) * 100) : 0
@@ -14,38 +17,38 @@ function InsightResults({ score, total, onReviewMarking, onRestart }) {
 
       <main className="dashboard-main" style={{ maxWidth: 480 }}>
         <div className="page-title">
-          <h1>Insight Complete</h1>
-          <span className="tier-badge">Preview — no real pupil session</span>
+          <h1>{t('insight.resultsComplete')}</h1>
+          <span className="tier-badge">{t('insight.previewBadge')}</span>
         </div>
 
         <section className="dashboard-section">
           <div className="results-summary">
             <div className="stat-box stat-box--large">
               <div className="stat-number">{score}/{total}</div>
-              <div className="stat-label">Correct</div>
+              <div className="stat-label">{t('insight.resultsCorrectLabel')}</div>
             </div>
             <div className="stat-box stat-box--large">
               <div className="stat-number">⭐ {credits}</div>
-              <div className="stat-label">Credits you'd earn</div>
+              <div className="stat-label">{t('insight.creditsYoudEarn')}</div>
             </div>
           </div>
 
           {allCorrect ? (
             <p className="results-comparison" style={{ marginTop: '1rem', textAlign: 'center', color: '#16a34a', fontWeight: 700 }}>
-              🎉 All correct! That's a streak tick towards the next level.
+              🎉 {t('insight.allCorrectStreak')}
             </p>
           ) : (
             <p className="results-comparison" style={{ marginTop: '1rem', textAlign: 'center' }}>
-              {pct}% this time — all {total} correct is needed to level up.
+              {t('insight.pctThisTime').replace('{pct}', pct).replace('{total}', total)}
             </p>
           )}
         </section>
 
         <button onClick={onReviewMarking} style={{ marginTop: '0.5rem' }}>
-          Look at the marking
+          {t('insight.lookAtMarking')}
         </button>
         <button className="button-secondary" onClick={onRestart} style={{ marginTop: '0.5rem' }}>
-          Start a new test
+          {t('insight.startNewTest')}
         </button>
       </main>
     </div>
