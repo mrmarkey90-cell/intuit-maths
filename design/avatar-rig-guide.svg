@@ -5,19 +5,19 @@
        Canvas: 200 x 300, shared by every layer (body, hair, hats,
        clothing).
 
-       Body is simple and symmetric -- no 3/4 perspective, no near/far
-       limb split. Facing direction (screen-right, per the Slay the
-       Spire reference -- player left, enemies right) is sold entirely
-       through hair shape and facial feature placement (eyes/eyebrows/
-       mouth angled or offset), the same way Cyanide & Happiness does
-       it. Eyes/eyebrows/mouth are procedural (code-side), so that part
-       needs no asset from you -- just keep hairstyles free to lean
-       into a directional look if you want one (e.g. a side-swept
-       fringe), it's optional per style, not a rig requirement.
+       Head is WIDER than the body and the two are directly connected
+       -- no neck segment. The torso's top edge tucks up underneath the
+       head circle's curve (inside its radius), so when the head paints
+       on top of the torso in z-order, it fully covers the join and the
+       two read as one continuous connected shape, the way the
+       Cyanide & Happiness reference does it.
 
-       Torso width is fixed at 80 -- the same as the head's diameter
-       (r=40) -- so the body reads as one consistent column width,
-       edge-aligned with the head circle.
+       Body is otherwise simple and symmetric -- no 3/4 perspective, no
+       near/far limb split. Facing direction (screen-right, per the
+       Slay the Spire reference -- player left, enemies right) is sold
+       through hair shape and facial feature placement (eyes/eyebrows/
+       mouth angled or offset, all procedural/code-side) rather than
+       any change to this rig.
 
        Draw your asset directly on top of this file in Inkscape, using
        the shapes/crosshairs for alignment, then delete the "guides"
@@ -33,45 +33,51 @@
     <!-- Center reference line -->
     <line x1="100" y1="0" x2="100" y2="300" stroke-dasharray="2 4"/>
 
-    <!-- Head -->
-    <circle cx="100" cy="70" r="40"/>
+    <!-- Head -- wider than the torso -->
+    <circle cx="100" cy="75" r="45"/>
 
-    <!-- Torso: simple rectangle, width 80 == head diameter, edges
-         aligned with the head circle's own left/right extent -->
-    <rect x="60" y="110" width="80" height="90"/>
+    <!-- Torso: narrower than the head (60 vs 90 diameter), top edge at
+         y=100 tucks well inside the head circle's curve (verified: the
+         rectangle's top corners are ~39 units from the head's center,
+         comfortably inside the r=45 head) -- this overlap is what
+         makes head + body read as connected, not a gap to close later -->
+    <rect x="70" y="100" width="60" height="90"/>
 
-    <!-- Arms -- symmetric, single z-layer (in front of torso) -->
-    <line x1="60" y1="120" x2="50" y2="190" stroke="#16a34a"/>
-    <line x1="140" y1="120" x2="150" y2="190" stroke="#16a34a"/>
+    <!-- Arms -- symmetric, single z-layer (in front of torso), pivot
+         placed where the torso is already clear of the head's curve -->
+    <line x1="70" y1="125" x2="60" y2="190" stroke="#16a34a"/>
+    <line x1="130" y1="125" x2="140" y2="190" stroke="#16a34a"/>
 
     <!-- Legs -- symmetric, single z-layer, narrower stance than the torso -->
-    <line x1="75" y1="195" x2="70" y2="290" stroke="#16a34a"/>
-    <line x1="125" y1="195" x2="130" y2="290" stroke="#16a34a"/>
+    <line x1="80" y1="185" x2="75" y2="290" stroke="#16a34a"/>
+    <line x1="120" y1="185" x2="125" y2="290" stroke="#16a34a"/>
   </g>
 
   <!-- Anchor point markers + labels -->
   <g id="labels" font-size="6" fill="#1f2937" stroke="none">
-    <circle cx="100" cy="70" r="2" fill="#dc2626"/>
-    <text x="103" y="50">head (100,70) r=40 -- spans x=60 to x=140</text>
+    <circle cx="100" cy="75" r="2" fill="#dc2626"/>
+    <text x="103" y="55">head (100,75) r=45 -- spans x=55 to x=145</text>
 
-    <circle cx="60" cy="120" r="2" fill="#16a34a"/>
-    <text x="6" y="113">shoulder (60,120)</text>
+    <circle cx="70" cy="125" r="2" fill="#16a34a"/>
+    <text x="6" y="118">shoulder (70,125)</text>
 
-    <circle cx="140" cy="120" r="2" fill="#16a34a"/>
-    <text x="143" y="113">shoulder (140,120)</text>
+    <circle cx="130" cy="125" r="2" fill="#16a34a"/>
+    <text x="133" y="118">shoulder (130,125)</text>
 
-    <circle cx="75" cy="195" r="2" fill="#16a34a"/>
-    <text x="20" y="190">hip (75,195)</text>
+    <circle cx="80" cy="185" r="2" fill="#16a34a"/>
+    <text x="25" y="180">hip (80,185)</text>
 
-    <circle cx="125" cy="195" r="2" fill="#16a34a"/>
-    <text x="130" y="190">hip (125,195)</text>
+    <circle cx="120" cy="185" r="2" fill="#16a34a"/>
+    <text x="125" y="180">hip (120,185)</text>
 
-    <text x="6" y="225">Torso: x 60-140 (width 80, == head</text>
-    <text x="6" y="232">diameter), y 110-200</text>
+    <text x="6" y="218">Torso: x 70-130 (width 60, narrower than the</text>
+    <text x="6" y="225">head's 90), y 100-190 -- top edge overlaps</text>
+    <text x="6" y="232">under the head circle, hidden once the head</text>
+    <text x="6" y="239">paints on top -- this is the "no neck" join</text>
 
-    <text x="6" y="250">Facing direction: sold by hair shape +</text>
-    <text x="6" y="257">eye/eyebrow placement only -- body stays</text>
-    <text x="6" y="264">symmetric (Cyanide &amp; Happiness approach)</text>
+    <text x="6" y="258">Facing direction: sold by hair shape +</text>
+    <text x="6" y="265">eye/eyebrow placement only -- body stays</text>
+    <text x="6" y="272">symmetric (Cyanide &amp; Happiness approach)</text>
 
     <text x="6" y="290" fill="#6b7280">Canvas: 0 0 200 300 -- export every asset at this full size</text>
   </g>
