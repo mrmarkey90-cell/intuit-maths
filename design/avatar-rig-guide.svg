@@ -1,0 +1,77 @@
+<svg width="600" height="900" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+
+  <!-- ================================================================
+       AVATAR RIG GUIDE -- reference only, never ships as a game asset.
+       Canvas: 200 x 300, shared by every layer (body, hair, hats,
+       clothing). Character faces screen-right in true 3/4 perspective
+       -- near (front) limbs are biased right and slightly larger/lower,
+       far (back) limbs are biased left, tucked closer to the torso
+       centerline, and sit BEHIND the torso in z-order.
+
+       Draw your asset directly on top of this file in Inkscape, using
+       the shapes/crosshairs for alignment, then delete the "guides"
+       group, the "labels" group, and the backdrop rect below --
+       before saving your real asset, nothing from this file should
+       remain except what you drew.
+       ================================================================ -->
+
+  <!-- Backdrop -->
+  <rect x="0" y="0" width="200" height="300" fill="#fafafa"/>
+
+  <g id="guides" stroke="#9ca3af" fill="none" stroke-dasharray="3 2">
+    <!-- Center reference line -->
+    <line x1="100" y1="0" x2="100" y2="300" stroke-dasharray="2 4"/>
+
+    <!-- Facing arrow -->
+    <line x1="150" y1="20" x2="180" y2="20" stroke="#dc2626" stroke-dasharray="0" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="150" y="14" fill="#dc2626" stroke="none" font-size="7">facing screen-right</text>
+
+    <!-- Head -->
+    <circle cx="108" cy="70" r="40"/>
+
+    <!-- Torso (asymmetric quadrilateral: far/left shoulder higher + tucked in,
+         near/right shoulder lower + further out; same pattern at the hips) -->
+    <path d="M 75,115 L 148,128 L 122,205 L 88,195 Z"/>
+
+    <!-- Far (back) arm -- character's own left, BEHIND torso in z-order -->
+    <line x1="75" y1="115" x2="65" y2="190" stroke="#2563eb"/>
+    <!-- Near (front) arm -- character's own right, IN FRONT of torso -->
+    <line x1="148" y1="128" x2="158" y2="218" stroke="#16a34a"/>
+
+    <!-- Far (back) leg -- BEHIND torso -->
+    <line x1="88" y1="195" x2="80" y2="290" stroke="#2563eb"/>
+    <!-- Near (front) leg -- IN FRONT of torso -->
+    <line x1="122" y1="205" x2="132" y2="297" stroke="#16a34a"/>
+  </g>
+
+  <defs>
+    <marker id="arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#dc2626"/>
+    </marker>
+  </defs>
+
+  <!-- Anchor point markers + labels -->
+  <g id="labels" font-size="6" fill="#1f2937" stroke="none">
+    <circle cx="108" cy="70" r="2" fill="#dc2626"/>
+    <text x="111" y="50">head (108,70) r=40</text>
+
+    <circle cx="75" cy="115" r="2" fill="#2563eb"/>
+    <text x="20" y="108" fill="#2563eb">far shoulder (75,115)</text>
+    <text x="20" y="115" fill="#2563eb">back arm -- BEHIND torso</text>
+
+    <circle cx="148" cy="128" r="2" fill="#16a34a"/>
+    <text x="151" y="122" fill="#16a34a">near shoulder (148,128)</text>
+    <text x="151" y="129" fill="#16a34a">front arm -- IN FRONT</text>
+
+    <circle cx="88" cy="195" r="2" fill="#2563eb"/>
+    <text x="20" y="195" fill="#2563eb">far hip (88,195)</text>
+    <text x="20" y="202" fill="#2563eb">back leg -- BEHIND</text>
+
+    <circle cx="122" cy="205" r="2" fill="#16a34a"/>
+    <text x="135" y="200" fill="#16a34a">near hip (122,205)</text>
+    <text x="135" y="207" fill="#16a34a">front leg -- IN FRONT</text>
+
+    <text x="6" y="290" font-size="6" fill="#6b7280">Canvas: 0 0 200 300 -- export every asset at this full size</text>
+  </g>
+
+</svg>
