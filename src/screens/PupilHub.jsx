@@ -93,7 +93,7 @@ function PupilHub() {
             className="pupil-tile"
             onClick={() => { setPendingPupil(p); setView('confirm') }}
           >
-            <AvatarDisplay avatar={p.avatar ?? { face: 0, hat: 0, glasses: 0, scarf: 0 }} size={72} />
+            <AvatarDisplay avatar={p.avatar ?? { face: 0, hat: 0, glasses: 0, scarf: 0 }} size={56} />
             <span className="pupil-tile-name">{p.first_name}</span>
             <span className="pupil-tile-surname">{p.last_name}</span>
           </button>
@@ -132,7 +132,7 @@ function PupilHub() {
         <div className="hub-avatar-block" onClick={() => setAvatarMsg(v => !v)}>
           <AvatarDisplay
             avatar={pupil.avatar ?? { face: 0, hat: 0, glasses: 0, scarf: 0 }}
-            size={110}
+            size={84}
           />
           <span className="hub-avatar-label">{avatarMsg ? t('pupilHub.comingSoon') : t('pupilHub.editAvatar')}</span>
         </div>
@@ -152,7 +152,7 @@ function PupilHub() {
 
         <div className="hub-credits">⭐ {pupil.credits ?? 0} {t('pupilHub.credits')}</div>
 
-        <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
+        <div style={{ marginBottom: 'clamp(0.5rem, 2vh, 2rem)', textAlign: 'center' }}>
           <StreakDots streak={streak} t={t} />
           <span className="streak-label" style={{ marginTop: '0.35rem', display: 'block' }}>
             {streak > 0
@@ -171,7 +171,7 @@ function PupilHub() {
 
         <button
           className="button-secondary"
-          style={{ marginTop: '1.5rem' }}
+          style={{ marginTop: 'clamp(0.5rem, 1.5vh, 1.5rem)' }}
           onClick={() => {
             sessionStorage.removeItem(`hub_pupil_${joinCode}`)
             setPupil(null)

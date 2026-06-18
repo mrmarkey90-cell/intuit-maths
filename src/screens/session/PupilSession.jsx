@@ -275,7 +275,7 @@ function PupilSession() {
       <div className="pupil-grid">
         {pupils.map(p => (
           <button key={p.id} className="pupil-tile" onClick={() => doJoin(sessionInfo, p)}>
-            <AvatarDisplay avatar={p.avatar ?? { face: 0, hat: 0, glasses: 0, scarf: 0 }} size={72} />
+            <AvatarDisplay avatar={p.avatar ?? { face: 0, hat: 0, glasses: 0, scarf: 0 }} size={56} />
             <span className="pupil-tile-name">{p.first_name}</span>
             <span className="pupil-tile-surname">{p.last_name}</span>
           </button>
@@ -298,20 +298,24 @@ function PupilSession() {
     return (
       <div className="question-screen">
         <div className="question-body">
-          {skipCooldown > 0 && (
-            <div className="skip-penalty">{t('pupilSession.skipPenalty').replace('{n}', skipCooldown)}</div>
-          )}
-          <div className={`question-display ${feedback ? `question-display--${feedback}` : ''}`}>
-            <p className="question-text">{question?.question ?? '...'}</p>
+          <div className="question-panel">
+            <div className={`question-display ${feedback ? `question-display--${feedback}` : ''}`}>
+              <p className="question-text">{question?.question ?? '...'}</p>
+            </div>
           </div>
-          <NumberPad
-            onSubmit={handleSubmit}
-            stage={pupil?.instinct_level ?? 1}
-            disabled={isDisabled}
-          />
-          <button className="skip-btn" onClick={handleSkip} disabled={skipCooldown > 0}>
-            {skipCooldown > 0 ? t('pupilSession.skipCooldown').replace('{n}', skipCooldown) : t('pupilSession.skip')}
-          </button>
+          <div className="numpad-panel">
+            {skipCooldown > 0 && (
+              <div className="skip-penalty">{t('pupilSession.skipPenalty').replace('{n}', skipCooldown)}</div>
+            )}
+            <NumberPad
+              onSubmit={handleSubmit}
+              stage={pupil?.instinct_level ?? 1}
+              disabled={isDisabled}
+            />
+            <button className="skip-btn" onClick={handleSkip} disabled={skipCooldown > 0}>
+              {skipCooldown > 0 ? t('pupilSession.skipCooldown').replace('{n}', skipCooldown) : t('pupilSession.skip')}
+            </button>
+          </div>
         </div>
       </div>
     )
@@ -350,9 +354,9 @@ function PupilSession() {
         {levelUp && (
           <div className="level-up-banner">{t('pupilSession.levelUp').replace('{n}', newStage)}</div>
         )}
-        <AvatarDisplay avatar={pupil?.avatar ?? { face: 0, hat: 0, glasses: 0, scarf: 0 }} size={80} />
+        <AvatarDisplay avatar={pupil?.avatar ?? { face: 0, hat: 0, glasses: 0, scarf: 0 }} size={64} />
         <div className="test-level-badge">{t('pupilSession.testLevelBadge').replace('{n}', displayStage)}</div>
-        <h1 style={{ marginTop: '0.5rem' }}>{t('pupilSession.correct').replace('{n}', score)}</h1>
+        <h1 style={{ marginTop: '0.4rem' }}>{t('pupilSession.correct').replace('{n}', score)}</h1>
         <p className="tagline">{t('pupilSession.outOfAttempted').replace('{n}', total).replace('{pct}', pct)}</p>
         {comparison && <p className="results-comparison">{comparison}</p>}
         <div className="credits-earned">{t('pupilSession.creditsEarned').replace('{n}', creditsEarned)}</div>
@@ -374,12 +378,12 @@ function PupilSession() {
           <LevelDownOffer pupilId={pupil?.id} currentStage={currentStage} t={t} />
         )}
         {sessionInfoRef.current?.challenge_type !== 'practice' && (
-          <p className="note" style={{ marginTop: '2rem' }}>{t('pupilSession.writeScoreNote')}</p>
+          <p className="note" style={{ marginTop: '0.6rem' }}>{t('pupilSession.writeScoreNote')}</p>
         )}
         {sessionInfoRef.current?.class_join_code && (
           <button
             className="button-secondary"
-            style={{ marginTop: '1.5rem' }}
+            style={{ marginTop: '0.6rem' }}
             onClick={() => navigate(`/hub/${sessionInfoRef.current.class_join_code}`)}
           >
             {t('pupilSession.myHub')}

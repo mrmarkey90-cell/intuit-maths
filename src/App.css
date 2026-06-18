@@ -653,20 +653,45 @@ button:hover:not(:disabled) {
   height: 100%;
 }
 
-.avatar-builder {
+/* Profile creation -- same horizontal-split convention as the question
+   screen: a fixed content tile (the avatar preview) on the left, all
+   the controls (name fields, avatar steppers, submit) on the right. */
+.profile-create-body {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(16px, 4vw, 40px);
+}
+
+.profile-avatar-panel {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-form-panel {
+  flex: 1 1 0;
+  max-width: 380px;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.25rem;
-  margin-top: 1rem;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .avatar-controls {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: clamp(4px, 1vh, 8px);
   width: 100%;
   max-width: 280px;
+  margin-top: clamp(4px, 1.5vh, 12px);
 }
 
 .avatar-row {
@@ -729,21 +754,38 @@ button:hover:not(:disabled) {
   margin-top: 2rem;
 }
 
+/* Carousel, not a flowing grid -- a class could have 30+ pupils, and
+   the tile count must never grow the page taller (no scrolling, ever,
+   on a child-facing screen). flex-direction: column + flex-wrap: wrap
+   on a fixed-height container stacks tiles downward then wraps into a
+   new column once that height is used up, so any number of pupils
+   just extends the carousel sideways (scrollable) instead of down. */
 .pupil-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 12px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  height: clamp(140px, 40vh, 260px);
   width: 100%;
-  max-width: 600px;
-  margin-top: 1.5rem;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  gap: 10px;
+  padding: 4px;
+  margin-top: clamp(0.5rem, 2vh, 1.5rem);
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
 }
 
 .pupil-tile {
+  flex: 0 0 auto;
+  width: 104px;
+  scroll-snap-align: start;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  padding: 12px 8px;
+  padding: 10px 6px;
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
@@ -1076,21 +1118,42 @@ button:hover:not(:disabled) {
   transition: width 0.5s linear, background 0.3s;
 }
 
+/* Horizontal split, not a vertical stack -- on a fixed-height landscape
+   viewport, stacking the question above the numpad is what forced page
+   scroll. A question tile (left) + numpad (right) both sized from the
+   panel's height rather than their own content means neither panel
+   ever shifts size between questions, and nothing can fall offscreen. */
 .question-body {
   flex: 1;
+  min-height: 0;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: center;
+  gap: clamp(16px, 4vw, 40px);
+  padding: clamp(10px, 2.5vh, 24px) clamp(16px, 3vw, 32px);
+}
+
+.question-panel {
+  flex: 1 1 0;
+  max-width: 55%;
+  min-height: 0;
+  display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem;
-  gap: 1.25rem;
 }
 
 .question-display {
+  width: 100%;
+  height: 100%;
+  max-width: 480px;
   background: white;
   border: 2px solid #e5e7eb;
   border-radius: 16px;
-  padding: 1.5rem 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(0.75rem, 2vh, 1.5rem) clamp(1rem, 3vw, 2.5rem);
   transition: border-color 0.2s, background 0.2s;
   text-align: center;
 }
@@ -1101,13 +1164,24 @@ button:hover:not(:disabled) {
 }
 
 .question-text {
-  font-size: 2rem;
+  font-size: clamp(1.5rem, 6vh, 2.5rem);
   font-weight: 700;
   color: #111;
   letter-spacing: -0.01em;
 }
 
+.numpad-panel {
+  flex: 0 0 auto;
+  width: clamp(220px, 32vw, 300px);
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(6px, 1.2vh, 12px);
+}
+
 .skip-penalty {
+  flex-shrink: 0;
   background: #fef3c7;
   color: #92400e;
   padding: 6px 16px;
@@ -1117,6 +1191,7 @@ button:hover:not(:disabled) {
 }
 
 .skip-btn {
+  flex-shrink: 0;
   background: transparent;
   color: #9ca3af;
   border: 1px solid #e5e7eb;
@@ -1149,26 +1224,36 @@ button:hover:not(:disabled) {
 
 /* ── Number pad ────────────────────────────────── */
 
+/* Sized from its container's height (flex: 1 inside a flex-column
+   parent), not from fixed pixel button heights -- so it always fills
+   exactly the space it's given, in both contexts it's used: the
+   question screen's numpad-panel (a fixed-height flex column) and
+   Insight's bottom-sheet overlay (not a flex parent, where flex: 1
+   simply has no effect and the numpad sizes from its own content,
+   same as before). */
 .numpad {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: clamp(6px, 1.2vh, 10px);
   width: 100%;
   max-width: 280px;
   margin: 0 auto;
+  flex: 1;
+  min-height: 0;
 }
 
 .numpad-display {
   width: 100%;
+  flex-shrink: 0;
   background: white;
   border: 2px solid #4f46e5;
   border-radius: 10px;
-  padding: 12px 16px;
-  font-size: 2rem;
+  padding: 8px 16px;
+  font-size: clamp(1.3rem, 4.5vh, 2rem);
   font-weight: 700;
   text-align: right;
-  min-height: 60px;
+  height: clamp(40px, 9vh, 60px);
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -1182,14 +1267,19 @@ button:hover:not(:disabled) {
 .numpad-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  grid-template-rows: repeat(3, 1fr);
+  gap: clamp(4px, 1vh, 8px);
   width: 100%;
+  flex: 1;
+  min-height: 0;
 }
 
 .numpad-btn {
   padding: 0;
-  height: 56px;
-  font-size: 1.4rem;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  font-size: clamp(1rem, 3.5vh, 1.4rem);
   font-weight: 600;
   background: white;
   color: #111;
@@ -1205,18 +1295,20 @@ button:hover:not(:disabled) {
 
 .numpad-btn--secondary {
   color: #4f46e5;
-  font-size: 1.1rem;
+  font-size: clamp(0.85rem, 2.6vh, 1.1rem);
 }
 
 .numpad-btn--decimal {
   width: 100%;
-  height: 40px;
+  flex-shrink: 0;
+  height: clamp(28px, 5vh, 40px);
 }
 
 .numpad-submit {
   width: 100%;
-  height: 52px;
-  font-size: 1.1rem;
+  flex-shrink: 0;
+  height: clamp(36px, 7.5vh, 52px);
+  font-size: clamp(0.95rem, 2.6vh, 1.1rem);
   font-weight: 700;
   border-radius: 10px;
   letter-spacing: 0.03em;
@@ -2971,6 +3063,102 @@ button:hover:not(:disabled) {
 
 /* Pupil device chrome (fullscreen toggle + portrait-blocking rotate
    prompt) -- never shown to teachers/leadership, only PupilScreenGuard */
+
+/* Locks every child-facing screen to exactly the viewport -- no element
+   on a pupil route should ever need page scroll. 100dvh (not 100vh)
+   so mobile browser chrome (address bar showing/hiding) doesn't leave
+   a sliver of scrollable space. Individual screens reuse the shared
+   .screen/.hub-screen/.question-screen classes everywhere else in the
+   app (which use min-height: 100vh and DO scroll, e.g. leadership
+   onboarding forms) -- these overrides only apply when nested under
+   .pupil-viewport, so non-pupil usage of those classes is untouched. */
+.pupil-viewport {
+  height: 100dvh;
+  width: 100vw;
+  overflow: hidden;
+  position: relative;
+}
+
+.pupil-viewport .screen,
+.pupil-viewport .hub-screen,
+.pupil-viewport .question-screen {
+  height: 100%;
+  min-height: 0;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+/* Tighter, viewport-relative rhythm for pupil screens only -- the
+   global h1/.tagline rules use fixed rem sizes that assume a normally
+   scrolling page, which is exactly what a locked-height screen can't
+   have on a short landscape viewport. */
+.pupil-viewport .screen {
+  padding: clamp(0.75rem, 3vh, 1.5rem) clamp(1rem, 4vw, 2rem);
+}
+
+.pupil-viewport h1 {
+  font-size: clamp(1.4rem, 5.5vh, 2.5rem);
+  margin-bottom: 0.4rem;
+}
+
+.pupil-viewport .tagline {
+  margin-bottom: clamp(0.5rem, 2.5vh, 2rem);
+}
+
+.pupil-viewport .form {
+  gap: clamp(6px, 1.2vh, 12px);
+  margin-bottom: clamp(6px, 1.5vh, 2rem);
+}
+
+/* Results screen (PupilSession) and pupil hub dashboard -- both are
+   single-column "stat list" screens with several conditionally-shown
+   pieces (level-up banner, comparison, level-down offer...), so a
+   left/right split isn't natural the way it is for question+numpad or
+   avatar+form. Tightening the vertical rhythm gets most viewports to
+   fit without restructuring the content into a grid. */
+.pupil-viewport .credits-earned {
+  margin-top: clamp(0.4rem, 1.5vh, 1.25rem);
+  padding: clamp(4px, 1vh, 8px) clamp(14px, 3vw, 24px);
+  font-size: clamp(1.1rem, 4vh, 1.5rem);
+}
+
+.pupil-viewport .level-up-banner {
+  margin-bottom: clamp(0.4rem, 1.5vh, 1.5rem);
+}
+
+.pupil-viewport .level-down-offer {
+  margin-top: clamp(0.4rem, 1.5vh, 1.5rem);
+  padding: clamp(0.5rem, 1.5vh, 1rem) 1.5rem;
+}
+
+.pupil-viewport .streak-display {
+  margin-top: clamp(0.3rem, 1vh, 1rem);
+}
+
+.pupil-viewport .test-level-badge {
+  margin-top: clamp(0.3rem, 1vh, 0.75rem);
+}
+
+.pupil-viewport .hub-screen {
+  padding: clamp(0.75rem, 2.5vh, 2.5rem) 1.5rem clamp(0.75rem, 2.5vh, 3rem);
+}
+
+.pupil-viewport .hub-name {
+  font-size: clamp(1.3rem, 5vh, 2rem);
+  margin: clamp(0.3rem, 1vh, 0.75rem) 0 clamp(0.4rem, 1.5vh, 1.25rem);
+}
+
+.pupil-viewport .hub-levels {
+  margin-bottom: clamp(0.4rem, 1.5vh, 1rem);
+}
+
+.pupil-viewport .hub-credits {
+  margin-bottom: clamp(0.5rem, 2vh, 1.5rem);
+}
+
+.pupil-viewport .hub-practice-btn {
+  padding: clamp(0.6rem, 2vh, 1rem) 1.5rem;
+}
 
 .fullscreen-toggle-btn {
   position: fixed;

@@ -41,6 +41,8 @@ function PupilScreenGuard({ children }) {
 
   return (
     <>
+      <div className="pupil-viewport">{children}</div>
+
       {fullscreenSupported && (
         <button
           className="fullscreen-toggle-btn"
@@ -58,8 +60,6 @@ function PupilScreenGuard({ children }) {
           )}
         </button>
       )}
-
-      {children}
 
       {portrait && (
         <div className="rotate-device-overlay">
