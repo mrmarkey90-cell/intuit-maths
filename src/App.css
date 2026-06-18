@@ -3192,8 +3192,15 @@ button:hover:not(:disabled) {
   cursor: pointer;
 }
 
+/* The global button:hover:not(:disabled) rule (background: #4338ca)
+   has higher specificity than this single class, so it wins and the
+   button actually goes purple on hover/tap, not white as the
+   background declaration above implies -- same class of cascade
+   gotcha as button:disabled, documented elsewhere in this file. The
+   indigo icon disappears against that purple unless it turns white. */
 .fullscreen-toggle-btn:hover {
   background: white;
+  color: white;
 }
 
 .rotate-device-overlay {
