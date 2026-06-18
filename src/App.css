@@ -1865,7 +1865,7 @@ button:hover:not(:disabled) {
 }
 
 .insight-column-operator {
-  width: clamp(18px, 3vw, 28px);
+  width: clamp(40px, 8vw, 64px);
   font-size: clamp(28px, 7vw, 60px);
   font-weight: 700;
   color: #1f2937;
@@ -1900,18 +1900,22 @@ button:hover:not(:disabled) {
 
 .insight-diagram-svg {
   width: 100%;
-  max-width: 280px;
+  max-width: 340px;
   height: auto;
 }
 
 .insight-diagram-label {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 800;
   fill: #1f2937;
+  paint-order: stroke fill;
+  stroke: #fff;
+  stroke-width: 4px;
+  stroke-linejoin: round;
 }
 
 .insight-diagram-label--small {
-  font-size: 11px;
+  font-size: 14px;
   fill: #4f46e5;
 }
 

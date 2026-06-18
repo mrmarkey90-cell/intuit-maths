@@ -24,10 +24,6 @@ function divisorsOf(n) {
   return out
 }
 
-function gcd(a, b) {
-  return b === 0 ? a : gcd(b, a % b)
-}
-
 // 1B — Partitioning: a 3-digit number, either 1 or 2 decimal places,
 // splits into whole + decimal remainder (both boxes always required)
 export function L6_1B() {
@@ -143,10 +139,11 @@ export function L6_2C(lang) {
   const whole = rand(1, 99)
   const hundredths = rand(1, 99)
   const n = Math.round((whole + hundredths / 100) * 100) / 100
+  const rounded = Math.round(n * 10) / 10
   return {
     moduleType: 'numpad',
     question: w(lang).roundToOneDecimalPlace(n.toFixed(2)),
-    answer: (Math.round(n * 10) / 10).toFixed(1),
+    answer: [rounded.toFixed(1), rounded.toFixed(2)], // accept "4.0" or "4.00"
     decimal: true,
   }
 }
@@ -202,7 +199,7 @@ export function L6_4D() {
 // 5A — Times tables: 7, 9, 11 and 12 only
 export function L6_5A() {
   const t = pick([7, 9, 11, 12])
-  const a = rand(1, 12)
+  const a = rand(6, 12)
   return {
     moduleType: 'numpad',
     question: `${a} × ${t}`,
@@ -285,7 +282,7 @@ export function L6_7B(lang) {
 export function L6_8A(lang) {
   const denominator = pick([6, 7, 8])
   const base = rand(Math.ceil(60 / denominator), Math.floor(150 / denominator)) * denominator
-  const numerator = rand(1, denominator - 1)
+  const numerator = rand(2, denominator - 1) // avoid the trivial "1/X" case
   return {
     moduleType: 'numpad',
     question: w(lang).fractionOfEq(numerator, denominator, base),
@@ -293,16 +290,19 @@ export function L6_8A(lang) {
   }
 }
 
-// 8C — Percentages: 5%, 15%, 30% or 35% of a number 50-120
+// 8C — Percentages: 5%, 15%, 30% or 35% of any number 50-120 -- no
+// divisibility constraint on the base (unlike earlier levels), so the
+// answer is often a decimal; both the natural and zero-padded forms
+// of the answer are accepted (e.g. "29.05" and "3" / "3.00")
 export function L6_8C(lang) {
   const percent = pick([5, 15, 30, 35])
-  const g = gcd(percent, 100)
-  const denom = 100 / g
-  const base = rand(Math.ceil(50 / denom), Math.floor(120 / denom)) * denom
+  const base = rand(50, 120)
+  const exact = Math.round(((base * percent) / 100) * 100) / 100
   return {
     moduleType: 'numpad',
     question: w(lang).percentOfEq(percent, base),
-    answer: String((base * percent) / 100),
+    answer: [...new Set([String(exact), exact.toFixed(2)])],
+    decimal: true,
   }
 }
 
@@ -331,7 +331,9 @@ export function L6_8D() {
 export function L6_9B(lang) {
   const width = rand(10, 16)
   const height = rand(6, 9)
-  const cutWidth = rand(2, Math.min(5, height - 1))
+  // Cap the cut well below half the height so the remaining strip
+  // stays comfortably wide, not a razor-thin sliver crowding the labels
+  const cutWidth = rand(2, Math.min(5, Math.floor(height / 2)))
   const cutHeight = cutWidth
   return {
     moduleType: 'numpad',
@@ -341,17 +343,12 @@ export function L6_9B(lang) {
   }
 }
 
-// 9C — Patterns: starts 1-9, varied step pattern (this example is X+1
-// each step) -- X itself varies by Y each step, Y range 1-4
+// 9C — Patterns: starts 1-9, gaps are a clean multiple sequence --
+// M, 2M, 3M, 4M (e.g. M=1 -> gaps of 1,2,3,4; M=2 -> gaps of 2,4,6,8)
 export function L6_9C() {
-  const startStep = rand(2, 4)
-  const startY = rand(1, 4)
+  const m = rand(1, 3)
   const seq = [rand(1, 9)]
-  let step = startStep
-  for (let i = 1; i < 5; i++) {
-    seq.push(seq[i - 1] + step)
-    step += startY
-  }
+  for (let i = 1; i < 5; i++) seq.push(seq[i - 1] + i * m)
   const hideIndex = rand(1, 4)
   const answer = seq[hideIndex]
   const distractorPool = [answer - 2, answer - 1, answer + 1, answer + 2, answer + 3]

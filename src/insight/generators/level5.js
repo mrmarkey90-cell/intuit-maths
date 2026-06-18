@@ -266,7 +266,7 @@ export function L5_7B(lang) {
 export function L5_8A(lang) {
   const denominator = pick([5, 10])
   const base = rand(Math.ceil(60 / denominator), Math.floor(150 / denominator)) * denominator
-  const numerator = rand(1, denominator - 1)
+  const numerator = rand(2, denominator - 1) // avoid the trivial "1/X" case
   return {
     moduleType: 'numpad',
     question: w(lang).fractionOfEq(numerator, denominator, base),
