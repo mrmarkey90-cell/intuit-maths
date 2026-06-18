@@ -9,6 +9,22 @@ import { generateQuestion } from '../../lib/questionGenerator'
 const SESSION_DURATION = 60
 const SKIP_PENALTY = 5
 
+// English and Welsh are independent lists here, not translations of
+// each other -- just two separately fun sets of hype for the few
+// seconds between the teacher clicking Begin and the first question.
+const EN_HYPE_PHRASES = ['Lock in!', 'Creating quiz...', 'This is your moment', 'Brain: activate', "Maths o'clock", 'Get set...', 'Here we go!']
+const CY_HYPE_PHRASES = ['Dewch ymlaen!', 'Barod?', 'Nawn ni hyn!', 'Pob lwc!', 'Dyma ni!']
+
+function HypePhrase({ language }) {
+  const phrases = language === 'cy' ? CY_HYPE_PHRASES : EN_HYPE_PHRASES
+  const [index, setIndex] = useState(0)
+  useEffect(() => {
+    const interval = setInterval(() => setIndex(i => (i + 1) % phrases.length), 900)
+    return () => clearInterval(interval)
+  }, [phrases])
+  return <p key={index} className="hype-phrase">{phrases[index]}</p>
+}
+
 function TimerBar({ timeLeft }) {
   const pct = (timeLeft / SESSION_DURATION) * 100
   const color = timeLeft <= 15 ? '#e53e3e' : timeLeft <= 30 ? '#f59e0b' : '#4f46e5'
@@ -136,6 +152,7 @@ function PupilSession() {
         const startTime = new Date(data.started_at).getTime()
         const msUntilStart = startTime - Date.now()
         if (msUntilStart > 0) {
+          setView('countdown')
           setTimeout(() => beginQuestions(data.started_at), msUntilStart)
         } else {
           beginQuestions(data.started_at)
@@ -159,7 +176,14 @@ function PupilSession() {
     broadcastRef.current = supabase.channel(`session-${si.session_id}`)
     broadcastRef.current.subscribe()
 
-    const endTime = new Date(startedAt).getTime() + SESSION_DURATION * 1000
+    // Practice is solo -- no other clients to sync to a shared server
+    // timestamp, so it just runs its own local 60s countdown from the
+    // moment it actually begins on this device. Challenge sessions keep
+    // deriving from the server's started_at, since the teacher's screen
+    // and every pupil's screen must all agree on the same end time.
+    const endTime = si.challenge_type === 'practice'
+      ? Date.now() + SESSION_DURATION * 1000
+      : new Date(startedAt).getTime() + SESSION_DURATION * 1000
     const remaining = Math.max(0, Math.round((endTime - Date.now()) / 1000))
     setTimeLeft(remaining)
     setView('questions')
@@ -293,10 +317,24 @@ function PupilSession() {
     </div>
   )
 
+  if (view === 'countdown') return (
+    <div className="screen">
+      <AvatarDisplay avatar={pupil?.avatar ?? { face: 0, hat: 0, glasses: 0, scarf: 0 }} size={100} />
+      <h1 style={{ marginTop: '1rem' }}>{pupil?.first_name}</h1>
+      <HypePhrase language={language} />
+    </div>
+  )
+
   if (view === 'questions') {
     const isDisabled = feedbackRef.current !== null || skipCooldown > 0
     return (
       <div className="question-screen">
+        {/* Challenge sessions show the timer on the teacher's screen --
+            showing it again here would be redundant. Practice has no
+            teacher screen at all, so the pupil needs their own. */}
+        {sessionInfoRef.current?.challenge_type === 'practice' && (
+          <TimerBar timeLeft={timeLeft} />
+        )}
         <div className="question-body">
           <div className="question-panel">
             <div className={`question-display ${feedback ? `question-display--${feedback}` : ''}`}>

@@ -1098,6 +1098,20 @@ button:hover:not(:disabled) {
   40% { transform: scale(1); opacity: 1; }
 }
 
+.hype-phrase {
+  font-size: clamp(1.6rem, 6vh, 2.5rem);
+  font-weight: 800;
+  color: #4f46e5;
+  margin-top: 1.5rem;
+  animation: hype-pop 0.4s ease-out;
+}
+
+@keyframes hype-pop {
+  0% { transform: scale(0.7); opacity: 0; }
+  60% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
 /* ── Question screen ───────────────────────────── */
 
 .question-screen {
