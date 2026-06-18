@@ -39,6 +39,7 @@ Inspired by Big Maths Beat That — a popular but entirely physical timed arithm
 - `/school/[school_code]` — staff PIN login → class selection → class dashboard
 - `/join/[join_code]` — pupil profile creation (one link per class, shared by teacher)
 - `/play/[session_code]` — pupil session join (generated fresh per challenge, shared by teacher during lobby)
+- `/hub/[join_code]` — pupil hub (self-select profile, then dashboard: levels, credits, streak, Start Practice)
 
 ## User roles
 
@@ -75,7 +76,7 @@ Admin support: `SELECT admin_reset_staff_pin('SCHOOLCODE');` resets staff PIN to
 ## Challenge session model
 
 - **Instinct** — teacher-initiated, once per week per class (resets Sunday). 60-second timer. Awards 10 credits per correct answer (2 base × 5x weekly multiplier). Stored in DB as `challenge_type = 'challenge'`.
-- **Practice** — pupil self-initiated (not yet built). Awards 1 credit per correct answer.
+- **Practice** — pupil self-initiated, launched from the pupil hub via `create_practice_session`. No timer limit on frequency (unlike Instinct's once-per-week gate). Awards 1 credit per correct answer. Stored in DB as `challenge_type = 'practice'`.
 - Session join code: 6-char alphanumeric, generated fresh per session. Displayed as URL + QR code in lobby.
 - Timer: both teacher and pupil derive remaining time from `sessions.started_at` (absolute timestamp set 4 seconds in future when teacher clicks Begin, giving all clients time to sync).
 - Skip button: 5-second timeout penalty, question not counted in total.
@@ -228,6 +229,7 @@ pupil_id (FK), subdomain (text — e.g. `1A`, `7B`, matches the curriculum sheet
 - `lower_insight_stage(pupil_id)` — public/anon, drops pupil one Insight level, resets insight streaks, clears `pupil_subdomain_strength`
 - `set_pupil_levels(pupil_id, p_instinct_level, p_insight_level)` — teacher override (PupilDetail); resets all four streak counters and clears `pupil_subdomain_strength`
 - `get_pupil_history(pupil_id)` — anon, returns `{ pupil: { id, first_name, last_name, instinct_level, insight_level, credits, challenge_streak, bad_streak, insight_streak, insight_bad_streak, class_id }, attempts: [...], insight_attempts: [...] }` — last 10 attempts of each activity_type, with stage/score/total/date
+- `create_practice_session(p_class_id, p_pupil_id)` — anon, creates a `challenge_type = 'practice'` session (no weekly limit, unlike Instinct) and returns the join code directly as text; PupilHub navigates straight to `/play/[join_code]` with it
 
 #### Insight
 - `get_pupil_hub_status(pupil_id, class_id)` — anon, returns `{ insight_available }` — true once the class's weekly Instinct is done AND this pupil hasn't done Insight this week
@@ -268,13 +270,13 @@ pupil_id (FK), subdomain (text — e.g. `1A`, `7B`, matches the curriculum sheet
 - **Instinct session (teacher side)** — lobby with QR code + pupil ready grid, real-time answered count via Broadcast + ping sound, 5s marking grace period, results with class aggregate + comparison vs last session
 - **Instinct session (pupil side)** — `/play/[code]` → profile select → lobby wait → 60s question flow with numpad + skip → results with Test Level badge, streak dots, credits earned, comparison vs last time
 - **FloatingLogos** — 12 bouncing logo instances (RAF physics, direct DOM mutation) behind all leadership screens; logo at `public/intuit-logo.svg`
-- **Insight module framework** (dev tool, not yet pupil-facing) — `/insight-test`: domain/level picker for testing a single module, or a full 12-question carousel (free editing until Submit → marking → results → "look at the marking" review). 10 Level 1 and 17 Level 2 subdomains have real generators across 9 interaction types. See "Insight session model" above for what's real vs. mocked.
+- **Insight module framework** (dev tool, not yet pupil-facing) — `/insight-test`: domain/level picker for testing a single module, or a full 12-question carousel (free editing until Submit → marking → results → "look at the marking" review). All 6 levels have real generators across 11 interaction types. See "Insight session model" above for what's real vs. mocked.
+- **Pupil hub** (`/hub/[join_code]`, `src/screens/PupilHub.jsx`) — self-select profile (with avatar confirm step), then a dashboard showing Instinct/Insight level badges, credits, streak dots, and a Start Practice button that calls `create_practice_session` and navigates straight into a real `/play/[code]` session
+- **Practice sessions** — pupil-self-directed, launched from the pupil hub via `create_practice_session`; reuses the same PupilSession/SessionHost flow as Instinct but with no weekly limit and the lower 1-credit-per-correct-answer rate
+- **Pupil device chrome** (`src/components/PupilScreenGuard.jsx`) — wraps all three child-facing routes (`/join`, `/play`, `/hub`; never Staff/Leadership, since teachers use laptops): a persistent fullscreen toggle button (top right, SVG expand/compress icon, hidden entirely if `document.fullscreenEnabled` is false) and a portrait-blocking overlay (full-screen, high z-index, animated rotate-device icon + message) that appears whenever `window.innerHeight > window.innerWidth` and disappears the instant the device is rotated. Detection is plain resize/orientationchange listeners, not the Fullscreen/Screen Orientation APIs, for broad device support. Known limitation: rotating mid-Instinct-session does not pause the timer, since timing is derived from an absolute server timestamp (`sessions.started_at`), not a locally pausable countdown — the overlay just blocks interaction, it can't stop the clock.
 
 ### Not yet built
-- Practice session flow (pupil self-directed, from pupil dashboard)
-- Pupil dashboard (credits, avatar, stage, history)
 - Insight pupil-facing session — real PupilHub integration, weekly gating, actual `submit_insight_attempt` calls (currently only a disconnected dev test harness exists)
-- Insight generators for Levels 2-6 (only Level 1 written so far)
 - Gap-fill activities on the pupil hub, driven by `pupil_subdomain_strength`
 - Reporting views (leadership)
 - Avatar SVG assets (framework built, files not yet created)
