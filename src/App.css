@@ -943,10 +943,12 @@ button:hover:not(:disabled) {
   cursor: pointer;
 }
 
-.class-select-btn:hover {
-  background: #f5f3ff;
-  border-color: #4f46e5;
-  color: #4f46e5;
+.class-select-btn:hover,
+.class-select-btn:focus,
+.class-select-btn:active {
+  background: #4338ca;
+  border-color: #4338ca;
+  color: #fff;
 }
 
 /* ── Session lobby ─────────────────────────────── */
