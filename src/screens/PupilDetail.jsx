@@ -109,15 +109,12 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
 
   const totalStrength = items.reduce((sum, item) => sum + item.strength, 0)
   const total = items.length
-  const averageStrength = total > 0
-    ? Math.round(items.reduce((sum, item) => sum + item.strength, 0) / total * 10) / 10
-    : 0
 
   const R = 90
   const circumference = 2 * Math.PI * R
   const centerText = hovered ? hovered.code : 'Mouse-over for info'
   const centerSubtitle = hovered ? hovered.label : ''
-  const centerValue = hovered ? hovered.strength : averageStrength
+  const centerValue = hovered ? hovered.strength : ''
 
   return (
     <div className="insight-strength-pie-wrap">
@@ -128,11 +125,11 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
             const gap = 8
             const usableCircumference = circumference - gap * total
             const sliceLength = totalStrength > 0
-              ? Math.max(8, (item.strength / totalStrength) * usableCircumference)
+              ? (item.strength / totalStrength) * usableCircumference
               : usableCircumference / total
             const offset = items.slice(0, index).reduce((sum, prev) => {
               const prevLength = totalStrength > 0
-                ? Math.max(8, (prev.strength / totalStrength) * usableCircumference)
+                ? (prev.strength / totalStrength) * usableCircumference
                 : usableCircumference / total
               return sum + prevLength + gap
             }, 0)
@@ -150,7 +147,7 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
                   strokeDasharray={`${sliceLength} ${gap}`}
                   strokeDashoffset={-offset}
                   transform={`rotate(-90 130 130)`}
-                  strokeLinecap="butt"
+                  strokeLinecap="round"
                 />
                 <circle
                   cx="130"
@@ -163,7 +160,7 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
                   strokeDasharray={`${sliceLength} ${gap}`}
                   strokeDashoffset={-offset}
                   transform={`rotate(-90 130 130)`}
-                  strokeLinecap="butt"
+                  strokeLinecap="round"
                   pointerEvents="stroke"
                   cursor="pointer"
                   onMouseEnter={() => setHovered(item)}
