@@ -17,6 +17,7 @@ import PupilJoin from './screens/PupilJoin'
 import PupilSession from './screens/session/PupilSession'
 import PupilHub from './screens/PupilHub'
 import InsightTest from './screens/InsightTest'
+import AvatarTest from './screens/AvatarTest'
 import PupilScreenGuard from './components/PupilScreenGuard'
 
 function LeadershipApp() {
@@ -162,6 +163,7 @@ function App() {
           <Route path="/hub/:joinCode" element={<PupilScreenGuard><PupilHub /></PupilScreenGuard>} />
           <Route path="/school/:code" element={<StaffApp />} />
           <Route path="/insight-test" element={<InsightTest />} />
+          <Route path="/avatar-test" element={<AvatarTest />} />
           <Route path="/*" element={<LeadershipApp />} />
         </Routes>
       </BrowserRouter>
