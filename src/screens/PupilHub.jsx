@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import { useTranslation } from '../i18n/LanguageContext'
 import AvatarDisplay from '../components/AvatarDisplay'
+import { DEFAULT_AVATAR } from '../lib/avatarConfig'
 
 function StreakDots({ streak, t }) {
   return (
@@ -93,7 +94,7 @@ function PupilHub() {
             className="pupil-tile"
             onClick={() => { setPendingPupil(p); setView('confirm') }}
           >
-            <AvatarDisplay avatar={p.avatar ?? { face: 0, hat: 0, glasses: 0, scarf: 0 }} size={56} />
+            <AvatarDisplay avatar={p.avatar ?? DEFAULT_AVATAR} size={56} />
             <span className="pupil-tile-name">{p.first_name}</span>
             <span className="pupil-tile-surname">{p.last_name}</span>
           </button>
@@ -105,7 +106,7 @@ function PupilHub() {
   if (view === 'confirm') return (
     <div className="screen hub-confirm">
       <AvatarDisplay
-        avatar={pendingPupil?.avatar ?? { face: 0, hat: 0, glasses: 0, scarf: 0 }}
+        avatar={pendingPupil?.avatar ?? DEFAULT_AVATAR}
         size={100}
       />
       <p className="hub-confirm-question">{t('pupilHub.isThisYou')}</p>
@@ -131,7 +132,7 @@ function PupilHub() {
       <div className="hub-screen">
         <div className="hub-avatar-block" onClick={() => setAvatarMsg(v => !v)}>
           <AvatarDisplay
-            avatar={pupil.avatar ?? { face: 0, hat: 0, glasses: 0, scarf: 0 }}
+            avatar={pupil.avatar ?? DEFAULT_AVATAR}
             size={84}
           />
           <span className="hub-avatar-label">{avatarMsg ? t('pupilHub.comingSoon') : t('pupilHub.editAvatar')}</span>

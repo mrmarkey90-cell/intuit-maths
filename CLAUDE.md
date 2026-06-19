@@ -116,15 +116,18 @@ Curriculum source: Google Sheet **"intuit question examples"** (https://docs.goo
 
 **`domainConfig.js` corrections made while building Levels 5-6** (resolved, not open questions): 4B (Column Subtraction) confirmed discontinued after Level 4 — `maxLevel` corrected to 4. 6C (Multiple Digits) confirmed discontinued after Level 5 — `maxLevel` corrected to 5. 6D (Decimals) confirmed *not* active at Level 5 but active at Level 6 — `minLevel` corrected to 6 (so it's only active at Level 6 currently).
 
-## Avatar system
+## Avatar system (v2)
 
-- Format: `{ face: 0, hat: 0, glasses: 0, scarf: 0 }` stored as JSON in `pupil_profiles.avatar`
-- SVG assets live in `public/avatars/{faces,hats,glasses,scarves}/00.svg` etc. (not yet created)
-- Layers are stacked absolutely — face first, then hat, glasses, scarf on top
-- Missing SVGs silently hidden (onError handler)
-- Unlocked items tracked in `pupil_profiles.unlocked_items` as `{"faces":[0],"hats":[0],"glasses":[0],"scarves":[0]}`
-- New pupils start with index 0 unlocked in each category
-- Up to 100 items per category (00–99)
+Overhauled to be the main character of a standalone game to be built later (Cyanide & Happiness-style minimalist figure). Design reference: `design/avatar rig.svg` — the shared `0 0 200 300` coordinate system every hand-drawn asset and the procedural body both draw against (head/torso connection point, shoulder/hip anchor coordinates, etc.). This is the artist's actual working file (renamed from the original `avatar-rig-guide.svg`, every hairstyle/clothing/face piece drawn in it as its own layer and individually exported out to `public/avatars/...`) — not a static reference to keep in sync by hand.
+
+- **Format**: `{ skinTone: 0, hairStyle: 0, hairColor: 0, clothing: 0, hat: null }` stored as JSON in `pupil_profiles.avatar`. `skinTone`/`hairColor` are indexes into the palettes in `src/lib/avatarConfig.js` (`SKIN_TONES`, `HAIR_COLORS` — 6 each, "moderate choice" per explicit instruction); `hairStyle`/`clothing`/`hat` are indexes into their `public/avatars/{category}/` folders. `hat` is `null` when nothing's equipped.
+- **What's hand-drawn vs procedural**: face/head shape, hair, clothing, and hats are hand-drawn SVGs (artist-authored in Inkscape against the rig guide). Eyes, mouth, arms, and legs are drawn directly by code in `AvatarDisplay.jsx` — simple lines/dots, animated where appropriate (not yet built — currently a static neutral pose). There's deliberately no separate procedural "torso" shape; the equipped clothing *is* the torso visual, since clothing always covers that whole area.
+- **Recoloring**: only the face (skin tone) and hair (hair colour) are dynamically recolorable — clothing and hats each have their own fixed colour baked into the asset file, picked by which file/index, not overridden. The recolorable element in an asset file is the one the artist tagged `id="fill"` (set via Inkscape's Object Properties → ID field, **not** the Objects panel's "label" field — a mistake that's happened more than once when exporting real assets, easy to mix up since both live in dialogs named similarly).
+- **Rendering**: `AvatarDisplay.jsx` does NOT use `<img src>` (the old system did) — CSS can't reach inside an externally-referenced image to swap a fill colour. Instead `src/lib/avatarAssetLoader.js` fetches each asset's raw SVG text, strips it down to plain shape descriptors via `DOMParser` (discarding Inkscape's `sodipodi:`/`inkscape:` metadata, `<defs>`, and the original `id` — every Inkscape export reuses ids like `fill`/`path1`, so preserving them would collide when multiple avatars render on one page, e.g. a class roster), and `AvatarDisplay` re-renders them as fresh React elements via `createElement`, overriding `fill` on whichever shape was tagged as the target. Results are cached per `category/index` (a `Map` of promises, so concurrent requests for the same asset share one fetch).
+- **Crop**: `AvatarDisplay` takes a `crop` prop, `'bust'` (default, `0 0 200 200`, square — used everywhere in the maths platform today: pupil tiles, hub badge, profile preview) or `'full'` (`0 0 200 300`, the whole rig, for a future full-body game/showcase context — not used anywhere yet).
+- **Asset file convention**: `public/avatars/{category}/{NN}.svg`, e.g. `hair/00.svg`, `clothing/03.svg` — same indexed-folder convention as the old system. Counts tracked in `avatarConfig.js` (`HAIR_STYLE_COUNT`, `CLOTHING_COUNT`, `HAT_COUNT`) — bump these as the artist adds more files. Currently: 1 face shape, 3 hairstyles, 5 clothing designs (10 planned), 0 hats.
+- **Unlocking**: skin tone, hair (style + colour), and clothing are always fully available — no unlock tracking needed. **Hats are the only locked/earnable item** (the one gameplay-affecting item, by deliberate later decision — "much easier tuning control" than locking multiple categories) — tracked in `pupil_profiles.unlocked_items` as `{"hats":[]}`, set by `create_pupil_profile`. Starts empty; awarded by the standalone game once it exists (no interim unlock mechanism on the current platform, by explicit decision). `AvatarBuilder.jsx` shows a placeholder message instead of a hat picker when `unlocked.hats` is empty.
+- `AvatarBuilder.jsx` renders only the controls (palette swatch rows for skin/hair colour, steppers for hairstyle/clothing/hat) — the big avatar preview itself is the caller's responsibility, so screens can lay preview + controls out however they need (e.g. `PupilProfileCreate.jsx`'s side-by-side split).
 
 ## Curriculum structure — 6 stages
 
@@ -281,7 +284,8 @@ pupil_id (FK), subdomain (text — e.g. `1A`, `7B`, matches the curriculum sheet
 - Insight pupil-facing session — real PupilHub integration, weekly gating, actual `submit_insight_attempt` calls (currently only a disconnected dev test harness exists)
 - Gap-fill activities on the pupil hub, driven by `pupil_subdomain_strength`
 - Reporting views (leadership)
-- Avatar SVG assets (framework built, files not yet created)
+- Full hand-drawn avatar asset set (in progress — currently 1 face, 3 hairstyles, 5 of 10 planned clothing designs, 0 hats; see "Avatar system (v2)" above)
+- Procedural body animation (walk/jump/celebrate/punch) — currently a static neutral pose
 - Admin dashboard (future) — Intuit-internal tool for resetting PINs, emails, managing schools
 - Stripe integration
 - Resend email

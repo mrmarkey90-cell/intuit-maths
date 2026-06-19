@@ -5,6 +5,7 @@ import { useTranslation } from '../../i18n/LanguageContext'
 import AvatarDisplay from '../../components/AvatarDisplay'
 import NumberPad from '../../components/NumberPad'
 import { generateQuestion } from '../../lib/questionGenerator'
+import { DEFAULT_AVATAR } from '../../lib/avatarConfig'
 
 const SESSION_DURATION = 60
 const SKIP_PENALTY = 5
@@ -278,7 +279,7 @@ function PupilSession() {
 
   if (view === 'ready') return (
     <div className="screen">
-      <AvatarDisplay avatar={pupil?.avatar ?? { face: 0, hat: 0, glasses: 0, scarf: 0 }} size={90} />
+      <AvatarDisplay avatar={pupil?.avatar ?? DEFAULT_AVATAR} size={90} />
       <h1 style={{ marginTop: '1rem' }}>{pupil?.first_name}</h1>
       <p className="tagline">{t('pupilSession.getReady')}</p>
       <div className="lobby-waiting-dots"><span /><span /><span /></div>
@@ -299,7 +300,7 @@ function PupilSession() {
       <div className="pupil-grid">
         {pupils.map(p => (
           <button key={p.id} className="pupil-tile" onClick={() => doJoin(sessionInfo, p)}>
-            <AvatarDisplay avatar={p.avatar ?? { face: 0, hat: 0, glasses: 0, scarf: 0 }} size={56} />
+            <AvatarDisplay avatar={p.avatar ?? DEFAULT_AVATAR} size={56} />
             <span className="pupil-tile-name">{p.first_name}</span>
             <span className="pupil-tile-surname">{p.last_name}</span>
           </button>
@@ -310,7 +311,7 @@ function PupilSession() {
 
   if (view === 'lobby') return (
     <div className="screen">
-      <AvatarDisplay avatar={pupil?.avatar ?? { face: 0, hat: 0, glasses: 0, scarf: 0 }} size={100} />
+      <AvatarDisplay avatar={pupil?.avatar ?? DEFAULT_AVATAR} size={100} />
       <h1 style={{ marginTop: '1rem' }}>{pupil?.first_name}</h1>
       <p className="tagline">{t('pupilSession.youreIn')}</p>
       <div className="lobby-waiting-dots"><span /><span /><span /></div>
@@ -319,7 +320,7 @@ function PupilSession() {
 
   if (view === 'countdown') return (
     <div className="screen">
-      <AvatarDisplay avatar={pupil?.avatar ?? { face: 0, hat: 0, glasses: 0, scarf: 0 }} size={100} />
+      <AvatarDisplay avatar={pupil?.avatar ?? DEFAULT_AVATAR} size={100} />
       <h1 style={{ marginTop: '1rem' }}>{pupil?.first_name}</h1>
       <HypePhrase language={language} />
     </div>
@@ -392,7 +393,7 @@ function PupilSession() {
         {levelUp && (
           <div className="level-up-banner">{t('pupilSession.levelUp').replace('{n}', newStage)}</div>
         )}
-        <AvatarDisplay avatar={pupil?.avatar ?? { face: 0, hat: 0, glasses: 0, scarf: 0 }} size={64} />
+        <AvatarDisplay avatar={pupil?.avatar ?? DEFAULT_AVATAR} size={64} />
         <div className="test-level-badge">{t('pupilSession.testLevelBadge').replace('{n}', displayStage)}</div>
         <h1 style={{ marginTop: '0.4rem' }}>{t('pupilSession.correct').replace('{n}', score)}</h1>
         <p className="tagline">{t('pupilSession.outOfAttempted').replace('{n}', total).replace('{pct}', pct)}</p>

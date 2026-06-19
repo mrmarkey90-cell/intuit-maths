@@ -3,6 +3,7 @@ import QRCode from 'react-qr-code'
 import { supabase } from '../../supabaseClient'
 import { useTranslation } from '../../i18n/LanguageContext'
 import AvatarDisplay from '../../components/AvatarDisplay'
+import { DEFAULT_AVATAR } from '../../lib/avatarConfig'
 
 const SESSION_DURATION = 60
 const GRACE_PERIOD = 5
@@ -190,7 +191,7 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
             <div className="lobby-grid">
               {pupilsWithStatus.map(p => (
                 <div key={p.id} className={`lobby-tile ${p.joined ? 'lobby-tile--ready' : ''}`}>
-                  <AvatarDisplay avatar={p.avatar ?? { face: 0, hat: 0, glasses: 0, scarf: 0 }} size={48} />
+                  <AvatarDisplay avatar={p.avatar ?? DEFAULT_AVATAR} size={48} />
                   <span className="lobby-tile-name">{p.first_name}</span>
                   {p.joined && <span className="lobby-ready-dot" />}
                 </div>

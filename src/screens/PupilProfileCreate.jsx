@@ -3,9 +3,7 @@ import { supabase } from '../supabaseClient'
 import { useTranslation } from '../i18n/LanguageContext'
 import AvatarBuilder from '../components/AvatarBuilder'
 import AvatarDisplay from '../components/AvatarDisplay'
-
-const DEFAULT_AVATAR = { face: 0, hat: 0, glasses: 0, scarf: 0 }
-const DEFAULT_UNLOCKED = { faces: [0], hats: [0], glasses: [0], scarves: [0] }
+import { DEFAULT_AVATAR, DEFAULT_UNLOCKED } from '../lib/avatarConfig'
 
 function PupilProfileCreate({ joinCode, classInfo, onComplete }) {
   const { t } = useTranslation()
