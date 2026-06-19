@@ -263,10 +263,12 @@ function PupilDetail({ pupilId, onBack, onLevelChanged }) {
 
         {insightLoading ? (
           <section className="dashboard-section">
+            <div className="section-heading"><h2>{t('staffPupilDetail.insightSubdomainTitle')}</h2></div>
             <p>{t('common.loading')}</p>
           </section>
         ) : insightError ? (
           <section className="dashboard-section">
+            <div className="section-heading"><h2>{t('staffPupilDetail.insightSubdomainTitle')}</h2></div>
             <p style={{ color: '#dc2626' }}>{insightError}</p>
           </section>
         ) : Object.keys(insightStrengths).length > 0 ? (
@@ -274,7 +276,12 @@ function PupilDetail({ pupilId, onBack, onLevelChanged }) {
             <div className="section-heading"><h2>{t('staffPupilDetail.insightSubdomainTitle')}</h2></div>
             <InsightStrengthPie strengths={insightStrengths} insightLevel={insightLevel} t={t} />
           </section>
-        ) : null}
+        ) : (
+          <section className="dashboard-section">
+            <div className="section-heading"><h2>{t('staffPupilDetail.insightSubdomainTitle')}</h2></div>
+            <p className="note">{t('staffPupilDetail.insightNoData')}</p>
+          </section>
+        )}
 
         <section className="dashboard-section">
           <div className="section-heading"><h2>{t('staffPupilDetail.overrideLevels')}</h2></div>
