@@ -2,14 +2,15 @@ import { createElement, useEffect, useState } from 'react'
 import { loadAvatarAsset } from '../lib/avatarAssetLoader'
 import { SKIN_TONES, HAIR_COLORS } from '../lib/avatarConfig'
 
-// Square "bust" crop (head + upper body, no legs) for compact UI use
-// everywhere in the maths platform today; "full" is the whole rig, for
-// the future game/full-body preview. Both share the same 200-wide
-// coordinate space from design/avatar-rig-guide.svg, so size scales
-// consistently between them.
+// Both modes render the same full-body viewBox -- "bust" just asks for
+// a square container, so the whole figure scales down to fit (letterboxed
+// left/right) rather than being cropped at the legs. "full" asks for a
+// 2:3 container that fits the figure edge to edge. Used for compact UI
+// (bust, everywhere in the maths platform today) vs a future full-body
+// game/preview context (full).
 const CROPS = {
-  bust: { viewBox: '0 0 200 200', aspect: 1 },
-  full: { viewBox: '0 0 200 300', aspect: 1.5 },
+  bust: { aspect: 1 },
+  full: { aspect: 1.5 },
 }
 
 // Face outline is ~2.7 user units (the artist's "8pt" in Inkscape) --
@@ -43,14 +44,15 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust' }) {
 
   const skinColor = SKIN_TONES[avatar.skinTone] ?? SKIN_TONES[0]
   const hairColor = HAIR_COLORS[avatar.hairColor] ?? HAIR_COLORS[0]
-  const { viewBox, aspect } = CROPS[crop] ?? CROPS.bust
+  const { aspect } = CROPS[crop] ?? CROPS.bust
 
   return (
-    <svg className="avatar-display" style={{ width: size, height: size * aspect }} viewBox={viewBox}>
-      {/* Legs -- procedural */}
+    <svg className="avatar-display" style={{ width: size, height: size * aspect }} viewBox="0 0 200 300">
+      {/* Legs -- procedural, shortened to 75% of hip-to-floor length
+          (hip pivot at y=185 stays fixed, original foot y=290) */}
       <g {...LIMB_STYLE}>
-        <line x1="70" y1="185" x2="65" y2="290" />
-        <line x1="130" y1="185" x2="135" y2="290" />
+        <line x1="70" y1="185" x2="66.25" y2="263.75" />
+        <line x1="130" y1="185" x2="133.75" y2="263.75" />
       </g>
 
       {/* Clothing -- also visually serves as the torso, no recolouring */}
