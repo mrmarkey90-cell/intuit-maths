@@ -117,7 +117,7 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
   const circumference = 2 * Math.PI * R
   const centerText = hovered ? hovered.code : 'Mouse-over for info'
   const centerSubtitle = hovered ? hovered.label : ''
-  const centerValue = hovered ? hovered.strength : ''
+  const centerValue = hovered ? hovered.strength : averageStrength
 
   return (
     <div className="insight-strength-pie-wrap">
@@ -147,7 +147,7 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
                   stroke="#fff"
                   strokeWidth={32}
                   strokeOpacity={1}
-                  strokeDasharray={`${sliceLength - 2} ${circumference}`}
+                  strokeDasharray={`${sliceLength} ${gap}`}
                   strokeDashoffset={-offset}
                   transform={`rotate(-90 130 130)`}
                   strokeLinecap="butt"
@@ -160,7 +160,7 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
                   stroke={item.color}
                   strokeWidth={28}
                   strokeOpacity={isHovered ? 1 : 0.95}
-                  strokeDasharray={`${sliceLength - 2} ${circumference}`}
+                  strokeDasharray={`${sliceLength} ${gap}`}
                   strokeDashoffset={-offset}
                   transform={`rotate(-90 130 130)`}
                   strokeLinecap="butt"
@@ -208,10 +208,16 @@ function PupilDetail({ pupilId, onBack, onLevelChanged }) {
   function getMockInsightStrengths(level) {
     const activeCodes = getActiveSubdomains(level)
     const pattern = [5, 4, 4, 3, 3, 2, 1]
-    return activeCodes.reduce((result, code, index) => {
+    const strengths = activeCodes.reduce((result, code, index) => {
       result[code] = pattern[index % pattern.length]
       return result
     }, {})
+
+    if (activeCodes.length > 0) {
+      strengths[activeCodes[0]] = 0
+    }
+
+    return strengths
   }
 
   async function loadInsightStrengths(level, pupil) {
