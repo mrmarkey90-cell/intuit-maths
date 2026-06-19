@@ -63,12 +63,16 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust' }) {
       {/* Head -- skin tone recolouring */}
       {renderShapes(assets.face, 'face', skinColor)}
 
-      {/* Eyes + mouth -- procedural, neutral expression */}
+      {/* Eyes + mouth -- procedural, neutral expression. Shifted right
+          of the head's centerline (100) rather than centered on it --
+          this is what sells "facing screen-right" (see CLAUDE.md),
+          the same simple-dot-eyes technique the Cyanide & Happiness
+          reference uses, no body asymmetry needed. */}
       <g fill="#1f2937">
-        <circle cx="85" cy="70" r="3.5" />
-        <circle cx="115" cy="70" r="3.5" />
+        <circle cx="100" cy="70" r="3.5" />
+        <circle cx="130" cy="70" r="3.5" />
       </g>
-      <path d="M 90 95 Q 100 100 110 95" stroke="#1f2937" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+      <path d="M 105 95 Q 115 100 125 95" stroke="#1f2937" strokeWidth="2.5" fill="none" strokeLinecap="round" />
 
       {/* Hair -- hair colour recolouring */}
       {renderShapes(assets.hair, 'hair', hairColor)}
