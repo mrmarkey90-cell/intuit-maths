@@ -115,9 +115,9 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
 
   const R = 70
   const circumference = 2 * Math.PI * R
-  const centerText = hovered ? hovered.code : t('staffPupilDetail.insightStrengthsTitle')
+  const centerText = hovered ? hovered.code : 'Mouse-over for info'
   const centerSubtitle = hovered ? hovered.label : ''
-  const centerValue = hovered ? hovered.strength : averageStrength
+  const centerValue = hovered ? hovered.strength : ''
 
   return (
     <div className="insight-strength-pie-wrap">
@@ -125,13 +125,14 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
         <svg viewBox="0 0 260 260" className="insight-strength-svg">
           {items.map((item, index) => {
             const isHovered = hovered?.code === item.code
+            const gap = 5
             const sliceLength = totalStrength > 0
-              ? Math.max(8, (item.strength / totalStrength) * circumference)
-              : circumference / total
+              ? Math.max(8, (item.strength / totalStrength) * (circumference - gap * total))
+              : (circumference - gap * total) / total
             const offset = items.slice(0, index).reduce((sum, prev) => {
               return sum + (totalStrength > 0
-                ? Math.max(8, (prev.strength / totalStrength) * circumference)
-                : circumference / total)
+                ? Math.max(8, (prev.strength / totalStrength) * (circumference - gap * total))
+                : (circumference - gap * total) / total) + gap
             }, 0)
 
             return (
