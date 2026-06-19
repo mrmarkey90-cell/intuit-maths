@@ -12,7 +12,9 @@ const CROPS = {
   full: { viewBox: '0 0 200 300', aspect: 1.5 },
 }
 
-const LIMB_STYLE = { stroke: '#000', strokeWidth: 2.7, strokeLinecap: 'round', fill: 'none' }
+// Face outline is ~2.7 user units (the artist's "8pt" in Inkscape) --
+// arms/legs at 10pt-equivalent, same ratio: 2.7 * (10/8) = 3.375.
+const LIMB_STYLE = { stroke: '#000', strokeWidth: 3.4, strokeLinecap: 'round', fill: 'none' }
 
 function renderShapes(shapes, keyPrefix, fillOverride) {
   if (!shapes) return null
