@@ -1709,50 +1709,29 @@ button:hover:not(:disabled) {
 }
 
 .insight-strength-pie-wrap {
-  display: grid;
-  grid-template-columns: minmax(200px, 250px) 1fr;
-  gap: 2rem;
-  align-items: center;
-}
-
-@media (max-width: 768px) {
-  .insight-strength-pie-wrap {
-    grid-template-columns: 1fr;
-  }
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding-top: 0.75rem;
 }
 
 .insight-strength-pie-chart {
   display: flex;
   justify-content: center;
+  width: 100%;
 }
 
-.insight-strength-legend {
-  display: grid;
-  gap: 0.75rem;
+.insight-strength-svg {
+  width: min(100%, 360px);
+  max-width: 360px;
+  height: auto;
 }
 
-.insight-strength-legend-item {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-}
-
-.insight-strength-marker {
-  width: 14px;
-  height: 14px;
-  border-radius: 9999px;
-  display: inline-block;
-  flex-shrink: 0;
-}
-
-.insight-strength-legend-name {
+.insight-strength-hover-note {
+  margin-top: 0.75rem;
   font-size: 0.95rem;
-  color: #111827;
-}
-
-.insight-strength-legend-value {
-  font-size: 0.85rem;
   color: #6b7280;
+  text-align: center;
 }
 
 .insight-strength-title {

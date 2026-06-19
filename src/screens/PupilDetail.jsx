@@ -92,6 +92,7 @@ function ScoreChart({ attempts, t }) {
 }
 
 function InsightStrengthPie({ strengths, insightLevel, t }) {
+  const [hovered, setHovered] = useState(null)
   const activeCodes = getActiveSubdomains(insightLevel)
   if (activeCodes.length === 0) return null
 
@@ -118,41 +119,48 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
   return (
     <div className="insight-strength-pie-wrap">
       <div className="insight-strength-pie-chart">
-        <svg viewBox="0 0 200 200" className="insight-strength-svg">
-          {items.map((item, index) => (
-            <circle
-              key={item.code}
-              cx="100"
-              cy="100"
-              r={R}
-              fill="none"
-              stroke={item.color}
-              strokeWidth="28"
-              strokeDasharray={`${arcLength} ${circumference}`}
-              transform={`rotate(${index * 360 / total - 90} 100 100)`}
-              strokeLinecap="butt"
-            />
-          ))}
-          <circle cx="100" cy="100" r="45" fill="white" />
-          <text x="100" y="98" textAnchor="middle" fontSize="12" fill="#6b7280">
-            {t('staffPupilDetail.insightStrengthAverage')}
+        <svg viewBox="0 0 260 260" className="insight-strength-svg">
+          {items.map((item, index) => {
+            const isHovered = hovered?.code === item.code
+            return (
+              <circle
+                key={item.code}
+                cx="130"
+                cy="130"
+                r={R}
+                fill="none"
+                stroke={item.color}
+                strokeWidth={isHovered ? 34 : 28}
+                strokeOpacity={isHovered ? 1 : 0.95}
+                strokeDasharray={`${arcLength - 2} ${circumference}`}
+                strokeDashoffset={-index * arcLength}
+                transform={`rotate(-90 130 130)`}
+                strokeLinecap="round"
+                pointerEvents="stroke"
+                cursor="pointer"
+                onMouseEnter={() => setHovered(item)}
+                onMouseLeave={() => setHovered(null)}
+                onFocus={() => setHovered(item)}
+                onBlur={() => setHovered(null)}
+                tabIndex="0"
+              />
+            )
+          })}
+          <circle cx="130" cy="130" r="55" fill="white" />
+          <text x="130" y="118" textAnchor="middle" fontSize="13" fill="#6b7280">
+            {hovered ? hovered.code : t('staffPupilDetail.insightStrengthsTitle')}
           </text>
-          <text x="100" y="118" textAnchor="middle" fontSize="22" fontWeight="700" fill="#111">
-            {averageStrength}/5
+          <text x="130" y="135" textAnchor="middle" fontSize="11" fill="#4b5563">
+            {hovered ? hovered.label : t('staffPupilDetail.insightHoverHint')}
+          </text>
+          <text x="130" y="155" textAnchor="middle" fontSize="24" fontWeight="700" fill="#111">
+            {hovered ? `${hovered.strength}/5` : `${averageStrength}/5`}
           </text>
         </svg>
       </div>
-      <div className="insight-strength-legend">
-        {items.map(item => (
-          <div key={item.code} className="insight-strength-legend-item">
-            <span className="insight-strength-marker" style={{ background: item.color }} />
-            <div>
-              <div className="insight-strength-legend-name">{item.code} — {item.label}</div>
-              <div className="insight-strength-legend-value">{item.strength}/5</div>
-            </div>
-          </div>
-        ))}
-      </div>
+      <p className="insight-strength-hover-note">
+        {hovered ? `${hovered.label}: ${hovered.strength}/5` : t('staffPupilDetail.insightHoverHint')}
+      </p>
     </div>
   )
 }
