@@ -27,7 +27,17 @@ function parseStyle(styleAttr) {
 }
 
 function extractShapes(svgText) {
-  const doc = new DOMParser().parseFromString(svgText, 'image/svg+xml')
+  // Strip comments before parsing -- Inkscape preserves the design
+  // guide's leftover comment block in every export (artists won't
+  // always remember to delete it), and a strict XML parser rejects any
+  // comment containing "--" anywhere but its closing delimiter. Browsers'
+  // DOMParser enforces this strictly and silently produces a
+  // <parsererror> document instead of throwing, so a malformed comment
+  // here means every shape silently fails to extract with no exception
+  // to catch -- stripping comments outright sidesteps the whole class
+  // of bug regardless of what ends up in a future export.
+  const withoutComments = svgText.replace(/<!--[\s\S]*?-->/g, '')
+  const doc = new DOMParser().parseFromString(withoutComments, 'image/svg+xml')
   const shapes = []
 
   function walk(node, insideDefs) {
