@@ -645,6 +645,17 @@ button:hover:not(:disabled) {
   flex-shrink: 0;
 }
 
+.avatar-eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: avatar-blink 4.5s ease-in-out infinite;
+}
+
+@keyframes avatar-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  94%, 96% { transform: scaleY(0.1); }
+}
+
 .avatar-layer {
   position: absolute;
   top: 0;

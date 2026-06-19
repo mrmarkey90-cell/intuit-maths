@@ -28,6 +28,10 @@ function renderShapes(shapes, keyPrefix, fillOverride) {
 
 function AvatarDisplay({ avatar, size = 140, crop = 'bust' }) {
   const [assets, setAssets] = useState({ face: null, hair: null, clothing: null, hat: null })
+  // Negative delay so each instance starts mid-cycle at a random point --
+  // avoids every avatar on a page (e.g. a class roster) blinking in sync.
+  // Computed once per mount, not on every avatar change.
+  const [blinkDelay] = useState(() => -Math.random() * 4.5)
 
   useEffect(() => {
     let cancelled = false
@@ -68,12 +72,19 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust' }) {
       {/* Head -- skin tone recolouring */}
       {renderShapes(assets.face, 'face', skinColor)}
 
+      {/* Eyebrows -- procedural, hair colour, mirrors the eyes' rightward shift */}
+      <g stroke={hairColor} strokeWidth="3" fill="none" strokeLinecap="round">
+        <path d="M 92 64 Q 100 59 108 62" />
+        <path d="M 122 62 Q 130 59 138 64" />
+      </g>
+
       {/* Eyes + mouth -- procedural, neutral expression. Shifted right
           of the head's centerline (100) rather than centered on it --
           this is what sells "facing screen-right" (see CLAUDE.md),
           the same simple-dot-eyes technique the Cyanide & Happiness
-          reference uses, no body asymmetry needed. */}
-      <g fill="#1f2937">
+          reference uses, no body asymmetry needed. Eyes blink
+          periodically via a CSS animation (.avatar-eyes, App.css). */}
+      <g className="avatar-eyes" fill="#1f2937" style={{ animationDelay: `${blinkDelay}s` }}>
         <circle cx="100" cy="70" r="3.5" />
         <circle cx="130" cy="70" r="3.5" />
       </g>
