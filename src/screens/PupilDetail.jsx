@@ -358,18 +358,6 @@ function PupilDetail({ pupilId, onBack, onLevelChanged }) {
             </button>
           </div>
         </section>
-
-        <section className="dashboard-section">
-          <div className="section-heading">
-            <h2>{t('staffPupilDetail.instinctHistory')}</h2>
-            <span className="section-count">{t('staffPupilDetail.sessionsCount').replace('{n}', attempts.length)}</span>
-          </div>
-          {attempts.length === 0 ? (
-            <p className="note">{t('staffPupilDetail.noSessions')}</p>
-          ) : (
-            <ScoreChart attempts={attempts} t={t} />
-          )}
-        </section>
       </main>
     </div>
   )
