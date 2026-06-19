@@ -115,6 +115,9 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
   const R = 70
   const circumference = 2 * Math.PI * R
   const arcLength = circumference / total
+  const centerText = hovered ? hovered.code : t('staffPupilDetail.insightStrengthsTitle')
+  const centerSubtitle = hovered ? hovered.label : t('staffPupilDetail.insightHoverHint')
+  const centerValue = hovered ? hovered.strength : averageStrength
 
   return (
     <div className="insight-strength-pie-wrap">
@@ -148,18 +151,18 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
           })}
           <circle cx="130" cy="130" r="55" fill="white" />
           <text x="130" y="118" textAnchor="middle" fontSize="13" fill="#6b7280">
-            {hovered ? hovered.code : t('staffPupilDetail.insightStrengthsTitle')}
+            {centerText}
           </text>
           <text x="130" y="135" textAnchor="middle" fontSize="11" fill="#4b5563">
-            {hovered ? hovered.label : t('staffPupilDetail.insightHoverHint')}
+            {centerSubtitle}
           </text>
           <text x="130" y="155" textAnchor="middle" fontSize="24" fontWeight="700" fill="#111">
-            {hovered ? `${hovered.strength}/5` : `${averageStrength}/5`}
+            {centerValue}
           </text>
         </svg>
       </div>
       <p className="insight-strength-hover-note">
-        {hovered ? `${hovered.label}: ${hovered.strength}/5` : t('staffPupilDetail.insightHoverHint')}
+        {hovered ? `${hovered.label}: ${hovered.strength}` : t('staffPupilDetail.insightHoverHint')}
       </p>
     </div>
   )
