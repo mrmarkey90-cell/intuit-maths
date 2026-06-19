@@ -69,6 +69,24 @@ function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
 }
 
+function weightForSubdomain(code, deficits = {}) {
+  const raw = deficits?.[code]
+  if (typeof raw !== 'number' || Number.isNaN(raw)) return 1
+  return 1 + Math.max(0, raw)
+}
+
+function weightedPick(codes, deficits = {}) {
+  if (codes.length === 0) return undefined
+  const weights = codes.map(code => weightForSubdomain(code, deficits))
+  const total = weights.reduce((sum, weight) => sum + weight, 0)
+  let threshold = Math.random() * total
+  for (let i = 0; i < codes.length; i += 1) {
+    threshold -= weights[i]
+    if (threshold < 0) return codes[i]
+  }
+  return codes[codes.length - 1]
+}
+
 // "Active by level range" isn't enough on its own -- a subdomain only
 // counts if it actually has a generator written for this level, so an
 // unbuilt or deliberately-skipped-at-this-level subdomain (e.g. 8B,
@@ -80,11 +98,11 @@ export function getActiveSubdomains(level) {
     .map(([code]) => code)
 }
 
-// One subdomain per domain that has content at this level (random if a domain
-// has several active subdomains), then fill to 12 — preferring subdomains not
-// already in the grid before allowing any repeats (repeats are unavoidable
-// once the active pool is smaller than 12, e.g. only 10 subdomains at Level 1).
-export function generateModuleSlots(level) {
+// One subdomain per domain that has content at this level (weighted by
+// deficit if the pupil is weak in some areas), then fill to 12 using the
+// remaining unused subdomains that are weakest first. If the active pool
+// is smaller than 12, duplicates will be drawn from the weakest subdomains.
+export function generateModuleSlots(level, deficits = {}) {
   const active = getActiveSubdomains(level)
   const byDomain = {}
   for (const code of active) {
@@ -93,17 +111,27 @@ export function generateModuleSlots(level) {
   }
 
   const slots = Object.values(byDomain).map(
-    codes => codes[Math.floor(Math.random() * codes.length)]
+    codes => weightedPick(codes, deficits)
   )
   const used = new Set(slots)
 
-  while (slots.length < MODULES_PER_TEST) {
-    const unused = active.filter(c => !used.has(c))
-    const pick = unused.length > 0
-      ? unused[Math.floor(Math.random() * unused.length)]
-      : active[Math.floor(Math.random() * active.length)]
-    slots.push(pick)
-    used.add(pick)
+  const remainingSlots = MODULES_PER_TEST - slots.length
+  if (remainingSlots > 0) {
+    const unused = active
+      .filter(code => !used.has(code))
+      .sort((a, b) => weightForSubdomain(b, deficits) - weightForSubdomain(a, deficits))
+
+    for (const code of unused) {
+      if (slots.length >= MODULES_PER_TEST) break
+      slots.push(code)
+      used.add(code)
+    }
   }
+
+  while (slots.length < MODULES_PER_TEST) {
+    const weakest = [...active].sort((a, b) => weightForSubdomain(b, deficits) - weightForSubdomain(a, deficits))[0]
+    slots.push(weakest)
+  }
+
   return shuffle(slots)
 }

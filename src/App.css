@@ -30,6 +30,11 @@ body {
   z-index: 1;
 }
 
+.staff-screen {
+  justify-content: flex-start;
+  padding-top: 4rem;
+}
+
 h1 {
   font-size: 2.5rem;
   margin-bottom: 0.5rem;
@@ -654,6 +659,33 @@ button:hover:not(:disabled) {
 @keyframes avatar-blink {
   0%, 92%, 100% { transform: scaleY(1); }
   94%, 96% { transform: scaleY(0.1); }
+}
+
+.avatar-arm-sway--left {
+  animation: avatar-arm-sway-left 3.2s ease-in-out infinite;
+}
+
+.avatar-arm-sway--right {
+  animation: avatar-arm-sway-right 3.5s ease-in-out infinite;
+}
+
+@keyframes avatar-arm-sway-left {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+
+@keyframes avatar-arm-sway-right {
+  0%, 100% { transform: rotate(4deg); }
+  50% { transform: rotate(-4deg); }
+}
+
+.avatar-wave-wiggle {
+  animation: avatar-wave-wiggle 0.3s ease-in-out infinite;
+}
+
+@keyframes avatar-wave-wiggle {
+  0%, 100% { transform: rotate(-15deg); }
+  50% { transform: rotate(15deg); }
 }
 
 .avatar-layer {

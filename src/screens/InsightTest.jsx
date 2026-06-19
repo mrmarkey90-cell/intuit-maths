@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { supabase } from '../supabaseClient'
 import { useTranslation } from '../i18n/LanguageContext'
 import { SUBDOMAIN_CONFIG, getActiveSubdomains, generateModuleSlots } from '../insight/domainConfig'
 import InsightModule from '../insight/InsightModule'
@@ -82,11 +84,14 @@ function QuickTester() {
   )
 }
 
-function Carousel({ level, onRestart }) {
-  const [slots] = useState(() => generateModuleSlots(level))
+function Carousel({ level, deficits, pupilId, onRestart }) {
+  const [slots] = useState(() => generateModuleSlots(level, deficits))
   const [current, setCurrent] = useState(0)
   const [results, setResults] = useState({})
   const [view, setView] = useState('questions') // questions | marking | results | review
+  const [submitResponse, setSubmitResponse] = useState(null)
+  const [submitError, setSubmitError] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
 
   const total = slots.length
   const answeredCount = Object.keys(results).length
@@ -96,9 +101,32 @@ function Carousel({ level, onRestart }) {
   const revealed = view === 'review'
   const isLast = current === total - 1
 
-  function handleSubmit() {
+  async function handleSubmit() {
     setView('marking')
-    setTimeout(() => setView('results'), 1800)
+    setSubmitting(true)
+    setSubmitError(null)
+    setSubmitResponse(null)
+
+    if (pupilId) {
+      const modules = slots.map((subdomain, index) => ({
+        subdomain,
+        correct: results[index]?.correct === true,
+      }))
+      const { data, error } = await supabase.rpc('submit_insight_attempt', {
+        p_pupil_id: pupilId,
+        p_modules: modules,
+      })
+      if (error) {
+        setSubmitError(error.message || 'Submit failed')
+      } else {
+        setSubmitResponse(data)
+      }
+    }
+
+    setTimeout(() => {
+      setSubmitting(false)
+      setView('results')
+    }, 1800)
   }
 
   function goPrev() { setCurrent(c => Math.max(0, c - 1)) }
@@ -126,6 +154,9 @@ function Carousel({ level, onRestart }) {
         <InsightResults
           score={correctCount}
           total={total}
+          response={submitResponse}
+          error={submitError}
+          submitting={submitting}
           onReviewMarking={() => { setCurrent(0); setView('review') }}
           onRestart={onRestart}
         />
@@ -180,9 +211,68 @@ function Carousel({ level, onRestart }) {
 
 function InsightTest() {
   const { language, setLanguage } = useTranslation()
+  const [searchParams] = useSearchParams()
   const [level, setLevel] = useState(1)
   const [showCarousel, setShowCarousel] = useState(false)
   const [carouselKey, setCarouselKey] = useState(0)
+  const [manualDeficits, setManualDeficits] = useState({})
+  const [pupilId, setPupilId] = useState(() => searchParams.get('pupilId') ?? '')
+  const [subdomainStrengths, setSubdomainStrengths] = useState({})
+  const [loadingStrengths, setLoadingStrengths] = useState(false)
+  const [strengthsError, setStrengthsError] = useState(null)
+
+  const activeSubdomains = getActiveSubdomains(level)
+
+  useEffect(() => {
+    async function fetchStrengths() {
+      if (!pupilId) {
+        setSubdomainStrengths({})
+        setStrengthsError(null)
+        return
+      }
+
+      setLoadingStrengths(true)
+      setStrengthsError(null)
+
+      const { data, error } = await supabase.rpc('get_pupil_subdomain_strengths', {
+        p_pupil_id: pupilId,
+      })
+      if (error) {
+        setStrengthsError(error.message || 'Failed to load strengths')
+        setSubdomainStrengths({})
+      } else if (!Array.isArray(data)) {
+        setStrengthsError('Unexpected response from strengths RPC')
+        setSubdomainStrengths({})
+      } else {
+        const strengths = {}
+        for (const row of data) {
+          if (row.level === level && typeof row.subdomain === 'string') {
+            strengths[row.subdomain] = row.strength ?? 0
+          }
+        }
+        setSubdomainStrengths(strengths)
+      }
+      setLoadingStrengths(false)
+    }
+
+    fetchStrengths()
+  }, [pupilId, level])
+
+  const derivedDeficits = useMemo(() => {
+    const deficitsFromStrength = {}
+    const useStrengths = pupilId && !loadingStrengths && !strengthsError
+    for (const code of activeSubdomains) {
+      const strength = subdomainStrengths[code]
+      deficitsFromStrength[code] = useStrengths && typeof strength === 'number'
+        ? Math.max(0, 5 - strength)
+        : 0
+    }
+    return { ...deficitsFromStrength, ...manualDeficits }
+  }, [activeSubdomains, manualDeficits, pupilId, loadingStrengths, strengthsError, subdomainStrengths])
+
+  function setDeficit(code, value) {
+    setManualDeficits(prev => ({ ...prev, [code]: value }))
+  }
 
   function startTest() {
     setShowCarousel(true)
@@ -214,7 +304,7 @@ function InsightTest() {
       <hr style={{ margin: '2rem 0', border: 'none', borderTop: '1px solid #e5e7eb' }} />
 
       <h2 style={{ marginBottom: '1rem' }}>Full Test Preview (one question at a time)</h2>
-      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
+      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', flexWrap: 'wrap' }}>
         <label style={{ fontWeight: 600, fontSize: 14 }}>Level</label>
         <select
           value={level}
@@ -226,7 +316,43 @@ function InsightTest() {
         <button className="button-secondary" onClick={startTest}>Start new test</button>
       </div>
 
-      {showCarousel && <Carousel key={carouselKey} level={level} onRestart={startTest} />}
+      <div style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
+        <h3 style={{ marginBottom: '0.75rem' }}>Pupil strength profile</h3>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', minWidth: 260 }}>
+            <span style={{ fontSize: 13, fontWeight: 600 }}>Pupil ID</span>
+            <input
+              type="text"
+              value={pupilId}
+              onChange={e => setPupilId(e.target.value)}
+              placeholder="Enter pupil ID"
+              style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #d1d5db' }}
+            />
+          </label>
+          {loadingStrengths && <span style={{ color: '#6b7280' }}>Loading strengths…</span>}
+          {strengthsError && <span style={{ color: '#dc2626' }}>{strengthsError}</span>}
+        </div>
+        <p style={{ fontSize: 13, color: '#6b7280', marginTop: '0.75rem' }}>
+          Strengths are fetched from the pupil's persisted Insight profile. Deficit weights are derived as <strong>max(0, 5 - strength)</strong>.
+        </p>
+
+        <div style={{ marginTop: '1rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem' }}>
+          {activeSubdomains.map(code => (
+            <div key={code} style={{ border: '1px solid #e5e7eb', borderRadius: 10, padding: '0.75rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                <span style={{ fontSize: 13, fontWeight: 600 }}>{code}</span>
+                <span style={{ fontSize: 13, color: '#6b7280' }}>Strength {subdomainStrengths[code] ?? 0}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.5rem', alignItems: 'center' }}>
+                <span style={{ fontSize: 12 }}>{SUBDOMAIN_CONFIG[code].label}</span>
+                <span style={{ fontSize: 12, color: '#6b7280' }}>Deficit {derivedDeficits[code]}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {showCarousel && <Carousel key={carouselKey} level={level} deficits={derivedDeficits} pupilId={pupilId} onRestart={startTest} />}
     </div>
   )
 }

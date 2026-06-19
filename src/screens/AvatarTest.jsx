@@ -13,10 +13,13 @@ function randomAvatar() {
   }
 }
 
+const POSES = ['auto', 'idle', 'hips', 'wave', 'celebrate']
+
 function AvatarTest() {
   const [avatar, setAvatar] = useState(DEFAULT_AVATAR)
   const [hatsUnlocked, setHatsUnlocked] = useState(false)
   const [gallery, setGallery] = useState(() => Array.from({ length: 6 }, randomAvatar))
+  const [pose, setPose] = useState(() => new URLSearchParams(window.location.search).get('pose') ?? 'auto')
 
   // Simulated unlocked hats, since HAT_COUNT is currently 0 (no hat
   // assets drawn yet) -- lets you preview the picker's unlocked state
@@ -30,14 +33,28 @@ function AvatarTest() {
         Builds/previews the v2 avatar system -- never linked from any real pupil-facing screen.
       </p>
 
+      <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+        <span style={{ fontSize: 14, fontWeight: 600, marginRight: 8 }}>State:</span>
+        {POSES.map(p => (
+          <button
+            key={p}
+            className="button-secondary"
+            style={{ marginRight: 6, fontWeight: pose === p ? 700 : 400 }}
+            onClick={() => setPose(p)}
+          >
+            {p}
+          </button>
+        ))}
+      </div>
+
       <div style={{ display: 'flex', gap: '2rem', justifyContent: 'center', alignItems: 'flex-start', flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', gap: '1rem' }}>
           <div style={{ textAlign: 'center' }}>
-            <AvatarDisplay avatar={avatar} size={160} crop="bust" />
+            <AvatarDisplay avatar={avatar} size={160} crop="bust" state={pose === 'auto' ? undefined : pose} />
             <p style={{ fontSize: 12, color: '#888', marginTop: 4 }}>bust crop (real UI usage)</p>
           </div>
           <div style={{ textAlign: 'center' }}>
-            <AvatarDisplay avatar={avatar} size={160} crop="full" />
+            <AvatarDisplay avatar={avatar} size={160} crop="full" state={pose === 'auto' ? undefined : pose} />
             <p style={{ fontSize: 12, color: '#888', marginTop: 4 }}>full crop (future game)</p>
           </div>
         </div>

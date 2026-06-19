@@ -3,9 +3,9 @@ import { useTranslation } from '../i18n/LanguageContext'
 // Mirrors the Instinct results screen layout. This is a preview only —
 // the real version will be driven by submit_insight_attempt (credits,
 // level, streak) once a live pupil session exists.
-function InsightResults({ score, total, onReviewMarking, onRestart }) {
+function InsightResults({ score, total, response, error, submitting, onReviewMarking, onRestart }) {
   const { t } = useTranslation()
-  const credits = 50 + score
+  const credits = response?.credits_earned ?? (50 + score)
   const allCorrect = score === total
   const pct = total > 0 ? Math.round((score / total) * 100) : 0
 
@@ -22,6 +22,17 @@ function InsightResults({ score, total, onReviewMarking, onRestart }) {
         </div>
 
         <section className="dashboard-section">
+          {submitting && (
+            <p className="results-comparison" style={{ marginTop: '1rem', textAlign: 'center' }}>
+              {t('insight.submitting')}
+            </p>
+          )}
+          {error && (
+            <p className="results-comparison" style={{ marginTop: '1rem', textAlign: 'center', color: '#dc2626' }}>
+              {t('insight.submitError').replace('{message}', error)}
+            </p>
+          )}
+
           <div className="results-summary">
             <div className="stat-box stat-box--large">
               <div className="stat-number">{score}/{total}</div>

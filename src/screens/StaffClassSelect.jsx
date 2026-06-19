@@ -3,7 +3,7 @@ import { useTranslation } from '../i18n/LanguageContext'
 function StaffClassSelect({ school, onSelect }) {
   const { t } = useTranslation()
   return (
-    <div className="screen">
+    <div className="screen staff-screen">
       <h1>{school.name}</h1>
       <p className="tagline">{t('staffClassSelect.tagline')}</p>
 

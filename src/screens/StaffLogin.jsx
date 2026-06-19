@@ -39,7 +39,7 @@ function StaffLogin({ onSuccess }) {
   }
 
   return (
-    <div className="screen">
+    <div className="screen staff-screen">
       <h1>{schoolName ?? schoolCode}</h1>
       <p className="tagline">{t('staffLogin.subtitle')}</p>
 

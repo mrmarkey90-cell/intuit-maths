@@ -327,6 +327,8 @@ export const translations = {
     'insight.creditsYoudEarn': "Credits you'd earn",
     'insight.allCorrectStreak': "All correct! That's a streak tick towards the next level.",
     'insight.pctThisTime': '{pct}% this time — all {total} correct is needed to level up.',
+    'insight.submitting': 'Submitting…',
+    'insight.submitError': 'Could not save results: {message}',
     'insight.lookAtMarking': 'Look at the marking',
     'insight.startNewTest': 'Start a new test',
 
@@ -689,6 +691,8 @@ export const translations = {
     'insight.creditsYoudEarn': "Credydau y byddech chi'n eu hennill",
     'insight.allCorrectStreak': "Pob un yn gywir! Mae hynny'n dic ar y ffordd i'r lefel nesaf.",
     'insight.pctThisTime': "{pct}% y tro hwn — mae angen pob un o'r {total} yn gywir i godi lefel.",
+    'insight.submitting': 'Yn cyflwyno…',
+    'insight.submitError': 'Methwyd cadw canlyniadau: {message}',
     'insight.lookAtMarking': 'Edrych ar y marcio',
     'insight.startNewTest': 'Dechrau prawf newydd',
 
