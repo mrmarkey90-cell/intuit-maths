@@ -1722,17 +1722,50 @@ button:hover:not(:disabled) {
 }
 
 .insight-strength-svg {
-  width: min(100%, 420px);
-  max-width: 420px;
+  width: min(100%, 460px);
+  max-width: 460px;
   height: auto;
 }
 
 .insight-strength-svg circle {
-  transition: stroke-opacity 120ms ease, stroke-width 120ms ease;
+  transition: stroke-opacity 120ms ease, stroke-width 120ms ease, filter 120ms ease;
 }
 
 .insight-strength-svg circle:hover {
   stroke-opacity: 1;
+  filter: drop-shadow(0 8px 10px rgba(15, 23, 42, 0.12));
+}
+
+.insight-strength-pie-wrap {
+  position: relative;
+}
+
+.insight-strength-center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  text-align: center;
+}
+
+.insight-strength-center-title {
+  font-size: 0.95rem;
+  color: #4b5563;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.insight-strength-center-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.insight-strength-center-label {
+  font-size: 0.95rem;
+  color: #6b7280;
 }
 
 .insight-strength-title {
