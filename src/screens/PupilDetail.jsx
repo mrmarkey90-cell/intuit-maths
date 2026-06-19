@@ -113,7 +113,7 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
     ? Math.round(items.reduce((sum, item) => sum + item.strength, 0) / total * 10) / 10
     : 0
 
-  const R = 70
+  const R = 90
   const circumference = 2 * Math.PI * R
   const centerText = hovered ? hovered.code : 'Mouse-over for info'
   const centerSubtitle = hovered ? hovered.label : ''
@@ -125,14 +125,16 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
         <svg viewBox="0 0 260 260" className="insight-strength-svg">
           {items.map((item, index) => {
             const isHovered = hovered?.code === item.code
-            const gap = 5
+            const gap = 8
+            const usableCircumference = circumference - gap * total
             const sliceLength = totalStrength > 0
-              ? Math.max(8, (item.strength / totalStrength) * (circumference - gap * total))
-              : (circumference - gap * total) / total
+              ? Math.max(8, (item.strength / totalStrength) * usableCircumference)
+              : usableCircumference / total
             const offset = items.slice(0, index).reduce((sum, prev) => {
-              return sum + (totalStrength > 0
-                ? Math.max(8, (prev.strength / totalStrength) * (circumference - gap * total))
-                : (circumference - gap * total) / total) + gap
+              const prevLength = totalStrength > 0
+                ? Math.max(8, (prev.strength / totalStrength) * usableCircumference)
+                : usableCircumference / total
+              return sum + prevLength + gap
             }, 0)
 
             return (

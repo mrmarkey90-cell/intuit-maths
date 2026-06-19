@@ -1722,16 +1722,17 @@ button:hover:not(:disabled) {
 }
 
 .insight-strength-svg {
-  width: min(100%, 360px);
-  max-width: 360px;
+  width: min(100%, 420px);
+  max-width: 420px;
   height: auto;
 }
 
-.insight-strength-hover-note {
-  margin-top: 0.75rem;
-  font-size: 0.95rem;
-  color: #6b7280;
-  text-align: center;
+.insight-strength-svg circle {
+  transition: stroke-opacity 120ms ease, stroke-width 120ms ease;
+}
+
+.insight-strength-svg circle:hover {
+  stroke-opacity: 1;
 }
 
 .insight-strength-title {
