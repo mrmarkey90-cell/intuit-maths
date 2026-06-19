@@ -98,7 +98,7 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
 
   const items = activeCodes.map(code => {
     const config = SUBDOMAIN_CONFIG[code] || {}
-    const strength = Math.min(5, Math.max(0, Number(strengths[code] ?? 0)))
+    const strength = Math.max(0, Number(strengths[code] ?? 0))
     return {
       code,
       label: config.label || code,
@@ -107,6 +107,7 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
     }
   })
 
+  const totalStrength = items.reduce((sum, item) => sum + item.strength, 0)
   const total = items.length
   const averageStrength = total > 0
     ? Math.round(items.reduce((sum, item) => sum + item.strength, 0) / total * 10) / 10
@@ -114,7 +115,6 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
 
   const R = 70
   const circumference = 2 * Math.PI * R
-  const arcLength = circumference / total
   const centerText = hovered ? hovered.code : t('staffPupilDetail.insightStrengthsTitle')
   const centerSubtitle = hovered ? hovered.label : ''
   const centerValue = hovered ? hovered.strength : averageStrength
@@ -125,6 +125,15 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
         <svg viewBox="0 0 260 260" className="insight-strength-svg">
           {items.map((item, index) => {
             const isHovered = hovered?.code === item.code
+            const sliceLength = totalStrength > 0
+              ? Math.max(8, (item.strength / totalStrength) * circumference)
+              : circumference / total
+            const offset = items.slice(0, index).reduce((sum, prev) => {
+              return sum + (totalStrength > 0
+                ? Math.max(8, (prev.strength / totalStrength) * circumference)
+                : circumference / total)
+            }, 0)
+
             return (
               <g key={item.code}>
                 <circle
@@ -135,8 +144,8 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
                   stroke="#fff"
                   strokeWidth={32}
                   strokeOpacity={1}
-                  strokeDasharray={`${arcLength - 2} ${circumference}`}
-                  strokeDashoffset={-index * arcLength}
+                  strokeDasharray={`${sliceLength - 2} ${circumference}`}
+                  strokeDashoffset={-offset}
                   transform={`rotate(-90 130 130)`}
                   strokeLinecap="butt"
                 />
@@ -148,8 +157,8 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
                   stroke={item.color}
                   strokeWidth={28}
                   strokeOpacity={isHovered ? 1 : 0.95}
-                  strokeDasharray={`${arcLength - 2} ${circumference}`}
-                  strokeDashoffset={-index * arcLength}
+                  strokeDasharray={`${sliceLength - 2} ${circumference}`}
+                  strokeDashoffset={-offset}
                   transform={`rotate(-90 130 130)`}
                   strokeLinecap="butt"
                   pointerEvents="stroke"
