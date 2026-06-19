@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { useTranslation } from '../i18n/LanguageContext'
+import { SUBDOMAIN_CONFIG, getActiveSubdomains, DOMAIN_COLORS } from '../insight/domainConfig'
 
 function StreakDots({ streak, t }) {
   return (
@@ -11,7 +12,9 @@ function StreakDots({ streak, t }) {
         ))}
       </div>
       <span className="streak-label">
-        {streak === 0 ? t('staffPupilDetail.streakLabelNone') : t('staffPupilDetail.streakLabelProgress').replace('{n}', streak)}
+        {streak === 0
+          ? t('staffPupilDetail.streakLabelNone')
+          : t('staffPupilDetail.streakLabelProgress').replace('{n}', streak)}
       </span>
     </div>
   )
@@ -21,16 +24,13 @@ function ScoreChart({ attempts, t }) {
   if (attempts.length === 0) return null
 
   const sorted = [...attempts].sort((a, b) => new Date(a.completed_at) - new Date(b.completed_at))
-
   const W = 560
   const H = 220
   const PAD = { top: 52, right: 24, bottom: 36, left: 36 }
   const innerW = W - PAD.left - PAD.right
   const innerH = H - PAD.top - PAD.bottom
-
   const maxScore = Math.ceil(Math.max(...sorted.map(a => a.score), 10) / 5) * 5
 
-  // Y grid lines at every 5
   const gridLines = []
   for (let v = 0; v <= maxScore; v += 5) gridLines.push(v)
 
@@ -46,7 +46,6 @@ function ScoreChart({ attempts, t }) {
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 'auto', display: 'block' }}>
-      {/* Grid lines */}
       {gridLines.map(v => {
         const y = PAD.top + innerH - (v / maxScore) * innerH
         return (
@@ -57,46 +56,104 @@ function ScoreChart({ attempts, t }) {
         )
       })}
 
-      {/* Axes */}
       <line x1={PAD.left} y1={PAD.top} x2={PAD.left} y2={PAD.top + innerH} stroke="#e5e7eb" strokeWidth="1" />
       <line x1={PAD.left} y1={PAD.top + innerH} x2={PAD.left + innerW} y2={PAD.top + innerH} stroke="#e5e7eb" strokeWidth="1" />
 
-      {/* Y axis label */}
       <text
         x={10} y={PAD.top + innerH / 2}
         textAnchor="middle" fontSize="11" fill="#9ca3af"
         transform={`rotate(-90, 10, ${PAD.top + innerH / 2})`}
       >{t('staffPupilDetail.correctAxisLabel')}</text>
 
-      {/* Line */}
       {pts.length > 1 && (
         <path d={linePath} fill="none" stroke="#c4b5fd" strokeWidth="2" strokeLinejoin="round" />
       )}
 
-      {/* Dots + labels */}
       {pts.map((p, i) => (
         <g key={i}>
-          {/* Level label */}
           <text x={p.x} y={p.y - 26} textAnchor="middle" fontSize="11" fontWeight="700" fill="#4f46e5">
             L{p.stage}
           </text>
-          {/* % label */}
           <text x={p.x} y={p.y - 13} textAnchor="middle" fontSize="11" fill="#6b7280">
             {p.pct}%
           </text>
-          {/* Dot */}
           <circle
             cx={p.x} cy={p.y} r="6"
             fill={p.good ? '#4f46e5' : '#a78bfa'}
             stroke="white" strokeWidth="2"
           />
-          {/* X axis date */}
           <text x={p.x} y={PAD.top + innerH + 22} textAnchor="middle" fontSize="10" fill="#9ca3af">
             {p.date}
           </text>
         </g>
       ))}
     </svg>
+  )
+}
+
+function InsightStrengthPie({ strengths, insightLevel, t }) {
+  const activeCodes = getActiveSubdomains(insightLevel)
+  if (activeCodes.length === 0) return null
+
+  const items = activeCodes.map(code => {
+    const config = SUBDOMAIN_CONFIG[code] || {}
+    const strength = Math.min(5, Math.max(0, Number(strengths[code] ?? 0)))
+    return {
+      code,
+      label: config.label || code,
+      color: DOMAIN_COLORS[config.domain] || '#6b7280',
+      strength,
+    }
+  })
+
+  const total = items.length
+  const averageStrength = total > 0
+    ? Math.round(items.reduce((sum, item) => sum + item.strength, 0) / total * 10) / 10
+    : 0
+
+  const R = 70
+  const circumference = 2 * Math.PI * R
+  const arcLength = circumference / total
+
+  return (
+    <div className="insight-strength-pie-wrap">
+      <div className="insight-strength-pie-chart">
+        <svg viewBox="0 0 200 200" className="insight-strength-svg">
+          {items.map((item, index) => (
+            <circle
+              key={item.code}
+              cx="100"
+              cy="100"
+              r={R}
+              fill="none"
+              stroke={item.color}
+              strokeWidth="28"
+              strokeDasharray={`${arcLength} ${circumference}`}
+              transform={`rotate(${index * 360 / total - 90} 100 100)`}
+              strokeLinecap="butt"
+            />
+          ))}
+          <circle cx="100" cy="100" r="45" fill="white" />
+          <text x="100" y="98" textAnchor="middle" fontSize="12" fill="#6b7280">
+            {t('staffPupilDetail.insightStrengthAverage')}
+          </text>
+          <text x="100" y="118" textAnchor="middle" fontSize="22" fontWeight="700" fill="#111">
+            {averageStrength}/5
+          </text>
+        </svg>
+      </div>
+      <div className="insight-strength-legend">
+        {items.map(item => (
+          <div key={item.code} className="insight-strength-legend-item">
+            <span className="insight-strength-marker" style={{ background: item.color }} />
+            <div>
+              <div className="insight-strength-legend-name">{item.code} — {item.label}</div>
+              <div className="insight-strength-legend-value">{item.strength}/5</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }
 
@@ -108,13 +165,41 @@ function PupilDetail({ pupilId, onBack, onLevelChanged }) {
   const [overrideInsight, setOverrideInsight] = useState(1)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [insightStrengths, setInsightStrengths] = useState({})
+  const [insightLoading, setInsightLoading] = useState(false)
+  const [insightError, setInsightError] = useState(null)
+
+  async function loadInsightStrengths(level) {
+    setInsightLoading(true)
+    setInsightError(null)
+
+    const { data: rows, error } = await supabase.rpc('get_pupil_subdomain_strengths', { p_pupil_id: pupilId })
+    if (error) {
+      setInsightStrengths({})
+      setInsightError(error.message)
+      setInsightLoading(false)
+      return
+    }
+
+    const strengths = {}
+    for (const row of rows ?? []) {
+      if (row.level === level && typeof row.subdomain === 'string') {
+        strengths[row.subdomain] = Number(row.strength ?? 0)
+      }
+    }
+
+    setInsightStrengths(strengths)
+    setInsightLoading(false)
+  }
 
   async function loadData() {
     const { data: result } = await supabase.rpc('get_pupil_history', { p_pupil_id: pupilId })
     setData(result)
     if (result?.pupil) {
+      const insightLevelValue = result.pupil.insight_level ?? 1
       setOverrideInstinct(result.pupil.instinct_level ?? 1)
-      setOverrideInsight(result.pupil.insight_level ?? 1)
+      setOverrideInsight(insightLevelValue)
+      await loadInsightStrengths(insightLevelValue)
     }
     setLoading(false)
   }
@@ -132,7 +217,7 @@ function PupilDetail({ pupilId, onBack, onLevelChanged }) {
     setSaved(true)
     setTimeout(() => setSaved(false), 2500)
     onLevelChanged?.()
-    loadData()
+    await loadInsightStrengths(overrideInsight)
   }
 
   if (loading) return <div className="dashboard"><main className="dashboard-main"><p>{t('common.loading')}</p></main></div>
@@ -170,7 +255,18 @@ function PupilDetail({ pupilId, onBack, onLevelChanged }) {
                 <span className="level-block-label">Insight</span>
                 <span className="level-block-number">{insightLevel}</span>
               </div>
-              <p className="note" style={{ marginTop: '0.75rem' }}>{t('staffPupilDetail.insightComingSoon')}</p>
+              {insightLoading ? (
+                <p className="note" style={{ marginTop: '0.75rem' }}>{t('common.loading')}</p>
+              ) : insightError ? (
+                <p className="note" style={{ marginTop: '0.75rem', color: '#dc2626' }}>{insightError}</p>
+              ) : Object.keys(insightStrengths).length > 0 ? (
+                <div className="insight-strength-summary">
+                  <span className="insight-strength-title">{t('staffPupilDetail.insightStrengthTitle')}</span>
+                  <InsightStrengthPie strengths={insightStrengths} insightLevel={insightLevel} t={t} />
+                </div>
+              ) : (
+                <p className="note" style={{ marginTop: '0.75rem' }}>{t('staffPupilDetail.insightNoData')}</p>
+              )}
             </div>
           </div>
         </section>

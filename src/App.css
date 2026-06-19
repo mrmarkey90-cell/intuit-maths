@@ -1702,6 +1702,56 @@ button:hover:not(:disabled) {
   gap: 1rem;
 }
 
+.insight-strength-summary {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.insight-strength-pie-wrap {
+  display: grid;
+  gap: 1rem;
+}
+
+.insight-strength-pie-chart {
+  display: flex;
+  justify-content: center;
+}
+
+.insight-strength-legend {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.insight-strength-legend-item {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.insight-strength-marker {
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.insight-strength-legend-name {
+  font-size: 0.95rem;
+  color: #111827;
+}
+
+.insight-strength-legend-value {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.insight-strength-title {
+  font-weight: 700;
+  color: #111827;
+}
+
 .pupil-detail-level-block {
   flex: 1;
   border-radius: 10px;
