@@ -227,6 +227,7 @@ function PupilDetail({ pupilId, onBack, onLevelChanged }) {
   const instinctLevel = pupil.instinct_level ?? 1
   const insightLevel = pupil.insight_level ?? 1
   const streak = pupil.challenge_streak ?? 0
+  const insightStreak = pupil.insight_streak ?? 0
 
   return (
     <div className="dashboard">
@@ -235,7 +236,7 @@ function PupilDetail({ pupilId, onBack, onLevelChanged }) {
         <div className="dashboard-header-brand"><img src="/intuit-name.svg" alt="intuit" /></div>
       </header>
 
-      <main className="dashboard-main" style={{ maxWidth: 640 }}>
+      <main className="dashboard-main">
         <div className="page-title">
           <h1>{pupil.first_name} {pupil.last_name}</h1>
         </div>
@@ -255,21 +256,25 @@ function PupilDetail({ pupilId, onBack, onLevelChanged }) {
                 <span className="level-block-label">Insight</span>
                 <span className="level-block-number">{insightLevel}</span>
               </div>
-              {insightLoading ? (
-                <p className="note" style={{ marginTop: '0.75rem' }}>{t('common.loading')}</p>
-              ) : insightError ? (
-                <p className="note" style={{ marginTop: '0.75rem', color: '#dc2626' }}>{insightError}</p>
-              ) : Object.keys(insightStrengths).length > 0 ? (
-                <div className="insight-strength-summary">
-                  <span className="insight-strength-title">{t('staffPupilDetail.insightStrengthTitle')}</span>
-                  <InsightStrengthPie strengths={insightStrengths} insightLevel={insightLevel} t={t} />
-                </div>
-              ) : (
-                <p className="note" style={{ marginTop: '0.75rem' }}>{t('staffPupilDetail.insightNoData')}</p>
-              )}
+              <StreakDots streak={insightStreak} t={t} />
             </div>
           </div>
         </section>
+
+        {insightLoading ? (
+          <section className="dashboard-section">
+            <p>{t('common.loading')}</p>
+          </section>
+        ) : insightError ? (
+          <section className="dashboard-section">
+            <p style={{ color: '#dc2626' }}>{insightError}</p>
+          </section>
+        ) : Object.keys(insightStrengths).length > 0 ? (
+          <section className="dashboard-section">
+            <div className="section-heading"><h2>{t('staffPupilDetail.insightSubdomainTitle')}</h2></div>
+            <InsightStrengthPie strengths={insightStrengths} insightLevel={insightLevel} t={t} />
+          </section>
+        ) : null}
 
         <section className="dashboard-section">
           <div className="section-heading"><h2>{t('staffPupilDetail.overrideLevels')}</h2></div>

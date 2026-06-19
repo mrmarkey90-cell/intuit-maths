@@ -1710,7 +1710,15 @@ button:hover:not(:disabled) {
 
 .insight-strength-pie-wrap {
   display: grid;
-  gap: 1rem;
+  grid-template-columns: minmax(200px, 250px) 1fr;
+  gap: 2rem;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .insight-strength-pie-wrap {
+    grid-template-columns: 1fr;
+  }
 }
 
 .insight-strength-pie-chart {
