@@ -48,11 +48,12 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust' }) {
 
   return (
     <svg className="avatar-display" style={{ width: size, height: size * aspect }} viewBox="0 0 200 300">
-      {/* Legs -- procedural, shortened to 75% of hip-to-floor length
-          (hip pivot at y=185 stays fixed, original foot y=290) */}
+      {/* Legs -- procedural, now 37.5% of the original hip-to-floor
+          length (75% then another 50% off that) -- hip pivot at
+          y=185 stays fixed, original foot y=290 */}
       <g {...LIMB_STYLE}>
-        <line x1="70" y1="185" x2="66.25" y2="263.75" />
-        <line x1="130" y1="185" x2="133.75" y2="263.75" />
+        <line x1="70" y1="185" x2="68.125" y2="224.375" />
+        <line x1="130" y1="185" x2="131.875" y2="224.375" />
       </g>
 
       {/* Clothing -- also visually serves as the torso, no recolouring */}
