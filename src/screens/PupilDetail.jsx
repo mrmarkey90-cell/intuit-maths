@@ -117,26 +117,7 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
   const circumference = 2 * Math.PI * R
   const centerText = hovered ? hovered.code : 'Mouse-over for info'
   const centerSubtitle = hovered ? hovered.label : ''
-  const centerValue = hovered ? hovered.strength : ''
-
-  const gap = 8
-  const usableCircumference = circumference - gap * total
-  const MIN_SLICE_LENGTH = 6
-
-  const rawLengths = totalStrength > 0
-    ? items.map(item => (item.strength / totalStrength) * usableCircumference)
-    : items.map(() => usableCircumference / total)
-
-  let sliceLengths = rawLengths.map((length, index) => {
-    const isZero = totalStrength > 0 && items[index].strength === 0
-    return isZero ? MIN_SLICE_LENGTH : Math.max(MIN_SLICE_LENGTH, length)
-  })
-
-  const totalLength = sliceLengths.reduce((sum, value) => sum + value, 0)
-  if (totalLength > usableCircumference) {
-    const scale = usableCircumference / totalLength
-    sliceLengths = sliceLengths.map(value => Math.max(MIN_SLICE_LENGTH, value * scale))
-  }
+  const centerValue = hovered ? hovered.strength : averageStrength
 
   return (
     <div className="insight-strength-pie-wrap">
@@ -144,11 +125,33 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
         <svg viewBox="0 0 260 260" className="insight-strength-svg">
           {items.map((item, index) => {
             const isHovered = hovered?.code === item.code
-            const sliceLength = sliceLengths[index]
-            const offset = sliceLengths.slice(0, index).reduce((sum, value) => sum + value + gap, 0)
+            const gap = 8
+            const usableCircumference = circumference - gap * total
+            const sliceLength = totalStrength > 0
+              ? Math.max(8, (item.strength / totalStrength) * usableCircumference)
+              : usableCircumference / total
+            const offset = items.slice(0, index).reduce((sum, prev) => {
+              const prevLength = totalStrength > 0
+                ? Math.max(8, (prev.strength / totalStrength) * usableCircumference)
+                : usableCircumference / total
+              return sum + prevLength + gap
+            }, 0)
 
             return (
               <g key={item.code}>
+                <circle
+                  cx="130"
+                  cy="130"
+                  r={R}
+                  fill="none"
+                  stroke="#fff"
+                  strokeWidth={32}
+                  strokeOpacity={1}
+                  strokeDasharray={`${sliceLength} ${gap}`}
+                  strokeDashoffset={-offset}
+                  transform={`rotate(-90 130 130)`}
+                  strokeLinecap="butt"
+                />
                 <circle
                   cx="130"
                   cy="130"
@@ -181,11 +184,9 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
               {centerSubtitle}
             </text>
           )}
-          {centerValue && (
-            <text x="130" y={centerSubtitle ? 160 : 155} textAnchor="middle" fontSize="24" fontWeight="700" fill="#111">
-              {centerValue}
-            </text>
-          )}
+          <text x="130" y={centerSubtitle ? 160 : 155} textAnchor="middle" fontSize="24" fontWeight="700" fill="#111">
+            {centerValue}
+          </text>
         </svg>
       </div>
     </div>
