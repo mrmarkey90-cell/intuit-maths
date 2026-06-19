@@ -116,7 +116,7 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
   const circumference = 2 * Math.PI * R
   const arcLength = circumference / total
   const centerText = hovered ? hovered.code : t('staffPupilDetail.insightStrengthsTitle')
-  const centerSubtitle = hovered ? hovered.label : t('staffPupilDetail.insightHoverHint')
+  const centerSubtitle = hovered ? hovered.label : ''
   const centerValue = hovered ? hovered.strength : averageStrength
 
   return (
@@ -126,44 +126,57 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
           {items.map((item, index) => {
             const isHovered = hovered?.code === item.code
             return (
-              <circle
-                key={item.code}
-                cx="130"
-                cy="130"
-                r={R}
-                fill="none"
-                stroke={item.color}
-                strokeWidth={isHovered ? 34 : 28}
-                strokeOpacity={isHovered ? 1 : 0.95}
-                strokeDasharray={`${arcLength - 2} ${circumference}`}
-                strokeDashoffset={-index * arcLength}
-                transform={`rotate(-90 130 130)`}
-                strokeLinecap="round"
-                pointerEvents="stroke"
-                cursor="pointer"
-                onMouseEnter={() => setHovered(item)}
-                onMouseLeave={() => setHovered(null)}
-                onFocus={() => setHovered(item)}
-                onBlur={() => setHovered(null)}
-                tabIndex="0"
-              />
+              <g key={item.code}>
+                <circle
+                  cx="130"
+                  cy="130"
+                  r={R}
+                  fill="none"
+                  stroke="#fff"
+                  strokeWidth={32}
+                  strokeOpacity={1}
+                  strokeDasharray={`${arcLength - 2} ${circumference}`}
+                  strokeDashoffset={-index * arcLength}
+                  transform={`rotate(-90 130 130)`}
+                  strokeLinecap="butt"
+                />
+                <circle
+                  cx="130"
+                  cy="130"
+                  r={R}
+                  fill="none"
+                  stroke={item.color}
+                  strokeWidth={28}
+                  strokeOpacity={isHovered ? 1 : 0.95}
+                  strokeDasharray={`${arcLength - 2} ${circumference}`}
+                  strokeDashoffset={-index * arcLength}
+                  transform={`rotate(-90 130 130)`}
+                  strokeLinecap="butt"
+                  pointerEvents="stroke"
+                  cursor="pointer"
+                  onMouseEnter={() => setHovered(item)}
+                  onMouseLeave={() => setHovered(null)}
+                  onFocus={() => setHovered(item)}
+                  onBlur={() => setHovered(null)}
+                  tabIndex="0"
+                />
+              </g>
             )
           })}
           <circle cx="130" cy="130" r="55" fill="white" />
           <text x="130" y="118" textAnchor="middle" fontSize="13" fill="#6b7280">
             {centerText}
           </text>
-          <text x="130" y="135" textAnchor="middle" fontSize="11" fill="#4b5563">
-            {centerSubtitle}
-          </text>
-          <text x="130" y="155" textAnchor="middle" fontSize="24" fontWeight="700" fill="#111">
+          {centerSubtitle && (
+            <text x="130" y="135" textAnchor="middle" fontSize="11" fill="#4b5563">
+              {centerSubtitle}
+            </text>
+          )}
+          <text x="130" y={centerSubtitle ? 160 : 155} textAnchor="middle" fontSize="24" fontWeight="700" fill="#111">
             {centerValue}
           </text>
         </svg>
       </div>
-      <p className="insight-strength-hover-note">
-        {hovered ? `${hovered.label}: ${hovered.strength}` : t('staffPupilDetail.insightHoverHint')}
-      </p>
     </div>
   )
 }
