@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import { useTranslation } from '../i18n/LanguageContext'
 import PupilProfileCreate from './PupilProfileCreate'
+import PlacementTest from '../insight/PlacementTest'
 
 function PupilJoin() {
   const { code } = useParams()
@@ -12,6 +13,7 @@ function PupilJoin() {
   const [classInfo, setClassInfo] = useState(null)
   const [notFound, setNotFound] = useState(false)
   const [pupil, setPupil] = useState(null)
+  const [placementDone, setPlacementDone] = useState(false)
 
   useEffect(() => {
     supabase.rpc('get_class_by_join_code', { p_join_code: joinCode })
@@ -32,6 +34,10 @@ function PupilJoin() {
   )
 
   if (!classInfo) return <div className="screen"><p>{t('common.loading')}</p></div>
+
+  if (pupil && !placementDone) {
+    return <PlacementTest pupilId={pupil.id} onComplete={() => setPlacementDone(true)} />
+  }
 
   if (pupil) return (
     <div className="screen">

@@ -3229,6 +3229,14 @@ button:hover:not(:disabled) {
   margin-bottom: 0.75rem;
 }
 
+.placement-test-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
 .insight-carousel-row {
   display: flex;
   align-items: center;

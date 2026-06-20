@@ -4,6 +4,7 @@ import { supabase } from '../supabaseClient'
 import { useTranslation } from '../i18n/LanguageContext'
 import AvatarDisplay from '../components/AvatarDisplay'
 import { DEFAULT_AVATAR } from '../lib/avatarConfig'
+import PlacementTest from '../insight/PlacementTest'
 
 function StreakDots({ streak, t }) {
   return (
@@ -45,7 +46,11 @@ function PupilHub() {
       const storedId = sessionStorage.getItem(`hub_pupil_${joinCode}`)
       if (storedId) {
         const { data } = await supabase.rpc('get_pupil_history', { p_pupil_id: storedId })
-        if (data?.pupil) { setPupil(data.pupil); setView('hub'); return }
+        if (data?.pupil) {
+          setPupil(data.pupil)
+          setView(data.pupil.placement_complete ? 'hub' : 'placement_prompt')
+          return
+        }
         sessionStorage.removeItem(`hub_pupil_${joinCode}`)
       }
 
@@ -59,6 +64,12 @@ function PupilHub() {
     if (!data?.pupil) { setView('error'); return }
     setPupil(data.pupil)
     sessionStorage.setItem(`hub_pupil_${joinCode}`, p.id)
+    setView(data.pupil.placement_complete ? 'hub' : 'placement_prompt')
+  }
+
+  async function handlePlacementComplete() {
+    const { data } = await supabase.rpc('get_pupil_history', { p_pupil_id: pupil.id })
+    if (data?.pupil) setPupil(data.pupil)
     setView('hub')
   }
 
@@ -122,6 +133,19 @@ function PupilHub() {
       </div>
     </div>
   )
+
+  if (view === 'placement_prompt') return (
+    <div className="screen hub-confirm">
+      <AvatarDisplay avatar={pupil?.avatar ?? DEFAULT_AVATAR} size={100} />
+      <h1>{t('pupilHub.placementPromptTitle')}</h1>
+      <p className="tagline">{t('pupilHub.placementPromptBody')}</p>
+      <button onClick={() => setView('placement')}>{t('pupilHub.placementPromptStart')}</button>
+    </div>
+  )
+
+  if (view === 'placement') {
+    return <PlacementTest pupilId={pupil.id} onComplete={handlePlacementComplete} />
+  }
 
   if (view === 'hub') {
     const streak = pupil.challenge_streak ?? 0

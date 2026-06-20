@@ -252,6 +252,19 @@ export const translations = {
     'pupilHub.practiceInstinct': 'Practice Instinct →',
     'pupilHub.notYouSignOut': 'Not {name}? Sign out',
 
+    'pupilHub.placementPromptTitle': "Let's find your starting level!",
+    'pupilHub.placementPromptBody': 'A few quick questions before you get started.',
+    'pupilHub.placementPromptStart': 'Start',
+
+    'placementTest.intro.title': "Let's find your level!",
+    'placementTest.intro.body': "We'll ask you a few quick questions — just do your best, there's no time limit.",
+    'placementTest.intro.start': 'Start',
+    'placementTest.questionOf': 'Question {n} of {total}',
+    'placementTest.idk': "I don't know",
+    'placementTest.submitting': 'One moment...',
+    'placementTest.done.title': 'All set!',
+    'placementTest.done.body': "Great work — you're ready to go.",
+
     'pupilClassGrid.noProfiles': 'No profiles yet — ask your teacher to check the join link',
 
     'pupilSession.sessionNotFound': 'Session not found',
@@ -629,6 +642,19 @@ export const translations = {
     'pupilHub.startingPractice': 'Yn dechrau...',
     'pupilHub.practiceInstinct': 'Ymarfer Instinct →',
     'pupilHub.notYouSignOut': 'Nid {name}? Allgofnodi',
+
+    'pupilHub.placementPromptTitle': "Gadewch i ni ddod o hyd i'ch lefel gychwynnol!",
+    'pupilHub.placementPromptBody': "Ychydig gwestiynau cyflym cyn i chi ddechrau.",
+    'pupilHub.placementPromptStart': 'Dechrau',
+
+    'placementTest.intro.title': "Gadewch i ni ddod o hyd i'ch lefel!",
+    'placementTest.intro.body': "Byddwn yn gofyn ychydig gwestiynau cyflym i chi — gwnewch eich gorau, does dim terfyn amser.",
+    'placementTest.intro.start': 'Dechrau',
+    'placementTest.questionOf': 'Cwestiwn {n} o {total}',
+    'placementTest.idk': "Dwi ddim yn gwybod",
+    'placementTest.submitting': 'Un funud...',
+    'placementTest.done.title': 'Wedi gorffen!',
+    'placementTest.done.body': "Da iawn — rydych yn barod i ddechrau.",
 
     'pupilClassGrid.noProfiles': "Dim proffiliau eto — gofynnwch i'ch athro wirio'r ddolen ymuno",
 
