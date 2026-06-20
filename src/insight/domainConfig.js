@@ -69,22 +69,9 @@ function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
 }
 
-function weightForSubdomain(code, deficits = {}) {
+function deficitFor(code, deficits = {}) {
   const raw = deficits?.[code]
-  if (typeof raw !== 'number' || Number.isNaN(raw)) return 1
-  return 1 + Math.max(0, raw)
-}
-
-function weightedPick(codes, deficits = {}) {
-  if (codes.length === 0) return undefined
-  const weights = codes.map(code => weightForSubdomain(code, deficits))
-  const total = weights.reduce((sum, weight) => sum + weight, 0)
-  let threshold = Math.random() * total
-  for (let i = 0; i < codes.length; i += 1) {
-    threshold -= weights[i]
-    if (threshold < 0) return codes[i]
-  }
-  return codes[codes.length - 1]
+  return typeof raw === 'number' && !Number.isNaN(raw) ? Math.max(0, raw) : 0
 }
 
 // "Active by level range" isn't enough on its own -- a subdomain only
@@ -98,39 +85,37 @@ export function getActiveSubdomains(level) {
     .map(([code]) => code)
 }
 
-// One subdomain per domain that has content at this level (weighted by
-// deficit if the pupil is weak in some areas), then fill to 12 using the
-// remaining unused subdomains that are weakest first. If the active pool
-// is smaller than 12, duplicates will be drawn from the weakest subdomains.
+const PRIORITY_SLOTS = 9
+const RANDOM_SLOTS = MODULES_PER_TEST - PRIORITY_SLOTS
+
+// 9 slots go to the subdomains the pupil is weakest in (lowest score / highest
+// deficit); the remaining 3 are genuinely random from whatever's left, so a
+// test isn't *only* ever the same known weak spots. Shuffling before the sort
+// means subdomains tied on deficit -- e.g. every subdomain at 0 the moment a
+// pupil starts a fresh level -- still vary test-to-test rather than always
+// landing in object-insertion order.
 export function generateModuleSlots(level, deficits = {}) {
   const active = getActiveSubdomains(level)
-  const byDomain = {}
-  for (const code of active) {
-    const d = SUBDOMAIN_CONFIG[code].domain
-    ;(byDomain[d] ??= []).push(code)
-  }
+  if (active.length === 0) return []
 
-  const slots = Object.values(byDomain).map(
-    codes => weightedPick(codes, deficits)
-  )
-  const used = new Set(slots)
+  const byDeficitDesc = shuffle(active).sort((a, b) => deficitFor(b, deficits) - deficitFor(a, deficits))
 
-  const remainingSlots = MODULES_PER_TEST - slots.length
-  if (remainingSlots > 0) {
-    const unused = active
-      .filter(code => !used.has(code))
-      .sort((a, b) => weightForSubdomain(b, deficits) - weightForSubdomain(a, deficits))
+  const priority = byDeficitDesc.slice(0, PRIORITY_SLOTS)
+  const used = new Set(priority)
 
-    for (const code of unused) {
-      if (slots.length >= MODULES_PER_TEST) break
-      slots.push(code)
-      used.add(code)
-    }
-  }
+  const randomPool = shuffle(active.filter(code => !used.has(code)))
+  const random = randomPool.slice(0, RANDOM_SLOTS)
+  for (const code of random) used.add(code)
 
+  const slots = [...priority, ...random]
+
+  // Active pool smaller than a full test (only happens at Level 1, with 10
+  // subdomains) -- pad with the weakest subdomains, cycling through them
+  // rather than repeating a single one over and over.
+  let i = 0
   while (slots.length < MODULES_PER_TEST) {
-    const weakest = [...active].sort((a, b) => weightForSubdomain(b, deficits) - weightForSubdomain(a, deficits))[0]
-    slots.push(weakest)
+    slots.push(byDeficitDesc[i % byDeficitDesc.length])
+    i += 1
   }
 
   return shuffle(slots)
