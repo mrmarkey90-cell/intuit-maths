@@ -89,11 +89,13 @@ const PRIORITY_SLOTS = 9
 const RANDOM_SLOTS = MODULES_PER_TEST - PRIORITY_SLOTS
 
 // 9 slots go to the subdomains the pupil is weakest in (lowest score / highest
-// deficit); the remaining 3 are genuinely random from whatever's left, so a
-// test isn't *only* ever the same known weak spots. Shuffling before the sort
-// means subdomains tied on deficit -- e.g. every subdomain at 0 the moment a
-// pupil starts a fresh level -- still vary test-to-test rather than always
-// landing in object-insertion order.
+// deficit); the remaining 3 are spent plugging any domains the priority 9
+// missed entirely, so the test still touches every domain over time rather
+// than only ever testing current weak spots -- whatever's left over (no
+// missing domains, or more than 3 missing) is genuinely random. Shuffling
+// before the sort means subdomains tied on deficit -- e.g. every subdomain
+// at 0 the moment a pupil starts a fresh level -- still vary test-to-test
+// rather than always landing in object-insertion order.
 export function generateModuleSlots(level, deficits = {}) {
   const active = getActiveSubdomains(level)
   if (active.length === 0) return []
@@ -102,10 +104,31 @@ export function generateModuleSlots(level, deficits = {}) {
 
   const priority = byDeficitDesc.slice(0, PRIORITY_SLOTS)
   const used = new Set(priority)
+  const coveredDomains = new Set(priority.map(code => SUBDOMAIN_CONFIG[code].domain))
 
-  const randomPool = shuffle(active.filter(code => !used.has(code)))
-  const random = randomPool.slice(0, RANDOM_SLOTS)
-  for (const code of random) used.add(code)
+  const codesByMissingDomain = {}
+  for (const code of active) {
+    if (used.has(code)) continue
+    const domain = SUBDOMAIN_CONFIG[code].domain
+    if (!coveredDomains.has(domain)) (codesByMissingDomain[domain] ??= []).push(code)
+  }
+
+  const random = []
+  for (const domain of shuffle(Object.keys(codesByMissingDomain))) {
+    if (random.length >= RANDOM_SLOTS) break
+    const pick = shuffle(codesByMissingDomain[domain])[0]
+    random.push(pick)
+    used.add(pick)
+  }
+
+  if (random.length < RANDOM_SLOTS) {
+    const leftover = shuffle(active.filter(code => !used.has(code)))
+    for (const code of leftover) {
+      if (random.length >= RANDOM_SLOTS) break
+      random.push(code)
+      used.add(code)
+    }
+  }
 
   const slots = [...priority, ...random]
 
