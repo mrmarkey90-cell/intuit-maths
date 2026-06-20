@@ -166,15 +166,22 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust', state: controlledSta
 
   return (
     <svg className="avatar-display" style={{ width: size, height: size * aspect }} viewBox="0 0 200 300">
-      {/* Legs -- procedural, now 37.5% of the original hip-to-floor
-          length (75% then another 50% off that) -- hip pivot at
-          y=185 stays fixed, original foot y=290 */}
+      {/* Legs -- procedural. Hip pivot moved from y=185 to y=165 (and the
+          foot endpoint shifted by the same -20 delta, so leg length/angle
+          are unchanged, just translated) to match the clothing redraw
+          that shortened the torso -- its hem now sits at ~y=170 instead
+          of ~y=190 (confirmed visually against a ruled overlay, not just
+          computed from the path transform). The hip pivot is now inside
+          the shirt hem rather than below it, which is why z-order matters
+          here: legs must paint before (be hidden behind) clothing for
+          that overlap to look right, not poke out in front of it. */}
       <g {...LIMB_STYLE}>
-        <line x1="70" y1="185" x2="68.125" y2="224.375" />
-        <line x1="130" y1="185" x2="131.875" y2="224.375" />
+        <line x1="70" y1="165" x2="68.125" y2="204.375" />
+        <line x1="130" y1="165" x2="131.875" y2="204.375" />
       </g>
 
-      {/* Clothing -- also visually serves as the torso, no recolouring */}
+      {/* Clothing -- also visually serves as the torso, no recolouring.
+          Must paint after (in front of) legs -- see note above. */}
       {renderShapes(assets.clothing, 'clothing', null)}
 
       {/* Head -- skin tone recolouring */}

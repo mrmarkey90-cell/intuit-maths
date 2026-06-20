@@ -26,7 +26,17 @@ function parseStyle(styleAttr) {
   return out
 }
 
-function extractShapes(svgText) {
+// Maps an asset category to the Inkscape layer label(s) (lowercased,
+// matched by "includes") it should pull shapes from, when the file has
+// layer structure at all.
+const CATEGORY_LAYER_KEYWORDS = {
+  faces: ['face'],
+  hair: ['hair'],
+  clothing: ['clothing'],
+  hats: ['hat'],
+}
+
+function extractShapes(svgText, category) {
   // Strip comments before parsing -- Inkscape preserves the design
   // guide's leftover comment block in every export (artists won't
   // always remember to delete it), and a strict XML parser rejects any
@@ -40,10 +50,10 @@ function extractShapes(svgText) {
   const doc = new DOMParser().parseFromString(withoutComments, 'image/svg+xml')
   const shapes = []
 
-  function walk(node, insideDefs) {
+  function collectFrom(node, insideDefs) {
     for (const child of node.children) {
       const tag = child.tagName.toLowerCase()
-      if (tag === 'defs') { walk(child, true); continue }
+      if (tag === 'defs') { collectFrom(child, true); continue }
       if (!insideDefs && SHAPE_TAGS.has(tag)) {
         const attrs = {}
         for (const attr of child.attributes) {
@@ -53,11 +63,31 @@ function extractShapes(svgText) {
         }
         shapes.push({ tag, attrs, isFillTarget: child.getAttribute('id') === 'fill' })
       }
-      walk(child, insideDefs)
+      collectFrom(child, insideDefs)
     }
   }
 
-  walk(doc.documentElement, false)
+  // Inkscape layer groups look like <g inkscape:groupmode="layer"
+  // inkscape:label="Hair">. Prefer collecting only from layers whose
+  // label matches the asset's category -- guards against a file that's
+  // accidentally a snapshot of the artist's whole multi-layer working
+  // document (every layer they'd drawn that session -- clothing, face,
+  // hair, all together) rather than a clean isolated export of just
+  // this one asset. Falls back to the whole document if no layer
+  // matches (or the file has no layer structure at all), so already-
+  // correct single-purpose files are unaffected.
+  const keywords = CATEGORY_LAYER_KEYWORDS[category]
+  const layers = [...doc.getElementsByTagName('g')].filter(g => g.getAttribute('inkscape:groupmode') === 'layer')
+  const matchingLayers = keywords
+    ? layers.filter(g => keywords.some(k => (g.getAttribute('inkscape:label') || '').toLowerCase().includes(k)))
+    : []
+
+  if (matchingLayers.length > 0) {
+    for (const layer of matchingLayers) collectFrom(layer, false)
+  } else {
+    collectFrom(doc.documentElement, false)
+  }
+
   return shapes
 }
 
@@ -73,7 +103,7 @@ export function loadAvatarAsset(category, index) {
     const padded = String(index).padStart(2, '0')
     cache.set(key, fetch(`/avatars/${category}/${padded}.svg`)
       .then(res => { if (!res.ok) throw new Error('not found'); return res.text() })
-      .then(extractShapes)
+      .then(text => extractShapes(text, category))
       .catch(() => null))
   }
   return cache.get(key)

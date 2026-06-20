@@ -31,8 +31,8 @@ export const HAIR_COLORS = [
 ]
 
 // Bump these as more assets are drawn -- see public/avatars/{category}/.
-export const HAIR_STYLE_COUNT = 3
-export const CLOTHING_COUNT = 5
+export const HAIR_STYLE_COUNT = 6
+export const CLOTHING_COUNT = 14
 export const HAT_COUNT = 0
 
 export const DEFAULT_AVATAR = {

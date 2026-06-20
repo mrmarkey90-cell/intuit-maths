@@ -1,14 +1,14 @@
 import { useState } from 'react'
 import AvatarDisplay from '../components/AvatarDisplay'
 import AvatarBuilder from '../components/AvatarBuilder'
-import { DEFAULT_AVATAR, HAT_COUNT } from '../lib/avatarConfig'
+import { DEFAULT_AVATAR, HAT_COUNT, HAIR_STYLE_COUNT, CLOTHING_COUNT, SKIN_TONES, HAIR_COLORS } from '../lib/avatarConfig'
 
 function randomAvatar() {
   return {
-    skinTone: Math.floor(Math.random() * 6),
-    hairStyle: Math.floor(Math.random() * 3),
-    hairColor: Math.floor(Math.random() * 6),
-    clothing: Math.floor(Math.random() * 5),
+    skinTone: Math.floor(Math.random() * SKIN_TONES.length),
+    hairStyle: Math.floor(Math.random() * HAIR_STYLE_COUNT),
+    hairColor: Math.floor(Math.random() * HAIR_COLORS.length),
+    clothing: Math.floor(Math.random() * CLOTHING_COUNT),
     hat: null,
   }
 }
@@ -16,7 +16,16 @@ function randomAvatar() {
 const POSES = ['auto', 'idle', 'hips', 'wave', 'celebrate']
 
 function AvatarTest() {
-  const [avatar, setAvatar] = useState(DEFAULT_AVATAR)
+  const [avatar, setAvatar] = useState(() => {
+    const params = new URLSearchParams(window.location.search)
+    const hairStyle = params.get('hairStyle')
+    const clothing = params.get('clothing')
+    return {
+      ...DEFAULT_AVATAR,
+      ...(hairStyle != null ? { hairStyle: Number(hairStyle) } : {}),
+      ...(clothing != null ? { clothing: Number(clothing) } : {}),
+    }
+  })
   const [hatsUnlocked, setHatsUnlocked] = useState(false)
   const [gallery, setGallery] = useState(() => Array.from({ length: 6 }, randomAvatar))
   const [pose, setPose] = useState(() => new URLSearchParams(window.location.search).get('pose') ?? 'auto')
