@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { useTranslation } from '../i18n/LanguageContext'
+import { SUBDOMAIN_CONFIG, getActiveSubdomains, DOMAIN_COLORS } from '../insight/domainConfig'
 
 function StreakDots({ streak, t }) {
   return (
@@ -63,6 +64,106 @@ function ScoreChart({ attempts, t }) {
   )
 }
 
+function InsightStrengthPie({ strengths, insightLevel, t }) {
+  const [hovered, setHovered] = useState(null)
+  const activeCodes = getActiveSubdomains(insightLevel)
+  if (activeCodes.length === 0) return null
+
+  const items = activeCodes.map(code => {
+    const config = SUBDOMAIN_CONFIG[code] || {}
+    const strength = Math.max(0, Number(strengths[code] ?? 0))
+    return {
+      code,
+      label: config.label || code,
+      color: DOMAIN_COLORS[config.domain] || '#6b7280',
+      strength,
+    }
+  })
+
+  const domains = []
+  const seenDomains = new Set()
+  for (const code of activeCodes) {
+    const config = SUBDOMAIN_CONFIG[code]
+    if (!config || seenDomains.has(config.domain)) continue
+    seenDomains.add(config.domain)
+    domains.push({ domain: config.domain, domainName: config.domainName, color: DOMAIN_COLORS[config.domain] })
+  }
+
+  const totalStrength = items.reduce((sum, item) => sum + item.strength, 0)
+  const total = items.length
+  const averageStrength = total > 0 ? Math.round((totalStrength / total) * 10) / 10 : 0
+
+  const R = 90
+  const circumference = 2 * Math.PI * R
+  const gap = Math.min(3, 40 / total)
+  const usableCircumference = circumference - gap * total
+  const sliceLength = item => (totalStrength > 0
+    ? (item.strength / totalStrength) * usableCircumference
+    : usableCircumference / total)
+
+  return (
+    <div className="insight-strength-wrap">
+      <div className="insight-strength-pie-wrap">
+        <svg viewBox="0 0 260 260" className="insight-strength-svg">
+          {items.map((item, index) => {
+            const offset = items.slice(0, index).reduce((sum, prev) => sum + sliceLength(prev) + gap, 0)
+            return (
+              <circle
+                key={item.code}
+                cx="130"
+                cy="130"
+                r={R}
+                fill="none"
+                stroke={item.color}
+                strokeWidth={hovered?.code === item.code ? 32 : 28}
+                strokeOpacity={!hovered || hovered.code === item.code ? 1 : 0.45}
+                strokeDasharray={`${sliceLength(item)} ${circumference}`}
+                strokeDashoffset={-offset}
+                transform="rotate(-90 130 130)"
+                pointerEvents="stroke"
+                cursor="pointer"
+                onMouseEnter={() => setHovered(item)}
+                onMouseLeave={() => setHovered(null)}
+                onFocus={() => setHovered(item)}
+                onBlur={() => setHovered(null)}
+                tabIndex="0"
+              />
+            )
+          })}
+        </svg>
+        <div className="insight-strength-center">
+          <div className="insight-strength-center-title">
+            {hovered ? hovered.label : t('leadershipPupilDetail.insightStrengthAverage')}
+          </div>
+          <div className="insight-strength-center-value">
+            {hovered ? t('leadershipPupilDetail.insightStrengthScore').replace('{n}', hovered.strength) : averageStrength}
+          </div>
+        </div>
+      </div>
+      <div className="insight-strength-domain-legend">
+        {domains.map(d => (
+          <span key={d.domain} className="insight-strength-domain-chip">
+            <span className="insight-strength-domain-swatch" style={{ background: d.color }} />
+            {d.domainName}
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function getStrongestWeakest(strengths) {
+  const entries = Object.entries(strengths).map(([code, strength]) => ({
+    code,
+    label: SUBDOMAIN_CONFIG[code]?.label || code,
+    strength: Number(strength) || 0,
+  }))
+  if (entries.length === 0) return null
+
+  const sorted = [...entries].sort((a, b) => b.strength - a.strength)
+  return { strongest: sorted[0], weakest: sorted[sorted.length - 1] }
+}
+
 function lastActiveLabel(dateStr, t) {
   if (!dateStr) return t('common.never')
   const days = Math.floor((Date.now() - new Date(dateStr)) / 86400000)
@@ -82,6 +183,31 @@ function LeadershipPupilDetail({ pupilId, onBack, onPupilDeleted }) {
   const [moveSuccess, setMoveSuccess] = useState(false)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [insightStrengths, setInsightStrengths] = useState({})
+  const [insightLoading, setInsightLoading] = useState(false)
+  const [insightError, setInsightError] = useState(null)
+
+  async function loadInsightStrengths(level) {
+    setInsightLoading(true)
+    setInsightError(null)
+
+    const { data: rows, error } = await supabase.rpc('get_pupil_subdomain_strengths', { p_pupil_id: pupilId })
+    if (error) {
+      setInsightStrengths({})
+      setInsightError(error.message)
+      setInsightLoading(false)
+      return
+    }
+
+    const strengths = {}
+    for (const row of rows ?? []) {
+      if (row.level === level && typeof row.subdomain === 'string') {
+        strengths[row.subdomain] = Number(row.strength ?? 0)
+      }
+    }
+    setInsightStrengths(strengths)
+    setInsightLoading(false)
+  }
 
   useEffect(() => {
     Promise.all([
@@ -92,6 +218,7 @@ function LeadershipPupilDetail({ pupilId, onBack, onPupilDeleted }) {
       setAllClasses(classes ?? [])
       if (history?.pupil?.class_id) setSelectedClassId(history.pupil.class_id)
       setLoading(false)
+      if (history?.pupil) loadInsightStrengths(history.pupil.insight_level ?? 1)
     })
   }, [pupilId])
 
@@ -118,7 +245,11 @@ function LeadershipPupilDetail({ pupilId, onBack, onPupilDeleted }) {
   if (!data?.pupil) return <div className="screen"><p>{t('leadershipPupilDetail.pupilNotFound')}</p></div>
 
   const { pupil, attempts } = data
-  const stage = pupil.instinct_level ?? 1
+  const instinctLevel = pupil.instinct_level ?? 1
+  const insightLevel = pupil.insight_level ?? 1
+  const streak = pupil.challenge_streak ?? 0
+  const insightStreak = pupil.insight_streak ?? 0
+  const strengthSummary = getStrongestWeakest(insightStrengths)
   const lastAttempt = attempts?.length > 0
     ? attempts.slice().sort((a, b) => new Date(b.completed_at) - new Date(a.completed_at))[0]
     : null
@@ -130,44 +261,80 @@ function LeadershipPupilDetail({ pupilId, onBack, onPupilDeleted }) {
         <div className="dashboard-header-brand"><img src="/intuit-name.svg" alt="intuit" /></div>
       </header>
 
-      <main className="dashboard-main" style={{ maxWidth: 640 }}>
+      <main className="dashboard-main" style={{ maxWidth: 960 }}>
         <div className="page-title">
           <h1>{pupil.first_name} {pupil.last_name}</h1>
-          <span className="tier-badge tier-badge--pro">{t('leadershipPupilDetail.testLevel')} {stage}</span>
         </div>
 
-        <section className="dashboard-section">
-          <div className="pupil-detail-stats">
-            <div className="stat-box">
-              <div className="stat-number">{stage}</div>
-              <div className="stat-label">{t('leadershipPupilDetail.testLevel')}</div>
+        <div className="pupil-detail-levels">
+          <section className="pupil-detail-level-block pupil-detail-level-block--instinct">
+            <div className="level-block-header">
+              <span className="level-block-label">Instinct</span>
+              <span className="level-block-number">{instinctLevel}</span>
             </div>
-            <div className="stat-box">
-              <div className="stat-number">{pupil.credits ?? 0}</div>
-              <div className="stat-label">{t('leadershipPupilDetail.credits')}</div>
-            </div>
-            <div className="stat-box">
-              <div className="stat-number" style={{ fontSize: '1rem' }}>{lastActiveLabel(lastAttempt?.completed_at, t)}</div>
-              <div className="stat-label">{t('leadershipPupilDetail.lastActive')}</div>
-            </div>
-          </div>
-          <div style={{ marginTop: '1rem' }}>
-            <p className="note" style={{ marginBottom: '0.4rem' }}>{t('leadershipPupilDetail.progressTo').replace('{n}', stage + 1)}</p>
-            <StreakDots streak={pupil.challenge_streak ?? 0} t={t} />
-          </div>
-        </section>
+            <StreakDots streak={streak} t={t} />
 
-        <section className="dashboard-section">
-          <div className="section-heading">
-            <h2>{t('leadershipPupilDetail.instinctHistory')}</h2>
-            <span className="section-count">{t('leadershipPupilDetail.sessionsCount').replace('{n}', attempts?.length ?? 0)}</span>
-          </div>
-          {!attempts?.length ? (
-            <p className="note">{t('leadershipPupilDetail.noSessions')}</p>
-          ) : (
-            <ScoreChart attempts={attempts} t={t} />
-          )}
-        </section>
+            <div className="section-heading pupil-detail-macro-subheading">
+              <h2>{t('leadershipPupilDetail.instinctHistory')}</h2>
+              <span className="section-count">{t('leadershipPupilDetail.sessionsCount').replace('{n}', attempts?.length ?? 0)}</span>
+            </div>
+            {!attempts?.length ? (
+              <p className="note">{t('leadershipPupilDetail.noSessions')}</p>
+            ) : (
+              <ScoreChart attempts={attempts} t={t} />
+            )}
+          </section>
+
+          <section className="pupil-detail-level-block pupil-detail-level-block--overview">
+            <div className="level-block-header">
+              <span className="level-block-label">{t('leadershipPupilDetail.overviewTitle')}</span>
+              <span className="level-block-number">{pupil.credits ?? 0}</span>
+            </div>
+            <p className="pupil-detail-overview-caption">{t('leadershipPupilDetail.credits')}</p>
+            <p className="note" style={{ marginTop: '0.75rem' }}>
+              {t('leadershipPupilDetail.lastActive')}: {lastActiveLabel(lastAttempt?.completed_at, t)}
+            </p>
+
+            <div className="section-heading pupil-detail-macro-subheading">
+              <h2>{t('leadershipPupilDetail.strengthsSummaryTitle')}</h2>
+            </div>
+            {strengthSummary ? (
+              <div className="pupil-detail-strength-summary">
+                <div className="pupil-detail-strength-row">
+                  <span className="pupil-detail-strength-tag pupil-detail-strength-tag--strong">{t('leadershipPupilDetail.strongest')}</span>
+                  <span>{strengthSummary.strongest.label}</span>
+                </div>
+                <div className="pupil-detail-strength-row">
+                  <span className="pupil-detail-strength-tag pupil-detail-strength-tag--weak">{t('leadershipPupilDetail.weakest')}</span>
+                  <span>{strengthSummary.weakest.label}</span>
+                </div>
+              </div>
+            ) : (
+              <p className="note">{t('leadershipPupilDetail.insightStrengthNoData')}</p>
+            )}
+          </section>
+
+          <section className="pupil-detail-level-block pupil-detail-level-block--insight">
+            <div className="level-block-header">
+              <span className="level-block-label">Insight</span>
+              <span className="level-block-number">{insightLevel}</span>
+            </div>
+            <StreakDots streak={insightStreak} t={t} />
+
+            <div className="section-heading pupil-detail-macro-subheading">
+              <h2>{t('leadershipPupilDetail.insightStrengthsTitle')}</h2>
+            </div>
+            {insightLoading ? (
+              <p>{t('common.loading')}</p>
+            ) : insightError ? (
+              <p style={{ color: '#dc2626' }}>{insightError}</p>
+            ) : Object.keys(insightStrengths).length > 0 ? (
+              <InsightStrengthPie strengths={insightStrengths} insightLevel={insightLevel} t={t} />
+            ) : (
+              <p className="note">{t('leadershipPupilDetail.insightStrengthNoData')}</p>
+            )}
+          </section>
+        </div>
 
         <section className="dashboard-section">
           <h2 style={{ marginBottom: '0.75rem' }}>{t('leadershipPupilDetail.moveToClass')}</h2>

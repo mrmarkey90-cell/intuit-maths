@@ -253,11 +253,6 @@ button:hover:not(:disabled) {
   color: #b91c1c;
 }
 
-.pupil-detail-stats {
-  display: flex;
-  gap: 1rem;
-}
-
 .pupil-list-meta {
   display: flex;
   align-items: center;
@@ -1691,17 +1686,31 @@ button:hover:not(:disabled) {
 
 /* ── Pupil detail view ─────────────────────────── */
 
-.pupil-detail-level {
-  display: flex;
-  align-items: flex-start;
+.pupil-detail-levels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
   gap: 1.5rem;
 }
 
-.pupil-detail-levels {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 1.5rem;
+.pupil-detail-levels .pupil-detail-level-block--instinct { grid-column: 1; grid-row: 1; }
+.pupil-detail-levels .pupil-detail-level-block--overview { grid-column: 1; grid-row: 2; }
+.pupil-detail-levels .pupil-detail-level-block--insight { grid-column: 2; grid-row: 1 / span 2; }
+
+/* Below ~800px the left column's two stacked tiles plus the right column's
+   single tall one no longer have room side by side -- fall back to a single
+   column in source order (Instinct, Overview, Insight). */
+@media (max-width: 800px) {
+  .pupil-detail-levels {
+    grid-template-columns: 1fr;
+  }
+
+  .pupil-detail-levels .pupil-detail-level-block--instinct,
+  .pupil-detail-levels .pupil-detail-level-block--overview,
+  .pupil-detail-levels .pupil-detail-level-block--insight {
+    grid-column: 1;
+    grid-row: auto;
+  }
 }
 
 .insight-strength-wrap {
@@ -1780,7 +1789,6 @@ button:hover:not(:disabled) {
 }
 
 .pupil-detail-level-block {
-  flex: 1 1 380px;
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -1799,10 +1807,60 @@ button:hover:not(:disabled) {
   border-color: #bbf7d0;
 }
 
+.pupil-detail-level-block--overview {
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+.pupil-detail-level-block--overview .level-block-label,
+.pupil-detail-level-block--overview .level-block-number {
+  color: #b45309;
+}
+
 .pupil-detail-macro-subheading {
   margin-top: 1.25rem;
   padding-top: 1rem;
   border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.pupil-detail-overview-caption {
+  font-size: 0.8rem;
+  color: #92400e;
+  margin-top: -0.5rem;
+}
+
+.pupil-detail-strength-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.pupil-detail-strength-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.pupil-detail-strength-tag {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+}
+
+.pupil-detail-strength-tag--strong {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.pupil-detail-strength-tag--weak {
+  background: #fee2e2;
+  color: #b91c1c;
 }
 
 .level-block-header {

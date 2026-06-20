@@ -270,11 +270,11 @@ pupil_id (FK), subdomain (text — e.g. `1A`, `7B`, matches the curriculum sheet
 - **Leadership — Manage Pupils** — full school pupil list with search, level badge, class name; click through to pupil detail
 - **Leadership — Manage Account** — change staff PIN form, transfer ownership flow (magic link to new owner)
 - **Leadership — Class Detail** — pupil list with last-active dates, delete class (warns pupils become unallocated)
-- **Leadership — Pupil Detail** — challenge history, Test Level, streak, credits, move class dropdown, delete pupil
+- **Leadership — Pupil Detail** — Instinct/Insight macro tiles (level, streak, history graph / strengths pie) side by side, an Overview tile (credits, last active, strongest/weakest subdomain) filling the gap below the shorter Instinct tile, move class dropdown, delete pupil. Same tile layout as the staff-facing Pupil Detail screen below, but keeps move/delete (Leadership-only — deliberately not given to Staff, since the shared staff PIN means any teacher in the school could otherwise delete any pupil) instead of the level-override form.
 - **Ownership transfer** — `initiate_transfer` + `supabase.auth.signInWithOtp`; `complete_transfer` auto-fires in App.jsx when new auth session has no public.users row
 - Staff login — `/school/[code]` → PIN entry → class selection → class dashboard
 - Class dashboard — pupil list with levels + click-through to pupil detail, profile creator link, Start Instinct button
-- Pupil detail view — challenge history, Test Level, streak progress (teacher-accessible)
+- **Pupil detail view** (teacher-accessible) — pupil name, then a 3-tile grid: Instinct (level, streak, history graph) and an Overview tile (credits, strongest/weakest subdomain) stacked in the left column, Insight (level, streak, strengths pie) spanning the full height of the right column — falls back to a single stacked column below ~800px. Override-levels form at the bottom. No delete-pupil option here (Leadership-only, see below) — `saveLevels` re-runs `loadData()` after the RPC so the tiles refresh immediately rather than showing stale levels/streaks until the page is reopened.
 - Pupil profile creation — `/join/[code]` → name + avatar builder → profile saved
 - **Instinct session (teacher side)** — lobby with QR code + pupil ready grid, real-time answered count via Broadcast + ping sound, 5s marking grace period, results with class aggregate + comparison vs last session
 - **Instinct session (pupil side)** — `/play/[code]` → profile select → lobby wait → 60s question flow with numpad + skip → results with Test Level badge, streak dots, credits earned, comparison vs last time

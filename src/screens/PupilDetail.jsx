@@ -182,6 +182,18 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
   )
 }
 
+function getStrongestWeakest(strengths) {
+  const entries = Object.entries(strengths).map(([code, strength]) => ({
+    code,
+    label: SUBDOMAIN_CONFIG[code]?.label || code,
+    strength: Number(strength) || 0,
+  }))
+  if (entries.length === 0) return null
+
+  const sorted = [...entries].sort((a, b) => b.strength - a.strength)
+  return { strongest: sorted[0], weakest: sorted[sorted.length - 1] }
+}
+
 function PupilDetail({ pupilId, onBack, onLevelChanged }) {
   const { t } = useTranslation()
   const [data, setData] = useState(null)
@@ -273,6 +285,7 @@ function PupilDetail({ pupilId, onBack, onLevelChanged }) {
   const insightLevel = pupil.insight_level ?? 1
   const streak = pupil.challenge_streak ?? 0
   const insightStreak = pupil.insight_streak ?? 0
+  const strengthSummary = getStrongestWeakest(insightStrengths)
 
   return (
     <div className="dashboard">
@@ -302,6 +315,32 @@ function PupilDetail({ pupilId, onBack, onLevelChanged }) {
               <p className="note">{t('staffPupilDetail.noSessions')}</p>
             ) : (
               <ScoreChart attempts={attempts} t={t} />
+            )}
+          </section>
+
+          <section className="pupil-detail-level-block pupil-detail-level-block--overview">
+            <div className="level-block-header">
+              <span className="level-block-label">{t('staffPupilDetail.overviewTitle')}</span>
+              <span className="level-block-number">{pupil.credits ?? 0}</span>
+            </div>
+            <p className="pupil-detail-overview-caption">{t('staffPupilDetail.credits')}</p>
+
+            <div className="section-heading pupil-detail-macro-subheading">
+              <h2>{t('staffPupilDetail.strengthsSummaryTitle')}</h2>
+            </div>
+            {strengthSummary ? (
+              <div className="pupil-detail-strength-summary">
+                <div className="pupil-detail-strength-row">
+                  <span className="pupil-detail-strength-tag pupil-detail-strength-tag--strong">{t('staffPupilDetail.strongest')}</span>
+                  <span>{strengthSummary.strongest.label}</span>
+                </div>
+                <div className="pupil-detail-strength-row">
+                  <span className="pupil-detail-strength-tag pupil-detail-strength-tag--weak">{t('staffPupilDetail.weakest')}</span>
+                  <span>{strengthSummary.weakest.label}</span>
+                </div>
+              </div>
+            ) : (
+              <p className="note">{t('staffPupilDetail.insightStrengthNoData')}</p>
             )}
           </section>
 
