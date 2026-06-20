@@ -102,6 +102,7 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
     return {
       code,
       label: config.label || code,
+      domainName: config.domainName || code,
       color: DOMAIN_COLORS[config.domain] || '#6b7280',
       strength,
     }
@@ -163,9 +164,11 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
         </svg>
         <div className="insight-strength-center">
           <div className="insight-strength-center-title">
-            {hovered ? hovered.code : t('staffPupilDetail.insightStrengthAverage')}
+            {hovered ? hovered.domainName : t('staffPupilDetail.insightStrengthAverage')}
           </div>
-          <div className="insight-strength-center-value">{hovered ? hovered.strength : averageStrength}</div>
+          <div className="insight-strength-center-value">
+            {hovered ? t('staffPupilDetail.insightStrengthScore').replace('{n}', hovered.strength) : averageStrength}
+          </div>
         </div>
       </div>
       <div className="insight-strength-domain-legend">

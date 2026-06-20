@@ -1731,21 +1731,26 @@ button:hover:not(:disabled) {
 .insight-strength-center {
   position: absolute;
   inset: 0;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   pointer-events: none;
   text-align: center;
+  padding: 0 1.5rem;
 }
 
 .insight-strength-center-title {
-  font-size: 0.85rem;
+  font-size: 1.05rem;
+  line-height: 1.2;
   font-weight: 700;
   color: #374151;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.3rem;
 }
 
 .insight-strength-center-value {
-  font-size: 2.1rem;
+  font-size: 1.7rem;
+  line-height: 1.2;
   font-weight: 700;
   color: #111827;
 }
