@@ -91,42 +91,30 @@ function ScoreChart({ attempts, t }) {
   )
 }
 
-function shadeColor(hex, percent) {
-  const num = parseInt(hex.slice(1), 16)
-  const amt = Math.round(2.55 * percent)
-  const clamp = v => Math.max(0, Math.min(255, v))
-  const r = clamp((num >> 16) + amt)
-  const g = clamp(((num >> 8) & 0xff) + amt)
-  const b = clamp((num & 0xff) + amt)
-  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`
-}
-
 function InsightStrengthPie({ strengths, insightLevel, t }) {
   const [hovered, setHovered] = useState(null)
   const activeCodes = getActiveSubdomains(insightLevel)
   if (activeCodes.length === 0) return null
 
-  // Subdomains in the same domain share a base colour, so adjacent slices
-  // need a shade step within that hue or they're indistinguishable without hovering.
-  const domainGroups = {}
-  for (const code of activeCodes) {
-    const domain = SUBDOMAIN_CONFIG[code]?.domain
-    ;(domainGroups[domain] ??= []).push(code)
-  }
-
   const items = activeCodes.map(code => {
     const config = SUBDOMAIN_CONFIG[code] || {}
     const strength = Math.max(0, Number(strengths[code] ?? 0))
-    const group = domainGroups[config.domain] || [code]
-    const indexInGroup = group.indexOf(code)
-    const shadePercent = group.length > 1 ? -22 + (44 * indexInGroup) / (group.length - 1) : 0
     return {
       code,
       label: config.label || code,
-      color: shadeColor(DOMAIN_COLORS[config.domain] || '#6b7280', shadePercent),
+      color: DOMAIN_COLORS[config.domain] || '#6b7280',
       strength,
     }
   })
+
+  const domains = []
+  const seenDomains = new Set()
+  for (const code of activeCodes) {
+    const config = SUBDOMAIN_CONFIG[code]
+    if (!config || seenDomains.has(config.domain)) continue
+    seenDomains.add(config.domain)
+    domains.push({ domain: config.domain, domainName: config.domainName, color: DOMAIN_COLORS[config.domain] })
+  }
 
   const totalStrength = items.reduce((sum, item) => sum + item.strength, 0)
   const total = items.length
@@ -145,63 +133,47 @@ function InsightStrengthPie({ strengths, insightLevel, t }) {
 
   return (
     <div className="insight-strength-wrap">
-      <div className="insight-strength-chart-col">
-        <div className="insight-strength-pie-wrap">
-          <svg viewBox="0 0 260 260" className="insight-strength-svg">
-            {items.map((item, index) => {
-              const offset = items.slice(0, index).reduce((sum, prev) => sum + sliceLength(prev) + gap, 0)
-              return (
-                <circle
-                  key={item.code}
-                  cx="130"
-                  cy="130"
-                  r={R}
-                  fill="none"
-                  stroke={item.color}
-                  strokeWidth={hovered?.code === item.code ? 32 : 28}
-                  strokeOpacity={!hovered || hovered.code === item.code ? 1 : 0.45}
-                  strokeDasharray={`${sliceLength(item)} ${circumference}`}
-                  strokeDashoffset={-offset}
-                  transform="rotate(-90 130 130)"
-                  pointerEvents="stroke"
-                  cursor="pointer"
-                  onMouseEnter={() => setHovered(item)}
-                  onMouseLeave={() => setHovered(null)}
-                  onFocus={() => setHovered(item)}
-                  onBlur={() => setHovered(null)}
-                  tabIndex="0"
-                />
-              )
-            })}
-          </svg>
-          <div className="insight-strength-center">
-            {hovered ? hovered.strength : averageStrength}
+      <div className="insight-strength-pie-wrap">
+        <svg viewBox="0 0 260 260" className="insight-strength-svg">
+          {items.map((item, index) => {
+            const offset = items.slice(0, index).reduce((sum, prev) => sum + sliceLength(prev) + gap, 0)
+            return (
+              <circle
+                key={item.code}
+                cx="130"
+                cy="130"
+                r={R}
+                fill="none"
+                stroke={item.color}
+                strokeWidth={hovered?.code === item.code ? 32 : 28}
+                strokeOpacity={!hovered || hovered.code === item.code ? 1 : 0.45}
+                strokeDasharray={`${sliceLength(item)} ${circumference}`}
+                strokeDashoffset={-offset}
+                transform="rotate(-90 130 130)"
+                pointerEvents="stroke"
+                cursor="pointer"
+                onMouseEnter={() => setHovered(item)}
+                onMouseLeave={() => setHovered(null)}
+                onFocus={() => setHovered(item)}
+                onBlur={() => setHovered(null)}
+                tabIndex="0"
+              />
+            )
+          })}
+        </svg>
+        <div className="insight-strength-center">
+          <div className="insight-strength-center-title">
+            {hovered ? hovered.code : t('staffPupilDetail.insightStrengthAverage')}
           </div>
-        </div>
-        <div className="insight-strength-caption">
-          <div className="insight-strength-caption-title">
-            {hovered ? hovered.label : t('staffPupilDetail.insightStrengthAverage')}
-          </div>
-          <div className="insight-strength-caption-label">
-            {hovered ? hovered.code : t('staffPupilDetail.insightHoverHint')}
-          </div>
+          <div className="insight-strength-center-value">{hovered ? hovered.strength : averageStrength}</div>
         </div>
       </div>
-      <div className="insight-strength-legend">
-        {items.map(item => (
-          <button
-            key={item.code}
-            type="button"
-            className={`insight-strength-legend-item ${hovered?.code === item.code ? 'insight-strength-legend-item--active' : ''}`}
-            onMouseEnter={() => setHovered(item)}
-            onMouseLeave={() => setHovered(null)}
-            onFocus={() => setHovered(item)}
-            onBlur={() => setHovered(null)}
-          >
-            <span className="insight-strength-legend-swatch" style={{ background: item.color }} />
-            <span className="insight-strength-legend-label">{item.code} {item.label}</span>
-            <span className="insight-strength-legend-value">{item.strength}</span>
-          </button>
+      <div className="insight-strength-domain-legend">
+        {domains.map(d => (
+          <span key={d.domain} className="insight-strength-domain-chip">
+            <span className="insight-strength-domain-swatch" style={{ background: d.color }} />
+            {d.domainName}
+          </span>
         ))}
       </div>
     </div>
