@@ -1823,10 +1823,15 @@ button:hover:not(:disabled) {
   border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
 
+.pupil-detail-overview-credits {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
 .pupil-detail-overview-caption {
   font-size: 0.8rem;
   color: #92400e;
-  margin-top: -0.5rem;
 }
 
 .pupil-detail-strength-summary {

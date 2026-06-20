@@ -206,22 +206,7 @@ function PupilDetail({ pupilId, onBack, onLevelChanged }) {
   const [insightLoading, setInsightLoading] = useState(false)
   const [insightError, setInsightError] = useState(null)
 
-  function getMockInsightStrengths(level) {
-    const activeCodes = getActiveSubdomains(level)
-    const pattern = [5, 4, 4, 3, 3, 2, 1]
-    const strengths = activeCodes.reduce((result, code, index) => {
-      result[code] = pattern[index % pattern.length]
-      return result
-    }, {})
-
-    if (activeCodes.length > 0) {
-      strengths[activeCodes[0]] = 0
-    }
-
-    return strengths
-  }
-
-  async function loadInsightStrengths(level, pupil) {
+  async function loadInsightStrengths(level) {
     setInsightLoading(true)
     setInsightError(null)
 
@@ -240,11 +225,6 @@ function PupilDetail({ pupilId, onBack, onLevelChanged }) {
       }
     }
 
-    const isTestTester = pupil?.first_name === 'Test' && pupil?.last_name === 'Tester' && level === 4
-    if (Object.keys(strengths).length === 0 && isTestTester) {
-      Object.assign(strengths, getMockInsightStrengths(level))
-    }
-
     setInsightStrengths(strengths)
     setInsightLoading(false)
   }
@@ -256,7 +236,7 @@ function PupilDetail({ pupilId, onBack, onLevelChanged }) {
       const insightLevelValue = result.pupil.insight_level ?? 1
       setOverrideInstinct(result.pupil.instinct_level ?? 1)
       setOverrideInsight(insightLevelValue)
-      await loadInsightStrengths(insightLevelValue, result.pupil)
+      await loadInsightStrengths(insightLevelValue)
     }
     setLoading(false)
   }
@@ -321,12 +301,14 @@ function PupilDetail({ pupilId, onBack, onLevelChanged }) {
           <section className="pupil-detail-level-block pupil-detail-level-block--overview">
             <div className="level-block-header">
               <span className="level-block-label">{t('staffPupilDetail.overviewTitle')}</span>
-              <span className="level-block-number">{pupil.credits ?? 0}</span>
+              <div className="pupil-detail-overview-credits">
+                <span className="level-block-number">{pupil.credits ?? 0}</span>
+                <span className="pupil-detail-overview-caption">{t('staffPupilDetail.credits')}</span>
+              </div>
             </div>
-            <p className="pupil-detail-overview-caption">{t('staffPupilDetail.credits')}</p>
 
             <div className="section-heading pupil-detail-macro-subheading">
-              <h2>{t('staffPupilDetail.strengthsSummaryTitle')}</h2>
+              <h2>{t('staffPupilDetail.quickInsightsTitle').replace('{n}', insightLevel)}</h2>
             </div>
             {strengthSummary ? (
               <div className="pupil-detail-strength-summary">

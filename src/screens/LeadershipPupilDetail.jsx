@@ -288,15 +288,17 @@ function LeadershipPupilDetail({ pupilId, onBack, onPupilDeleted }) {
           <section className="pupil-detail-level-block pupil-detail-level-block--overview">
             <div className="level-block-header">
               <span className="level-block-label">{t('leadershipPupilDetail.overviewTitle')}</span>
-              <span className="level-block-number">{pupil.credits ?? 0}</span>
+              <div className="pupil-detail-overview-credits">
+                <span className="level-block-number">{pupil.credits ?? 0}</span>
+                <span className="pupil-detail-overview-caption">{t('leadershipPupilDetail.credits')}</span>
+              </div>
             </div>
-            <p className="pupil-detail-overview-caption">{t('leadershipPupilDetail.credits')}</p>
             <p className="note" style={{ marginTop: '0.75rem' }}>
               {t('leadershipPupilDetail.lastActive')}: {lastActiveLabel(lastAttempt?.completed_at, t)}
             </p>
 
             <div className="section-heading pupil-detail-macro-subheading">
-              <h2>{t('leadershipPupilDetail.strengthsSummaryTitle')}</h2>
+              <h2>{t('leadershipPupilDetail.quickInsightsTitle').replace('{n}', insightLevel)}</h2>
             </div>
             {strengthSummary ? (
               <div className="pupil-detail-strength-summary">
