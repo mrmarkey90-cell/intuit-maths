@@ -1699,7 +1699,9 @@ button:hover:not(:disabled) {
 
 .pupil-detail-levels {
   display: flex;
-  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1.5rem;
 }
 
 .insight-strength-wrap {
@@ -1778,9 +1780,12 @@ button:hover:not(:disabled) {
 }
 
 .pupil-detail-level-block {
-  flex: 1;
-  border-radius: 10px;
-  padding: 1rem 1.25rem;
+  flex: 1 1 380px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  padding: 1.5rem;
   border: 2px solid transparent;
 }
 
@@ -1792,6 +1797,12 @@ button:hover:not(:disabled) {
 .pupil-detail-level-block--insight {
   background: #f0fdf4;
   border-color: #bbf7d0;
+}
+
+.pupil-detail-macro-subheading {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .level-block-header {

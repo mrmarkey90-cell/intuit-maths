@@ -258,11 +258,11 @@ function PupilDetail({ pupilId, onBack, onLevelChanged }) {
       p_instinct_level: overrideInstinct,
       p_insight_level: overrideInsight,
     })
+    await loadData()
     setSaving(false)
     setSaved(true)
     setTimeout(() => setSaved(false), 2500)
     onLevelChanged?.()
-    await loadInsightStrengths(overrideInsight, data?.pupil)
   }
 
   if (loading) return <div className="dashboard"><main className="dashboard-main"><p>{t('common.loading')}</p></main></div>
@@ -281,55 +281,51 @@ function PupilDetail({ pupilId, onBack, onLevelChanged }) {
         <div className="dashboard-header-brand"><img src="/intuit-name.svg" alt="intuit" /></div>
       </header>
 
-      <main className="dashboard-main">
+      <main className="dashboard-main" style={{ maxWidth: 960 }}>
         <div className="page-title">
           <h1>{pupil.first_name} {pupil.last_name}</h1>
         </div>
 
-        <section className="dashboard-section">
-          <div className="section-heading"><h2>{t('staffPupilDetail.levels')}</h2></div>
-          <div className="pupil-detail-levels">
-            <div className="pupil-detail-level-block pupil-detail-level-block--instinct">
-              <div className="level-block-header">
-                <span className="level-block-label">Instinct</span>
-                <span className="level-block-number">{instinctLevel}</span>
-              </div>
-              <StreakDots streak={streak} t={t} />
+        <div className="pupil-detail-levels">
+          <section className="pupil-detail-level-block pupil-detail-level-block--instinct">
+            <div className="level-block-header">
+              <span className="level-block-label">Instinct</span>
+              <span className="level-block-number">{instinctLevel}</span>
             </div>
-            <div className="pupil-detail-level-block pupil-detail-level-block--insight">
-              <div className="level-block-header">
-                <span className="level-block-label">Insight</span>
-                <span className="level-block-number">{insightLevel}</span>
-              </div>
-              <StreakDots streak={insightStreak} t={t} />
+            <StreakDots streak={streak} t={t} />
+
+            <div className="section-heading pupil-detail-macro-subheading">
+              <h2>{t('staffPupilDetail.instinctHistory')}</h2>
+              <span className="section-count">{t('staffPupilDetail.sessionsCount').replace('{n}', attempts.length)}</span>
             </div>
-          </div>
-        </section>
+            {attempts.length === 0 ? (
+              <p className="note">{t('staffPupilDetail.noSessions')}</p>
+            ) : (
+              <ScoreChart attempts={attempts} t={t} />
+            )}
+          </section>
 
-        <section className="dashboard-section">
-          <div className="section-heading">
-            <h2>{t('staffPupilDetail.instinctHistory')}</h2>
-            <span className="section-count">{t('staffPupilDetail.sessionsCount').replace('{n}', attempts.length)}</span>
-          </div>
-          {attempts.length === 0 ? (
-            <p className="note">{t('staffPupilDetail.noSessions')}</p>
-          ) : (
-            <ScoreChart attempts={attempts} t={t} />
-          )}
-        </section>
+          <section className="pupil-detail-level-block pupil-detail-level-block--insight">
+            <div className="level-block-header">
+              <span className="level-block-label">Insight</span>
+              <span className="level-block-number">{insightLevel}</span>
+            </div>
+            <StreakDots streak={insightStreak} t={t} />
 
-        <section className="dashboard-section">
-          <div className="section-heading"><h2>{t('staffPupilDetail.insightStrengthsTitle')}</h2></div>
-          {insightLoading ? (
-            <p>{t('common.loading')}</p>
-          ) : insightError ? (
-            <p style={{ color: '#dc2626' }}>{insightError}</p>
-          ) : Object.keys(insightStrengths).length > 0 ? (
-            <InsightStrengthPie strengths={insightStrengths} insightLevel={insightLevel} t={t} />
-          ) : (
-            <p className="note">{t('staffPupilDetail.insightStrengthNoData')}</p>
-          )}
-        </section>
+            <div className="section-heading pupil-detail-macro-subheading">
+              <h2>{t('staffPupilDetail.insightStrengthsTitle')}</h2>
+            </div>
+            {insightLoading ? (
+              <p>{t('common.loading')}</p>
+            ) : insightError ? (
+              <p style={{ color: '#dc2626' }}>{insightError}</p>
+            ) : Object.keys(insightStrengths).length > 0 ? (
+              <InsightStrengthPie strengths={insightStrengths} insightLevel={insightLevel} t={t} />
+            ) : (
+              <p className="note">{t('staffPupilDetail.insightStrengthNoData')}</p>
+            )}
+          </section>
+        </div>
 
         <section className="dashboard-section">
           <div className="section-heading"><h2>{t('staffPupilDetail.overrideLevels')}</h2></div>
