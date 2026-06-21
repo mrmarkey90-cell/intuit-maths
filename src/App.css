@@ -978,11 +978,18 @@ button:hover:not(:disabled) {
   gap: 4px;
 }
 
+/* Sized to be readable from across a classroom off the teacher's screen,
+   not just up close -- this is the link/code a child has to read and type. */
 .session-code-display {
-  font-size: 18px;
+  font-size: clamp(1.25rem, 4vw, 2rem);
   font-weight: 700;
   color: #4f46e5;
   letter-spacing: 0.03em;
+}
+
+.session-code-text {
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
+  letter-spacing: 0.05em;
 }
 
 .lobby-grid {
@@ -1685,9 +1692,13 @@ button:hover:not(:disabled) {
   display: inline-block;
 }
 
+/* Sized to be readable from across a classroom off the teacher's screen,
+   not just up close -- this is the link a child has to read and type. */
 .qr-url-display {
-  font-size: 0.85rem;
-  color: #555;
+  font-size: clamp(1.5rem, 5vw, 2.25rem);
+  font-weight: 700;
+  color: #4f46e5;
+  letter-spacing: 0.02em;
   word-break: break-all;
   display: block;
 }

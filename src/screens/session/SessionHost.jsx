@@ -177,7 +177,7 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
                 <p className="note" style={{ marginBottom: '0.5rem' }}>{t('sessionHost.pupilsGoTo')}</p>
                 <code className="session-code-display">{joinUrl.replace('https://', '')}</code>
                 <p className="note" style={{ marginTop: '0.5rem' }}>
-                  {t('sessionHost.sessionCode')} <strong>{session.join_code}</strong>
+                  {t('sessionHost.sessionCode')} <strong className="session-code-text">{session.join_code}</strong>
                 </p>
               </div>
             </div>
