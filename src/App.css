@@ -433,6 +433,14 @@ button:hover:not(:disabled) {
   align-items: center;
   justify-content: space-between;
   position: relative;
+  /* The brand logo is absolutely positioned (see below), so it's taken
+     out of flow and contributes nothing to this container's auto height.
+     On screens with no other header content (e.g. the main Leadership
+     Dashboard), the header would otherwise collapse to just its padding
+     (~41px) while the 56px-tall logo, vertically centered against this
+     box, sticks out above and below it. min-height guarantees enough
+     room regardless of what else (if anything) is in the header. */
+  min-height: 96px;
 }
 
 .dashboard-header-brand {
