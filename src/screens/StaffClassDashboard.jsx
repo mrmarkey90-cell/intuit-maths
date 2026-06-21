@@ -1,9 +1,19 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import QRCode from 'react-qr-code'
 import { supabase } from '../supabaseClient'
 import { useTranslation } from '../i18n/LanguageContext'
 import SessionHost from './session/SessionHost'
 import PupilDetail from './PupilDetail'
+import AvatarDisplay from '../components/AvatarDisplay'
+import { DEFAULT_AVATAR } from '../lib/avatarConfig'
+
+// Speed of the random-pupil-picker's card-to-card cycling follows a sine
+// curve across the run: slow to start, fastest at the midpoint, slow again
+// as it lands on the chosen pupil -- a simple ramp-up-then-down "wheel spin"
+// feel rather than a constant tick rate.
+const PICKER_STEPS = 26
+const PICKER_MIN_DELAY = 70
+const PICKER_MAX_DELAY = 320
 
 function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
   const { t } = useTranslation()
@@ -18,6 +28,11 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
   const [cancelling, setCancelling] = useState(false)
   const [selectedPupil, setSelectedPupil] = useState(null)
   const [linkCopied, setLinkCopied] = useState(false)
+  const [highlightedId, setHighlightedId] = useState(null)
+  const [picking, setPicking] = useState(false)
+  const [pickedPupil, setPickedPupil] = useState(null)
+  const classPupilsRef = useRef(classPupils)
+  classPupilsRef.current = classPupils
 
   // One link covers both new and returning pupils now -- PupilHub itself
   // offers an "I'm new here" entry point for profile creation.
@@ -69,6 +84,45 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
     setTimeout(() => setLinkCopied(false), 2000)
   }
 
+  async function awardCoin(pupilId) {
+    setClassPupils(prev => prev.map(p => p.id === pupilId ? { ...p, credits: (p.credits ?? 0) + 1 } : p))
+    const { data } = await supabase.rpc('award_credit', { p_pupil_id: pupilId })
+    if (data?.credits != null) {
+      setClassPupils(prev => prev.map(p => p.id === pupilId ? { ...p, credits: data.credits } : p))
+    }
+  }
+
+  function pickRandomPupil() {
+    const pupils = classPupilsRef.current
+    if (picking || pupils.length === 0) return
+    setPickedPupil(null)
+    setPicking(true)
+    const finalPupil = pupils[Math.floor(Math.random() * pupils.length)]
+
+    let step = 0
+    function tick() {
+      const isLastStep = step === PICKER_STEPS
+      const candidate = isLastStep
+        ? finalPupil
+        : pupils[Math.floor(Math.random() * pupils.length)]
+      setHighlightedId(candidate.id)
+
+      if (isLastStep) {
+        setPicking(false)
+        setHighlightedId(null)
+        setPickedPupil(finalPupil)
+        return
+      }
+
+      const progress = step / PICKER_STEPS
+      const speedFactor = Math.sin(progress * Math.PI) // 0 -> 1 -> 0
+      const delay = PICKER_MAX_DELAY - (PICKER_MAX_DELAY - PICKER_MIN_DELAY) * speedFactor
+      step += 1
+      setTimeout(tick, delay)
+    }
+    tick()
+  }
+
   async function cancelSession() {
     if (!activeSession) return
     setCancelling(true)
@@ -110,82 +164,97 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
     return (
       <PupilDetail
         pupilId={selectedPupil.id}
-        onBack={() => { setSelectedPupil(null); setView('pupils') }}
+        onBack={() => { setSelectedPupil(null); setView('class-list') }}
         onLevelChanged={loadPupils}
       />
     )
   }
 
-  if (view === 'pupils') {
+  if (view === 'class-list') {
     return (
       <div className="dashboard">
         <header className="dashboard-header">
           <button className="button-secondary" onClick={() => setView('main')}>← {t('common.back')}</button>
           <div className="dashboard-header-brand"><img src="/intuit-name.svg" alt="intuit" /></div>
         </header>
-        <main className="dashboard-main">
+        <main className="class-list-main">
           <div className="page-title">
-            <h1>{t('staffDashboard.pupilsTitle')}</h1>
+            <h1>{t('staffDashboard.classList')}</h1>
             <span className="tier-badge">{cls.name}</span>
           </div>
-          <section className="dashboard-section">
-            <div className="section-heading">
-              <h2>{t('staffDashboard.classList')}</h2>
-              <span className="section-count">{classPupils.length}</span>
-            </div>
-            <div className="pupil-list">
-              {classPupils.map(p => (
-                <button
-                  key={p.id}
-                  className="pupil-list-row"
-                  onClick={() => { setSelectedPupil(p); setView('pupil-detail') }}
-                >
-                  <span className="pupil-list-name">{p.first_name} {p.last_name}</span>
-                  <span className="pupil-list-arrow">›</span>
-                </button>
-              ))}
-              {classPupils.length === 0 && (
-                <p className="note">{t('staffDashboard.noPupilsYet')}</p>
-              )}
-            </div>
-            <button
-              className="button-secondary"
-              style={{ marginTop: '0.75rem' }}
-              onClick={() => setView('add-pupil')}
-            >
-              {t('staffDashboard.addPupilButton')}
-            </button>
-          </section>
-        </main>
-      </div>
-    )
-  }
+          <div className="class-list-body">
+            <section className="dashboard-section class-list-hub-col">
+              <h2>{t('staffDashboard.pupilHubTitle')}</h2>
+              <p className="note">{t('staffDashboard.displayOrShare')}</p>
+              <div className="qr-display-box qr-display-box--compact">
+                <QRCode value={pupilUrl} size={150} />
+              </div>
+              <code className="qr-url-display qr-url-display--compact">{pupilDisplayUrl}</code>
+              <button className="button-secondary" onClick={copyPupilLink}>
+                {linkCopied ? t('common.copied') : t('staffDashboard.copyLink')}
+              </button>
+              <button
+                className="pick-pupil-btn"
+                onClick={pickRandomPupil}
+                disabled={picking || classPupils.length === 0}
+              >
+                🎲 {t('staffDashboard.pickRandomPupil')}
+              </button>
+            </section>
 
-  if (view === 'hub-link') {
-    return (
-      <div className="dashboard">
-        <header className="dashboard-header">
-          <button className="button-secondary" onClick={() => setView('main')}>← {t('common.back')}</button>
-          <div className="dashboard-header-brand"><img src="/intuit-name.svg" alt="intuit" /></div>
-        </header>
-        <main className="dashboard-main">
-          <div className="page-title">
-            <h1>{t('staffDashboard.pupilHubTitle')}</h1>
-            <span className="tier-badge">{cls.name}</span>
+            <section className="dashboard-section class-list-grid-col">
+              <div className="section-heading">
+                <h2>{t('staffDashboard.classList')}</h2>
+                <span className="section-count">{classPupils.length}</span>
+              </div>
+              {classPupils.length === 0 ? (
+                <p className="note">{t('staffDashboard.noPupilsYet')}</p>
+              ) : (
+                <div className="coin-grid">
+                  {classPupils.map(p => (
+                    <div
+                      key={p.id}
+                      className={`coin-card${highlightedId === p.id ? ' coin-card--highlight' : ''}`}
+                    >
+                      <button
+                        className="coin-card-main"
+                        onClick={() => { setSelectedPupil(p); setView('pupil-detail') }}
+                      >
+                        <AvatarDisplay avatar={p.avatar ?? DEFAULT_AVATAR} size={56} />
+                        <span className="coin-card-name">{p.first_name}</span>
+                      </button>
+                      <button
+                        className="coin-card-coin-btn"
+                        onClick={(e) => { e.stopPropagation(); awardCoin(p.id) }}
+                      >
+                        🪙 {p.credits ?? 0}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <button
+                className="button-secondary"
+                style={{ marginTop: '0.75rem' }}
+                onClick={() => setView('add-pupil')}
+              >
+                {t('staffDashboard.addPupilButton')}
+              </button>
+            </section>
           </div>
-          <section className="dashboard-section qr-focus-section">
-            <p className="note" style={{ marginBottom: '1.5rem' }}>
-              {t('staffDashboard.displayOrShare')}
-            </p>
-            <div className="qr-display-box">
-              <QRCode value={pupilUrl} size={220} />
-            </div>
-            <code className="qr-url-display">{pupilDisplayUrl}</code>
-            <button onClick={copyPupilLink} style={{ marginTop: '1rem' }}>
-              {linkCopied ? t('common.copied') : t('staffDashboard.copyLink')}
-            </button>
-          </section>
         </main>
+
+        {pickedPupil && (
+          <div className="random-pick-overlay" onClick={() => setPickedPupil(null)}>
+            <div className="random-pick-tile">
+              <AvatarDisplay avatar={pickedPupil.avatar ?? DEFAULT_AVATAR} size={150} />
+              <h2>{pickedPupil.first_name} {pickedPupil.last_name}</h2>
+              <button className="button-secondary" onClick={() => setPickedPupil(null)}>
+                {t('common.continue')}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     )
   }
@@ -194,7 +263,7 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
     return (
       <div className="dashboard">
         <header className="dashboard-header">
-          <button className="button-secondary" onClick={() => setView('pupils')}>← {t('common.back')}</button>
+          <button className="button-secondary" onClick={() => setView('class-list')}>← {t('common.back')}</button>
           <div className="dashboard-header-brand"><img src="/intuit-name.svg" alt="intuit" /></div>
         </header>
         <main className="dashboard-main">
@@ -287,15 +356,9 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
             </div>
           </div>
 
-          <button className="dashboard-tile" onClick={() => setView('hub-link')}>
-            <div className="dashboard-tile-icon">🏠</div>
-            <div className="dashboard-tile-title">{t('staffDashboard.pupilHubTitle')}</div>
-            <div className="dashboard-tile-sub">{t('staffDashboard.pupilHubSub')}</div>
-          </button>
-
-          <button className="dashboard-tile" onClick={() => setView('pupils')}>
+          <button className="dashboard-tile" onClick={() => setView('class-list')}>
             <div className="dashboard-tile-icon">👥</div>
-            <div className="dashboard-tile-title">{t('staffDashboard.pupilsTitle')}</div>
+            <div className="dashboard-tile-title">{t('staffDashboard.classList')}</div>
             <div className="dashboard-tile-sub">
               {t('dashboard.pupilsCount').replace('{n}', classPupils.length)}
             </div>

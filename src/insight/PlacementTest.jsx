@@ -8,7 +8,7 @@ import {
   pickPlacementSubdomain,
   initialLevelTrackers,
   applyPlacementAnswer,
-} from './placementTest'
+} from './placementStaircase'
 
 function PlacementLogo() {
   return <img src="/intuit-name.svg" alt="intuit" className="placement-test-logo" />
