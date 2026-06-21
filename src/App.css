@@ -1218,6 +1218,44 @@ button:hover:not(:disabled) {
   50% { transform: scale(1.2) rotate(12deg); }
 }
 
+/* Insight Practice results actions (Check / Retry / My Hub) -- a single
+   shared sizing class rather than mixing plain <button> and
+   .button-secondary (which have different padding/font-size), so all
+   three are guaranteed identical dimensions regardless of colour. */
+.insight-practice-results-btns {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 0.75rem;
+}
+
+.insight-practice-results-btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 8px;
+  min-width: 100px;
+  cursor: pointer;
+  border: none;
+}
+
+.insight-practice-results-btn--primary {
+  background: #4f46e5;
+  color: white;
+}
+.insight-practice-results-btn--primary:hover { background: #4338ca; }
+
+.insight-practice-results-btn--secondary {
+  background: white;
+  color: #4f46e5;
+  border: 1px solid #4f46e5;
+}
+/* button. prefix needed to match the global button:hover:not(:disabled)
+   rule's specificity -- otherwise that rule's #4338ca wins and this goes
+   purple on hover instead of pale lavender, same gotcha as elsewhere. */
+button.insight-practice-results-btn--secondary:hover { background: #f0eeff; }
+
 /* ── Question screen ───────────────────────────── */
 
 .question-screen {

@@ -264,6 +264,7 @@ export const translations = {
     'insightPractice.correctLabel': 'Correct',
     'insightPractice.creditsEarned': 'Credits earned',
     'insightPractice.check': 'Check',
+    'insightPractice.retry': 'Retry',
     'insightPractice.backToResults': '← Back to results',
 
     'pupilHub.placementPromptTitle': "Let's find your starting level!",
@@ -664,6 +665,7 @@ export const translations = {
     'insightPractice.correctLabel': 'Cywir',
     'insightPractice.creditsEarned': "Credydau wedi'u hennill",
     'insightPractice.check': 'Gwirio',
+    'insightPractice.retry': 'Ailgynnig',
     'insightPractice.backToResults': "← Nôl i'r canlyniadau",
 
     'pupilHub.placementPromptTitle': "Gadewch i ni ddod o hyd i'ch lefel gychwynnol!",

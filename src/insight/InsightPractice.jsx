@@ -28,22 +28,24 @@ function InsightPractice({ pupilId, insightLevel, onComplete }) {
   const [submitResponse, setSubmitResponse] = useState(null)
   const [submitError, setSubmitError] = useState(null)
 
-  useEffect(() => {
-    async function init() {
-      const active = getActiveSubdomains(insightLevel)
-      const { data } = await supabase.rpc('get_pupil_subdomain_strengths', { p_pupil_id: pupilId })
-      const strengths = Array.isArray(data) ? data : []
+  async function loadSlots() {
+    const active = getActiveSubdomains(insightLevel)
+    const { data } = await supabase.rpc('get_pupil_subdomain_strengths', { p_pupil_id: pupilId })
+    const strengths = Array.isArray(data) ? data : []
 
-      const deficits = {}
-      for (const code of active) {
-        const row = strengths.find(r => r.subdomain === code && r.level === insightLevel)
-        deficits[code] = row ? Math.max(0, 5 - row.strength) : 0
-      }
-
-      setSlots(generateModuleSlots(insightLevel, deficits))
+    const deficits = {}
+    for (const code of active) {
+      const row = strengths.find(r => r.subdomain === code && r.level === insightLevel)
+      deficits[code] = row ? Math.max(0, 5 - row.strength) : 0
     }
+
+    setSlots(generateModuleSlots(insightLevel, deficits))
+  }
+
+  useEffect(() => {
+    async function init() { await loadSlots() }
     init()
-  }, [pupilId, insightLevel])
+  }, [pupilId, insightLevel]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!slots) return (
     <div className="screen placement-test-screen">
@@ -101,6 +103,16 @@ function InsightPractice({ pupilId, insightLevel, onComplete }) {
   function goPrev() { setCurrent(c => Math.max(0, c - 1)) }
   function goNext() { setCurrent(c => Math.min(total - 1, c + 1)) }
 
+  function handleRetry() {
+    setSlots(null)
+    setCurrent(0)
+    setResults({})
+    setSubmitResponse(null)
+    setSubmitError(null)
+    setView('questions')
+    loadSlots()
+  }
+
   return (
     <div className="screen placement-test-screen">
       <div style={{ display: view === 'marking' ? 'flex' : 'none', flexDirection: 'column', alignItems: 'center' }} className="marking-screen">
@@ -128,12 +140,26 @@ function InsightPractice({ pupilId, insightLevel, onComplete }) {
             {comparison && <p className="results-comparison">{comparison}</p>}
           </>
         )}
-        <button className="button-secondary" onClick={() => { setCurrent(0); setView('review') }}>
-          {t('insightPractice.check')}
-        </button>
-        <button onClick={onComplete} style={{ marginTop: '0.5rem' }}>
-          {t('pupilSession.myHub')}
-        </button>
+        <div className="insight-practice-results-btns">
+          <button
+            className="insight-practice-results-btn insight-practice-results-btn--secondary"
+            onClick={() => { setCurrent(0); setView('review') }}
+          >
+            {t('insightPractice.check')}
+          </button>
+          <button
+            className="insight-practice-results-btn insight-practice-results-btn--secondary"
+            onClick={handleRetry}
+          >
+            {t('insightPractice.retry')}
+          </button>
+          <button
+            className="insight-practice-results-btn insight-practice-results-btn--primary"
+            onClick={onComplete}
+          >
+            {t('pupilSession.myHub')}
+          </button>
+        </div>
       </div>
 
       <div style={{ display: showQuestions ? 'flex' : 'none', flexDirection: 'column', alignItems: 'center' }}>
