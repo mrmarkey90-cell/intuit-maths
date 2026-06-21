@@ -254,8 +254,7 @@ export const translations = {
     'pupilHub.placementPromptBody': 'A few quick questions before you get started.',
     'pupilHub.placementPromptStart': 'Start',
 
-    'placementTest.intro.title': "Let's find your level!",
-    'placementTest.intro.body': "We'll ask you a few quick questions — just do your best, there's no time limit.",
+    'placementTest.intro.title': 'Show us your skills!',
     'placementTest.intro.start': 'Start',
     'placementTest.idk': "I don't know",
     'placementTest.submitting': 'One moment...',
@@ -642,8 +641,7 @@ export const translations = {
     'pupilHub.placementPromptBody': "Ychydig gwestiynau cyflym cyn i chi ddechrau.",
     'pupilHub.placementPromptStart': 'Dechrau',
 
-    'placementTest.intro.title': "Gadewch i ni ddod o hyd i'ch lefel!",
-    'placementTest.intro.body': "Byddwn yn gofyn ychydig gwestiynau cyflym i chi — gwnewch eich gorau, does dim terfyn amser.",
+    'placementTest.intro.title': 'Dangoswch i ni eich sgiliau!',
     'placementTest.intro.start': 'Dechrau',
     'placementTest.idk': "Dwi ddim yn gwybod",
     'placementTest.submitting': 'Un funud...',

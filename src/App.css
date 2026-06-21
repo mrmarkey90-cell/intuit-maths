@@ -3229,17 +3229,24 @@ button:hover:not(:disabled) {
   margin-bottom: 0.75rem;
 }
 
+/* Shared width on both the left spacer and the real actions column --
+   keeping them equal is what keeps the module truly centered on screen,
+   rather than centering the whole asymmetric row (module + one-sided
+   actions) as a block, which visibly pushes the module left. */
+.placement-test-side-col {
+  width: clamp(96px, 16vw, 140px);
+  flex-shrink: 0;
+}
+
 .placement-test-side-actions {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: clamp(1.5rem, 6vh, 3rem);
-  flex-shrink: 0;
 }
 
 .placement-test-idk {
   font-size: clamp(12px, 2vw, 14px);
-  white-space: nowrap;
 }
 
 .button-secondary.placement-test-idk:hover {

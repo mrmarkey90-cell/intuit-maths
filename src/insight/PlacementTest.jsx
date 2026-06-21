@@ -79,7 +79,6 @@ function PlacementTest({ pupilId, onComplete }) {
     <div className="screen placement-test-screen">
       <PlacementLogo />
       <h1>{t('placementTest.intro.title')}</h1>
-      <p className="tagline">{t('placementTest.intro.body')}</p>
       <button onClick={() => setView('question')}>{t('placementTest.intro.start')}</button>
     </div>
   )
@@ -112,6 +111,8 @@ function PlacementTest({ pupilId, onComplete }) {
       </div>
 
       <div className="insight-carousel-row">
+        <div className="placement-test-side-col" aria-hidden="true" />
+
         <div className="insight-carousel-module-wrap">
           <InsightModule
             key={questionIndex}
@@ -123,7 +124,7 @@ function PlacementTest({ pupilId, onComplete }) {
           />
         </div>
 
-        <div className="placement-test-side-actions">
+        <div className="placement-test-side-col placement-test-side-actions">
           <button className="insight-carousel-arrow" onClick={advance} aria-label="Next question">
             →
           </button>
