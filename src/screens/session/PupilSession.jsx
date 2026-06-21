@@ -4,27 +4,12 @@ import { supabase } from '../../supabaseClient'
 import { useTranslation } from '../../i18n/LanguageContext'
 import AvatarDisplay from '../../components/AvatarDisplay'
 import NumberPad from '../../components/NumberPad'
+import HypePhrase from '../../components/HypePhrase'
 import { generateQuestion } from '../../lib/questionGenerator'
 import { DEFAULT_AVATAR } from '../../lib/avatarConfig'
 
 const SESSION_DURATION = 60
 const SKIP_PENALTY = 5
-
-// English and Welsh are independent lists here, not translations of
-// each other -- just two separately fun sets of hype for the few
-// seconds between the teacher clicking Begin and the first question.
-const EN_HYPE_PHRASES = ['Lock in!', 'Creating quiz...', 'This is your moment', 'Brain: activate', "Maths o'clock", 'Get set...', 'Here we go!']
-const CY_HYPE_PHRASES = ['Dewch ymlaen!', 'Barod?', 'Nawn ni hyn!', 'Pob lwc!', 'Dyma ni!']
-
-function HypePhrase({ language }) {
-  const phrases = language === 'cy' ? CY_HYPE_PHRASES : EN_HYPE_PHRASES
-  const [index, setIndex] = useState(0)
-  useEffect(() => {
-    const interval = setInterval(() => setIndex(i => (i + 1) % phrases.length), 900)
-    return () => clearInterval(interval)
-  }, [phrases])
-  return <p key={index} className="hype-phrase">{phrases[index]}</p>
-}
 
 function TimerBar({ timeLeft }) {
   const pct = (timeLeft / SESSION_DURATION) * 100
@@ -382,7 +367,14 @@ function PupilSession() {
           : t('pupilSession.sameAsLastTime')
     }
 
-    if (!results) return <div className="screen"><p>{t('pupilSession.submitting')}</p></div>
+    if (!results) return (
+      <div className="screen marking-screen">
+        <AvatarDisplay avatar={pupil?.avatar ?? DEFAULT_AVATAR} size={90} />
+        <div className="marking-icon">✨</div>
+        <p className="tagline">{t('pupilSession.submitting')}</p>
+        <HypePhrase language={language} />
+      </div>
+    )
 
     const currentStage = pupil?.instinct_level ?? 1
     const displayStage = levelUp ? newStage : currentStage
@@ -395,10 +387,17 @@ function PupilSession() {
         )}
         <AvatarDisplay avatar={pupil?.avatar ?? DEFAULT_AVATAR} size={64} />
         <div className="test-level-badge">{t('pupilSession.testLevelBadge').replace('{n}', displayStage)}</div>
-        <h1 style={{ marginTop: '0.4rem' }}>{t('pupilSession.correct').replace('{n}', score)}</h1>
-        <p className="tagline">{t('pupilSession.outOfAttempted').replace('{n}', total).replace('{pct}', pct)}</p>
+        <div className="results-summary">
+          <div className="stat-box stat-box--large">
+            <div className="stat-number">{score}/{total}</div>
+            <div className="stat-label">{t('insightPractice.correctLabel')}</div>
+          </div>
+          <div className="stat-box stat-box--large">
+            <div className="stat-number">+{creditsEarned}</div>
+            <div className="stat-label">{t('pupilHub.credits')}</div>
+          </div>
+        </div>
         {comparison && <p className="results-comparison">{comparison}</p>}
-        <div className="credits-earned">{t('pupilSession.creditsEarned').replace('{n}', creditsEarned)}</div>
         {!levelUp && (
           <div className="streak-display">
             <div className="streak-dots">

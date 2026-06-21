@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { useTranslation } from '../i18n/LanguageContext'
+import HypePhrase from '../components/HypePhrase'
 import { getActiveSubdomains, generateModuleSlots } from './domainConfig'
 import InsightModule from './InsightModule'
 
@@ -11,7 +12,7 @@ import InsightModule from './InsightModule'
 // selection is meaningful, even though this practice run itself doesn't
 // write any strength data back (kept strictly credits-only per instruction).
 function InsightPractice({ pupilId, insightLevel, onComplete }) {
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
 
   const [slots, setSlots] = useState(null)
   const [current, setCurrent] = useState(0)
@@ -59,6 +60,25 @@ function InsightPractice({ pupilId, insightLevel, onComplete }) {
   const isLast = current === total - 1
   const showQuestions = view === 'questions' || view === 'review'
 
+  const score = submitResponse?.score ?? correctCount
+  const creditsEarned = submitResponse?.credits_earned ?? correctCount
+  const prevScore = submitResponse?.prev_score
+  const prevTotal = submitResponse?.prev_total
+  const pct = total > 0 ? Math.round((score / total) * 100) : 0
+
+  // Always against the last GRADED insight result, never a practice one --
+  // same rule as Instinct's existing comparison (PupilSession.jsx).
+  let comparison = null
+  if (prevScore != null && prevTotal > 0) {
+    const prevPct = Math.round((prevScore / prevTotal) * 100)
+    const diff = pct - prevPct
+    comparison = diff > 0
+      ? t('pupilSession.fromLastTimeUp').replace('{n}', diff)
+      : diff < 0
+        ? t('pupilSession.fromLastTimeDown').replace('{n}', diff)
+        : t('pupilSession.sameAsLastTime')
+  }
+
   async function handleSubmit() {
     setView('marking')
     setSubmitError(null)
@@ -83,8 +103,10 @@ function InsightPractice({ pupilId, insightLevel, onComplete }) {
 
   return (
     <div className="screen placement-test-screen">
-      <div style={{ display: view === 'marking' ? 'block' : 'none' }}>
-        <p>{t('insightPractice.submitting')}</p>
+      <div style={{ display: view === 'marking' ? 'flex' : 'none', flexDirection: 'column', alignItems: 'center' }} className="marking-screen">
+        <div className="marking-icon">✨</div>
+        <p className="tagline">{t('insightPractice.submitting')}</p>
+        <HypePhrase language={language} />
       </div>
 
       <div style={{ display: view === 'results' ? 'block' : 'none' }}>
@@ -93,15 +115,24 @@ function InsightPractice({ pupilId, insightLevel, onComplete }) {
           <p className="error">{submitError}</p>
         ) : (
           <>
-            <p className="tagline">{correctCount}/{total} {t('insightPractice.correctLabel')}</p>
-            <p className="tagline">⭐ {submitResponse?.credits_earned ?? correctCount} {t('insightPractice.creditsEarned')}</p>
+            <div className="results-summary">
+              <div className="stat-box stat-box--large">
+                <div className="stat-number">{score}/{total}</div>
+                <div className="stat-label">{t('insightPractice.correctLabel')}</div>
+              </div>
+              <div className="stat-box stat-box--large">
+                <div className="stat-number">+{creditsEarned}</div>
+                <div className="stat-label">{t('pupilHub.credits')}</div>
+              </div>
+            </div>
+            {comparison && <p className="results-comparison">{comparison}</p>}
           </>
         )}
         <button className="button-secondary" onClick={() => { setCurrent(0); setView('review') }}>
-          {t('insightPractice.lookAtMarking')}
+          {t('insightPractice.check')}
         </button>
         <button onClick={onComplete} style={{ marginTop: '0.5rem' }}>
-          {t('common.continue')}
+          {t('pupilSession.myHub')}
         </button>
       </div>
 
@@ -112,9 +143,12 @@ function InsightPractice({ pupilId, insightLevel, onComplete }) {
           </button>
         )}
 
-        <span className="insight-carousel-position">
-          {t('insightPractice.questionOf').replace('{n}', current + 1).replace('{total}', total)}
-        </span>
+        <div className="placement-progress-track">
+          <div
+            className="placement-progress-fill"
+            style={{ width: `${((current + 1) / total) * 100}%` }}
+          />
+        </div>
 
         <div className="insight-carousel-row">
           <button className="insight-carousel-arrow" onClick={goPrev} disabled={current === 0} aria-label="Previous question">

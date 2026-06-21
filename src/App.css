@@ -1203,6 +1203,21 @@ button:hover:not(:disabled) {
   100% { transform: scale(1); opacity: 1; }
 }
 
+/* Marking wait screen (both Instinct and Insight Practice results) --
+   paired with HypePhrase for a bit of energy during the brief submit
+   round-trip, instead of a flat "Submitting..." line. */
+.marking-screen { margin-top: 1rem; }
+.marking-icon {
+  font-size: clamp(2.2rem, 7vh, 3.5rem);
+  margin-top: 0.5rem;
+  animation: marking-spin-pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes marking-spin-pulse {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.2) rotate(12deg); }
+}
+
 /* ── Question screen ───────────────────────────── */
 
 .question-screen {
@@ -3591,6 +3606,25 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   margin-top: clamp(0.4rem, 1.5vh, 1.25rem);
   padding: clamp(4px, 1vh, 8px) clamp(14px, 3vw, 24px);
   font-size: clamp(1.1rem, 4vh, 1.5rem);
+}
+
+/* .stat-box/.results-summary are designed for a normally-scrolling
+   dashboard page (their only prior user, the dev-only InsightResults.jsx)
+   -- these overrides scale them down to fit the locked-height, no-scroll
+   landscape viewport every pupil-facing results screen renders in. */
+.pupil-viewport .results-summary {
+  gap: clamp(0.5rem, 2vw, 1rem);
+  margin-bottom: clamp(0.4rem, 1.5vh, 1rem);
+}
+.pupil-viewport .stat-box {
+  padding: clamp(0.5rem, 1.5vh, 1rem) clamp(0.75rem, 2vw, 1.5rem);
+}
+.pupil-viewport .stat-box--large .stat-number,
+.pupil-viewport .stat-number {
+  font-size: clamp(1.5rem, 5vh, 2.5rem);
+}
+.pupil-viewport .stat-label {
+  font-size: clamp(10px, 1.8vh, 13px);
 }
 
 .pupil-viewport .level-up-banner {
