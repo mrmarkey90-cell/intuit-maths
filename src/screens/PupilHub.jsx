@@ -31,6 +31,7 @@ function PupilHub() {
   const [pupil, setPupil] = useState(null)
   const [avatarMsg, setAvatarMsg] = useState(false)
   const [practicing, setPracticing] = useState(false)
+  const [practiceExpanded, setPracticeExpanded] = useState(false)
 
   useEffect(() => {
     async function init() {
@@ -77,6 +78,7 @@ function PupilHub() {
   async function handleInsightPracticeComplete() {
     const { data } = await supabase.rpc('get_pupil_history', { p_pupil_id: pupil.id })
     if (data?.pupil) setPupil(data.pupil)
+    setPracticeExpanded(false)
     setView('hub')
   }
 
@@ -154,27 +156,6 @@ function PupilHub() {
     return <PlacementTest pupilId={pupil.id} onComplete={handlePlacementComplete} />
   }
 
-  if (view === 'practice_choice') return (
-    <div className="screen hub-confirm">
-      <h1>{t('pupilHub.practiceChoiceTitle')}</h1>
-      <div className="practice-choice-btns">
-        <button className="practice-choice-btn" onClick={startPractice} disabled={practicing}>
-          <span className="practice-choice-btn-title">
-            {practicing ? t('pupilHub.startingPractice') : t('pupilHub.practiceChoiceInstinct')}
-          </span>
-          <span className="practice-choice-btn-desc">{t('pupilHub.practiceChoiceInstinctDesc')}</span>
-        </button>
-        <button className="practice-choice-btn" onClick={() => setView('insight_practice')}>
-          <span className="practice-choice-btn-title">{t('pupilHub.practiceChoiceInsight')}</span>
-          <span className="practice-choice-btn-desc">{t('pupilHub.practiceChoiceInsightDesc')}</span>
-        </button>
-      </div>
-      <button className="button-secondary" style={{ marginTop: '0.75rem' }} onClick={() => setView('hub')}>
-        {t('pupilHub.practiceChoiceBack')}
-      </button>
-    </div>
-  )
-
   if (view === 'insight_practice') {
     return (
       <InsightPractice
@@ -250,13 +231,31 @@ function PupilHub() {
             <span className="hub-area-tile-badge">{t('pupilHub.comingSoon')}</span>
           </button>
 
-          <button
-            className="hub-area-tile hub-area-tile--practise"
-            onClick={() => setView('practice_choice')}
-          >
-            <span className="hub-area-tile-icon">⚡</span>
-            <span className="hub-area-tile-label">{t('pupilHub.practise')}</span>
-          </button>
+          {practiceExpanded ? (
+            <div className="hub-area-tile hub-area-tile--practise hub-area-tile--practise-expanded">
+              <button
+                className="hub-tile-collapse-btn"
+                onClick={() => setPracticeExpanded(false)}
+                aria-label="Close"
+              >
+                ×
+              </button>
+              <button className="hub-practice-option" onClick={startPractice} disabled={practicing}>
+                {practicing ? t('pupilHub.startingPractice') : t('pupilHub.practiceChoiceInstinct')}
+              </button>
+              <button className="hub-practice-option" onClick={() => setView('insight_practice')}>
+                {t('pupilHub.practiceChoiceInsight')}
+              </button>
+            </div>
+          ) : (
+            <button
+              className="hub-area-tile hub-area-tile--practise"
+              onClick={() => setPracticeExpanded(true)}
+            >
+              <span className="hub-area-tile-icon">⚡</span>
+              <span className="hub-area-tile-label">{t('pupilHub.practise')}</span>
+            </button>
+          )}
 
           <button className="hub-intoit-cta" disabled>
             <span className="hub-intoit-icon">🏰</span>

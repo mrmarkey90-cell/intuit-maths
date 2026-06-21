@@ -254,12 +254,8 @@ export const translations = {
     'pupilHub.practise': 'Practise',
     'pupilHub.intoIt': 'Into It!',
 
-    'pupilHub.practiceChoiceTitle': 'What do you want to practise?',
     'pupilHub.practiceChoiceInstinct': 'Instinct',
-    'pupilHub.practiceChoiceInstinctDesc': 'Quick-fire arithmetic',
     'pupilHub.practiceChoiceInsight': 'Insight',
-    'pupilHub.practiceChoiceInsightDesc': 'Mixed maths questions',
-    'pupilHub.practiceChoiceBack': 'Back',
 
     'insightPractice.loading': 'Loading...',
     'insightPractice.questionOf': 'Question {n} of {total}',
@@ -662,12 +658,8 @@ export const translations = {
     'pupilHub.practise': 'Ymarfer',
     'pupilHub.intoIt': 'Into It!',
 
-    'pupilHub.practiceChoiceTitle': 'Beth hoffech chi ymarfer?',
     'pupilHub.practiceChoiceInstinct': 'Instinct',
-    'pupilHub.practiceChoiceInstinctDesc': 'Rhifyddeg cyflym',
     'pupilHub.practiceChoiceInsight': 'Insight',
-    'pupilHub.practiceChoiceInsightDesc': 'Cwestiynau mathemateg cymysg',
-    'pupilHub.practiceChoiceBack': 'Nôl',
 
     'insightPractice.loading': 'Wrth lwytho...',
     'insightPractice.questionOf': 'Cwestiwn {n} o {total}',

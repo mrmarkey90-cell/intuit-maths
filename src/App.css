@@ -2092,42 +2092,6 @@ button:hover:not(:disabled) {
   margin-top: 0.5rem;
 }
 
-.practice-choice-btns {
-  display: flex;
-  gap: 1rem;
-  width: 100%;
-  max-width: 480px;
-  margin-top: 1rem;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.practice-choice-btn {
-  flex: 1 1 180px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 1.25rem 1rem;
-  border-radius: 16px;
-  background: #4f46e5;
-  color: white;
-  border: none;
-  cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
-  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
-}
-.practice-choice-btn:hover:not(:disabled) { transform: translateY(-2px); }
-.practice-choice-btn:disabled { opacity: 0.7; cursor: default; box-shadow: none; }
-
-.practice-choice-btn-title {
-  font-size: 1.15rem;
-  font-weight: 700;
-}
-.practice-choice-btn-desc {
-  font-size: 0.8rem;
-  opacity: 0.85;
-}
 
 .hub-link-block { margin-top: 0.75rem; }
 .hub-link-qr-row {
@@ -2240,6 +2204,53 @@ button:hover:not(:disabled) {
   opacity: 0.7;
   cursor: default;
   box-shadow: none;
+}
+
+/* Practise tile expands in place to offer Instinct/Insight, rather than
+   navigating to a separate screen -- stays within the same grid cell. */
+.hub-area-tile--practise-expanded {
+  position: relative;
+  cursor: default;
+  gap: clamp(6px, 1.5vh, 10px);
+  padding: clamp(8px, 2vh, 14px) clamp(8px, 1.5vw, 12px);
+}
+
+.hub-tile-collapse-btn {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 6px;
+  opacity: 0.8;
+}
+/* button.hub-tile-collapse-btn (not just .hub-tile-collapse-btn) to match
+   the global button:hover:not(:disabled) rule's specificity -- otherwise
+   that rule's background: #4338ca wins and the close "x" goes purple on
+   hover instead of staying transparent, same cascade gotcha as elsewhere
+   in this file. */
+button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
+
+.hub-practice-option {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  font-weight: 700;
+  border-radius: clamp(8px, 1.5vw, 12px);
+  padding: clamp(6px, 1.5vh, 10px) 0.5rem;
+  font-size: clamp(0.8rem, 2vh, 1rem);
+  cursor: pointer;
+}
+.hub-practice-option:hover:not(:disabled) { background: rgba(255, 255, 255, 0.3); }
+.hub-practice-option:disabled {
+  background: rgba(255, 255, 255, 0.18);
+  opacity: 0.7;
+  cursor: default;
 }
 
 .hub-intoit-cta {
