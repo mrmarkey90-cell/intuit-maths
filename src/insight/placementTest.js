@@ -15,8 +15,22 @@ import { getActiveSubdomains } from './domainConfig'
 // on option count per question instance, not just interaction type.
 // Shape: 'all' (every level) or an array of specific levels.
 export const PLACEMENT_EXCLUDED_SUBDOMAINS = {
-  // '1E': 'all',
-  // '7B': [1, 2],
+  '3C': 'all',
+  '3D': 'all',
+  '4B': 'all',
+  '4C': 'all',
+  '9B': 'all',
+
+  '5A': [5, 6],
+  '5B': [5, 6],
+  '5D': [5, 6],
+  '6C': [5],
+  '7A': [6],
+  '7B': [6],
+  '8A': [4, 5, 6],
+  '8C': [6],
+  '9A': [5],
+  '9C': [6],
 }
 
 function isExcluded(code, level) {
