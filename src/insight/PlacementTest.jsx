@@ -10,6 +10,10 @@ import {
   computeFinalLevel,
 } from './placementTest'
 
+function PlacementLogo() {
+  return <img src="/intuit-name.svg" alt="intuit" className="placement-test-logo" />
+}
+
 function PlacementTest({ pupilId, onComplete }) {
   const { t } = useTranslation()
 
@@ -73,6 +77,7 @@ function PlacementTest({ pupilId, onComplete }) {
 
   if (view === 'intro') return (
     <div className="screen placement-test-screen">
+      <PlacementLogo />
       <h1>{t('placementTest.intro.title')}</h1>
       <p className="tagline">{t('placementTest.intro.body')}</p>
       <button onClick={() => setView('question')}>{t('placementTest.intro.start')}</button>
@@ -81,12 +86,14 @@ function PlacementTest({ pupilId, onComplete }) {
 
   if (view === 'submitting') return (
     <div className="screen placement-test-screen">
+      <PlacementLogo />
       <p>{t('placementTest.submitting')}</p>
     </div>
   )
 
   if (view === 'done') return (
     <div className="screen placement-test-screen">
+      <PlacementLogo />
       <h1>{t('placementTest.done.title')}</h1>
       <p className="tagline">{t('placementTest.done.body')}</p>
       <button onClick={onComplete}>{t('common.continue')}</button>
@@ -95,9 +102,14 @@ function PlacementTest({ pupilId, onComplete }) {
 
   return (
     <div className="screen placement-test-screen">
-      <span className="insight-carousel-position">
-        {t('placementTest.questionOf').replace('{n}', questionIndex + 1).replace('{total}', PLACEMENT_QUESTION_COUNT)}
-      </span>
+      <PlacementLogo />
+
+      <div className="placement-progress-track">
+        <div
+          className="placement-progress-fill"
+          style={{ width: `${((questionIndex + 1) / PLACEMENT_QUESTION_COUNT) * 100}%` }}
+        />
+      </div>
 
       <div className="insight-carousel-row">
         <div className="insight-carousel-module-wrap">

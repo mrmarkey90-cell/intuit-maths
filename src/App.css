@@ -3242,6 +3242,33 @@ button:hover:not(:disabled) {
   white-space: nowrap;
 }
 
+.button-secondary.placement-test-idk:hover {
+  background: #4f46e5;
+  color: white;
+}
+
+.placement-test-logo {
+  height: clamp(28px, 5vh, 40px);
+  width: auto;
+  display: block;
+  margin: 0 auto clamp(0.75rem, 2vh, 1.25rem);
+}
+
+.placement-progress-track {
+  width: min(480px, 80vw);
+  height: 10px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 0 auto clamp(1rem, 3vh, 1.75rem);
+}
+
+.placement-progress-fill {
+  height: 100%;
+  background: #4f46e5;
+  transition: width 0.3s ease;
+}
+
 .insight-carousel-row {
   display: flex;
   align-items: center;
