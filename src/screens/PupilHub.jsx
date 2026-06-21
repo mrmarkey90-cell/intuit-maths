@@ -5,6 +5,7 @@ import { useTranslation } from '../i18n/LanguageContext'
 import AvatarDisplay from '../components/AvatarDisplay'
 import { DEFAULT_AVATAR } from '../lib/avatarConfig'
 import PlacementTest from '../insight/PlacementTest'
+import InsightPractice from '../insight/InsightPractice'
 
 function StreakDots({ streak, t }) {
   return (
@@ -68,6 +69,12 @@ function PupilHub() {
   }
 
   async function handlePlacementComplete() {
+    const { data } = await supabase.rpc('get_pupil_history', { p_pupil_id: pupil.id })
+    if (data?.pupil) setPupil(data.pupil)
+    setView('hub')
+  }
+
+  async function handleInsightPracticeComplete() {
     const { data } = await supabase.rpc('get_pupil_history', { p_pupil_id: pupil.id })
     if (data?.pupil) setPupil(data.pupil)
     setView('hub')
@@ -147,6 +154,37 @@ function PupilHub() {
     return <PlacementTest pupilId={pupil.id} onComplete={handlePlacementComplete} />
   }
 
+  if (view === 'practice_choice') return (
+    <div className="screen hub-confirm">
+      <h1>{t('pupilHub.practiceChoiceTitle')}</h1>
+      <div className="practice-choice-btns">
+        <button className="practice-choice-btn" onClick={startPractice} disabled={practicing}>
+          <span className="practice-choice-btn-title">
+            {practicing ? t('pupilHub.startingPractice') : t('pupilHub.practiceChoiceInstinct')}
+          </span>
+          <span className="practice-choice-btn-desc">{t('pupilHub.practiceChoiceInstinctDesc')}</span>
+        </button>
+        <button className="practice-choice-btn" onClick={() => setView('insight_practice')}>
+          <span className="practice-choice-btn-title">{t('pupilHub.practiceChoiceInsight')}</span>
+          <span className="practice-choice-btn-desc">{t('pupilHub.practiceChoiceInsightDesc')}</span>
+        </button>
+      </div>
+      <button className="button-secondary" style={{ marginTop: '0.75rem' }} onClick={() => setView('hub')}>
+        {t('pupilHub.practiceChoiceBack')}
+      </button>
+    </div>
+  )
+
+  if (view === 'insight_practice') {
+    return (
+      <InsightPractice
+        pupilId={pupil.id}
+        insightLevel={pupil.insight_level ?? 1}
+        onComplete={handleInsightPracticeComplete}
+      />
+    )
+  }
+
   if (view === 'hub') {
     const streak = pupil.challenge_streak ?? 0
     const instinctLevel = pupil.instinct_level ?? 1
@@ -214,13 +252,10 @@ function PupilHub() {
 
           <button
             className="hub-area-tile hub-area-tile--practise"
-            onClick={startPractice}
-            disabled={practicing}
+            onClick={() => setView('practice_choice')}
           >
             <span className="hub-area-tile-icon">⚡</span>
-            <span className="hub-area-tile-label">
-              {practicing ? t('pupilHub.startingPractice') : t('pupilHub.practise')}
-            </span>
+            <span className="hub-area-tile-label">{t('pupilHub.practise')}</span>
           </button>
 
           <button className="hub-intoit-cta" disabled>
