@@ -3229,12 +3229,17 @@ button:hover:not(:disabled) {
   margin-bottom: 0.75rem;
 }
 
-.placement-test-actions {
+.placement-test-side-actions {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
   gap: 0.75rem;
-  margin-top: 1.25rem;
+  flex-shrink: 0;
+}
+
+.placement-test-idk {
+  font-size: clamp(12px, 2vw, 14px);
+  white-space: nowrap;
 }
 
 .insight-carousel-row {

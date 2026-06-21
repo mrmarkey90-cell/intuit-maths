@@ -99,27 +99,30 @@ function PlacementTest({ pupilId, onComplete }) {
         {t('placementTest.questionOf').replace('{n}', questionIndex + 1).replace('{total}', PLACEMENT_QUESTION_COUNT)}
       </span>
 
-      <div className="insight-carousel-module-wrap">
-        <InsightModule
-          key={questionIndex}
-          subdomain={subdomain}
-          level={level}
-          locked={idk}
-          revealed={false}
-          onAnswer={handleModuleAnswer}
-        />
-      </div>
+      <div className="insight-carousel-row">
+        <div className="insight-carousel-module-wrap">
+          <InsightModule
+            key={questionIndex}
+            subdomain={subdomain}
+            level={level}
+            locked={idk}
+            revealed={false}
+            onAnswer={handleModuleAnswer}
+          />
+        </div>
 
-      <div className="placement-test-actions">
-        <button
-          className="button-secondary"
-          onClick={handleIdk}
-          disabled={idk}
-        >
-          {t('placementTest.idk')}
-        </button>
-
-        <button onClick={advance}>{t('common.continue')}</button>
+        <div className="placement-test-side-actions">
+          <button className="insight-carousel-arrow" onClick={advance} aria-label="Next question">
+            →
+          </button>
+          <button
+            className="button-secondary placement-test-idk"
+            onClick={handleIdk}
+            disabled={idk}
+          >
+            {t('placementTest.idk')}
+          </button>
+        </div>
       </div>
     </div>
   )
