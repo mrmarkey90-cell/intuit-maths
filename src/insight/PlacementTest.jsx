@@ -3,25 +3,31 @@ import { supabase } from '../supabaseClient'
 import { useTranslation } from '../i18n/LanguageContext'
 import InsightModule from './InsightModule'
 import {
-  PLACEMENT_QUESTION_COUNT,
-  PLACEMENT_START_LEVEL,
+  PLACEMENT_MAX_QUESTIONS,
+  PLACEMENT_CONFIDENCE_LEVELS,
   pickPlacementSubdomain,
-  nextStaircaseLevel,
-  computeFinalLevel,
+  initialLevelTrackers,
+  applyPlacementAnswer,
 } from './placementTest'
 
 function PlacementLogo() {
   return <img src="/intuit-name.svg" alt="intuit" className="placement-test-logo" />
 }
 
+const CONFIDENCE_OPTIONS = [
+  { key: 'unhappy', emoji: '😟' },
+  { key: 'mild', emoji: '😐' },
+  { key: 'happy', emoji: '😄' },
+]
+
 function PlacementTest({ pupilId, onComplete }) {
   const { t } = useTranslation()
 
-  const [view, setView] = useState('intro') // intro | question | submitting | done
-  const [level, setLevel] = useState(PLACEMENT_START_LEVEL)
-  const [questionIndex, setQuestionIndex] = useState(0)
-  const [subdomain, setSubdomain] = useState(() => pickPlacementSubdomain(PLACEMENT_START_LEVEL))
-  const [levelHistory, setLevelHistory] = useState([])
+  const [view, setView] = useState('intro') // intro | confidence | question | submitting | done
+  const [level, setLevel] = useState(null)
+  const [trackers, setTrackers] = useState(initialLevelTrackers)
+  const [questionsAsked, setQuestionsAsked] = useState(0)
+  const [subdomain, setSubdomain] = useState(null)
   const [correctCount, setCorrectCount] = useState(0)
   // liveCorrect tracks the module's latest reported answer -- several
   // module types (Share, MultiSelect, DragSort, PairSum) report via a
@@ -32,6 +38,14 @@ function PlacementTest({ pupilId, onComplete }) {
   // out before the child has touched anything.
   const [liveCorrect, setLiveCorrect] = useState(null)
   const [idk, setIdk] = useState(false)
+
+  function handleConfidence(key) {
+    const startLevel = PLACEMENT_CONFIDENCE_LEVELS[key]
+    setLevel(startLevel)
+    setTrackers(initialLevelTrackers())
+    setSubdomain(pickPlacementSubdomain(startLevel))
+    setView('question')
+  }
 
   function handleModuleAnswer({ correct }) {
     if (idk) return
@@ -45,41 +59,58 @@ function PlacementTest({ pupilId, onComplete }) {
 
   async function advance() {
     const correct = idk ? false : (liveCorrect ?? false)
-    const newHistory = [...levelHistory, level]
+    const result = applyPlacementAnswer(level, trackers, correct)
+    const newQuestionsAsked = questionsAsked + 1
     const newCorrectCount = correct ? correctCount + 1 : correctCount
 
-    if (newHistory.length >= PLACEMENT_QUESTION_COUNT) {
-      setLevelHistory(newHistory)
+    if (result.ended || newQuestionsAsked >= PLACEMENT_MAX_QUESTIONS) {
       setCorrectCount(newCorrectCount)
       setView('submitting')
 
-      const finalLevel = computeFinalLevel(newHistory)
       await supabase.rpc('submit_placement_test', {
         p_pupil_id: pupilId,
-        p_level: finalLevel,
+        p_level: result.level,
         p_score: newCorrectCount,
-        p_total: PLACEMENT_QUESTION_COUNT,
+        p_total: newQuestionsAsked,
       })
 
       setView('done')
       return
     }
 
-    const newLevel = nextStaircaseLevel(level, correct)
-    setLevelHistory(newHistory)
+    setQuestionsAsked(newQuestionsAsked)
     setCorrectCount(newCorrectCount)
-    setLevel(newLevel)
-    setSubdomain(pickPlacementSubdomain(newLevel))
+    setLevel(result.level)
+    setTrackers(result.trackers)
+    setSubdomain(pickPlacementSubdomain(result.level))
     setLiveCorrect(null)
     setIdk(false)
-    setQuestionIndex(i => i + 1)
   }
 
   if (view === 'intro') return (
     <div className="screen placement-test-screen">
       <PlacementLogo />
       <h1>{t('placementTest.intro.title')}</h1>
-      <button onClick={() => setView('question')}>{t('placementTest.intro.start')}</button>
+      <button onClick={() => setView('confidence')}>{t('placementTest.intro.start')}</button>
+    </div>
+  )
+
+  if (view === 'confidence') return (
+    <div className="screen placement-test-screen">
+      <PlacementLogo />
+      <p className="tagline">{t('placementTest.confidence.prompt')}</p>
+      <div className="placement-confidence-options">
+        {CONFIDENCE_OPTIONS.map(opt => (
+          <button
+            key={opt.key}
+            className="placement-confidence-option"
+            onClick={() => handleConfidence(opt.key)}
+          >
+            <span className="placement-confidence-option-emoji">{opt.emoji}</span>
+            <span className="placement-confidence-option-label">{t(`placementTest.confidence.${opt.key}`)}</span>
+          </button>
+        ))}
+      </div>
     </div>
   )
 
@@ -106,7 +137,7 @@ function PlacementTest({ pupilId, onComplete }) {
       <div className="placement-progress-track">
         <div
           className="placement-progress-fill"
-          style={{ width: `${((questionIndex + 1) / PLACEMENT_QUESTION_COUNT) * 100}%` }}
+          style={{ width: `${Math.min(100, ((questionsAsked + 1) / PLACEMENT_MAX_QUESTIONS) * 100)}%` }}
         />
       </div>
 
@@ -115,7 +146,7 @@ function PlacementTest({ pupilId, onComplete }) {
 
         <div className="insight-carousel-module-wrap">
           <InsightModule
-            key={questionIndex}
+            key={questionsAsked}
             subdomain={subdomain}
             level={level}
             locked={idk}

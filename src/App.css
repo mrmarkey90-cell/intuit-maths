@@ -3469,6 +3469,44 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   margin: 0 auto clamp(0.75rem, 2vh, 1.25rem);
 }
 
+.placement-confidence-options {
+  display: flex;
+  justify-content: center;
+  gap: clamp(1rem, 4vw, 2.5rem);
+  margin-top: clamp(1.5rem, 4vh, 3rem);
+}
+
+.placement-confidence-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  width: clamp(90px, 16vw, 130px);
+  padding: clamp(0.75rem, 2vh, 1.25rem) 0.5rem;
+  border-radius: 16px;
+  border: 2px solid #e5e7eb;
+  background: white;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s, background 0.15s;
+}
+.placement-confidence-option:hover {
+  border-color: #4f46e5;
+  background: #f0eeff;
+  transform: scale(1.05);
+}
+
+.placement-confidence-option-emoji {
+  font-size: clamp(2rem, 6vh, 3rem);
+  line-height: 1;
+}
+
+.placement-confidence-option-label {
+  font-size: clamp(0.8rem, 1.8vh, 0.95rem);
+  font-weight: 600;
+  color: #4b5563;
+  text-align: center;
+}
+
 .placement-progress-track {
   width: min(480px, 80vw);
   height: 10px;
@@ -3753,9 +3791,16 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   color: #1e1b4b;
 }
 
-.security-question-option {
+.security-question-option-wrap {
   position: absolute;
   transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.security-question-option {
   width: clamp(46px, 8.5vh, 68px);
   height: clamp(46px, 8.5vh, 68px);
   border-radius: 50%;
@@ -3770,12 +3815,21 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
 .security-question-option:hover {
   border-color: #4f46e5;
   background: #f0eeff;
-  transform: translate(-50%, -50%) scale(1.08);
+  transform: scale(1.08);
 }
 
 .security-question-option-emoji {
   font-size: clamp(1.3rem, 3.8vh, 2.1rem);
   line-height: 1;
+}
+
+.security-question-option-label {
+  font-size: clamp(0.6rem, 1.4vh, 0.75rem);
+  font-weight: 600;
+  color: #4b5563;
+  text-align: center;
+  line-height: 1.1;
+  white-space: nowrap;
 }
 
 .security-question-failed {

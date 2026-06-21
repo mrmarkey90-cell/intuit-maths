@@ -57,18 +57,52 @@ export function pickPlacementSubdomain(level) {
   return shuffle(getPlacementSubdomains(level))[0] ?? null
 }
 
-export const PLACEMENT_QUESTION_COUNT = 10
-export const PLACEMENT_TRAILING_WINDOW = 4
-export const PLACEMENT_START_LEVEL = 3
+// Placement deliberately never reaches level 5/6 -- there's no level 7 for
+// a pupil to work towards yet, so a too-high placement would be a dead end.
+// A too-low placement self-corrects fast via weekly Instinct challenges, so
+// the whole test is biased towards dropping rather than climbing.
+export const PLACEMENT_MIN_LEVEL = 1
+export const PLACEMENT_MAX_LEVEL = 4
+export const PLACEMENT_MAX_QUESTIONS = 8
 
-export function nextStaircaseLevel(currentLevel, correct) {
-  return Math.min(6, Math.max(1, currentLevel + (correct ? 1 : -1)))
+// Q1 is a confidence check, not a maths question -- it just seeds the
+// starting level for the real staircase that follows.
+export const PLACEMENT_CONFIDENCE_LEVELS = {
+  unhappy: 2,
+  mild: 3,
+  happy: 4,
 }
 
-// levelHistory = the level each question was asked AT (length 10, in
-// order) -- final level is round(average of the last 4), clamped 1-6.
-export function computeFinalLevel(levelHistory) {
-  const trailing = levelHistory.slice(-PLACEMENT_TRAILING_WINDOW)
-  const avg = trailing.reduce((sum, l) => sum + l, 0) / trailing.length
-  return Math.min(6, Math.max(1, Math.round(avg)))
+// Per-level tracking for the asymmetric staircase below: a level needs only
+// one wrong/IDK to drop if it hasn't seen a correct answer yet, but two
+// (not necessarily consecutive) once it has. Moving up still needs two
+// correct answers IN A ROW, so any wrong answer resets that streak.
+export function initialLevelTrackers() {
+  return { hasCorrect: false, wrongCount: 0, correctStreak: 0 }
+}
+
+// Returns the next level/trackers after one answer. `ended: true` means the
+// pupil hit the floor (another drop from level 1) or ceiling (another rise
+// from level 4) -- the test should stop immediately and `level` is final.
+export function applyPlacementAnswer(level, trackers, correct) {
+  if (correct) {
+    const correctStreak = trackers.correctStreak + 1
+    if (correctStreak < 2) {
+      return { level, trackers: { ...trackers, hasCorrect: true, correctStreak }, ended: false }
+    }
+    if (level >= PLACEMENT_MAX_LEVEL) {
+      return { level, trackers: initialLevelTrackers(), ended: true }
+    }
+    return { level: level + 1, trackers: initialLevelTrackers(), ended: false }
+  }
+
+  const wrongCount = trackers.wrongCount + 1
+  const dropThreshold = trackers.hasCorrect ? 2 : 1
+  if (wrongCount < dropThreshold) {
+    return { level, trackers: { ...trackers, wrongCount, correctStreak: 0 }, ended: false }
+  }
+  if (level <= PLACEMENT_MIN_LEVEL) {
+    return { level, trackers: initialLevelTrackers(), ended: true }
+  }
+  return { level: level - 1, trackers: initialLevelTrackers(), ended: false }
 }

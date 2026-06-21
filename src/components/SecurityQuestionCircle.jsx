@@ -23,16 +23,22 @@ function SecurityQuestionCircle({ categoryKey, onAnswer }) {
         const angle = (i / options.length) * 2 * Math.PI - Math.PI / 2
         const x = Math.cos(angle) * RADIUS_PERCENT
         const y = Math.sin(angle) * RADIUS_PERCENT
+        const label = t(`securityQuestions.${categoryKey}.${opt.key}`)
         return (
-          <button
+          <div
             key={opt.key}
-            className="security-question-option"
+            className="security-question-option-wrap"
             style={{ left: `calc(50% + ${x}%)`, top: `calc(50% + ${y}%)` }}
-            onClick={() => onAnswer(opt.key)}
-            aria-label={t(`securityQuestions.${categoryKey}.${opt.key}`)}
           >
-            <span className="security-question-option-emoji">{opt.emoji}</span>
-          </button>
+            <button
+              className="security-question-option"
+              onClick={() => onAnswer(opt.key)}
+              aria-label={label}
+            >
+              <span className="security-question-option-emoji">{opt.emoji}</span>
+            </button>
+            <span className="security-question-option-label">{label}</span>
+          </div>
         )
       })}
     </div>

@@ -271,6 +271,10 @@ export const translations = {
 
     'placementTest.intro.title': 'Show us your skills!',
     'placementTest.intro.start': 'Start',
+    'placementTest.confidence.prompt': 'How confident are you at maths?',
+    'placementTest.confidence.unhappy': 'Not very',
+    'placementTest.confidence.mild': 'A bit',
+    'placementTest.confidence.happy': 'Very',
     'placementTest.idk': "I don't know",
     'placementTest.submitting': 'One moment...',
     'placementTest.done.title': 'All set!',
@@ -461,7 +465,7 @@ export const translations = {
     'securityQuestions.food.sweets': 'Sweets',
     'securityQuestions.food.vegetables': 'Vegetables',
 
-    'securityQuestions.setupIntro': "Let's set up a few favourites!",
+    'securityQuestions.setupIntro': 'Remember your answers!',
     'securityQuestions.verifyFailed': "That's not quite right — ask your teacher for help.",
     'securityQuestions.back': 'Back',
   },
@@ -731,6 +735,10 @@ export const translations = {
 
     'placementTest.intro.title': 'Dangoswch i ni eich sgiliau!',
     'placementTest.intro.start': 'Dechrau',
+    'placementTest.confidence.prompt': 'Pa mor hyderus ydych chi mewn mathemateg?',
+    'placementTest.confidence.unhappy': 'Ddim yn hyderus',
+    'placementTest.confidence.mild': 'Eithaf hyderus',
+    'placementTest.confidence.happy': 'Hyderus iawn',
     'placementTest.idk': "Dwi ddim yn gwybod",
     'placementTest.submitting': 'Un funud...',
     'placementTest.done.title': 'Wedi gorffen!',
@@ -921,7 +929,7 @@ export const translations = {
     'securityQuestions.food.sweets': 'Da-da',
     'securityQuestions.food.vegetables': 'Llysiau',
 
-    'securityQuestions.setupIntro': 'Gadewch i ni osod ychydig o ffefrynnau!',
+    'securityQuestions.setupIntro': 'Cofiwch eich atebion!',
     'securityQuestions.verifyFailed': "Nid yw hynny'n hollol gywir — gofynnwch i'ch athro am help.",
     'securityQuestions.back': 'Nôl',
   },
