@@ -25,14 +25,18 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
   const hubUrl = `https://intuited.uk/hub/${cls.join_code}`
   const hubDisplayUrl = `intuited.uk/hub/${cls.join_code}`
 
+  async function refreshSessionStatus() {
+    const { data } = await supabase.rpc('get_class_session_status', { p_class_id: cls.id })
+    if (!data) return
+    setWeeklyUsed(data.weekly_used)
+    setActiveSession(data.active_session ?? null)
+  }
+
   useEffect(() => {
-    supabase.rpc('get_class_session_status', { p_class_id: cls.id }).then(({ data }) => {
-      if (!data) return
-      setWeeklyUsed(data.weekly_used)
-      if (data.active_session) setActiveSession(data.active_session)
-    })
+    async function init() { await refreshSessionStatus() }
+    init()
     loadPupils()
-  }, [cls.id, cls.join_code])
+  }, [cls.id, cls.join_code]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (view === 'add-pupil') loadUnallocated()
@@ -76,7 +80,7 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
     if (!activeSession) return
     setCancelling(true)
     await supabase.rpc('end_session', { p_session_id: activeSession.session_id })
-    setActiveSession(null)
+    await refreshSessionStatus()
     setCancelling(false)
   }
 
@@ -91,8 +95,10 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
       if (data?.error === 'weekly_challenge_used') setWeeklyUsed(true)
       return
     }
+    // Creating the lobby session does not mean the weekly Instinct slot is
+    // used -- that only becomes true once the teacher actually presses
+    // Begin (started_at gets set). Don't optimistically flip this here.
     setSession(data)
-    setWeeklyUsed(true)
   }
 
   if (session) {
@@ -102,7 +108,7 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
         cls={cls}
         session={session}
         classPupils={classPupils}
-        onEnd={() => { setSession(null); setActiveSession(null) }}
+        onEnd={() => { setSession(null); refreshSessionStatus() }}
       />
     )
   }
