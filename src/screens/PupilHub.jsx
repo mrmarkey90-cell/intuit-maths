@@ -6,6 +6,7 @@ import AvatarDisplay from '../components/AvatarDisplay'
 import { DEFAULT_AVATAR } from '../lib/avatarConfig'
 import PlacementTest from '../insight/PlacementTest'
 import InsightPractice from '../insight/InsightPractice'
+import PupilVerification from '../components/PupilVerification'
 
 function StreakDots({ streak, t }) {
   return (
@@ -124,23 +125,11 @@ function PupilHub() {
   )
 
   if (view === 'confirm') return (
-    <div className="screen hub-confirm">
-      <AvatarDisplay
-        avatar={pendingPupil?.avatar ?? DEFAULT_AVATAR}
-        size={100}
-      />
-      <p className="hub-confirm-question">{t('pupilHub.isThisYou')}</p>
-      <p className="hub-confirm-name">{pendingPupil?.first_name} {pendingPupil?.last_name}</p>
-      <div className="hub-confirm-btns">
-        <button onClick={() => confirmPupil(pendingPupil)}>{t('pupilHub.yesThatsMe')}</button>
-        <button
-          className="button-secondary"
-          onClick={() => { setPendingPupil(null); setView('select') }}
-        >
-          {t('pupilHub.notMe')}
-        </button>
-      </div>
-    </div>
+    <PupilVerification
+      pupilId={pendingPupil.id}
+      onVerified={() => confirmPupil(pendingPupil)}
+      onBack={() => { setPendingPupil(null); setView('select') }}
+    />
   )
 
   if (view === 'placement_prompt') return (

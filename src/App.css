@@ -2124,26 +2124,6 @@ button.insight-practice-results-btn--secondary:hover { background: #f0eeff; }
   align-items: center;
   gap: 0.5rem;
 }
-.hub-confirm-question {
-  font-size: 1.1rem;
-  color: #6b7280;
-  margin-top: 1rem;
-  margin-bottom: 0;
-}
-.hub-confirm-name {
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: #1e1b4b;
-  margin: 0 0 0.75rem;
-}
-.hub-confirm-btns {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  width: 100%;
-  max-width: 260px;
-  margin-top: 0.5rem;
-}
 
 
 .hub-link-block { margin-top: 0.75rem; }
@@ -3755,6 +3735,59 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   0%, 15% { transform: rotate(0deg); }
   50%, 65% { transform: rotate(90deg); }
   100% { transform: rotate(0deg); }
+}
+
+/* ── Pupil identity check ("Would you rather?" questions) ────────── */
+
+.security-question-circle {
+  position: relative;
+  width: clamp(240px, 50vh, 420px);
+  height: clamp(240px, 50vh, 420px);
+  margin: 0 auto;
+}
+
+.security-question-prompt {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 58%;
+  text-align: center;
+  font-weight: 700;
+  font-size: clamp(0.85rem, 2.1vh, 1.1rem);
+  color: #1e1b4b;
+}
+
+.security-question-option {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: clamp(46px, 8.5vh, 68px);
+  height: clamp(46px, 8.5vh, 68px);
+  border-radius: 50%;
+  border: 2px solid #e5e7eb;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s, background 0.15s;
+}
+.security-question-option:hover {
+  border-color: #4f46e5;
+  background: #f0eeff;
+  transform: translate(-50%, -50%) scale(1.08);
+}
+
+.security-question-option-emoji {
+  font-size: clamp(1.3rem, 3.8vh, 2.1rem);
+  line-height: 1;
+}
+
+.security-question-failed {
+  color: #dc2626;
+  font-weight: 600;
+  margin-top: 1rem;
+  max-width: 320px;
 }
 
 .rotate-device-text {

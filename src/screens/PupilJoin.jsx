@@ -4,6 +4,7 @@ import { supabase } from '../supabaseClient'
 import { useTranslation } from '../i18n/LanguageContext'
 import PupilProfileCreate from './PupilProfileCreate'
 import PlacementTest from '../insight/PlacementTest'
+import SecurityQuestionsSetup from '../components/SecurityQuestionsSetup'
 
 function PupilJoin() {
   const { code } = useParams()
@@ -14,6 +15,7 @@ function PupilJoin() {
   const [classInfo, setClassInfo] = useState(null)
   const [notFound, setNotFound] = useState(false)
   const [pupil, setPupil] = useState(null)
+  const [securitySetupDone, setSecuritySetupDone] = useState(false)
 
   useEffect(() => {
     supabase.rpc('get_class_by_join_code', { p_join_code: joinCode })
@@ -34,6 +36,10 @@ function PupilJoin() {
   )
 
   if (!classInfo) return <div className="screen"><p>{t('common.loading')}</p></div>
+
+  if (pupil && !securitySetupDone) {
+    return <SecurityQuestionsSetup pupilId={pupil.id} onComplete={() => setSecuritySetupDone(true)} />
+  }
 
   if (pupil) {
     return (

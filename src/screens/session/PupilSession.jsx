@@ -5,6 +5,7 @@ import { useTranslation } from '../../i18n/LanguageContext'
 import AvatarDisplay from '../../components/AvatarDisplay'
 import NumberPad from '../../components/NumberPad'
 import HypePhrase from '../../components/HypePhrase'
+import PupilVerification from '../../components/PupilVerification'
 import { generateQuestion } from '../../lib/questionGenerator'
 import { DEFAULT_AVATAR } from '../../lib/avatarConfig'
 
@@ -50,6 +51,7 @@ function PupilSession() {
   const [view, setView] = useState('loading')
   const [sessionInfo, setSessionInfo] = useState(null)
   const [pupils, setPupils] = useState([])
+  const [pendingPupil, setPendingPupil] = useState(null)
   const [pupil, setPupil] = useState(null)
   const [question, setQuestion] = useState(null)
   const [feedback, setFeedback] = useState(null)
@@ -284,7 +286,11 @@ function PupilSession() {
       <p className="tagline">{sessionInfo?.class_name}</p>
       <div className="pupil-grid">
         {pupils.map(p => (
-          <button key={p.id} className="pupil-tile" onClick={() => doJoin(sessionInfo, p)}>
+          <button
+            key={p.id}
+            className="pupil-tile"
+            onClick={() => { setPendingPupil(p); setView('verify_identity') }}
+          >
             <AvatarDisplay avatar={p.avatar ?? DEFAULT_AVATAR} size={56} />
             <span className="pupil-tile-name">{p.first_name}</span>
             <span className="pupil-tile-surname">{p.last_name}</span>
@@ -292,6 +298,14 @@ function PupilSession() {
         ))}
       </div>
     </div>
+  )
+
+  if (view === 'verify_identity') return (
+    <PupilVerification
+      pupilId={pendingPupil.id}
+      onVerified={() => doJoin(sessionInfo, pendingPupil)}
+      onBack={() => { setPendingPupil(null); setView('join') }}
+    />
   )
 
   if (view === 'lobby') return (

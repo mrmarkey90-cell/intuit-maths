@@ -205,6 +205,8 @@ function PupilDetail({ pupilId, onBack, onLevelChanged }) {
   const [insightStrengths, setInsightStrengths] = useState({})
   const [insightLoading, setInsightLoading] = useState(false)
   const [insightError, setInsightError] = useState(null)
+  const [resettingSecurity, setResettingSecurity] = useState(false)
+  const [securityReset, setSecurityReset] = useState(false)
 
   async function loadInsightStrengths(level) {
     setInsightLoading(true)
@@ -255,6 +257,14 @@ function PupilDetail({ pupilId, onBack, onLevelChanged }) {
     setSaved(true)
     setTimeout(() => setSaved(false), 2500)
     onLevelChanged?.()
+  }
+
+  async function resetSecurityAnswers() {
+    setResettingSecurity(true)
+    await supabase.rpc('reset_security_answers', { p_pupil_id: pupilId })
+    setResettingSecurity(false)
+    setSecurityReset(true)
+    setTimeout(() => setSecurityReset(false), 2500)
   }
 
   if (loading) return <div className="dashboard"><main className="dashboard-main"><p>{t('common.loading')}</p></main></div>
@@ -381,6 +391,16 @@ function PupilDetail({ pupilId, onBack, onLevelChanged }) {
               {saving ? t('common.saving') : saved ? t('staffPupilDetail.saved') : t('common.save')}
             </button>
           </div>
+        </section>
+
+        <section className="dashboard-section">
+          <div className="section-heading"><h2>{t('staffPupilDetail.resetSecurityQuestions')}</h2></div>
+          <p className="note" style={{ marginBottom: '1rem' }}>
+            {t('staffPupilDetail.resetSecurityQuestionsNote')}
+          </p>
+          <button className="button-secondary" onClick={resetSecurityAnswers} disabled={resettingSecurity}>
+            {resettingSecurity ? t('common.saving') : securityReset ? t('staffPupilDetail.saved') : t('staffPupilDetail.resetSecurityQuestionsBtn')}
+          </button>
         </section>
       </main>
     </div>
