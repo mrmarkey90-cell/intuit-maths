@@ -1377,17 +1377,18 @@ button.insight-practice-results-btn--secondary:hover { background: #f0eeff; }
 
 /* ── Number pad ────────────────────────────────── */
 
-/* Sized from its container's height (flex: 1 inside a flex-column
-   parent), not from fixed pixel button heights -- so it always fills
-   exactly the space it's given, in both contexts it's used: the
-   question screen's numpad-panel (a fixed-height flex column) and
-   Insight's bottom-sheet overlay (not a flex parent, where flex: 1
-   simply has no effect and the numpad sizes from its own content,
-   same as before). */
+/* The grid keeps a 1:1 aspect ratio (sized from its own width) so the
+   9 buttons always stay square, rather than stretching into rectangles
+   to fill whatever vertical space the container happens to have. The
+   outer .numpad still flex: 1 / centers within its container (the
+   question screen's numpad-panel, or Insight's bottom-sheet overlay
+   where flex: 1 has no effect and it just sizes from content) so the
+   fixed-aspect contents land centered rather than pinned to the top. */
 .numpad {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: clamp(6px, 1.2vh, 10px);
   width: 100%;
   max-width: 280px;
@@ -1423,8 +1424,8 @@ button.insight-practice-results-btn--secondary:hover { background: #f0eeff; }
   grid-template-rows: repeat(3, 1fr);
   gap: clamp(4px, 1vh, 8px);
   width: 100%;
-  flex: 1;
-  min-height: 0;
+  aspect-ratio: 1;
+  flex-shrink: 0;
 }
 
 .numpad-btn {
@@ -3775,8 +3776,8 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
 
 .security-question-circle {
   position: relative;
-  width: clamp(240px, 50vh, 420px);
-  height: clamp(240px, 50vh, 420px);
+  width: clamp(360px, 85vh, 780px);
+  height: clamp(360px, 85vh, 780px);
   margin: 0 auto;
 }
 
@@ -3788,7 +3789,7 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   width: 58%;
   text-align: center;
   font-weight: 700;
-  font-size: clamp(0.85rem, 2.1vh, 1.1rem);
+  font-size: clamp(1.1rem, 3.4vh, 1.9rem);
   color: #1e1b4b;
 }
 
@@ -3802,8 +3803,8 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
 }
 
 .security-question-option {
-  width: clamp(46px, 8.5vh, 68px);
-  height: clamp(46px, 8.5vh, 68px);
+  width: clamp(64px, 13vh, 110px);
+  height: clamp(64px, 13vh, 110px);
   border-radius: 50%;
   border: 2px solid #e5e7eb;
   background: white;
@@ -3820,12 +3821,12 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
 }
 
 .security-question-option-emoji {
-  font-size: clamp(1.3rem, 3.8vh, 2.1rem);
+  font-size: clamp(1.8rem, 5.8vh, 3.2rem);
   line-height: 1;
 }
 
 .security-question-option-label {
-  font-size: clamp(0.6rem, 1.4vh, 0.75rem);
+  font-size: clamp(0.75rem, 2vh, 1.05rem);
   font-weight: 600;
   color: #4b5563;
   text-align: center;
