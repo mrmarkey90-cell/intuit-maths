@@ -3951,6 +3951,10 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   min-width: 0;
 }
 
+.class-list-grid-col .section-heading {
+  align-items: center;
+}
+
 .qr-display-box--compact {
   padding: 0.75rem;
   margin-bottom: 0;
@@ -3960,15 +3964,20 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   font-size: clamp(0.9rem, 2vw, 1.1rem);
 }
 
+.class-list-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .pick-pupil-btn {
-  margin-top: 0.25rem;
-  padding: 10px 16px;
+  padding: 7px 14px;
   background: linear-gradient(135deg, #f59e0b, #fbbf24);
   color: #78350f;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   cursor: pointer;
   white-space: nowrap;
   transition: transform 0.15s, opacity 0.15s;

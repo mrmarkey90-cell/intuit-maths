@@ -7,13 +7,16 @@ import PupilDetail from './PupilDetail'
 import AvatarDisplay from '../components/AvatarDisplay'
 import { DEFAULT_AVATAR } from '../lib/avatarConfig'
 
-// Speed of the random-pupil-picker's card-to-card cycling follows a sine
-// curve across the run: slow to start, fastest at the midpoint, slow again
-// as it lands on the chosen pupil -- a simple ramp-up-then-down "wheel spin"
-// feel rather than a constant tick rate.
-const PICKER_STEPS = 26
-const PICKER_MIN_DELAY = 70
-const PICKER_MAX_DELAY = 320
+// The random-pupil-picker sweeps through the grid in list order (not random
+// jumps) for a few full loops before landing on the chosen pupil, like a
+// prize wheel. Driven by requestAnimationFrame against a fixed wall-clock
+// duration rather than a chain of setTimeouts with manually-tuned per-step
+// delays -- that's what made the old version feel staggered, since the
+// speed only changed in big discrete jumps between steps. Here the eased
+// position is recalculated every frame, so the cycling speed itself changes
+// continuously: ease-in-out-sine's velocity is a single sine hump over the
+// run (ramps up, peaks at the midpoint, ramps back down to land).
+const PICKER_DURATION_MS = 3200
 
 function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
   const { t } = useTranslation()
@@ -33,6 +36,15 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
   const [pickedPupil, setPickedPupil] = useState(null)
   const classPupilsRef = useRef(classPupils)
   classPupilsRef.current = classPupils
+  const pickRafRef = useRef(null)
+  const audioCtxRef = useRef(null)
+
+  useEffect(() => {
+    return () => {
+      if (pickRafRef.current) cancelAnimationFrame(pickRafRef.current)
+      audioCtxRef.current?.close()
+    }
+  }, [])
 
   // One link covers both new and returning pupils now -- PupilHub itself
   // offers an "I'm new here" entry point for profile creation.
@@ -92,35 +104,67 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
     }
   }
 
+  function playHighlightTone() {
+    try {
+      if (!audioCtxRef.current) {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext
+        audioCtxRef.current = new AudioCtx()
+      }
+      const ctx = audioCtxRef.current
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.type = 'sine'
+      osc.frequency.value = 660
+      gain.gain.setValueAtTime(0.12, ctx.currentTime)
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.09)
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.start()
+      osc.stop(ctx.currentTime + 0.09)
+    } catch {
+      // Web Audio unavailable/blocked -- the visual highlight still works without sound.
+    }
+  }
+
   function pickRandomPupil() {
     const pupils = classPupilsRef.current
-    if (picking || pupils.length === 0) return
+    const length = pupils.length
+    if (picking || length === 0) return
     setPickedPupil(null)
+
+    if (length === 1) {
+      setPickedPupil(pupils[0])
+      return
+    }
+
     setPicking(true)
-    const finalPupil = pupils[Math.floor(Math.random() * pupils.length)]
+    const startIndex = Math.floor(Math.random() * length)
+    const finalIndex = Math.floor(Math.random() * length)
+    const offset = (finalIndex - startIndex + length) % length
+    const loops = length <= 6 ? 4 : length <= 14 ? 3 : 2
+    const totalDistance = loops * length + offset
+    const start = performance.now()
+    let lastIndex = -1
 
-    let step = 0
-    function tick() {
-      const isLastStep = step === PICKER_STEPS
-      const candidate = isLastStep
-        ? finalPupil
-        : pupils[Math.floor(Math.random() * pupils.length)]
-      setHighlightedId(candidate.id)
-
-      if (isLastStep) {
+    function frame(now) {
+      const t = Math.min((now - start) / PICKER_DURATION_MS, 1)
+      const eased = 0.5 * (1 - Math.cos(Math.PI * t)) // ease-in-out-sine: velocity ramps up then down
+      const distance = Math.min(Math.floor(eased * totalDistance), totalDistance)
+      const index = (startIndex + distance) % length
+      if (index !== lastIndex) {
+        lastIndex = index
+        setHighlightedId(pupils[index].id)
+        playHighlightTone()
+      }
+      if (t < 1) {
+        pickRafRef.current = requestAnimationFrame(frame)
+      } else {
         setPicking(false)
         setHighlightedId(null)
-        setPickedPupil(finalPupil)
-        return
+        setPickedPupil(pupils[finalIndex])
       }
-
-      const progress = step / PICKER_STEPS
-      const speedFactor = Math.sin(progress * Math.PI) // 0 -> 1 -> 0
-      const delay = PICKER_MAX_DELAY - (PICKER_MAX_DELAY - PICKER_MIN_DELAY) * speedFactor
-      step += 1
-      setTimeout(tick, delay)
     }
-    tick()
+    pickRafRef.current = requestAnimationFrame(frame)
   }
 
   async function cancelSession() {
@@ -193,19 +237,21 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
               <button className="button-secondary" onClick={copyPupilLink}>
                 {linkCopied ? t('common.copied') : t('staffDashboard.copyLink')}
               </button>
-              <button
-                className="pick-pupil-btn"
-                onClick={pickRandomPupil}
-                disabled={picking || classPupils.length === 0}
-              >
-                🎲 {t('staffDashboard.pickRandomPupil')}
-              </button>
             </section>
 
             <section className="dashboard-section class-list-grid-col">
               <div className="section-heading">
                 <h2>{t('staffDashboard.classList')}</h2>
-                <span className="section-count">{classPupils.length}</span>
+                <div className="class-list-heading-actions">
+                  <button
+                    className="pick-pupil-btn"
+                    onClick={pickRandomPupil}
+                    disabled={picking || classPupils.length === 0}
+                  >
+                    🎲 {t('staffDashboard.pickRandomPupil')}
+                  </button>
+                  <span className="section-count">{classPupils.length}</span>
+                </div>
               </div>
               {classPupils.length === 0 ? (
                 <p className="note">{t('staffDashboard.noPupilsYet')}</p>
