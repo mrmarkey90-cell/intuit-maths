@@ -57,7 +57,7 @@ function LevelDownOffer({ pupilId, currentStage, t }) {
 function PupilSession() {
   const { code } = useParams()
   const navigate = useNavigate()
-  const sessionCode = code.toUpperCase()
+  const sessionCode = code
   const { t, language, setLanguage } = useTranslation()
   const languageRef = useRef(language)
   useEffect(() => { languageRef.current = language }, [language])

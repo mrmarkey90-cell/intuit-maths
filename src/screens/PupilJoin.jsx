@@ -7,7 +7,7 @@ import PlacementTest from '../insight/PlacementTest'
 
 function PupilJoin() {
   const { code } = useParams()
-  const joinCode = code.toUpperCase()
+  const joinCode = code
   const navigate = useNavigate()
   const { t, setLanguage } = useTranslation()
 
