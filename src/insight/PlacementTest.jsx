@@ -98,7 +98,7 @@ function PlacementTest({ pupilId, onComplete }) {
   if (view === 'confidence') return (
     <div className="screen placement-test-screen">
       <PlacementLogo />
-      <p className="tagline">{t('placementTest.confidence.prompt')}</p>
+      <h1>{t('placementTest.confidence.prompt')}</h1>
       <div className="placement-confidence-options">
         {CONFIDENCE_OPTIONS.map(opt => (
           <button

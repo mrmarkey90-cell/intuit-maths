@@ -3614,6 +3614,7 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   width: 100vw;
   overflow: hidden;
   position: relative;
+  font-family: 'Nunito Variable', sans-serif;
 }
 
 .pupil-viewport .screen,

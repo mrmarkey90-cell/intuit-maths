@@ -23,6 +23,7 @@ Inspired by Big Maths Beat That — a popular but entirely physical timed arithm
 - GitHub — version control (repo: mrmarkey90-cell/intuit-maths)
 - pgcrypto — PIN hashing (bcrypt)
 - react-qr-code — QR code display in session lobby
+- @fontsource-variable/nunito — self-hosted (no external font CDN request — deliberate for a school product) variable font, scoped to `.pupil-viewport` only (`src/App.css`) so pupil-facing screens get a friendly, legible typeface (chosen over Comic Sans) while staff/leadership screens keep the system sans-serif stack
 - Stripe — payments (post-MVP)
 - Resend — transactional email (pre-launch, replacing Supabase default)
 
