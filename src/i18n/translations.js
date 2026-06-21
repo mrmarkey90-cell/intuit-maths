@@ -247,8 +247,12 @@ export const translations = {
     'pupilHub.towardsInstinctLevel': 'Towards Instinct Level {n}',
     'pupilHub.streakTowardsInstinctLevel': '{streak}/3 towards Instinct Level {n}',
     'pupilHub.startingPractice': 'Starting...',
-    'pupilHub.practiceInstinct': 'Practice Instinct →',
     'pupilHub.notYouSignOut': 'Not {name}? Sign out',
+
+    'pupilHub.specialMissions': 'Special Missions',
+    'pupilHub.games': 'Games',
+    'pupilHub.practise': 'Practise',
+    'pupilHub.intoIt': 'Into It!',
 
     'pupilHub.placementPromptTitle': "Let's find your starting level!",
     'pupilHub.placementPromptBody': 'A few quick questions before you get started.',
@@ -634,8 +638,12 @@ export const translations = {
     'pupilHub.towardsInstinctLevel': 'Tuag at Lefel Instinct {n}',
     'pupilHub.streakTowardsInstinctLevel': '{streak}/3 tuag at Lefel Instinct {n}',
     'pupilHub.startingPractice': 'Yn dechrau...',
-    'pupilHub.practiceInstinct': 'Ymarfer Instinct →',
     'pupilHub.notYouSignOut': 'Nid {name}? Allgofnodi',
+
+    'pupilHub.specialMissions': 'Cenadaethau Arbennig',
+    'pupilHub.games': 'Gemau',
+    'pupilHub.practise': 'Ymarfer',
+    'pupilHub.intoIt': 'Into It!',
 
     'pupilHub.placementPromptTitle': "Gadewch i ni ddod o hyd i'ch lefel gychwynnol!",
     'pupilHub.placementPromptBody': "Ychydig gwestiynau cyflym cyn i chi ddechrau.",

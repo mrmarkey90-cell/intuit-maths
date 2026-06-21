@@ -153,58 +153,82 @@ function PupilHub() {
     const insightLevel = pupil.insight_level ?? 1
 
     return (
-      <div className="hub-screen">
-        <div className="hub-avatar-block" onClick={() => setAvatarMsg(v => !v)}>
-          <AvatarDisplay
-            avatar={pupil.avatar ?? DEFAULT_AVATAR}
-            size={84}
-          />
-          <span className="hub-avatar-label">{avatarMsg ? t('pupilHub.comingSoon') : t('pupilHub.editAvatar')}</span>
-        </div>
-
-        <h1 className="hub-name">{t('pupilHub.hi').replace('{name}', pupil.first_name)}</h1>
-
-        <div className="hub-levels">
-          <div className="hub-level-badge hub-level-badge--instinct">
-            <span className="hub-level-badge-label">Instinct</span>
-            <span className="hub-level-badge-number">{instinctLevel}</span>
+      <div className="hub-screen hub-screen--split">
+        <div className="hub-status-panel">
+          <div className="hub-avatar-block" onClick={() => setAvatarMsg(v => !v)}>
+            <AvatarDisplay
+              avatar={pupil.avatar ?? DEFAULT_AVATAR}
+              size={64}
+            />
+            <span className="hub-avatar-label">{avatarMsg ? t('pupilHub.comingSoon') : t('pupilHub.editAvatar')}</span>
           </div>
-          <div className="hub-level-badge hub-level-badge--insight">
-            <span className="hub-level-badge-label">Insight</span>
-            <span className="hub-level-badge-number">{insightLevel}</span>
+
+          <h1 className="hub-name">{t('pupilHub.hi').replace('{name}', pupil.first_name)}</h1>
+
+          <div className="hub-levels">
+            <div className="hub-level-badge hub-level-badge--instinct">
+              <span className="hub-level-badge-label">Instinct</span>
+              <span className="hub-level-badge-number">{instinctLevel}</span>
+            </div>
+            <div className="hub-level-badge hub-level-badge--insight">
+              <span className="hub-level-badge-label">Insight</span>
+              <span className="hub-level-badge-number">{insightLevel}</span>
+            </div>
           </div>
+
+          <div className="hub-credits">⭐ {pupil.credits ?? 0} {t('pupilHub.credits')}</div>
+
+          <div className="hub-streak-block">
+            <StreakDots streak={streak} t={t} />
+            <span className="streak-label">
+              {streak > 0
+                ? t('pupilHub.streakTowardsInstinctLevel').replace('{streak}', streak).replace('{n}', instinctLevel + 1)
+                : t('pupilHub.towardsInstinctLevel').replace('{n}', instinctLevel + 1)}
+            </span>
+          </div>
+
+          <button
+            className="button-secondary hub-signout-btn"
+            onClick={() => {
+              sessionStorage.removeItem(`hub_pupil_${joinCode}`)
+              setPupil(null)
+              setView('select')
+            }}
+          >
+            {t('pupilHub.notYouSignOut').replace('{name}', pupil.first_name)}
+          </button>
         </div>
 
-        <div className="hub-credits">⭐ {pupil.credits ?? 0} {t('pupilHub.credits')}</div>
+        <div className="hub-areas-panel">
+          <button className="hub-area-tile hub-area-tile--missions" disabled>
+            <span className="hub-area-tile-icon">🎯</span>
+            <span className="hub-area-tile-label">{t('pupilHub.specialMissions')}</span>
+            <span className="hub-area-tile-badge">{t('pupilHub.comingSoon')}</span>
+          </button>
 
-        <div style={{ marginBottom: 'clamp(0.5rem, 2vh, 2rem)', textAlign: 'center' }}>
-          <StreakDots streak={streak} t={t} />
-          <span className="streak-label" style={{ marginTop: '0.35rem', display: 'block' }}>
-            {streak > 0
-              ? t('pupilHub.streakTowardsInstinctLevel').replace('{streak}', streak).replace('{n}', instinctLevel + 1)
-              : t('pupilHub.towardsInstinctLevel').replace('{n}', instinctLevel + 1)}
-          </span>
+          <button className="hub-area-tile hub-area-tile--games" disabled>
+            <span className="hub-area-tile-icon">🎮</span>
+            <span className="hub-area-tile-label">{t('pupilHub.games')}</span>
+            <span className="hub-area-tile-badge">{t('pupilHub.comingSoon')}</span>
+          </button>
+
+          <button
+            className="hub-area-tile hub-area-tile--practise"
+            onClick={startPractice}
+            disabled={practicing}
+          >
+            <span className="hub-area-tile-icon">⚡</span>
+            <span className="hub-area-tile-label">
+              {practicing ? t('pupilHub.startingPractice') : t('pupilHub.practise')}
+            </span>
+          </button>
+
+          <button className="hub-intoit-cta" disabled>
+            <span className="hub-intoit-icon">🏰</span>
+            <span className="hub-intoit-label">{t('pupilHub.intoIt')}</span>
+            <span className="hub-intoit-badge">{t('pupilHub.comingSoon')}</span>
+          </button>
         </div>
-
-        <button
-          className="hub-practice-btn"
-          onClick={startPractice}
-          disabled={practicing}
-        >
-          {practicing ? t('pupilHub.startingPractice') : t('pupilHub.practiceInstinct')}
-        </button>
-
-        <button
-          className="button-secondary"
-          style={{ marginTop: 'clamp(0.5rem, 1.5vh, 1.5rem)' }}
-          onClick={() => {
-            sessionStorage.removeItem(`hub_pupil_${joinCode}`)
-            setPupil(null)
-            setView('select')
-          }}
-        >
-          {t('pupilHub.notYouSignOut').replace('{name}', pupil.first_name)}
-        </button>
       </div>
     )
   }

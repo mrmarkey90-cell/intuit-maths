@@ -2065,28 +2065,6 @@ button:hover:not(:disabled) {
   margin-bottom: 1.5rem;
 }
 
-.hub-practice-btn {
-  width: 100%;
-  max-width: 300px;
-  padding: 1rem 1.5rem;
-  font-size: 1.1rem;
-  font-weight: 700;
-  border-radius: 16px;
-  background: #4f46e5;
-  color: white;
-  border: none;
-  cursor: pointer;
-  margin-top: 0.5rem;
-  transition: transform 0.15s, box-shadow 0.15s;
-  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
-}
-.hub-practice-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.5);
-}
-.hub-practice-btn:active:not(:disabled) { transform: translateY(0); }
-.hub-practice-btn:disabled { opacity: 0.6; cursor: default; }
-
 .hub-confirm {
   display: flex;
   flex-direction: column;
@@ -2119,6 +2097,141 @@ button:hover:not(:disabled) {
   display: flex;
   gap: 1.25rem;
   align-items: flex-start;
+}
+
+/* ─── Pupil Hub: status panel + 4 areas ──────────────────────────
+   Horizontal split, not a vertical stack -- same reasoning as
+   .question-body: on a fixed-height landscape viewport (.pupil-viewport
+   clips overflow, there's no scroll to fall back on), stacking the
+   status info above the area tiles is what would force content off
+   the bottom. Splitting left/right uses the landscape viewport's
+   abundant width instead of fighting its limited height. */
+.hub-screen--split {
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: center;
+  gap: clamp(16px, 3vw, 40px);
+  text-align: left;
+  max-width: 980px;
+}
+
+.hub-status-panel {
+  flex: 0 1 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-width: 0;
+}
+
+.hub-streak-block {
+  margin-bottom: clamp(0.5rem, 2vh, 1.5rem);
+  text-align: center;
+}
+.hub-streak-block .streak-label {
+  margin-top: 0.35rem;
+  display: block;
+}
+
+.hub-signout-btn {
+  margin-top: auto;
+}
+
+.hub-areas-panel {
+  flex: 1 1 0;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: clamp(10px, 2vw, 20px);
+}
+
+.hub-area-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  border: none;
+  border-radius: clamp(14px, 2vw, 20px);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  min-height: 0;
+}
+.hub-area-tile:hover:not(:disabled) { transform: translateY(-2px); }
+.hub-area-tile:active:not(:disabled) { transform: translateY(0); }
+
+.hub-area-tile-icon { font-size: clamp(1.4rem, 4vh, 2.2rem); }
+.hub-area-tile-label { font-size: clamp(0.85rem, 2.2vh, 1.05rem); }
+.hub-area-tile-badge {
+  font-size: clamp(0.6rem, 1.5vh, 0.75rem);
+  font-weight: 600;
+  opacity: 0.85;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.hub-area-tile--missions { background: #f59e0b; }
+.hub-area-tile--games { background: #ec4899; }
+.hub-area-tile--practise {
+  background: #4f46e5;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
+}
+.hub-area-tile--practise:hover:not(:disabled) {
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.5);
+}
+
+/* The global button:disabled rule (background: #a5a3e8) has higher
+   specificity than a single modifier class, so locked tiles need their
+   own explicit :disabled rule to keep their colour instead of washing
+   out to the same default lavender as every other disabled button --
+   same cascade gotcha documented elsewhere in this file. */
+.hub-area-tile--missions:disabled {
+  background: #f59e0b;
+  opacity: 0.88;
+  cursor: not-allowed;
+}
+.hub-area-tile--games:disabled {
+  background: #ec4899;
+  opacity: 0.88;
+  cursor: not-allowed;
+}
+.hub-area-tile--practise:disabled {
+  background: #4f46e5;
+  opacity: 0.7;
+  cursor: default;
+  box-shadow: none;
+}
+
+.hub-intoit-cta {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.5rem, 1.5vw, 1rem);
+  border: none;
+  border-radius: clamp(14px, 2vw, 20px);
+  background: linear-gradient(135deg, #4f46e5, #ec4899, #f59e0b);
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+  min-height: 0;
+}
+.hub-intoit-icon { font-size: clamp(1.3rem, 3.5vh, 1.9rem); }
+.hub-intoit-label { font-size: clamp(0.95rem, 2.5vh, 1.2rem); }
+.hub-intoit-badge {
+  font-size: clamp(0.6rem, 1.5vh, 0.75rem);
+  font-weight: 600;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.hub-intoit-cta:disabled {
+  background: linear-gradient(135deg, #4f46e5, #ec4899, #f59e0b);
+  opacity: 0.85;
+  cursor: not-allowed;
 }
 
 /* ─── Insight module cards ────────────────────────────────────── */
@@ -3464,10 +3577,6 @@ button:hover:not(:disabled) {
 
 .pupil-viewport .hub-credits {
   margin-bottom: clamp(0.5rem, 2vh, 1.5rem);
-}
-
-.pupil-viewport .hub-practice-btn {
-  padding: clamp(0.6rem, 2vh, 1rem) 1.5rem;
 }
 
 .fullscreen-toggle-btn {
