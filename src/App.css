@@ -987,11 +987,6 @@ button:hover:not(:disabled) {
   letter-spacing: 0.03em;
 }
 
-.session-code-text {
-  font-size: clamp(1.5rem, 5vw, 2.5rem);
-  letter-spacing: 0.05em;
-}
-
 .lobby-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
