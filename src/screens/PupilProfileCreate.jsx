@@ -40,7 +40,7 @@ function PupilProfileCreate({ joinCode, classInfo, onComplete }) {
     <div className="screen">
       <div className="profile-create-body">
         <div className="profile-avatar-panel">
-          <AvatarDisplay avatar={avatar} size={140} />
+          <AvatarDisplay avatar={avatar} size="clamp(70px, 22vh, 140px)" />
         </div>
 
         <div className="profile-form-panel">
@@ -67,6 +67,7 @@ function PupilProfileCreate({ joinCode, classInfo, onComplete }) {
           {error && <p className="error" style={{ marginTop: '0.5rem' }}>{error}</p>}
 
           <button
+            className="profile-submit-btn"
             onClick={handleSubmit}
             disabled={!firstName.trim() || !lastName.trim() || loading}
             style={{ marginTop: '0.75rem' }}

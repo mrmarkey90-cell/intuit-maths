@@ -163,9 +163,15 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust', state: controlledSta
   const skinColor = SKIN_TONES[avatar.skinTone] ?? SKIN_TONES[0]
   const hairColor = HAIR_COLORS[avatar.hairColor] ?? HAIR_COLORS[0]
   const { aspect } = CROPS[crop] ?? CROPS.bust
+  // `size` is normally a px number (fixed-size tiles/badges), but also
+  // accepts a CSS length string (e.g. a clamp()) for callers that need
+  // the preview itself to scale with the viewport.
+  const style = typeof size === 'string'
+    ? { width: size, height: `calc(${size} * ${aspect})` }
+    : { width: size, height: size * aspect }
 
   return (
-    <svg className="avatar-display" style={{ width: size, height: size * aspect }} viewBox="0 0 200 300">
+    <svg className="avatar-display" style={style} viewBox="0 0 200 300">
       {/* Legs -- procedural. Hip pivot moved from y=185 to y=165 (and the
           foot endpoint shifted by the same -20 delta, so leg length/angle
           are unchanged, just translated) to match the clothing redraw

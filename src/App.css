@@ -708,7 +708,12 @@ button:hover:not(:disabled) {
   min-height: 0;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  /* stretch (not center) -- center sizes each panel to its own content
+     height and lets it overflow this row silently, which then gets
+     clipped equally off the top and bottom by the screen's
+     overflow: hidden. Stretching gives .profile-form-panel a real,
+     bounded height to scroll within instead. */
+  align-items: stretch;
   justify-content: center;
   gap: clamp(16px, 4vw, 40px);
 }
@@ -727,8 +732,10 @@ button:hover:not(:disabled) {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  overflow: hidden;
+  justify-content: center; /* fallback for browsers without the `safe` keyword below */
+  justify-content: safe center;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .avatar-controls {
@@ -3647,6 +3654,55 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
 .pupil-viewport .form {
   gap: clamp(6px, 1.2vh, 12px);
   margin-bottom: clamp(6px, 1.5vh, 2rem);
+}
+
+.pupil-viewport input {
+  padding: clamp(7px, 1.4vh, 12px) clamp(10px, 2vw, 16px);
+  font-size: clamp(0.85rem, 2vh, 1rem);
+}
+
+.pupil-viewport .profile-submit-btn {
+  padding: clamp(7px, 1.4vh, 12px) clamp(10px, 2vw, 16px);
+  font-size: clamp(0.85rem, 2vh, 1rem);
+}
+
+/* Profile creation's avatar-controls block (Skin/Hair/Hair colour/
+   Clothing/Hat rows) was sized with fixed px everywhere -- fine on the
+   normally-scrolling /avatar-test dev harness this component is also
+   used on, but on a short landscape phone it alone could exceed the
+   whole locked-height screen. Scoped to .pupil-viewport so the dev
+   harness (not viewport-locked) keeps its original fixed sizing. */
+.pupil-viewport .avatar-controls {
+  gap: clamp(3px, 0.8vh, 8px);
+}
+
+.pupil-viewport .avatar-row {
+  padding: clamp(4px, 0.9vh, 8px) clamp(8px, 1.6vw, 12px);
+}
+
+.pupil-viewport .avatar-label {
+  font-size: clamp(0.7rem, 1.6vh, 0.94rem);
+  width: clamp(48px, 9vh, 64px);
+}
+
+.pupil-viewport .avatar-swatch {
+  width: clamp(18px, 3vh, 28px);
+  height: clamp(18px, 3vh, 28px);
+}
+
+.pupil-viewport .avatar-arrow {
+  width: clamp(26px, 4.4vh, 36px);
+  height: clamp(26px, 4.4vh, 36px);
+  font-size: clamp(0.85rem, 2vh, 1.25rem);
+}
+
+.pupil-viewport .avatar-index {
+  font-size: clamp(0.65rem, 1.4vh, 0.875rem);
+}
+
+.pupil-viewport .avatar-hats-locked {
+  font-size: clamp(0.65rem, 1.3vh, 0.8rem);
+  padding: clamp(5px, 0.9vh, 10px) clamp(8px, 1.6vw, 12px);
 }
 
 /* Results screen (PupilSession) and pupil hub dashboard -- both are
