@@ -19,21 +19,30 @@ function PlacementTest({ pupilId, onComplete }) {
   const [subdomain, setSubdomain] = useState(() => pickPlacementSubdomain(PLACEMENT_START_LEVEL))
   const [levelHistory, setLevelHistory] = useState([])
   const [correctCount, setCorrectCount] = useState(0)
-  const [answered, setAnswered] = useState(null) // null | { correct }
+  // liveCorrect tracks the module's latest reported answer -- several
+  // module types (Share, MultiSelect, DragSort, PairSum) report via a
+  // useEffect that fires immediately on mount with their empty/default
+  // state, then again on every change, rather than once on an explicit
+  // submit. So this must stay "live" (overwritten on each call) rather
+  // than locking the module on the first call, or those types would lock
+  // out before the child has touched anything.
+  const [liveCorrect, setLiveCorrect] = useState(null)
+  const [idk, setIdk] = useState(false)
 
   function handleModuleAnswer({ correct }) {
-    if (answered) return
-    setAnswered({ correct })
+    if (idk) return
+    setLiveCorrect(correct)
   }
 
   function handleIdk() {
-    if (answered) return
-    setAnswered({ correct: false })
+    if (idk) return
+    setIdk(true)
   }
 
   async function advance() {
+    const correct = idk ? false : (liveCorrect ?? false)
     const newHistory = [...levelHistory, level]
-    const newCorrectCount = answered.correct ? correctCount + 1 : correctCount
+    const newCorrectCount = correct ? correctCount + 1 : correctCount
 
     if (newHistory.length >= PLACEMENT_QUESTION_COUNT) {
       setLevelHistory(newHistory)
@@ -52,12 +61,13 @@ function PlacementTest({ pupilId, onComplete }) {
       return
     }
 
-    const newLevel = nextStaircaseLevel(level, answered.correct)
+    const newLevel = nextStaircaseLevel(level, correct)
     setLevelHistory(newHistory)
     setCorrectCount(newCorrectCount)
     setLevel(newLevel)
     setSubdomain(pickPlacementSubdomain(newLevel))
-    setAnswered(null)
+    setLiveCorrect(null)
+    setIdk(false)
     setQuestionIndex(i => i + 1)
   }
 
@@ -94,7 +104,7 @@ function PlacementTest({ pupilId, onComplete }) {
           key={questionIndex}
           subdomain={subdomain}
           level={level}
-          locked={answered !== null}
+          locked={idk}
           revealed={false}
           onAnswer={handleModuleAnswer}
         />
@@ -104,14 +114,12 @@ function PlacementTest({ pupilId, onComplete }) {
         <button
           className="button-secondary"
           onClick={handleIdk}
-          disabled={answered !== null}
+          disabled={idk}
         >
           {t('placementTest.idk')}
         </button>
 
-        {answered !== null && (
-          <button onClick={advance}>{t('common.continue')}</button>
-        )}
+        <button onClick={advance}>{t('common.continue')}</button>
       </div>
     </div>
   )
