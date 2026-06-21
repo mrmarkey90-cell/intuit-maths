@@ -5,7 +5,7 @@ import AvatarBuilder from '../components/AvatarBuilder'
 import AvatarDisplay from '../components/AvatarDisplay'
 import { DEFAULT_AVATAR, DEFAULT_UNLOCKED } from '../lib/avatarConfig'
 
-function PupilProfileCreate({ joinCode, classInfo, onComplete }) {
+function PupilProfileCreate({ joinCode, onComplete }) {
   const { t } = useTranslation()
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
@@ -39,14 +39,7 @@ function PupilProfileCreate({ joinCode, classInfo, onComplete }) {
   return (
     <div className="screen">
       <div className="profile-create-body">
-        <div className="profile-avatar-panel">
-          <AvatarDisplay avatar={avatar} size="clamp(70px, 22vh, 140px)" />
-        </div>
-
-        <div className="profile-form-panel">
-          <h1>{t('pupilProfileCreate.title')}</h1>
-          <p className="tagline">{classInfo.class_name} — {classInfo.school_name}</p>
-
+        <div className="profile-left-col">
           <div className="form">
             <input
               type="text"
@@ -62,18 +55,21 @@ function PupilProfileCreate({ joinCode, classInfo, onComplete }) {
             />
           </div>
 
-          <AvatarBuilder avatar={avatar} unlocked={DEFAULT_UNLOCKED} onChange={setAvatar} />
+          <AvatarDisplay avatar={avatar} size="clamp(90px, 32vh, 220px)" />
 
-          {error && <p className="error" style={{ marginTop: '0.5rem' }}>{error}</p>}
+          {error && <p className="error">{error}</p>}
 
           <button
             className="profile-submit-btn"
             onClick={handleSubmit}
             disabled={!firstName.trim() || !lastName.trim() || loading}
-            style={{ marginTop: '0.75rem' }}
           >
             {loading ? t('common.saving') : t('pupilProfileCreate.thatsMe')}
           </button>
+        </div>
+
+        <div className="profile-right-col">
+          <AvatarBuilder avatar={avatar} unlocked={DEFAULT_UNLOCKED} onChange={setAvatar} />
         </div>
       </div>
     </div>

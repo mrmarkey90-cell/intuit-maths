@@ -699,43 +699,54 @@ button:hover:not(:disabled) {
   height: 100%;
 }
 
-/* Profile creation -- same horizontal-split convention as the question
-   screen: a fixed content tile (the avatar preview) on the left, all
-   the controls (name fields, avatar steppers, submit) on the right. */
+/* Profile creation -- two genuine columns (name + big avatar preview on
+   the left, avatar-building controls on the right), not one tall stack.
+   No title/tagline above it (removed as redundant) and no scroll
+   fallback here deliberately -- a visible scrollbar on this screen is
+   worse than the clipping it would prevent, so each column's contents
+   must actually fit via clamp sizing, not via an escape hatch. */
 .profile-create-body {
   flex: 1;
   width: 100%;
   min-height: 0;
   display: flex;
   flex-direction: row;
-  /* stretch (not center) -- center sizes each panel to its own content
-     height and lets it overflow this row silently, which then gets
-     clipped equally off the top and bottom by the screen's
-     overflow: hidden. Stretching gives .profile-form-panel a real,
-     bounded height to scroll within instead. */
   align-items: stretch;
   justify-content: center;
-  gap: clamp(16px, 4vw, 40px);
+  gap: clamp(20px, 5vw, 56px);
 }
 
-.profile-avatar-panel {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.profile-form-panel {
-  flex: 1 1 0;
-  max-width: 380px;
+.profile-left-col {
+  flex: 0 1 280px;
+  max-width: 300px;
+  width: 100%;
   min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; /* fallback for browsers without the `safe` keyword below */
-  justify-content: safe center;
-  overflow-y: auto;
-  overflow-x: hidden;
+  justify-content: center;
+  gap: clamp(8px, 2vh, 18px);
+  overflow: hidden;
+}
+
+/* The shared .form rule has its own margin-bottom for normal stacked
+   pages -- redundant here since .profile-left-col's gap already
+   spaces every child evenly, and stacking both would waste vertical
+   room this screen doesn't have to spare. */
+.profile-left-col .form {
+  margin-bottom: 0;
+}
+
+.profile-right-col {
+  flex: 1 1 0;
+  max-width: 320px;
+  width: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .avatar-controls {

@@ -227,7 +227,6 @@ export const translations = {
     'pupilJoin.classNotFound': 'Class not found',
     'pupilJoin.checkLink': 'Check the link and try again',
 
-    'pupilProfileCreate.title': 'Create your profile',
     'pupilProfileCreate.errFirstName': 'Enter your first name',
     'pupilProfileCreate.errLastName': 'Enter your last name',
     'pupilProfileCreate.firstNamePlaceholder': 'First name',
@@ -691,7 +690,6 @@ export const translations = {
     'pupilJoin.classNotFound': 'Dosbarth heb ei ganfod',
     'pupilJoin.checkLink': 'Gwiriwch y ddolen a cheisiwch eto',
 
-    'pupilProfileCreate.title': 'Crëwch eich proffil',
     'pupilProfileCreate.errFirstName': 'Rhowch eich enw cyntaf',
     'pupilProfileCreate.errLastName': 'Rhowch eich cyfenw',
     'pupilProfileCreate.firstNamePlaceholder': 'Enw cyntaf',
