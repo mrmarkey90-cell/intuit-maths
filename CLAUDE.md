@@ -236,12 +236,16 @@ id (uuid PK), user_id (FK, nullable — pupils have no auth account), class_id (
 
 ### sessions
 id (uuid PK), class_id (FK), join_code (text, unique — 5-char for `challenge_type = 'challenge'` via the shared `generate_join_code()`, 6-char alphanumeric inline for `'practice'` — see "Challenge session model"), status (lobby/active/finished), challenge_type (challenge/practice), started_at (timestamptz — set 4s in future when teacher clicks Begin; NULL until then, which is also what the weekly-limit check keys off), created_at
+- Rows with no lasting value are auto-purged by the `cleanup-sessions-and-participants` pg_cron job (see below) — every other `sessions` row (a real, started Instinct challenge) is kept indefinitely; it feeds `get_class_challenge_comparison` and future whole-school reporting
 
 ### session_participants
 id (uuid PK), session_id (FK), pupil_id (FK → pupil_profiles.id), ready (bool), score (int), total (int), joined_at
-- Auto-purged by pg_cron job every 10 minutes (deletes rows for finished or >30min old sessions)
 - Has anon SELECT RLS policy (required for Realtime; data not sensitive)
 - Only a real graded Instinct challenge ever gets a final score/total written here by `submit_attempt` — Practice is credits-only and never updates this row's score/total
+- Always ephemeral regardless of `challenge_type` — only used for live lobby/results polling, never read for any history/reporting purpose, so the cleanup job purges it for *any* finished or >30min-old session (not just the practice/never-started ones `sessions` itself purges)
+
+### Cleanup job (`cleanup-sessions-and-participants`, pg_cron, every 10 minutes)
+Culls data that link generation produces but that has no lasting value once its session is over — `session_participants` (any finished/>30min-old session, any type) and, in FK cascade order (`domain_results` → `attempts` → `session_participants` → `sessions`), `sessions` rows for **practice sessions** (credits-only, never read by any history/reporting RPC) and **challenge sessions that never started** (`started_at IS NULL` — cancelled or abandoned in the lobby, nothing ever happened). A real, started Instinct challenge session is never touched by this job, at any age — it's load-bearing data, not junk. The 30-minute age threshold matches the one already used for `session_participants` so an in-progress session is never swept up mid-use.
 
 ### attempts
 id (uuid PK), session_id (FK, nullable — Insight/placement attempts have no session), pupil_id (FK → pupil_profiles.id — NOT users.id), activity_type (challenge/practice/lesson/game/insight/placement), stage (int), score (int), total (int), completed_at
@@ -391,7 +395,7 @@ pupil_id (FK), subdomain (text — e.g. `1A`, `7B`, matches the curriculum sheet
 - Supabase postgres_changes Realtime is unreliable for anon users (RLS filtering causes missed events) — use Broadcast instead for client-to-client real-time (pupils broadcast to teacher on `session-{id}` channel)
 - Calling async RPCs inside React state setter callbacks (setAnswers, etc.) is bad practice — keep side effects in the main handler body
 - intuit-education.co.uk points to a completely different project; always use intuited.uk
-- Test sessions must be manually cleared for retesting: delete from domain_results, attempts, session_participants, sessions in that order (FK cascade order)
+- A test **practice** session or a **challenge** session cancelled/abandoned before Begin self-clears within 10 minutes via the `cleanup-sessions-and-participants` pg_cron job — no manual deletion needed for retesting those. A test session that actually *started and completed* as a real Instinct challenge is deliberately kept forever (it's the same data a real class's history would be), so retesting that case still needs a manual delete in FK cascade order: `domain_results` → `attempts` → `session_participants` → `sessions`
 - FloatingLogos uses requestAnimationFrame + direct DOM mutation (imgRef.style.left/top) — not React state — to avoid 60fps re-renders; keep it that way
 - FloatingLogos z-index model: container is `position: fixed; z-index: 0`; `.dashboard` and `.screen` are `position: relative; z-index: 1` with no background (body provides #f5f5f5); content sections/header keep white backgrounds so logos are hidden behind cards but visible in gaps
 - `public/intuit-logo.svg` is the company logo (portrait, ASPECT = 181.54816 / 116.77534 ≈ 1.555)
