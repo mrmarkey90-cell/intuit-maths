@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../supabaseClient'
 import { useTranslation } from '../../i18n/LanguageContext'
 import AvatarDisplay from '../../components/AvatarDisplay'
@@ -40,8 +40,7 @@ function LevelDownOffer({ pupilId, currentStage, t }) {
   )
 }
 
-function PupilSession() {
-  const { code } = useParams()
+function PupilSession({ code }) {
   const navigate = useNavigate()
   const sessionCode = code
   const { t, language, setLanguage } = useTranslation()
@@ -436,7 +435,7 @@ function PupilSession() {
           <button
             className="button-secondary"
             style={{ marginTop: '0.6rem' }}
-            onClick={() => navigate(`/hub/${sessionInfoRef.current.class_join_code}`)}
+            onClick={() => navigate(`/${sessionInfoRef.current.class_join_code}`)}
           >
             {t('pupilSession.myHub')}
           </button>

@@ -51,7 +51,7 @@ function SessionHost({ school, cls, session, classPupils, onEnd }) {
   const graceRef = useRef(null)
   const channelRef = useRef(null)
 
-  const joinUrl = `https://intuited.uk/play/${session.join_code}`
+  const joinUrl = `https://intuited.uk/${session.join_code}`
 
   function startLobbyPolling() {
     pollRef.current = setInterval(async () => {

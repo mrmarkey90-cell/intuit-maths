@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import { useTranslation } from '../i18n/LanguageContext'
 import AvatarDisplay from '../components/AvatarDisplay'
@@ -7,6 +7,8 @@ import { DEFAULT_AVATAR } from '../lib/avatarConfig'
 import PlacementTest from '../insight/PlacementTest'
 import InsightPractice from '../insight/InsightPractice'
 import PupilVerification from '../components/PupilVerification'
+import PupilProfileCreate from './PupilProfileCreate'
+import SecurityQuestionsSetup from '../components/SecurityQuestionsSetup'
 
 function StreakDots({ streak, t }) {
   return (
@@ -20,8 +22,7 @@ function StreakDots({ streak, t }) {
   )
 }
 
-function PupilHub() {
-  const { joinCode } = useParams()
+function PupilHub({ joinCode }) {
   const navigate = useNavigate()
   const { t, setLanguage } = useTranslation()
 
@@ -76,6 +77,16 @@ function PupilHub() {
     setView('hub')
   }
 
+  function handleProfileCreated(newPupil) {
+    // Confirms who this pupil is (just created their profile this very
+    // session) -- seed the same "skip re-selection" shortcut the tile-tap
+    // path uses, so reloading mid-setup doesn't bounce them back to the
+    // tile grid.
+    sessionStorage.setItem(`hub_pupil_${joinCode}`, newPupil.id)
+    setPupil(newPupil)
+    setView('security_setup')
+  }
+
   async function handleInsightPracticeComplete() {
     const { data } = await supabase.rpc('get_pupil_history', { p_pupil_id: pupil.id })
     if (data?.pupil) setPupil(data.pupil)
@@ -92,7 +103,7 @@ function PupilHub() {
     })
     setPracticing(false)
     if (error || !sessionCode) return
-    navigate(`/play/${sessionCode}?pupil=${pupil.id}&hub=${joinCode}`)
+    navigate(`/${sessionCode}?pupil=${pupil.id}`)
   }
 
   if (view === 'loading') return <div className="screen"><p>{t('common.loading')}</p></div>
@@ -121,7 +132,22 @@ function PupilHub() {
           </button>
         ))}
       </div>
+      <button
+        className="button-secondary"
+        style={{ marginTop: '1rem' }}
+        onClick={() => setView('create_profile')}
+      >
+        {t('pupilHub.imNewHere')}
+      </button>
     </div>
+  )
+
+  if (view === 'create_profile') return (
+    <PupilProfileCreate joinCode={joinCode} classInfo={classInfo} onComplete={handleProfileCreated} />
+  )
+
+  if (view === 'security_setup') return (
+    <SecurityQuestionsSetup pupilId={pupil.id} onComplete={() => setView('placement')} />
   )
 
   if (view === 'confirm') return (

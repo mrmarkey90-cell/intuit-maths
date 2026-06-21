@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom'
 import { supabase } from './supabaseClient'
 import './App.css'
 import { LanguageProvider, useTranslation } from './i18n/LanguageContext'
@@ -13,9 +13,7 @@ import Dashboard from './screens/Dashboard'
 import StaffLogin from './screens/StaffLogin'
 import StaffClassSelect from './screens/StaffClassSelect'
 import StaffClassDashboard from './screens/StaffClassDashboard'
-import PupilJoin from './screens/PupilJoin'
-import PupilSession from './screens/session/PupilSession'
-import PupilHub from './screens/PupilHub'
+import PupilEntry from './screens/PupilEntry'
 import InsightTest from './screens/InsightTest'
 import InstinctTest from './screens/InstinctTest'
 import AvatarTest from './screens/AvatarTest'
@@ -154,14 +152,24 @@ function StaffApp() {
   )
 }
 
+// All pupil-facing links used to be /join/[code], /hub/[code], /play/[code]
+// -- now they're all just /[code] (resolved server-side by PupilEntry).
+// These three keep any already-shared old-format links working.
+function RedirectToPupilEntry() {
+  const params = useParams()
+  const code = params.code ?? params.joinCode
+  return <Navigate to={`/${code}`} replace />
+}
+
 function App() {
   return (
     <LanguageProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/join/:code" element={<PupilScreenGuard><PupilJoin /></PupilScreenGuard>} />
-          <Route path="/play/:code" element={<PupilScreenGuard><PupilSession /></PupilScreenGuard>} />
-          <Route path="/hub/:joinCode" element={<PupilScreenGuard><PupilHub /></PupilScreenGuard>} />
+          <Route path="/join/:code" element={<RedirectToPupilEntry />} />
+          <Route path="/play/:code" element={<RedirectToPupilEntry />} />
+          <Route path="/hub/:joinCode" element={<RedirectToPupilEntry />} />
+          <Route path="/:code" element={<PupilScreenGuard><PupilEntry /></PupilScreenGuard>} />
           <Route path="/school/:code" element={<StaffApp />} />
           <Route path="/insight-test" element={<InsightTest />} />
           <Route path="/instinct-test" element={<InstinctTest />} />

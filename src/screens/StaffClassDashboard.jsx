@@ -17,13 +17,12 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
   const [starting, setStarting] = useState(false)
   const [cancelling, setCancelling] = useState(false)
   const [selectedPupil, setSelectedPupil] = useState(null)
-  const [hubCopied, setHubCopied] = useState(false)
-  const [profileCopied, setProfileCopied] = useState(false)
+  const [linkCopied, setLinkCopied] = useState(false)
 
-  const profileUrl = `https://intuited.uk/join/${cls.join_code}`
-  const profileDisplayUrl = `intuited.uk/join/${cls.join_code}`
-  const hubUrl = `https://intuited.uk/hub/${cls.join_code}`
-  const hubDisplayUrl = `intuited.uk/hub/${cls.join_code}`
+  // One link covers both new and returning pupils now -- PupilHub itself
+  // offers an "I'm new here" entry point for profile creation.
+  const pupilUrl = `https://intuited.uk/${cls.join_code}`
+  const pupilDisplayUrl = `intuited.uk/${cls.join_code}`
 
   async function refreshSessionStatus() {
     const { data } = await supabase.rpc('get_class_session_status', { p_class_id: cls.id })
@@ -64,16 +63,10 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
     setClaimingId(null)
   }
 
-  async function copyHubLink() {
-    await navigator.clipboard.writeText(hubUrl)
-    setHubCopied(true)
-    setTimeout(() => setHubCopied(false), 2000)
-  }
-
-  async function copyProfileLink() {
-    await navigator.clipboard.writeText(profileUrl)
-    setProfileCopied(true)
-    setTimeout(() => setProfileCopied(false), 2000)
+  async function copyPupilLink() {
+    await navigator.clipboard.writeText(pupilUrl)
+    setLinkCopied(true)
+    setTimeout(() => setLinkCopied(false), 2000)
   }
 
   async function cancelSession() {
@@ -185,11 +178,11 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
               {t('staffDashboard.displayOrShare')}
             </p>
             <div className="qr-display-box">
-              <QRCode value={hubUrl} size={220} />
+              <QRCode value={pupilUrl} size={220} />
             </div>
-            <code className="qr-url-display">{hubDisplayUrl}</code>
-            <button onClick={copyHubLink} style={{ marginTop: '1rem' }}>
-              {hubCopied ? t('common.copied') : t('staffDashboard.copyLink')}
+            <code className="qr-url-display">{pupilDisplayUrl}</code>
+            <button onClick={copyPupilLink} style={{ marginTop: '1rem' }}>
+              {linkCopied ? t('common.copied') : t('staffDashboard.copyLink')}
             </button>
           </section>
         </main>
@@ -209,18 +202,9 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
             <h1>{t('staffDashboard.addPupilTitle')}</h1>
             <span className="tier-badge">{cls.name}</span>
           </div>
-          <section className="dashboard-section qr-focus-section">
-            <p className="note" style={{ marginBottom: '1.5rem' }}>
-              {t('staffDashboard.newPupilsFollow')}
-            </p>
-            <div className="qr-display-box">
-              <QRCode value={profileUrl} size={220} />
-            </div>
-            <code className="qr-url-display">{profileDisplayUrl}</code>
-            <button onClick={copyProfileLink} style={{ marginTop: '1rem' }}>
-              {profileCopied ? t('common.copied') : t('staffDashboard.copyLink')}
-            </button>
-          </section>
+          <p className="note" style={{ marginBottom: '1rem' }}>
+            {t('staffDashboard.newPupilsFollow')}
+          </p>
 
           <section className="dashboard-section">
             <div className="section-heading">
