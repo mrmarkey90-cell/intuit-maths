@@ -2192,19 +2192,9 @@ button.results-reveal:hover {
 }
 
 .hub-avatar-block {
-  cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: transform 0.2s;
-}
-.hub-avatar-block:hover { transform: scale(1.05); }
-
-.hub-avatar-label {
-  font-size: 11px;
-  color: #9ca3af;
-  margin-top: 6px;
-  font-weight: 500;
 }
 
 .hub-name {
@@ -2308,6 +2298,31 @@ button.results-reveal:hover {
   align-items: center;
   text-align: center;
   min-width: 0;
+}
+
+.hub-wardrobe-btn,
+.hub-wardrobe-btn:disabled {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  justify-content: center;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  background: #f9fafb;
+  color: #9ca3af;
+  font-weight: 700;
+  padding: 0.5rem 0.75rem;
+  cursor: not-allowed;
+}
+.hub-wardrobe-icon { font-size: 1.1rem; }
+.hub-wardrobe-badge {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #b0b4bb;
+  margin-left: auto;
 }
 
 .hub-signout-btn {
@@ -4035,6 +4050,12 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
 .pupil-viewport .hub-name {
   font-size: clamp(1.3rem, 5vh, 2rem);
   margin: clamp(0.3rem, 1vh, 0.75rem) 0 clamp(0.4rem, 1.5vh, 1.25rem);
+}
+
+.pupil-viewport .hub-wardrobe-btn,
+.pupil-viewport .hub-wardrobe-btn:disabled {
+  padding: clamp(0.3rem, 1vh, 0.5rem) 0.75rem;
+  font-size: clamp(0.8rem, 1.8vh, 1rem);
 }
 
 .pupil-viewport .hub-progress-row {

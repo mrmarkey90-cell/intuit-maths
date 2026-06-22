@@ -33,7 +33,6 @@ function PupilHub({ joinCode }) {
   const [pupils, setPupils] = useState([])
   const [pendingPupil, setPendingPupil] = useState(null)
   const [pupil, setPupil] = useState(null)
-  const [avatarMsg, setAvatarMsg] = useState(false)
   const [practicing, setPracticing] = useState(false)
   const [practiceExpanded, setPracticeExpanded] = useState(false)
 
@@ -214,12 +213,11 @@ function PupilHub({ joinCode }) {
     return (
       <div className="hub-screen hub-screen--split">
         <div className="hub-status-panel">
-          <div className="hub-avatar-block" onClick={() => setAvatarMsg(v => !v)}>
+          <div className="hub-avatar-block">
             <AvatarDisplay
               avatar={pupil.avatar ?? DEFAULT_AVATAR}
-              size={64}
+              size="clamp(80px, 20vh, 150px)"
             />
-            <span className="hub-avatar-label">{avatarMsg ? t('pupilHub.comingSoon') : t('pupilHub.editAvatar')}</span>
           </div>
 
           <h1 className="hub-name">{t('pupilHub.hi').replace('{name}', pupil.first_name)}</h1>
@@ -238,6 +236,12 @@ function PupilHub({ joinCode }) {
               <StreakDots streak={insightStreak} />
             </div>
           </div>
+
+          <button className="hub-wardrobe-btn" disabled>
+            <span className="hub-wardrobe-icon">👕</span>
+            {t('pupilHub.wardrobe')}
+            <span className="hub-wardrobe-badge">{t('pupilHub.comingSoon')}</span>
+          </button>
 
           <button
             className="button-secondary hub-signout-btn"
