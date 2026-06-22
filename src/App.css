@@ -3881,10 +3881,20 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   cursor: pointer;
   transition: transform 0.15s, border-color 0.15s, background 0.15s;
 }
-.security-question-option:hover {
-  border-color: #4f46e5;
-  background: #f0eeff;
-  transform: scale(1.08);
+/* Scoped to real hover-capable pointers (mouse/trackpad) only -- on a
+   touchscreen, tapping a tile triggers :hover with no "pointer leave"
+   event to clear it, so the highlight visually sticks and then appears
+   on whatever tile renders at that same position for the *next*
+   question (each question is a fresh DOM node via key={categoryKey} in
+   SecurityQuestionsSetup/Verify, so this isn't React reusing a node --
+   it's the browser's touch-as-hover synthesis). Confirmed confusing
+   real KS2 pupils in testing. */
+@media (hover: hover) and (pointer: fine) {
+  .security-question-option:hover {
+    border-color: #4f46e5;
+    background: #f0eeff;
+    transform: scale(1.08);
+  }
 }
 
 .security-question-option-emoji {
