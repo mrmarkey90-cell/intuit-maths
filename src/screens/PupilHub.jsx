@@ -176,6 +176,7 @@ function PupilHub({ joinCode }) {
       <InsightPractice
         pupilId={pupil.id}
         insightLevel={pupil.insight_level ?? 1}
+        avatar={pupil.avatar}
         onComplete={handleInsightPracticeComplete}
       />
     )

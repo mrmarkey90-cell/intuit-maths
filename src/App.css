@@ -1231,11 +1231,13 @@ button:hover:not(:disabled) {
   50% { transform: scale(1.2) rotate(12deg); }
 }
 
-/* Insight Practice results actions (Check / Retry / My Hub) -- a single
-   shared sizing class rather than mixing plain <button> and
-   .button-secondary (which have different padding/font-size), so all
-   three are guaranteed identical dimensions regardless of colour. */
-.insight-practice-results-btns {
+/* Results screen actions (Check / Retry / My Hub, or just My Hub) -- a
+   single shared sizing class rather than mixing plain <button> and
+   .button-secondary (which have different padding/font-size), so every
+   button on a results screen is guaranteed identical dimensions
+   regardless of colour. Shared across Instinct and Insight Practice
+   today; any future "end of activity" screen should reuse it too. */
+.results-action-btns {
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
@@ -1243,7 +1245,7 @@ button:hover:not(:disabled) {
   margin-top: 0.75rem;
 }
 
-.insight-practice-results-btn {
+.results-action-btn {
   padding: 10px 20px;
   font-size: 16px;
   font-weight: 700;
@@ -1253,13 +1255,15 @@ button:hover:not(:disabled) {
   border: none;
 }
 
-.insight-practice-results-btn--primary {
-  background: #4f46e5;
+.results-action-btn--primary {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
   color: white;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+  transition: transform 0.15s, filter 0.15s;
 }
-.insight-practice-results-btn--primary:hover { background: #4338ca; }
+.results-action-btn--primary:hover { filter: brightness(1.08); transform: translateY(-1px); }
 
-.insight-practice-results-btn--secondary {
+.results-action-btn--secondary {
   background: white;
   color: #4f46e5;
   border: 1px solid #4f46e5;
@@ -1267,7 +1271,126 @@ button:hover:not(:disabled) {
 /* button. prefix needed to match the global button:hover:not(:disabled)
    rule's specificity -- otherwise that rule's #4338ca wins and this goes
    purple on hover instead of pale lavender, same gotcha as elsewhere. */
-button.insight-practice-results-btn--secondary:hover { background: #f0eeff; }
+button.results-action-btn--secondary:hover { background: #f0eeff; }
+
+/* ── Results reveal (envelope) ─────────────────── */
+
+/* Shared interstitial shown before any results scorecard: shakes to
+   invite a tap, then bursts open into sparkles before the caller swaps
+   in the real scorecard (see ResultsReveal.jsx). */
+.results-reveal {
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.6rem, 2.5vh, 1.25rem);
+  padding: 1rem;
+  cursor: pointer;
+  position: relative;
+}
+/* button. prefix + matching :hover needed to beat the global
+   button:hover:not(:disabled) rule's specificity -- otherwise tapping
+   the envelope paints a solid indigo box behind it, same gotcha as
+   .results-action-btn--secondary above. */
+button.results-reveal:hover {
+  background: none;
+}
+
+.results-reveal-envelope {
+  font-size: clamp(3.5rem, 16vh, 6.5rem);
+  line-height: 1;
+  filter: drop-shadow(0 8px 18px rgba(79, 70, 229, 0.35));
+  animation: results-envelope-shake 1.6s ease-in-out infinite;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease-in;
+}
+
+@keyframes results-envelope-shake {
+  0%, 100% { transform: rotate(0deg); }
+  8% { transform: rotate(-9deg); }
+  16% { transform: rotate(8deg); }
+  24% { transform: rotate(-7deg); }
+  32% { transform: rotate(6deg); }
+  40% { transform: rotate(-3deg); }
+  48% { transform: rotate(3deg); }
+  56%, 100% { transform: rotate(0deg); }
+}
+
+.results-reveal-label {
+  font-size: clamp(1.2rem, 4.5vh, 1.8rem);
+  font-weight: 800;
+  color: #4f46e5;
+  animation: hype-pop 0.4s ease-out;
+}
+
+.results-reveal-sparkles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.results-reveal-sparkle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-size: clamp(1.2rem, 4.5vh, 1.8rem);
+  opacity: 0;
+}
+
+.results-reveal--opening .results-reveal-envelope {
+  animation: none;
+  transform: scale(1.6) rotate(10deg);
+  opacity: 0;
+}
+
+.results-reveal--opening .results-reveal-label {
+  transition: opacity 0.2s ease-in;
+  opacity: 0;
+}
+
+.results-reveal--opening .results-reveal-sparkle--0 { --tx: -75px; --ty: -65px; animation: results-sparkle-burst 0.5s ease-out forwards; }
+.results-reveal--opening .results-reveal-sparkle--1 { --tx: 75px; --ty: -65px; animation: results-sparkle-burst 0.5s ease-out forwards 0.05s; }
+.results-reveal--opening .results-reveal-sparkle--2 { --tx: -75px; --ty: 65px; animation: results-sparkle-burst 0.5s ease-out forwards 0.1s; }
+.results-reveal--opening .results-reveal-sparkle--3 { --tx: 75px; --ty: 65px; animation: results-sparkle-burst 0.5s ease-out forwards 0.05s; }
+
+@keyframes results-sparkle-burst {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(0.6); }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(1.3); }
+}
+
+/* ── Results celebration header ────────────────── */
+
+.results-celebration-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.2rem, 1vh, 0.5rem);
+  margin-bottom: clamp(0.4rem, 1.5vh, 0.75rem);
+}
+
+.results-celebration-title {
+  font-size: clamp(1.3rem, 4.5vh, 1.8rem);
+  font-weight: 800;
+  color: #1e1b4b;
+  margin: 0;
+  animation: hype-pop 0.4s ease-out;
+}
+
+/* .results-summary .stat-box (above) sets a flat grey background at
+   higher specificity than a single modifier class could match -- same
+   cascade gotcha as button:disabled elsewhere in this file. Matching
+   the descendant selector's specificity here is what lets these win. */
+.results-summary .stat-box--score {
+  background: #ecfdf5;
+  border: 2px solid #6ee7b7;
+}
+.stat-box--score .stat-number { color: #047857; }
+
+.results-summary .stat-box--coins {
+  background: #fef9c3;
+  border: 2px solid #fcd34d;
+}
+.stat-box--coins .stat-number { color: #78350f; }
 
 /* ── Question screen ───────────────────────────── */
 

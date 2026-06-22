@@ -280,9 +280,14 @@ export const translations = {
 
     'pupilClassGrid.noProfiles': 'No profiles yet — ask your teacher to check the join link',
 
+    // Shared across any results/scorecard screen (Instinct, Insight
+    // Practice, future activities) -- see ResultsReveal.jsx.
+    'results.envelopeLabel': 'Your results are in!',
+
     'pupilSession.sessionNotFound': 'Session not found',
     'pupilSession.getReady': 'Get ready...',
     'pupilSession.youreIn': "You're in! Waiting for your teacher...",
+    'pupilSession.resultsTitle': 'Great Work!',
     'pupilSession.skipPenalty': '+{n}s penalty',
     'pupilSession.skip': 'Skip',
     'pupilSession.skipCooldown': 'Skip ({n}s)',
@@ -742,8 +747,11 @@ export const translations = {
 
     'pupilClassGrid.noProfiles': "Dim proffiliau eto — gofynnwch i'ch athro wirio'r ddolen ymuno",
 
+    'results.envelopeLabel': "Mae dy ganlyniadau wedi cyrraedd!",
+
     'pupilSession.sessionNotFound': 'Sesiwn heb ei chanfod',
     'pupilSession.getReady': 'Byddwch yn barod...',
+    'pupilSession.resultsTitle': 'Gwaith Gwych!',
     'pupilSession.youreIn': "Rydych i mewn! Yn aros am eich athro...",
     'pupilSession.skipPenalty': '+{n}s cosb',
     'pupilSession.skip': 'Sgipio',

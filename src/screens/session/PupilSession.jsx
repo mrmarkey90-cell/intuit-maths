@@ -5,6 +5,7 @@ import { useTranslation } from '../../i18n/LanguageContext'
 import AvatarDisplay from '../../components/AvatarDisplay'
 import NumberPad from '../../components/NumberPad'
 import HypePhrase from '../../components/HypePhrase'
+import ResultsReveal from '../../components/ResultsReveal'
 import PupilVerification from '../../components/PupilVerification'
 import { generateQuestion } from '../../lib/questionGenerator'
 import { DEFAULT_AVATAR } from '../../lib/avatarConfig'
@@ -58,6 +59,7 @@ function PupilSession({ code }) {
   const [answers, setAnswers] = useState([])
   const [timeLeft, setTimeLeft] = useState(SESSION_DURATION)
   const [results, setResults] = useState(null)
+  const [revealed, setRevealed] = useState(false)
 
   // Refs to avoid stale closures in timers/intervals
   const pupilRef = useRef(null)
@@ -389,6 +391,12 @@ function PupilSession({ code }) {
       </div>
     )
 
+    if (!revealed) return (
+      <div className="screen">
+        <ResultsReveal label={t('results.envelopeLabel')} onOpen={() => setRevealed(true)} />
+      </div>
+    )
+
     const currentStage = pupil?.instinct_level ?? 1
     const displayStage = levelUp ? newStage : currentStage
     const streak = results?.new_streak ?? 0
@@ -398,15 +406,18 @@ function PupilSession({ code }) {
         {levelUp && (
           <div className="level-up-banner">{t('pupilSession.levelUp').replace('{n}', newStage)}</div>
         )}
-        <AvatarDisplay avatar={pupil?.avatar ?? DEFAULT_AVATAR} size={64} />
+        <div className="results-celebration-header">
+          <AvatarDisplay avatar={pupil?.avatar ?? DEFAULT_AVATAR} size={72} state="celebrate" />
+          <h1 className="results-celebration-title">{t('pupilSession.resultsTitle')}</h1>
+        </div>
         <div className="test-level-badge">{t('pupilSession.testLevelBadge').replace('{n}', displayStage)}</div>
         <div className="results-summary">
-          <div className="stat-box stat-box--large">
-            <div className="stat-number">{score}/{total}</div>
+          <div className="stat-box stat-box--large stat-box--score">
+            <div className="stat-number">✅ {score}/{total}</div>
             <div className="stat-label">{t('insightPractice.correctLabel')}</div>
           </div>
-          <div className="stat-box stat-box--large">
-            <div className="stat-number">+{creditsEarned}</div>
+          <div className="stat-box stat-box--large stat-box--coins">
+            <div className="stat-number">🪙 +{creditsEarned}</div>
             <div className="stat-label">{t('pupilHub.credits')}</div>
           </div>
         </div>
@@ -432,13 +443,14 @@ function PupilSession({ code }) {
           <p className="note" style={{ marginTop: '0.6rem' }}>{t('pupilSession.writeScoreNote')}</p>
         )}
         {sessionInfoRef.current?.class_join_code && (
-          <button
-            className="button-secondary"
-            style={{ marginTop: '0.6rem' }}
-            onClick={() => navigate(`/${sessionInfoRef.current.class_join_code}`)}
-          >
-            {t('pupilSession.myHub')}
-          </button>
+          <div className="results-action-btns">
+            <button
+              className="results-action-btn results-action-btn--primary"
+              onClick={() => navigate(`/${sessionInfoRef.current.class_join_code}`)}
+            >
+              {t('pupilSession.myHub')}
+            </button>
+          </div>
         )}
       </div>
     )

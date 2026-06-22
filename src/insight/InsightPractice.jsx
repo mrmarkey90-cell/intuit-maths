@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { useTranslation } from '../i18n/LanguageContext'
 import HypePhrase from '../components/HypePhrase'
+import ResultsReveal from '../components/ResultsReveal'
+import AvatarDisplay from '../components/AvatarDisplay'
+import { DEFAULT_AVATAR } from '../lib/avatarConfig'
 import { getActiveSubdomains, generateModuleSlots } from './domainConfig'
 import InsightModule from './InsightModule'
 
@@ -11,19 +14,22 @@ import InsightModule from './InsightModule'
 // derived from the pupil's real per-subdomain strength so question
 // selection is meaningful, even though this practice run itself doesn't
 // write any strength data back (kept strictly credits-only per instruction).
-function InsightPractice({ pupilId, insightLevel, onComplete }) {
+function InsightPractice({ pupilId, insightLevel, avatar, onComplete }) {
   const { t, language } = useTranslation()
 
   const [slots, setSlots] = useState(null)
   const [current, setCurrent] = useState(0)
   const [results, setResults] = useState({})
-  // questions | marking | results | review -- IMPORTANT: every view below
-  // shares one mounted JSX tree (visibility toggled via CSS display, never
-  // via conditionally returning different trees), because InsightModule
-  // only generates its random question once per mount -- unmounting it
-  // (e.g. by early-returning a different tree for 'marking'/'results')
-  // would silently regenerate fresh questions and lose every answer the
-  // moment the pupil tries to review their marking.
+  // questions | marking | reveal | results | review -- IMPORTANT: every
+  // view below shares one mounted JSX tree (visibility toggled via CSS
+  // display, never via conditionally returning different trees), because
+  // InsightModule only generates its random question once per mount --
+  // unmounting it (e.g. by early-returning a different tree for
+  // 'marking'/'results') would silently regenerate fresh questions and
+  // lose every answer the moment the pupil tries to review their marking.
+  // 'reveal' is the envelope interstitial shown once between 'marking' and
+  // 'results' -- "Back to results" from 'review' goes straight to
+  // 'results', never back through the envelope a second time.
   const [view, setView] = useState('questions')
   const [submitResponse, setSubmitResponse] = useState(null)
   const [submitError, setSubmitError] = useState(null)
@@ -97,7 +103,7 @@ function InsightPractice({ pupilId, insightLevel, onComplete }) {
     if (error) setSubmitError(error.message || 'Submit failed')
     else setSubmitResponse(data)
 
-    setTimeout(() => setView('results'), 1200)
+    setTimeout(() => setView(error ? 'results' : 'reveal'), 1200)
   }
 
   function goPrev() { setCurrent(c => Math.max(0, c - 1)) }
@@ -121,40 +127,50 @@ function InsightPractice({ pupilId, insightLevel, onComplete }) {
         <HypePhrase language={language} />
       </div>
 
+      <div style={{ display: view === 'reveal' ? 'flex' : 'none', justifyContent: 'center' }}>
+        <ResultsReveal label={t('results.envelopeLabel')} onOpen={() => setView('results')} />
+      </div>
+
       <div style={{ display: view === 'results' ? 'block' : 'none' }}>
-        <h1>{t('insightPractice.resultsTitle')}</h1>
         {submitError ? (
-          <p className="error">{submitError}</p>
+          <>
+            <h1>{t('insightPractice.resultsTitle')}</h1>
+            <p className="error">{submitError}</p>
+          </>
         ) : (
           <>
+            <div className="results-celebration-header">
+              <AvatarDisplay avatar={avatar ?? DEFAULT_AVATAR} size={72} state="celebrate" />
+              <h1 className="results-celebration-title">{t('insightPractice.resultsTitle')}</h1>
+            </div>
             <div className="results-summary">
-              <div className="stat-box stat-box--large">
-                <div className="stat-number">{score}/{total}</div>
+              <div className="stat-box stat-box--large stat-box--score">
+                <div className="stat-number">✅ {score}/{total}</div>
                 <div className="stat-label">{t('insightPractice.correctLabel')}</div>
               </div>
-              <div className="stat-box stat-box--large">
-                <div className="stat-number">+{creditsEarned}</div>
+              <div className="stat-box stat-box--large stat-box--coins">
+                <div className="stat-number">🪙 +{creditsEarned}</div>
                 <div className="stat-label">{t('pupilHub.credits')}</div>
               </div>
             </div>
             {comparison && <p className="results-comparison">{comparison}</p>}
           </>
         )}
-        <div className="insight-practice-results-btns">
+        <div className="results-action-btns">
           <button
-            className="insight-practice-results-btn insight-practice-results-btn--secondary"
+            className="results-action-btn results-action-btn--secondary"
             onClick={() => { setCurrent(0); setView('review') }}
           >
             {t('insightPractice.check')}
           </button>
           <button
-            className="insight-practice-results-btn insight-practice-results-btn--secondary"
+            className="results-action-btn results-action-btn--secondary"
             onClick={handleRetry}
           >
             {t('insightPractice.retry')}
           </button>
           <button
-            className="insight-practice-results-btn insight-practice-results-btn--primary"
+            className="results-action-btn results-action-btn--primary"
             onClick={onComplete}
           >
             {t('pupilSession.myHub')}
