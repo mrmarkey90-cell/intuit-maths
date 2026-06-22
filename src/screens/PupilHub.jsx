@@ -209,15 +209,28 @@ function PupilHub({ joinCode }) {
     const insightStreak = pupil.insight_streak ?? 0
     const instinctLevel = pupil.instinct_level ?? 1
     const insightLevel = pupil.insight_level ?? 1
+    // AvatarDisplay's "bust" crop renders the full 0-300 body viewBox into
+    // a square box so the legs never get cropped (see AvatarDisplay.jsx) --
+    // the figure itself only occupies the top ~68% of that square, leaving
+    // genuine blank canvas below the feet. Barely visible at the old fixed
+    // 64px size, but an obvious gap above "Hi, {name}!" once the avatar
+    // got much bigger -- so clip that blank portion here instead of
+    // touching the shared crop logic every other caller relies on.
+    const avatarSize = 'clamp(80px, 20vh, 150px)'
 
     return (
       <div className="hub-screen hub-screen--split">
         <div className="hub-status-panel">
           <div className="hub-avatar-block">
-            <AvatarDisplay
-              avatar={pupil.avatar ?? DEFAULT_AVATAR}
-              size="clamp(80px, 20vh, 150px)"
-            />
+            <div
+              className="hub-avatar-crop"
+              style={{ width: avatarSize, height: `calc(${avatarSize} * 0.68)` }}
+            >
+              <AvatarDisplay
+                avatar={pupil.avatar ?? DEFAULT_AVATAR}
+                size={avatarSize}
+              />
+            </div>
           </div>
 
           <h1 className="hub-name">{t('pupilHub.hi').replace('{name}', pupil.first_name)}</h1>

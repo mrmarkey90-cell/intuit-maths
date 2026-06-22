@@ -2197,6 +2197,12 @@ button.results-reveal:hover {
   align-items: center;
 }
 
+.hub-avatar-crop {
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+}
+
 .hub-name {
   font-size: 2rem;
   font-weight: 800;
