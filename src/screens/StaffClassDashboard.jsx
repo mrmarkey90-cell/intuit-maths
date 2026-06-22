@@ -7,16 +7,19 @@ import PupilDetail from './PupilDetail'
 import AvatarDisplay from '../components/AvatarDisplay'
 import { DEFAULT_AVATAR } from '../lib/avatarConfig'
 
-// The random-pupil-picker sweeps through the grid in list order (not random
-// jumps) for a few full loops before landing on the chosen pupil, like a
-// prize wheel. Driven by requestAnimationFrame against a fixed wall-clock
-// duration rather than a chain of setTimeouts with manually-tuned per-step
-// delays -- that's what made the old version feel staggered, since the
-// speed only changed in big discrete jumps between steps. Here the eased
-// position is recalculated every frame, so the cycling speed itself changes
-// continuously: ease-in-out-sine's velocity is a single sine hump over the
-// run (ramps up, peaks at the midpoint, ramps back down to land).
+// The random-pupil-picker highlights a fresh uniformly-random pupil on each
+// tick (never the same one twice in a row) rather than sweeping through the
+// grid in order -- ticks are still scheduled by requestAnimationFrame against
+// an eased position over a fixed wall-clock duration, so the *cadence* ramps
+// up then down smoothly (ease-in-out-sine's velocity is a single sine hump
+// over the run), even though *which* card lights up each tick is unrelated
+// to the previous one. The final tick is forced to the chosen pupil and held
+// highlighted for PICKER_REVEAL_DELAY_MS before the reveal tile appears, so
+// the highlight and the reveal visibly agree instead of the highlight
+// clearing in the same instant the popup opens.
 const PICKER_DURATION_MS = 3200
+const PICKER_TOTAL_TICKS = 28
+const PICKER_REVEAL_DELAY_MS = 600
 
 function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
   const { t } = useTranslation()
@@ -37,11 +40,13 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
   const classPupilsRef = useRef(classPupils)
   classPupilsRef.current = classPupils
   const pickRafRef = useRef(null)
+  const pickRevealTimeoutRef = useRef(null)
   const audioCtxRef = useRef(null)
 
   useEffect(() => {
     return () => {
       if (pickRafRef.current) cancelAnimationFrame(pickRafRef.current)
+      if (pickRevealTimeoutRef.current) clearTimeout(pickRevealTimeoutRef.current)
       audioCtxRef.current?.close()
     }
   }, [])
@@ -138,30 +143,38 @@ function StaffClassDashboard({ school, cls, onChangeClass, onSignOut }) {
     }
 
     setPicking(true)
-    const startIndex = Math.floor(Math.random() * length)
-    const finalIndex = Math.floor(Math.random() * length)
-    const offset = (finalIndex - startIndex + length) % length
-    const loops = length <= 6 ? 4 : length <= 14 ? 3 : 2
-    const totalDistance = loops * length + offset
+    const finalPupil = pupils[Math.floor(Math.random() * length)]
     const start = performance.now()
-    let lastIndex = -1
+    let lastTick = -1
+    let lastShownId = null
+
+    function pickDifferentId() {
+      let candidate
+      do {
+        candidate = pupils[Math.floor(Math.random() * length)]
+      } while (candidate.id === lastShownId)
+      return candidate.id
+    }
 
     function frame(now) {
       const t = Math.min((now - start) / PICKER_DURATION_MS, 1)
       const eased = 0.5 * (1 - Math.cos(Math.PI * t)) // ease-in-out-sine: velocity ramps up then down
-      const distance = Math.min(Math.floor(eased * totalDistance), totalDistance)
-      const index = (startIndex + distance) % length
-      if (index !== lastIndex) {
-        lastIndex = index
-        setHighlightedId(pupils[index].id)
+      const tick = Math.min(Math.floor(eased * PICKER_TOTAL_TICKS), PICKER_TOTAL_TICKS)
+      if (tick !== lastTick) {
+        lastTick = tick
+        const id = t >= 1 ? finalPupil.id : pickDifferentId()
+        lastShownId = id
+        setHighlightedId(id)
         playHighlightTone()
       }
       if (t < 1) {
         pickRafRef.current = requestAnimationFrame(frame)
       } else {
-        setPicking(false)
-        setHighlightedId(null)
-        setPickedPupil(pupils[finalIndex])
+        pickRevealTimeoutRef.current = setTimeout(() => {
+          setPicking(false)
+          setHighlightedId(null)
+          setPickedPupil(finalPupil)
+        }, PICKER_REVEAL_DELAY_MS)
       }
     }
     pickRafRef.current = requestAnimationFrame(frame)
