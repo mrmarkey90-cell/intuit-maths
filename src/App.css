@@ -2538,6 +2538,46 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
 .pelmanism-screen { gap: clamp(6px, 1.5vh, 14px); }
 .pelmanism-screen h1 { margin-bottom: 0; }
 
+.pelmanism-penalty-detail {
+  font-size: clamp(0.7rem, 1.6vh, 0.85rem);
+  color: #6b7280;
+  margin-top: -0.25rem;
+}
+.pelmanism-penalty-detail p { margin: 0.1rem 0; }
+
+/* Mirrors .question-screen's flush-to-the-top TimerBar layout -- the
+   bar itself is the screen's first, unpadded child so it sits tight
+   against the top edge, with the rest of the game's padding/centring
+   living one level down in .pelmanism-playing-body instead. */
+.pelmanism-playing-screen {
+  display: flex;
+  flex-direction: column;
+}
+
+.pelmanism-playing-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  padding: clamp(6px, 1.5vh, 12px) clamp(1rem, 4vw, 2rem);
+}
+
+.pelmanism-hub-btn {
+  align-self: flex-start;
+  border: none;
+  border-radius: 999px;
+  background: #4f46e5;
+  color: white;
+  font-weight: 700;
+  font-size: clamp(0.7rem, 1.7vh, 0.85rem);
+  padding: clamp(5px, 1vh, 8px) clamp(10px, 2vw, 16px);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.pelmanism-hub-btn:hover { background: #4338ca; }
+
 .pelmanism-level-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3937,7 +3977,8 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
 
 .pupil-viewport .screen,
 .pupil-viewport .hub-screen,
-.pupil-viewport .question-screen {
+.pupil-viewport .question-screen,
+.pupil-viewport .pelmanism-playing-screen {
   height: 100%;
   min-height: 0;
   max-height: 100%;

@@ -269,6 +269,8 @@ export const translations = {
     'pelmanism.timeoutTitle': "Time's up!",
     'pelmanism.pairsFoundLabel': 'Pairs found',
     'pelmanism.retry': 'Retry',
+    'pelmanism.timeTaken': 'Time taken: {n}s',
+    'pelmanism.penaltyCalc': '{base} coins × (100% − {pct}%) = {raw} → rounded up to {final} coins',
 
     'pupilHub.placementPromptTitle': "Let's find your starting level!",
     'pupilHub.placementPromptBody': 'A few quick questions before you get started.',
@@ -743,6 +745,8 @@ export const translations = {
     'pelmanism.timeoutTitle': "Mae'r amser ar ben!",
     'pelmanism.pairsFoundLabel': "Parau wedi'u canfod",
     'pelmanism.retry': 'Ailgynnig',
+    'pelmanism.timeTaken': 'Amser a gymerwyd: {n} eiliad',
+    'pelmanism.penaltyCalc': '{base} ceiniog × (100% − {pct}%) = {raw} → wedi crynhoi i fyny i {final} ceiniog',
 
     'pupilHub.placementPromptTitle': "Gadewch i ni ddod o hyd i'ch lefel gychwynnol!",
     'pupilHub.placementPromptBody': "Ychydig gwestiynau cyflym cyn i chi ddechrau.",
