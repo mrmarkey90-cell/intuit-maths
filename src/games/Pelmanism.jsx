@@ -12,10 +12,10 @@ const TIMER_SECONDS = 60
 // numbers here are display-only; submit_pelmanism_result's SQL CASE is the
 // authoritative source and must be kept in sync by hand when these change.
 const LEVELS = [
-  { level: 1, pairs: 4, credits: 5 },
-  { level: 2, pairs: 5, credits: 8 },
-  { level: 3, pairs: 6, credits: 12 },
-  { level: 4, pairs: 8, credits: 18 },
+  { level: 1, pairs: 4, credits: 2 },
+  { level: 2, pairs: 5, credits: 4 },
+  { level: 3, pairs: 6, credits: 8 },
+  { level: 4, pairs: 8, credits: 20 },
 ]
 
 function shuffle(arr) {

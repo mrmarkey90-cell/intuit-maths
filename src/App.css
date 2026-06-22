@@ -2447,6 +2447,47 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   cursor: not-allowed;
 }
 
+/* ─── Games hub (tile-select screen behind the Hub's Games tile) ── */
+
+.games-hub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 160px));
+  justify-content: center;
+  gap: clamp(10px, 2vw, 20px);
+  width: 100%;
+  max-width: 700px;
+  margin-bottom: clamp(10px, 2vh, 20px);
+}
+.games-hub-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  border: none;
+  border-radius: clamp(12px, 2vw, 18px);
+  background: #ec4899;
+  color: white;
+  font-weight: 700;
+  padding: clamp(10px, 1.5vh, 14px);
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.games-hub-tile:hover { transform: translateY(-2px); }
+
+.games-hub-tile-logo {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 3px;
+  width: clamp(50px, 12vh, 80px);
+  height: clamp(50px, 12vh, 80px);
+}
+.games-hub-tile-logo img {
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+}
+.games-hub-tile-name { font-size: clamp(0.85rem, 2.2vh, 1.05rem); }
+
 /* ─── Pelmanism (memory-match game) ──────────────────────────────
    Card grid height is sized with vh-based clamp()s rather than relying on
    the flex parent to share space correctly -- same technique as

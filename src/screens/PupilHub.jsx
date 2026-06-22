@@ -6,6 +6,7 @@ import AvatarDisplay from '../components/AvatarDisplay'
 import { DEFAULT_AVATAR } from '../lib/avatarConfig'
 import PlacementTest from '../insight/PlacementTest'
 import InsightPractice from '../insight/InsightPractice'
+import GamesHub from '../games/GamesHub'
 import Pelmanism from '../games/Pelmanism'
 import PupilVerification from '../components/PupilVerification'
 import PupilProfileCreate from './PupilProfileCreate'
@@ -189,6 +190,10 @@ function PupilHub({ joinCode }) {
     )
   }
 
+  if (view === 'games') {
+    return <GamesHub onSelect={id => setView(id)} onBack={() => setView('hub')} />
+  }
+
   if (view === 'pelmanism') {
     return (
       <Pelmanism
@@ -259,7 +264,7 @@ function PupilHub({ joinCode }) {
             <span className="hub-area-tile-badge">{t('pupilHub.comingSoon')}</span>
           </button>
 
-          <button className="hub-area-tile hub-area-tile--games" onClick={() => setView('pelmanism')}>
+          <button className="hub-area-tile hub-area-tile--games" onClick={() => setView('games')}>
             <span className="hub-area-tile-icon">🎮</span>
             <span className="hub-area-tile-label">{t('pupilHub.games')}</span>
           </button>
