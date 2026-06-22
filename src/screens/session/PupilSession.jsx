@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../supabaseClient'
 import { useTranslation } from '../../i18n/LanguageContext'
@@ -7,21 +7,12 @@ import NumberPad from '../../components/NumberPad'
 import HypePhrase from '../../components/HypePhrase'
 import ResultsReveal from '../../components/ResultsReveal'
 import PupilVerification from '../../components/PupilVerification'
+import TimerBar from '../../components/TimerBar'
 import { generateQuestion } from '../../lib/questionGenerator'
 import { DEFAULT_AVATAR } from '../../lib/avatarConfig'
 
 const SESSION_DURATION = 60
 const SKIP_PENALTY = 5
-
-function TimerBar({ timeLeft }) {
-  const pct = (timeLeft / SESSION_DURATION) * 100
-  const color = timeLeft <= 15 ? '#e53e3e' : timeLeft <= 30 ? '#f59e0b' : '#4f46e5'
-  return (
-    <div className="timer-bar-track">
-      <div className="timer-bar-fill" style={{ width: `${pct}%`, background: color }} />
-    </div>
-  )
-}
 
 function LevelDownOffer({ pupilId, currentStage, t }) {
   const [accepted, setAccepted] = useState(false)
@@ -76,6 +67,68 @@ function PupilSession({ code }) {
   useEffect(() => { feedbackRef.current = feedback }, [feedback])
   useEffect(() => { answersRef.current = answers }, [answers])
 
+  function nextQuestion() {
+    const p = pupilRef.current
+    if (!p) return
+    feedbackRef.current = null
+    setFeedback(null)
+    const q = generateQuestion(p.instinct_level ?? 1, languageRef.current)
+    questionRef.current = q
+    setQuestion(q)
+  }
+
+  async function finishSession() {
+    finishedRef.current = true
+    setView('results')
+    const all = answersRef.current
+    const score = all.filter(a => a.correct).length
+    const total = all.length
+    const si = sessionInfoRef.current
+
+    // Practice sessions have no teacher to call end_session — do it here
+    if (si.challenge_type === 'practice') {
+      supabase.rpc('end_session', { p_session_id: si.session_id })
+    }
+
+    const { data, error } = await supabase.rpc('submit_attempt', {
+      p_session_id: si.session_id,
+      p_pupil_id: pupilRef.current.id,
+      p_score: score,
+      p_total: total,
+    })
+    if (error) console.error('submit_attempt failed:', error)
+    setResults({ score, total, ...(data ?? {}) })
+  }
+
+  function beginQuestions(startedAt) {
+    const si = sessionInfoRef.current
+    broadcastRef.current = supabase.channel(`session-${si.session_id}`)
+    broadcastRef.current.subscribe()
+
+    // Practice is solo -- no other clients to sync to a shared server
+    // timestamp, so it just runs its own local 60s countdown from the
+    // moment it actually begins on this device. Challenge sessions keep
+    // deriving from the server's started_at, since the teacher's screen
+    // and every pupil's screen must all agree on the same end time.
+    const endTime = si.challenge_type === 'practice'
+      ? Date.now() + SESSION_DURATION * 1000
+      : new Date(startedAt).getTime() + SESSION_DURATION * 1000
+    const remaining = Math.max(0, Math.round((endTime - Date.now()) / 1000))
+    setTimeLeft(remaining)
+    setView('questions')
+    nextQuestion()
+
+    timerRef.current = setInterval(() => {
+      const t = Math.max(0, Math.round((endTime - Date.now()) / 1000))
+      setTimeLeft(t)
+      if (t <= 0) {
+        clearInterval(timerRef.current)
+        clearInterval(skipRef.current)
+        if (!finishedRef.current) finishSession()
+      }
+    }, 500)
+  }
+
   useEffect(() => {
     async function init() {
       const { data, error } = await supabase.rpc('get_session_info', { p_join_code: sessionCode })
@@ -115,6 +168,7 @@ function PupilSession({ code }) {
       clearInterval(skipRef.current)
       if (broadcastRef.current) supabase.removeChannel(broadcastRef.current)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only fetch; beginQuestions/sessionCode/setLanguage deliberately excluded so this doesn't re-run every render
   }, [])
 
   async function doJoin(info, p) {
@@ -134,6 +188,7 @@ function PupilSession({ code }) {
     pollRef.current = setInterval(async () => {
       const { data } = await supabase.rpc('get_session_info', { p_join_code: sessionCode })
       if (!data || data.error) return
+      setSessionInfo(data)
       sessionInfoRef.current = data
 
       if (data.status === 'active' && data.started_at) {
@@ -148,45 +203,6 @@ function PupilSession({ code }) {
         }
       }
     }, 1500)
-  }
-
-  function nextQuestion() {
-    const p = pupilRef.current
-    if (!p) return
-    feedbackRef.current = null
-    setFeedback(null)
-    const q = generateQuestion(p.instinct_level ?? 1, languageRef.current)
-    questionRef.current = q
-    setQuestion(q)
-  }
-
-  function beginQuestions(startedAt) {
-    const si = sessionInfoRef.current
-    broadcastRef.current = supabase.channel(`session-${si.session_id}`)
-    broadcastRef.current.subscribe()
-
-    // Practice is solo -- no other clients to sync to a shared server
-    // timestamp, so it just runs its own local 60s countdown from the
-    // moment it actually begins on this device. Challenge sessions keep
-    // deriving from the server's started_at, since the teacher's screen
-    // and every pupil's screen must all agree on the same end time.
-    const endTime = si.challenge_type === 'practice'
-      ? Date.now() + SESSION_DURATION * 1000
-      : new Date(startedAt).getTime() + SESSION_DURATION * 1000
-    const remaining = Math.max(0, Math.round((endTime - Date.now()) / 1000))
-    setTimeLeft(remaining)
-    setView('questions')
-    nextQuestion()
-
-    timerRef.current = setInterval(() => {
-      const t = Math.max(0, Math.round((endTime - Date.now()) / 1000))
-      setTimeLeft(t)
-      if (t <= 0) {
-        clearInterval(timerRef.current)
-        clearInterval(skipRef.current)
-        if (!finishedRef.current) finishSession()
-      }
-    }, 500)
   }
 
   function handleSubmit(inputValue) {
@@ -236,29 +252,6 @@ function PupilSession({ code }) {
       setSkipCooldown(c)
       if (c <= 0) clearInterval(skipRef.current)
     }, 1000)
-  }
-
-  async function finishSession() {
-    finishedRef.current = true
-    setView('results')
-    const all = answersRef.current
-    const score = all.filter(a => a.correct).length
-    const total = all.length
-    const si = sessionInfoRef.current
-
-    // Practice sessions have no teacher to call end_session — do it here
-    if (si.challenge_type === 'practice') {
-      supabase.rpc('end_session', { p_session_id: si.session_id })
-    }
-
-    const { data, error } = await supabase.rpc('submit_attempt', {
-      p_session_id: si.session_id,
-      p_pupil_id: pupilRef.current.id,
-      p_score: score,
-      p_total: total,
-    })
-    if (error) console.error('submit_attempt failed:', error)
-    setResults({ score, total, ...(data ?? {}) })
   }
 
   // ── Views ──────────────────────────────────────
@@ -327,14 +320,14 @@ function PupilSession({ code }) {
   )
 
   if (view === 'questions') {
-    const isDisabled = feedbackRef.current !== null || skipCooldown > 0
+    const isDisabled = feedback !== null || skipCooldown > 0
     return (
       <div className="question-screen">
         {/* Challenge sessions show the timer on the teacher's screen --
             showing it again here would be redundant. Practice has no
             teacher screen at all, so the pupil needs their own. */}
-        {sessionInfoRef.current?.challenge_type === 'practice' && (
-          <TimerBar timeLeft={timeLeft} />
+        {sessionInfo?.challenge_type === 'practice' && (
+          <TimerBar timeLeft={timeLeft} duration={SESSION_DURATION} />
         )}
         <div className="question-body">
           <div className="question-panel">
@@ -439,14 +432,14 @@ function PupilSession({ code }) {
         {levelDownOffer && !levelUp && (
           <LevelDownOffer pupilId={pupil?.id} currentStage={currentStage} t={t} />
         )}
-        {sessionInfoRef.current?.challenge_type !== 'practice' && (
+        {sessionInfo?.challenge_type !== 'practice' && (
           <p className="note" style={{ marginTop: '0.6rem' }}>{t('pupilSession.writeScoreNote')}</p>
         )}
-        {sessionInfoRef.current?.class_join_code && (
+        {sessionInfo?.class_join_code && (
           <div className="results-action-btns">
             <button
               className="results-action-btn results-action-btn--primary"
-              onClick={() => navigate(`/${sessionInfoRef.current.class_join_code}`)}
+              onClick={() => navigate(`/${sessionInfo.class_join_code}`)}
             >
               {t('pupilSession.myHub')}
             </button>

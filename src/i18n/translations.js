@@ -263,6 +263,15 @@ export const translations = {
     'insightPractice.retry': 'Retry',
     'insightPractice.backToResults': '← Back to results',
 
+    'pelmanism.selectTitle': 'Pick a level',
+    'pelmanism.level': 'Level {n}',
+    'pelmanism.pairsCount': '{n} pairs',
+    'pelmanism.faceDown': 'Face-down card',
+    'pelmanism.wonTitle': 'You found them all!',
+    'pelmanism.timeoutTitle': "Time's up!",
+    'pelmanism.pairsFoundLabel': 'Pairs found',
+    'pelmanism.retry': 'Retry',
+
     'pupilHub.placementPromptTitle': "Let's find your starting level!",
     'pupilHub.placementPromptBody': 'A few quick questions before you get started.',
     'pupilHub.placementPromptStart': 'Start',
@@ -729,6 +738,15 @@ export const translations = {
     'insightPractice.check': 'Gwirio',
     'insightPractice.retry': 'Ailgynnig',
     'insightPractice.backToResults': "← Nôl i'r canlyniadau",
+
+    'pelmanism.selectTitle': 'Dewiswch lefel',
+    'pelmanism.level': 'Lefel {n}',
+    'pelmanism.pairsCount': '{n} pâr',
+    'pelmanism.faceDown': 'Cerdyn wyneb i lawr',
+    'pelmanism.wonTitle': 'Daethoch o hyd iddyn nhw i gyd!',
+    'pelmanism.timeoutTitle': "Mae'r amser ar ben!",
+    'pelmanism.pairsFoundLabel': "Parau wedi'u canfod",
+    'pelmanism.retry': 'Ailgynnig',
 
     'pupilHub.placementPromptTitle': "Gadewch i ni ddod o hyd i'ch lefel gychwynnol!",
     'pupilHub.placementPromptBody': "Ychydig gwestiynau cyflym cyn i chi ddechrau.",

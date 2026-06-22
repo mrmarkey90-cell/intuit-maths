@@ -2364,11 +2364,6 @@ button.results-reveal:hover {
   opacity: 0.88;
   cursor: not-allowed;
 }
-.hub-area-tile--games:disabled {
-  background: #ec4899;
-  opacity: 0.88;
-  cursor: not-allowed;
-}
 .hub-area-tile--practise:disabled {
   background: #4f46e5;
   opacity: 0.7;
@@ -2451,6 +2446,105 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   opacity: 0.85;
   cursor: not-allowed;
 }
+
+/* ─── Pelmanism (memory-match game) ──────────────────────────────
+   Card grid height is sized with vh-based clamp()s rather than relying on
+   the flex parent to share space correctly -- same technique as
+   .insight-module-card below, needed because .pupil-viewport screens are
+   locked-height with overflow:hidden and no scroll fallback. */
+
+.pelmanism-screen { gap: clamp(6px, 1.5vh, 14px); }
+.pelmanism-screen h1 { margin-bottom: 0; }
+
+.pelmanism-level-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(10px, 2vw, 20px);
+  width: 100%;
+  max-width: 480px;
+  margin-bottom: clamp(10px, 2vh, 20px);
+}
+.pelmanism-level-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  border: none;
+  border-radius: clamp(12px, 2vw, 18px);
+  background: #ec4899;
+  color: white;
+  font-weight: 700;
+  padding: clamp(10px, 2vh, 16px) 0.5rem;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.pelmanism-level-btn:hover { transform: translateY(-2px); }
+.pelmanism-level-number { font-size: clamp(0.95rem, 2.4vh, 1.2rem); }
+.pelmanism-level-detail { font-size: clamp(0.75rem, 1.8vh, 0.9rem); opacity: 0.9; }
+.pelmanism-level-credits { font-size: clamp(0.8rem, 2vh, 1rem); }
+
+.pelmanism-grid {
+  display: grid;
+  grid-template-rows: repeat(2, 1fr);
+  gap: clamp(6px, 1.2vw, 14px);
+  width: 100%;
+  max-width: 900px;
+  height: clamp(160px, 60vh, 360px);
+  margin-top: clamp(6px, 1.5vh, 14px);
+}
+
+.pelmanism-card {
+  position: relative;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  perspective: 600px;
+  min-width: 0;
+  min-height: 0;
+}
+.pelmanism-card:disabled { cursor: default; }
+
+.pelmanism-card-inner {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.4s;
+  transform-style: preserve-3d;
+}
+.pelmanism-card--flipped .pelmanism-card-inner { transform: rotateY(180deg); }
+
+.pelmanism-card-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.pelmanism-card-face img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.pelmanism-card-face--front { transform: rotateY(180deg); }
+
+.pelmanism-card-text {
+  position: relative;
+  z-index: 1;
+  font-weight: 800;
+  font-size: clamp(0.65rem, 2.2vh, 1.2rem);
+  color: #1f2937;
+  padding: 0 6%;
+  white-space: pre-wrap;
+  text-align: center;
+}
+
+.pelmanism-card--matched { opacity: 0.45; }
 
 /* ─── Insight module cards ────────────────────────────────────── */
 /* Sized for one-question-at-a-time display (not a packed grid) */

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="200mm"
+   height="200mm"
+   viewBox="0 0 200 200"
+   version="1.1"
+   id="svg1"
+   xml:space="preserve"
+   inkscape:export-filename="pelmanism_card_back.svg"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="true"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:export-bgcolor="#ffffff00"><inkscape:page
+       x="0"
+       y="0"
+       width="200"
+       height="200"
+       id="page2"
+       margin="0"
+       bleed="0" /></sodipodi:namedview><defs
+     id="defs1"><inkscape:path-effect
+       effect="bspline"
+       id="path-effect1"
+       is_visible="true"
+       lpeversion="1.3"
+       weight="33.333333"
+       steps="2"
+       helper_size="0"
+       apply_no_weight="true"
+       apply_with_weight="true"
+       only_selected="false"
+       uniform="false" /></defs><g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"><path
+       style="fill:#ffffff;fill-opacity:1;stroke:#9a9a9a;stroke-width:4;stroke-dasharray:none;stroke-dashoffset:1.8;stroke-opacity:1"
+       d="M 57.147044,11.275097 C 101.9828,9.9855224 109.83949,9.9772085 148.51159,11.070763 c 38.6721,1.093555 39.07575,1.511882 40.25479,43.228468 1.17904,41.716587 1.17904,51.013799 0.0401,92.015609 -1.13895,41.0018 -1.48461,41.35386 -41.72045,42.53362 -40.23585,1.17975 -54.984146,1.19536 -94.66372,0.0739 C 12.742736,187.80088 12.356003,187.40724 11.129532,146.2357 9.9030607,105.06415 9.8755219,79.037056 10.808206,46.071053 11.74089,13.10505 12.311288,12.564672 57.147044,11.275097 Z"
+       id="path1"
+       inkscape:path-effect="#path-effect1"
+       inkscape:original-d="M 14.936494,10.077635 C 101.9828,9.9855224 109.83949,9.9772085 184.99658,9.8976771 c 2.18711,2.2666419 2.59076,2.6849669 4.94884,5.1287959 0,80.989345 0,90.286557 0,169.970107 -2.27789,2.32006 -2.62355,2.67212 -4.85888,4.94884 -78.23636,0.0828 -92.984656,0.0984 -170.060087,0.17996 -2.283716,-2.3245 -2.670449,-2.71814 -5.0388172,-5.1288 C 9.9030607,105.06415 9.8755219,79.037056 9.8076982,14.936494 11.74089,13.10505 12.311288,12.564672 14.936494,10.077635 Z"
+       sodipodi:nodetypes="ccscccccc" /></g></svg>

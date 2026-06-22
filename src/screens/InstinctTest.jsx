@@ -1,20 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from '../i18n/LanguageContext'
 import NumberPad from '../components/NumberPad'
+import TimerBar from '../components/TimerBar'
 import { generateQuestion } from '../lib/questionGenerator'
 
 const SESSION_DURATION = 60
 const SKIP_PENALTY = 5
-
-function TimerBar({ timeLeft }) {
-  const pct = (timeLeft / SESSION_DURATION) * 100
-  const color = timeLeft <= 15 ? '#e53e3e' : timeLeft <= 30 ? '#f59e0b' : '#4f46e5'
-  return (
-    <div className="timer-bar-track">
-      <div className="timer-bar-fill" style={{ width: `${pct}%`, background: color }} />
-    </div>
-  )
-}
 
 function QuickTester() {
   const { language } = useTranslation()
@@ -202,7 +193,7 @@ function SessionPreview({ stage, language, onRestart }) {
 
   return (
     <div className="question-screen" style={{ minHeight: 'auto' }}>
-      <TimerBar timeLeft={timeLeft} />
+      <TimerBar timeLeft={timeLeft} duration={SESSION_DURATION} />
       <div className="question-body">
         <div className="question-panel">
           <div className={`question-display ${feedback ? `question-display--${feedback}` : ''}`}>

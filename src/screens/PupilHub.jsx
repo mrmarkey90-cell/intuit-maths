@@ -6,11 +6,12 @@ import AvatarDisplay from '../components/AvatarDisplay'
 import { DEFAULT_AVATAR } from '../lib/avatarConfig'
 import PlacementTest from '../insight/PlacementTest'
 import InsightPractice from '../insight/InsightPractice'
+import Pelmanism from '../games/Pelmanism'
 import PupilVerification from '../components/PupilVerification'
 import PupilProfileCreate from './PupilProfileCreate'
 import SecurityQuestionsSetup from '../components/SecurityQuestionsSetup'
 
-function StreakDots({ streak, t }) {
+function StreakDots({ streak }) {
   return (
     <div className="streak-display">
       <div className="streak-dots">
@@ -61,7 +62,7 @@ function PupilHub({ joinCode }) {
       setView('select')
     }
     init()
-  }, [joinCode])
+  }, [joinCode, setLanguage])
 
   async function confirmPupil(p) {
     const { data } = await supabase.rpc('get_pupil_history', { p_pupil_id: p.id })
@@ -91,6 +92,12 @@ function PupilHub({ joinCode }) {
     const { data } = await supabase.rpc('get_pupil_history', { p_pupil_id: pupil.id })
     if (data?.pupil) setPupil(data.pupil)
     setPracticeExpanded(false)
+    setView('hub')
+  }
+
+  async function handlePelmanismComplete() {
+    const { data } = await supabase.rpc('get_pupil_history', { p_pupil_id: pupil.id })
+    if (data?.pupil) setPupil(data.pupil)
     setView('hub')
   }
 
@@ -182,6 +189,17 @@ function PupilHub({ joinCode }) {
     )
   }
 
+  if (view === 'pelmanism') {
+    return (
+      <Pelmanism
+        pupilId={pupil.id}
+        instinctLevel={pupil.instinct_level ?? 1}
+        avatar={pupil.avatar}
+        onComplete={handlePelmanismComplete}
+      />
+    )
+  }
+
   if (view === 'hub') {
     const streak = pupil.challenge_streak ?? 0
     const instinctLevel = pupil.instinct_level ?? 1
@@ -214,7 +232,7 @@ function PupilHub({ joinCode }) {
           <div className="hub-credits">⭐ {pupil.credits ?? 0} {t('pupilHub.credits')}</div>
 
           <div className="hub-streak-block">
-            <StreakDots streak={streak} t={t} />
+            <StreakDots streak={streak} />
             <span className="streak-label">
               {streak > 0
                 ? t('pupilHub.streakTowardsInstinctLevel').replace('{streak}', streak).replace('{n}', instinctLevel + 1)
@@ -241,10 +259,9 @@ function PupilHub({ joinCode }) {
             <span className="hub-area-tile-badge">{t('pupilHub.comingSoon')}</span>
           </button>
 
-          <button className="hub-area-tile hub-area-tile--games" disabled>
+          <button className="hub-area-tile hub-area-tile--games" onClick={() => setView('pelmanism')}>
             <span className="hub-area-tile-icon">🎮</span>
             <span className="hub-area-tile-label">{t('pupilHub.games')}</span>
-            <span className="hub-area-tile-badge">{t('pupilHub.comingSoon')}</span>
           </button>
 
           {practiceExpanded ? (
