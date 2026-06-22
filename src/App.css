@@ -2371,6 +2371,20 @@ button.results-reveal:hover {
   letter-spacing: 0.03em;
 }
 
+.hub-area-tile-reward {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  line-height: 1;
+}
+.hub-area-tile-reward-plus {
+  font-size: clamp(1rem, 3vh, 1.5rem);
+  font-weight: 800;
+}
+.hub-area-tile-reward-coin { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2)); }
+.hub-area-tile-reward-coin--large { font-size: clamp(1.8rem, 5.5vh, 2.8rem); }
+.hub-area-tile-reward-coin--small { font-size: clamp(0.9rem, 2.5vh, 1.3rem); }
+
 .hub-area-tile--missions { background: #f59e0b; }
 .hub-area-tile--games { background: #ec4899; }
 .hub-area-tile--practise {

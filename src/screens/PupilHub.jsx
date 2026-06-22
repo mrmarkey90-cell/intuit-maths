@@ -24,6 +24,18 @@ function StreakDots({ streak }) {
   )
 }
 
+// Coin size (not count) carries the "how much" signal so it reads at a
+// glance with no text -- matters since pupils who can't read yet still
+// use this hub. A big coin for Missions vs. a small one for Games.
+function RewardCoin({ size }) {
+  return (
+    <span className="hub-area-tile-reward">
+      <span className="hub-area-tile-reward-plus">+</span>
+      <span className={`hub-area-tile-reward-coin hub-area-tile-reward-coin--${size}`}>🪙</span>
+    </span>
+  )
+}
+
 function PupilHub({ joinCode }) {
   const navigate = useNavigate()
   const { t, setLanguage } = useTranslation()
@@ -272,12 +284,14 @@ function PupilHub({ joinCode }) {
           <button className="hub-area-tile hub-area-tile--missions" disabled>
             <span className="hub-area-tile-icon">🎯</span>
             <span className="hub-area-tile-label">{t('pupilHub.specialMissions')}</span>
+            <RewardCoin size="large" />
             <span className="hub-area-tile-badge">{t('pupilHub.comingSoon')}</span>
           </button>
 
           <button className="hub-area-tile hub-area-tile--games" onClick={() => setView('games')}>
             <span className="hub-area-tile-icon">🎮</span>
             <span className="hub-area-tile-label">{t('pupilHub.games')}</span>
+            <RewardCoin size="small" />
           </button>
 
           {practiceExpanded ? (
