@@ -206,7 +206,8 @@ function PupilHub({ joinCode }) {
   }
 
   if (view === 'hub') {
-    const streak = pupil.challenge_streak ?? 0
+    const instinctStreak = pupil.challenge_streak ?? 0
+    const insightStreak = pupil.insight_streak ?? 0
     const instinctLevel = pupil.instinct_level ?? 1
     const insightLevel = pupil.insight_level ?? 1
 
@@ -223,26 +224,19 @@ function PupilHub({ joinCode }) {
 
           <h1 className="hub-name">{t('pupilHub.hi').replace('{name}', pupil.first_name)}</h1>
 
-          <div className="hub-levels">
-            <div className="hub-level-badge hub-level-badge--instinct">
-              <span className="hub-level-badge-label">Instinct</span>
-              <span className="hub-level-badge-number">{instinctLevel}</span>
-            </div>
-            <div className="hub-level-badge hub-level-badge--insight">
-              <span className="hub-level-badge-label">Insight</span>
-              <span className="hub-level-badge-number">{insightLevel}</span>
-            </div>
-          </div>
-
           <div className="hub-credits">⭐ {pupil.credits ?? 0} {t('pupilHub.credits')}</div>
 
-          <div className="hub-streak-block">
-            <StreakDots streak={streak} />
-            <span className="streak-label">
-              {streak > 0
-                ? t('pupilHub.streakTowardsInstinctLevel').replace('{streak}', streak).replace('{n}', instinctLevel + 1)
-                : t('pupilHub.towardsInstinctLevel').replace('{n}', instinctLevel + 1)}
-            </span>
+          <div className="hub-progress-row">
+            <div className="hub-progress-box hub-progress-box--instinct">
+              <span className="hub-progress-label">Instinct</span>
+              <span className="hub-progress-level">{instinctLevel}</span>
+              <StreakDots streak={instinctStreak} />
+            </div>
+            <div className="hub-progress-box hub-progress-box--insight">
+              <span className="hub-progress-label">Insight</span>
+              <span className="hub-progress-level">{insightLevel}</span>
+              <StreakDots streak={insightStreak} />
+            </div>
           </div>
 
           <button

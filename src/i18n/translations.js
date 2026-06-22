@@ -240,8 +240,6 @@ export const translations = {
     'pupilHub.comingSoon': 'Coming soon!',
     'pupilHub.hi': 'Hi, {name}!',
     'pupilHub.credits': 'coins',
-    'pupilHub.towardsInstinctLevel': 'Towards Instinct Level {n}',
-    'pupilHub.streakTowardsInstinctLevel': '{streak}/3 towards Instinct Level {n}',
     'pupilHub.startingPractice': 'Starting...',
     'pupilHub.notYouSignOut': 'Not {name}? Sign out',
 
@@ -716,8 +714,6 @@ export const translations = {
     'pupilHub.comingSoon': 'Dod cyn bo hir!',
     'pupilHub.hi': 'Helo, {name}!',
     'pupilHub.credits': 'ceiniogau',
-    'pupilHub.towardsInstinctLevel': 'Tuag at Lefel Instinct {n}',
-    'pupilHub.streakTowardsInstinctLevel': '{streak}/3 tuag at Lefel Instinct {n}',
     'pupilHub.startingPractice': 'Yn dechrau...',
     'pupilHub.notYouSignOut': 'Nid {name}? Allgofnodi',
 
