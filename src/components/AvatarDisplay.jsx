@@ -31,10 +31,10 @@ const HIP_PIVOTS  = { left: [70, 165],    right: [130, 165] }
 const UPPER_LEG   = 19.72
 const LOWER_LEG   = 19.72
 
-// Neutral leg stance: 97 % extension -- nearly straight, just a hint of
-// a knee joint rather than the crouching look that 89 % gave.
-const FOOT_STAND      = { left: [68, 203],  right: [132, 203] }
-const KNEE_POLE_STAND = { left: [52, 184],  right: [148, 184] }
+// Neutral leg stance: 99 % extension with pole hint close to the
+// hip-foot line, so the knee deviates only ~8° and legs look straight.
+const FOOT_STAND      = { left: [68.5, 204],  right: [131.5, 204] }
+const KNEE_POLE_STAND = { left: [65,   184],  right: [135,   184] }
 
 // Squat anticipation (floor pause before each hop): feet pulled 7 units
 // up in local space while the body descends by the same SQUAT_DEPTH, so
