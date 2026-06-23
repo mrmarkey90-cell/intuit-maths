@@ -125,6 +125,17 @@ const ARM_PHASE_L = 0.6
 const ARM_DRIFT_F = 0.79
 const ARM_DRIFT_A = 0.10
 
+const BROW_PATHS = {
+  normal: {
+    left:  'M 92 64 Q 100 59 108 62',
+    right: 'M 122 62 Q 130 59 138 64',
+  },
+  hips: {
+    left:  'M 90 59 Q 99 61 108 67',
+    right: 'M 122 67 Q 131 61 140 59',
+  },
+}
+
 // --- Auto-gesture system (unchanged) ---
 
 function useAutoState(disabled) {
@@ -170,6 +181,7 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust', state: controlledSta
   const armRefs      = useRef({ leftUpper: null, leftLower: null, rightUpper: null, rightLower: null })
   const legRefs      = useRef({ leftUpper: null, leftLower: null, rightUpper: null, rightLower: null })
   const bodyGroupRef = useRef(null)
+  const browRefs     = useRef({ left: null, right: null })
 
   const springRef = useRef({
     left:  { pos: [60, 174],  vel: [0, 0] },
@@ -183,6 +195,12 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust', state: controlledSta
   const rafRef            = useRef(null)
 
   useEffect(() => { stateRef.current = state }, [state])
+
+  useEffect(() => {
+    const paths = BROW_PATHS[state] ?? BROW_PATHS.normal
+    browRefs.current.left?.setAttribute('d', paths.left)
+    browRefs.current.right?.setAttribute('d', paths.right)
+  }, [state])
 
   useEffect(() => {
     function tick(ts) {
@@ -337,10 +355,10 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust', state: controlledSta
         {/* Head -- skin tone recolouring */}
         {renderShapes(assets.face, 'face', skinColor)}
 
-        {/* Eyebrows -- procedural, hair colour. Angled down toward nose for focused look. */}
-        <g stroke={hairColor} strokeWidth="3.5" fill="none" strokeLinecap="round">
-          <path d="M 90 59 Q 99 61 108 67" />
-          <path d="M 122 67 Q 131 61 140 59" />
+        {/* Eyebrows -- procedural, hair colour. Path swapped to furrowed during hips pose. */}
+        <g stroke={hairColor} strokeWidth="3" fill="none" strokeLinecap="round">
+          <path ref={el => { browRefs.current.left  = el }} d={BROW_PATHS.normal.left}  />
+          <path ref={el => { browRefs.current.right = el }} d={BROW_PATHS.normal.right} />
         </g>
 
         {/* Eyes + mouth -- procedural. Eyes blink via .avatar-eyes in App.css. */}
