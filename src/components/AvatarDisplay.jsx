@@ -277,8 +277,8 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust', state: controlledSta
           const drift       = ARM_DRIFT_A * Math.sin(t * ARM_DRIFT_F)
           const armPump     = Math.max(0, Math.sin(tSince * JUMP_FREQ + phaseOffset + drift))
           // Arms drop and spread between hops; thrust up and inward at peak.
-          target[1] += 14 * (1 - armPump)
-          target[0] +=  5 * (1 - armPump) * (side === 'left' ? -1 : 1)
+          target[1] += 26 * (1 - armPump)
+          target[0] += 10 * (1 - armPump) * (side === 'left' ? -1 : 1)
         }
 
         const [newPos, newVel] = springStep(sp.pos, sp.vel, target, SPRING_K, SPRING_D, dt)
