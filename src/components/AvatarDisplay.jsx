@@ -22,38 +22,47 @@ function renderShapes(shapes, keyPrefix, fillOverride) {
 
 // --- Two-bone IK system ---
 
-const SHOULDERS = { left: [70, 108.5], right: [130, 108.5] }
-// Equal-length bones matching the original neutral arm geometry.
-const UPPER_LEN = 33.1
-const LOWER_LEN = 33.1
+const SHOULDERS   = { left: [70, 108.5],  right: [130, 108.5] }
+const UPPER_ARM   = 33.1
+const LOWER_ARM   = 33.1
+
+// Hip pivots are at the top of each leg (bottom of the shirt hem).
+const HIP_PIVOTS  = { left: [70, 165],    right: [130, 165] }
+const UPPER_LEG   = 19.72
+const LOWER_LEG   = 19.72
+
+// Neutral leg stance: foot slightly forward of hip, 89 % extension so
+// the knee bend is visible rather than the fully-extended stiff look.
+const FOOT_STAND      = { left: [65, 200],  right: [135, 200] }
+const KNEE_POLE_STAND = { left: [45, 183],  right: [155, 183] }
+
+// Celebrate tuck: feet pulled up close to the body, knees spread wide.
+const FOOT_TUCK      = { left: [55, 180],  right: [145, 180] }
+const KNEE_POLE_TUCK = { left: [28, 163],  right: [172, 163] }
 
 // Solves a planar two-bone IK chain. Returns { elbow, hand } in SVG space.
-// poleHint biases which of the two valid elbow positions is chosen --
-// the solver picks whichever keeps the elbow closer to the hint point.
-function solveIK(shoulder, target, poleHint) {
+// upperLen/lowerLen default to arm dimensions so existing arm calls are unchanged.
+function solveIK(pivot, target, poleHint, upperLen = UPPER_ARM, lowerLen = LOWER_ARM) {
   let [tx, ty] = target
-  const dx = tx - shoulder[0]
-  const dy = ty - shoulder[1]
+  const dx = tx - pivot[0]
+  const dy = ty - pivot[1]
   let dist = Math.sqrt(dx * dx + dy * dy)
 
-  // Clamp target to the chain's reachable range before solving.
-  const maxReach = UPPER_LEN + LOWER_LEN - 0.01
-  const minReach = Math.abs(UPPER_LEN - LOWER_LEN) + 0.01
+  const maxReach = upperLen + lowerLen - 0.01
+  const minReach = Math.abs(upperLen - lowerLen) + 0.01
   if (dist > maxReach || dist < minReach) {
     const clamped = Math.max(minReach, Math.min(maxReach, dist))
-    if (dist > 0) { tx = shoulder[0] + dx * clamped / dist; ty = shoulder[1] + dy * clamped / dist }
-    else { ty = shoulder[1] + clamped }
+    if (dist > 0) { tx = pivot[0] + dx * clamped / dist; ty = pivot[1] + dy * clamped / dist }
+    else { ty = pivot[1] + clamped }
     dist = clamped
   }
 
-  // Law of cosines: angle at the shoulder between upper arm and shoulder→hand.
-  const cosA = (dist * dist + UPPER_LEN * UPPER_LEN - LOWER_LEN * LOWER_LEN) / (2 * dist * UPPER_LEN)
-  const a = Math.acos(Math.max(-1, Math.min(1, cosA)))
-  const base = Math.atan2(ty - shoulder[1], tx - shoulder[0])
+  const cosA = (dist * dist + upperLen * upperLen - lowerLen * lowerLen) / (2 * dist * upperLen)
+  const a    = Math.acos(Math.max(-1, Math.min(1, cosA)))
+  const base = Math.atan2(ty - pivot[1], tx - pivot[0])
 
-  // Two candidate elbow positions (the two IK solutions).
-  const e1 = [shoulder[0] + UPPER_LEN * Math.cos(base + a), shoulder[1] + UPPER_LEN * Math.sin(base + a)]
-  const e2 = [shoulder[0] + UPPER_LEN * Math.cos(base - a), shoulder[1] + UPPER_LEN * Math.sin(base - a)]
+  const e1 = [pivot[0] + upperLen * Math.cos(base + a), pivot[1] + upperLen * Math.sin(base + a)]
+  const e2 = [pivot[0] + upperLen * Math.cos(base - a), pivot[1] + upperLen * Math.sin(base - a)]
 
   const elbow = (() => {
     if (!poleHint) return e1
@@ -65,18 +74,13 @@ function solveIK(shoulder, target, poleHint) {
   return { elbow, hand: [tx, ty] }
 }
 
-// Pose definitions: where we want each hand to end up, plus a pole hint
-// that biases which way the elbow bends. IK solves the rest.
-// Adding a new pose (attack, hit, etc.) is just a new entry -- no angle
-// maths required. Any undefined pose falls back to idle in the RAF loop.
+// Pose definitions for arms. Any undefined pose falls back to idle.
 const POSE_TARGETS = {
   idle: {
     left:  { hand: [60, 174],  pole: [40, 141] },
     right: { hand: [140, 174], pole: [160, 141] },
   },
   hips: {
-    // Hands at the sides of the waist (x=58/142), just above the shirt hem
-    // (y=158). Poles pushed wide so elbows flare outward (akimbo).
     left:  { hand: [58, 158],  pole: [28, 136] },
     right: { hand: [142, 158], pole: [172, 136] },
   },
@@ -90,10 +94,8 @@ const POSE_TARGETS = {
   },
 }
 
-// One Euler step of a damped spring in 2D. Returns [newPos, newVel].
-// k = stiffness, d = damping. D=22 against D_crit≈31 gives ζ≈0.71 --
-// slightly underdamped so pose transitions have a small springy overshoot
-// that reads as personality rather than mechanical snap.
+// One Euler step of a 2D damped spring. D=22 against D_crit≈31 gives
+// ζ≈0.71 -- slightly underdamped for a springy pose-transition overshoot.
 function springStep(pos, vel, target, k, d, dt) {
   const ax = -k * (pos[0] - target[0]) - d * vel[0]
   const ay = -k * (pos[1] - target[1]) - d * vel[1]
@@ -104,20 +106,20 @@ function springStep(pos, vel, target, k, d, dt) {
 const SPRING_K = 240
 const SPRING_D = 22
 
-// Celebrate jump parameters.
-// JUMP_FREQ = π/0.4 → 0.4s airborne + 0.4s floor pause per hop.
-// MAX_ROTATION: body leans forward mid-way up, straightens at peak, leans
-// backward mid-way down, straightens on landing -- see rotation formula.
-const JUMP_HEIGHT   = 22   // SVG units
-const JUMP_FREQ     = Math.PI / 0.4
-const MAX_ROTATION  = 8    // degrees
+// --- Celebrate jump constants ---
+const JUMP_HEIGHT  = 26             // SVG units
+const JUMP_FREQ    = Math.PI / 0.37 // ≈8.5 rad/s → 0.74 s period, snappier than before
+const MAX_ROTATION = 10             // degrees
+
+// Arm asynchrony: left arm lags right by ARM_PHASE_L radians.
+// ARM_DRIFT is a very slow secondary oscillation (≈8 s period) that
+// prevents consecutive hops feeling like a perfectly mechanical loop.
+const ARM_PHASE_L = 0.6
+const ARM_DRIFT_F = 0.79
+const ARM_DRIFT_A = 0.10
 
 // --- Auto-gesture system (unchanged) ---
 
-// Outside the game, nobody drives the avatar's state explicitly, so it
-// idles and occasionally gestures on its own. Inside the game, the game
-// owns state entirely via the `state` prop -- once that prop is passed,
-// this self-gesturing is disabled completely.
 function useAutoState(disabled) {
   const [autoState, setAutoState] = useState('idle')
 
@@ -152,21 +154,16 @@ function useAutoState(disabled) {
 
 function AvatarDisplay({ avatar, size = 140, crop = 'bust', state: controlledState }) {
   const [assets, setAssets] = useState({ face: null, hair: null, clothing: null, hat: null })
-  // Negative delay so each instance starts mid-blink-cycle at a random point --
-  // avoids every avatar on a page (e.g. class roster) blinking in sync.
   const [blinkDelay] = useState(() => -Math.random() * 4.5)
   const autoState = useAutoState(!!controlledState)
   const state = controlledState ?? autoState
 
-  // Refs for direct SVG mutation -- avoids 60fps React re-renders,
-  // same pattern as FloatingLogos.
-  const lineRefs     = useRef({ leftUpper: null, leftLower: null, rightUpper: null, rightLower: null })
-  const legRefs      = useRef({ left: null, right: null })
+  // Eight line refs (four arms, four legs) plus the body group transform.
+  // All mutated directly in the RAF loop -- no 60fps React re-renders.
+  const armRefs      = useRef({ leftUpper: null, leftLower: null, rightUpper: null, rightLower: null })
+  const legRefs      = useRef({ leftUpper: null, leftLower: null, rightUpper: null, rightLower: null })
   const bodyGroupRef = useRef(null)
 
-  // Spring simulation state lives in a ref (not React state) so the RAF
-  // loop can update it without triggering re-renders. Initialised at idle
-  // so there's no jump on the first frame.
   const springRef = useRef({
     left:  { pos: [60, 174],  vel: [0, 0] },
     right: { pos: [140, 174], vel: [0, 0] },
@@ -178,11 +175,8 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust', state: controlledSta
   const timeRef           = useRef(0)
   const rafRef            = useRef(null)
 
-  // Keep stateRef current without restarting the RAF loop.
   useEffect(() => { stateRef.current = state }, [state])
 
-  // Single RAF loop for the component's lifetime. Reads stateRef every
-  // frame so pose changes take effect immediately without loop teardown.
   useEffect(() => {
     function tick(ts) {
       rafRef.current = requestAnimationFrame(tick)
@@ -194,76 +188,81 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust', state: controlledSta
       const base = POSE_TARGETS[pose] ?? POSE_TARGETS.idle
       const t    = timeRef.current
 
-      // Detect pose transitions to reset phase-sensitive animations.
       if (pose !== prevPoseRef.current) {
         if (pose === 'celebrate') celebrateStartRef.current = t
         prevPoseRef.current = pose
       }
 
-      // --- Celebrate jump ---
-      // pumpFraction = max(0, sin(tSince * JUMP_FREQ)):
-      //   0 at floor, 1 at jump peak, 0 during floor pause.
-      //
-      // Body Y: smooth arch up then back down.
-      //
-      // Body rotation: 2 * pump * cos formula self-resets to 0 at both
-      //   floor (pump=0) and peak (cos=0), so the character leans forward
-      //   mid-way up and backward mid-way down with no floor-pause snap.
-      //
-      // Legs: tuck up and out at peak, return to neutral at floor.
-      //
-      // Arms: pushed down between hops (pump=0) and thrust up at peak
-      //   (pump=1) -- fist-pump feel. Spring handles the smooth travel.
+      // tSince: time elapsed since celebrate began (0 for all other poses).
+      const tSince = pose === 'celebrate' ? t - celebrateStartRef.current : 0
 
+      // --- Celebrate jump ---
+      // pumpFraction = max(0, sin(tSince * freq)):
+      //   0 at floor, 1 at jump peak, 0 during the floor pause between hops.
+      //
+      // Body Y: smooth parabolic arch.
+      //
+      // Body rotation: the 2 * pump * cos formula equals ½ sin(2x) -- it
+      //   is zero at both floor (pump=0) and peak (cos=0), leans forward on
+      //   the way up and backward on the way down, with no snap at landing.
       let pumpFraction = 0
       let bodyY        = 0
       let rotation     = 0
-
       if (pose === 'celebrate') {
-        const tSince  = t - celebrateStartRef.current
-        const sinVal  = Math.sin(tSince * JUMP_FREQ)
-        const cosVal  = Math.cos(tSince * JUMP_FREQ)
-        pumpFraction  = Math.max(0, sinVal)
-        bodyY         = -JUMP_HEIGHT * pumpFraction
-        rotation      = 2 * MAX_ROTATION * pumpFraction * cosVal
+        const sinVal = Math.sin(tSince * JUMP_FREQ)
+        const cosVal = Math.cos(tSince * JUMP_FREQ)
+        pumpFraction = Math.max(0, sinVal)
+        bodyY        = -JUMP_HEIGHT * pumpFraction
+        rotation     = 2 * MAX_ROTATION * pumpFraction * cosVal
       }
-
       bodyGroupRef.current?.setAttribute('transform',
         `translate(0,${bodyY.toFixed(2)}) rotate(${rotation.toFixed(2)},100,145)`)
 
-      // Legs: x2/y2 only -- hip anchor (x1/y1) is fixed in JSX.
+      // --- Leg IK ---
+      // Foot target and pole hint lerp between a natural standing position
+      // and the high tuck at jump peak. tuck=0 outside celebrate, so legs
+      // stay in the natural stance during all other poses.
       const tuck = pumpFraction
-      const ll = legRefs.current.left
-      const rl = legRefs.current.right
-      if (ll) { ll.setAttribute('x2', (68.125  - 8 * tuck).toFixed(2)); ll.setAttribute('y2', (204.375 - 18 * tuck).toFixed(2)) }
-      if (rl) { rl.setAttribute('x2', (131.875 + 8 * tuck).toFixed(2)); rl.setAttribute('y2', (204.375 - 18 * tuck).toFixed(2)) }
+      for (const side of ['left', 'right']) {
+        const hip  = HIP_PIVOTS[side]
+        const foot = [
+          FOOT_STAND[side][0] + (FOOT_TUCK[side][0] - FOOT_STAND[side][0]) * tuck,
+          FOOT_STAND[side][1] + (FOOT_TUCK[side][1] - FOOT_STAND[side][1]) * tuck,
+        ]
+        const pole = [
+          KNEE_POLE_STAND[side][0] + (KNEE_POLE_TUCK[side][0] - KNEE_POLE_STAND[side][0]) * tuck,
+          KNEE_POLE_STAND[side][1] + (KNEE_POLE_TUCK[side][1] - KNEE_POLE_STAND[side][1]) * tuck,
+        ]
+        const { elbow: knee, hand: footPos } = solveIK(hip, foot, pole, UPPER_LEG, LOWER_LEG)
+        const lu = legRefs.current[`${side}Upper`]
+        const ll = legRefs.current[`${side}Lower`]
+        if (lu) { lu.setAttribute('x1', hip[0]);    lu.setAttribute('y1', hip[1]);    lu.setAttribute('x2', knee[0]);    lu.setAttribute('y2', knee[1]) }
+        if (ll) { ll.setAttribute('x1', knee[0]);   ll.setAttribute('y1', knee[1]);   ll.setAttribute('x2', footPos[0]); ll.setAttribute('y2', footPos[1]) }
+      }
 
+      // --- Arms ---
       for (const side of ['left', 'right']) {
         const shoulder = SHOULDERS[side]
-        const sp = springRef.current[side]
-
-        // Desired hand target this frame, with time-varying overlays.
-        const target = [...base[side].hand]
+        const sp       = springRef.current[side]
+        const target   = [...base[side].hand]
 
         if (pose === 'idle') {
-          // Idle sway: slightly different frequencies so the two arms
-          // drift in and out of phase, matching the original CSS behaviour
-          // (left at 3.2 s period, right at 3.5 s).
           target[0] += 4.5 * Math.sin(t * (side === 'right' ? 1.80 : 1.96) + (side === 'right' ? 0.8 : 0))
           target[1] += 1.5 * Math.sin(t * 1.1  + (side === 'right' ? 0.4 : 0))
         }
         if (pose === 'wave' && side === 'right') {
-          // Fast wiggle on the raised hand. The spring's natural frequency
-          // (ω_n≈15.5 rad/s) sits below the wiggle frequency (21 rad/s),
-          // so the spring attenuates and phase-shifts the input naturally --
-          // no separate filtering needed, the physics handles it.
           target[0] += 18 * Math.sin(t * 21)
         }
         if (pose === 'celebrate') {
-          // Fist-pump: arms drop between hops then thrust upward on takeoff.
-          // pumpFraction=0 at floor → hands 12 units lower (arms ready to pump).
-          // pumpFraction=1 at peak → hands at full celebrate height.
-          target[1] += 12 * (1 - pumpFraction)
+          // Each arm has its own phase so left and right are slightly out of
+          // sync. ARM_DRIFT adds a slow secondary wobble (≈8 s period) so
+          // the pattern never settles into a perfectly mechanical loop.
+          const phaseOffset = side === 'left' ? ARM_PHASE_L : 0
+          const drift       = ARM_DRIFT_A * Math.sin(t * ARM_DRIFT_F)
+          const armPump     = Math.max(0, Math.sin(tSince * JUMP_FREQ + phaseOffset + drift))
+          // Arms drop and spread between hops; thrust up and inward at peak.
+          target[1] += 14 * (1 - armPump)
+          target[0] +=  5 * (1 - armPump) * (side === 'left' ? -1 : 1)
         }
 
         const [newPos, newVel] = springStep(sp.pos, sp.vel, target, SPRING_K, SPRING_D, dt)
@@ -271,17 +270,10 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust', state: controlledSta
         sp.vel = newVel
 
         const { elbow, hand } = solveIK(shoulder, newPos, base[side].pole)
-
-        const upper = lineRefs.current[`${side}Upper`]
-        const lower = lineRefs.current[`${side}Lower`]
-        if (upper) {
-          upper.setAttribute('x1', shoulder[0]); upper.setAttribute('y1', shoulder[1])
-          upper.setAttribute('x2', elbow[0]);    upper.setAttribute('y2', elbow[1])
-        }
-        if (lower) {
-          lower.setAttribute('x1', elbow[0]); lower.setAttribute('y1', elbow[1])
-          lower.setAttribute('x2', hand[0]);  lower.setAttribute('y2', hand[1])
-        }
+        const upper = armRefs.current[`${side}Upper`]
+        const lower = armRefs.current[`${side}Lower`]
+        if (upper) { upper.setAttribute('x1', shoulder[0]); upper.setAttribute('y1', shoulder[1]); upper.setAttribute('x2', elbow[0]); upper.setAttribute('y2', elbow[1]) }
+        if (lower) { lower.setAttribute('x1', elbow[0]);    lower.setAttribute('y1', elbow[1]);    lower.setAttribute('x2', hand[0]);  lower.setAttribute('y2', hand[1]) }
       }
     }
 
@@ -305,25 +297,22 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust', state: controlledSta
   const skinColor = SKIN_TONES[avatar.skinTone] ?? SKIN_TONES[0]
   const hairColor = HAIR_COLORS[avatar.hairColor] ?? HAIR_COLORS[0]
   const { aspect } = CROPS[crop] ?? CROPS.bust
-  // `size` is normally a px number (fixed-size tiles/badges), but also
-  // accepts a CSS length string (e.g. a clamp()) for callers that need
-  // the preview itself to scale with the viewport.
   const style = typeof size === 'string'
     ? { width: size, height: `calc(${size} * ${aspect})` }
     : { width: size, height: size * aspect }
 
   return (
-    // overflow="visible" lets the jump carry the avatar slightly above the
-    // SVG's own layout box without clipping the top of the hair.
     <svg className="avatar-display" style={style} viewBox="0 0 200 300" overflow="visible">
-      {/* Single group so bodyY + rotation transform moves everything together. */}
       <g ref={bodyGroupRef}>
-        {/* Legs -- procedural. Hip anchors fixed; foot endpoints animated
-            via legRefs in the RAF loop during celebrate. Legs paint before
-            clothing so the shirt hem overlaps them correctly. */}
+        {/* Legs -- IK-driven, four line elements mutated by the RAF loop.
+            Neutral stance has a visible knee bend (89 % extension) so they
+            look natural in all poses, not just celebrate. Painted before
+            clothing so the shirt hem correctly overlaps the thighs. */}
         <g {...LIMB_STYLE}>
-          <line x1="70"  y1="165" x2="68.125"  y2="204.375" ref={el => { legRefs.current.left  = el }} />
-          <line x1="130" y1="165" x2="131.875" y2="204.375" ref={el => { legRefs.current.right = el }} />
+          <line ref={el => { legRefs.current.leftUpper  = el }} />
+          <line ref={el => { legRefs.current.leftLower  = el }} />
+          <line ref={el => { legRefs.current.rightUpper = el }} />
+          <line ref={el => { legRefs.current.rightLower = el }} />
         </g>
 
         {/* Clothing -- also serves as the torso visual, no recolouring */}
@@ -338,9 +327,7 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust', state: controlledSta
           <path d="M 122 62 Q 130 59 138 64" />
         </g>
 
-        {/* Eyes + mouth -- procedural, neutral expression. Shifted right of
-            the head's centreline to sell "facing screen-right". Eyes blink
-            periodically via .avatar-eyes CSS animation in App.css. */}
+        {/* Eyes + mouth -- procedural. Eyes blink via .avatar-eyes in App.css. */}
         <g className="avatar-eyes" fill="#1f2937" style={{ animationDelay: `${blinkDelay}s` }}>
           <circle cx="100" cy="70" r="3.5" />
           <circle cx="130" cy="70" r="3.5" />
@@ -350,14 +337,13 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust', state: controlledSta
         {/* Hair -- hair colour recolouring */}
         {renderShapes(assets.hair, 'hair', hairColor)}
 
-        {/* Arms -- IK-driven. Four line elements mutated directly by the RAF
-            loop above; painted after head/hair so a raised arm (wave/celebrate)
-            draws in front of the head rather than behind it. */}
+        {/* Arms -- IK-driven, painted after head/hair so raised arms
+            appear in front of the head on wave/celebrate. */}
         <g {...LIMB_STYLE}>
-          <line ref={el => { lineRefs.current.leftUpper  = el }} />
-          <line ref={el => { lineRefs.current.leftLower  = el }} />
-          <line ref={el => { lineRefs.current.rightUpper = el }} />
-          <line ref={el => { lineRefs.current.rightLower = el }} />
+          <line ref={el => { armRefs.current.leftUpper  = el }} />
+          <line ref={el => { armRefs.current.leftLower  = el }} />
+          <line ref={el => { armRefs.current.rightUpper = el }} />
+          <line ref={el => { armRefs.current.rightLower = el }} />
         </g>
 
         {/* Hat -- topmost, no recolouring */}
