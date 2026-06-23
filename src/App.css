@@ -664,32 +664,6 @@ button:hover:not(:disabled) {
   94%, 96% { transform: scaleY(0.1); }
 }
 
-.avatar-arm-sway--left {
-  animation: avatar-arm-sway-left 3.2s ease-in-out infinite;
-}
-
-.avatar-arm-sway--right {
-  animation: avatar-arm-sway-right 3.5s ease-in-out infinite;
-}
-
-@keyframes avatar-arm-sway-left {
-  0%, 100% { transform: rotate(-4deg); }
-  50% { transform: rotate(4deg); }
-}
-
-@keyframes avatar-arm-sway-right {
-  0%, 100% { transform: rotate(4deg); }
-  50% { transform: rotate(-4deg); }
-}
-
-.avatar-wave-wiggle {
-  animation: avatar-wave-wiggle 0.3s ease-in-out infinite;
-}
-
-@keyframes avatar-wave-wiggle {
-  0%, 100% { transform: rotate(-15deg); }
-  50% { transform: rotate(15deg); }
-}
 
 .avatar-layer {
   position: absolute;
@@ -2306,30 +2280,6 @@ button.results-reveal:hover {
   min-width: 0;
 }
 
-.hub-wardrobe-btn,
-.hub-wardrobe-btn:disabled {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  width: 100%;
-  justify-content: center;
-  border: 2px solid #e5e7eb;
-  border-radius: 12px;
-  background: #f9fafb;
-  color: #9ca3af;
-  font-weight: 700;
-  padding: 0.5rem 0.75rem;
-  cursor: not-allowed;
-}
-.hub-wardrobe-icon { font-size: 1.1rem; }
-.hub-wardrobe-badge {
-  font-size: 0.6rem;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: #b0b4bb;
-  margin-left: auto;
-}
 
 .hub-signout-btn {
   margin-top: auto;
@@ -2345,6 +2295,7 @@ button.results-reveal:hover {
 }
 
 .hub-area-tile {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2361,7 +2312,7 @@ button.results-reveal:hover {
 .hub-area-tile:hover:not(:disabled) { transform: translateY(-2px); }
 .hub-area-tile:active:not(:disabled) { transform: translateY(0); }
 
-.hub-area-tile-icon { font-size: clamp(1.4rem, 4vh, 2.2rem); }
+.hub-area-tile-icon { font-size: clamp(2.4rem, 7vh, 3.8rem); }
 .hub-area-tile-label { font-size: clamp(0.85rem, 2.2vh, 1.05rem); }
 .hub-area-tile-badge {
   font-size: clamp(0.6rem, 1.5vh, 0.75rem);
@@ -2372,21 +2323,25 @@ button.results-reveal:hover {
 }
 
 .hub-area-tile-reward {
+  position: absolute;
+  top: 0.55rem;
+  left: 0.65rem;
   display: flex;
   align-items: center;
   gap: 1px;
   line-height: 1;
 }
 .hub-area-tile-reward-plus {
-  font-size: clamp(1rem, 3vh, 1.5rem);
+  font-size: 0.75rem;
   font-weight: 800;
 }
 .hub-area-tile-reward-coin { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2)); }
-.hub-area-tile-reward-coin--large { font-size: clamp(1.8rem, 5.5vh, 2.8rem); }
-.hub-area-tile-reward-coin--small { font-size: clamp(0.9rem, 2.5vh, 1.3rem); }
+.hub-area-tile-reward-coin--large { font-size: clamp(1.1rem, 3vh, 1.5rem); }
+.hub-area-tile-reward-coin--small { font-size: clamp(0.7rem, 1.8vh, 1rem); }
 
 .hub-area-tile--missions { background: #f59e0b; }
 .hub-area-tile--games { background: #ec4899; }
+.hub-area-tile--wardrobe { background: #0d9488; }
 .hub-area-tile--practise {
   background: #4f46e5;
   box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
@@ -2402,6 +2357,11 @@ button.results-reveal:hover {
    same cascade gotcha documented elsewhere in this file. */
 .hub-area-tile--missions:disabled {
   background: #f59e0b;
+  opacity: 0.88;
+  cursor: not-allowed;
+}
+.hub-area-tile--wardrobe:disabled {
+  background: #0d9488;
   opacity: 0.88;
   cursor: not-allowed;
 }
@@ -4113,11 +4073,6 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   margin: clamp(0.3rem, 1vh, 0.75rem) 0 clamp(0.4rem, 1.5vh, 1.25rem);
 }
 
-.pupil-viewport .hub-wardrobe-btn,
-.pupil-viewport .hub-wardrobe-btn:disabled {
-  padding: clamp(0.3rem, 1vh, 0.5rem) 0.75rem;
-  font-size: clamp(0.8rem, 1.8vh, 1rem);
-}
 
 .pupil-viewport .hub-progress-row {
   margin-bottom: clamp(0.4rem, 1.5vh, 1rem);
