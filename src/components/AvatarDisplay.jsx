@@ -31,12 +31,19 @@ const HIP_PIVOTS  = { left: [70, 165],    right: [130, 165] }
 const UPPER_LEG   = 19.72
 const LOWER_LEG   = 19.72
 
-// Neutral leg stance: foot slightly forward of hip, 89 % extension so
-// the knee bend is visible rather than the fully-extended stiff look.
-const FOOT_STAND      = { left: [65, 200],  right: [135, 200] }
-const KNEE_POLE_STAND = { left: [45, 183],  right: [155, 183] }
+// Neutral leg stance: 97 % extension -- nearly straight, just a hint of
+// a knee joint rather than the crouching look that 89 % gave.
+const FOOT_STAND      = { left: [68, 203],  right: [132, 203] }
+const KNEE_POLE_STAND = { left: [52, 184],  right: [148, 184] }
 
-// Celebrate tuck: feet pulled up close to the body, knees spread wide.
+// Squat anticipation (floor pause before each hop): feet pulled 7 units
+// up in local space while the body descends by the same SQUAT_DEPTH, so
+// the feet appear to stay on the floor in world space while the knees bend.
+const FOOT_SQUAT      = { left: [63, 196],  right: [137, 196] }
+const KNEE_POLE_SQUAT = { left: [42, 181],  right: [158, 181] }
+const SQUAT_DEPTH     = 7   // SVG units -- body descends by this during squat
+
+// Celebrate tuck (airborne): feet pulled high and wide, knees spread.
 const FOOT_TUCK      = { left: [55, 180],  right: [145, 180] }
 const KNEE_POLE_TUCK = { left: [28, 163],  right: [172, 163] }
 
@@ -197,41 +204,50 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust', state: controlledSta
       const tSince = pose === 'celebrate' ? t - celebrateStartRef.current : 0
 
       // --- Celebrate jump ---
-      // pumpFraction = max(0, sin(tSince * freq)):
-      //   0 at floor, 1 at jump peak, 0 during the floor pause between hops.
+      // rawSin = sin(tSince * JUMP_FREQ)
+      //   pumpFraction  = max(0,  rawSin): 0 at floor/pause, 1 at peak
+      //   squatFraction = max(0, -rawSin): 0 at landing/takeoff, 1 mid-pause
       //
-      // Body Y: smooth parabolic arch.
+      // bodyY: rises on pump (negative = up), lowers on squat (positive).
+      //   SQUAT_DEPTH matches the leg offset below so the feet stay at
+      //   floor level in world space while the knees bend in local space.
       //
-      // Body rotation: the 2 * pump * cos formula equals ½ sin(2x) -- it
-      //   is zero at both floor (pump=0) and peak (cos=0), leans forward on
-      //   the way up and backward on the way down, with no snap at landing.
-      let pumpFraction = 0
-      let bodyY        = 0
-      let rotation     = 0
+      // rotation: 2 * pump * cos zeros at both floor and peak, leans
+      //   forward mid-way up and backward mid-way down. Tiny extra lean
+      //   (-3°) during the squat adds anticipation character.
+      let pumpFraction  = 0
+      let squatFraction = 0
+      let bodyY         = 0
+      let rotation      = 0
       if (pose === 'celebrate') {
-        const sinVal = Math.sin(tSince * JUMP_FREQ)
+        const rawSin = Math.sin(tSince * JUMP_FREQ)
         const cosVal = Math.cos(tSince * JUMP_FREQ)
-        pumpFraction = Math.max(0, sinVal)
-        bodyY        = -JUMP_HEIGHT * pumpFraction
-        rotation     = 2 * MAX_ROTATION * pumpFraction * cosVal
+        pumpFraction  = Math.max(0,  rawSin)
+        squatFraction = Math.max(0, -rawSin)
+        bodyY         = -JUMP_HEIGHT * pumpFraction + SQUAT_DEPTH * squatFraction
+        rotation      =  2 * MAX_ROTATION * pumpFraction * cosVal - 3 * squatFraction
       }
       bodyGroupRef.current?.setAttribute('transform',
         `translate(0,${bodyY.toFixed(2)}) rotate(${rotation.toFixed(2)},100,145)`)
 
       // --- Leg IK ---
-      // Foot target and pole hint lerp between a natural standing position
-      // and the high tuck at jump peak. tuck=0 outside celebrate, so legs
-      // stay in the natural stance during all other poses.
-      const tuck = pumpFraction
+      // During airborne (pump > 0): lerp stand → tuck.
+      // During floor pause (squat > 0): lerp stand → squat.
+      // The two fractions are mutually exclusive so both terms can coexist.
+      // Outside celebrate both are 0 → legs stay in the standing position.
       for (const side of ['left', 'right']) {
         const hip  = HIP_PIVOTS[side]
         const foot = [
-          FOOT_STAND[side][0] + (FOOT_TUCK[side][0] - FOOT_STAND[side][0]) * tuck,
-          FOOT_STAND[side][1] + (FOOT_TUCK[side][1] - FOOT_STAND[side][1]) * tuck,
+          FOOT_STAND[side][0] + (FOOT_TUCK[side][0]  - FOOT_STAND[side][0]) * pumpFraction
+                              + (FOOT_SQUAT[side][0]  - FOOT_STAND[side][0]) * squatFraction,
+          FOOT_STAND[side][1] + (FOOT_TUCK[side][1]  - FOOT_STAND[side][1]) * pumpFraction
+                              + (FOOT_SQUAT[side][1]  - FOOT_STAND[side][1]) * squatFraction,
         ]
         const pole = [
-          KNEE_POLE_STAND[side][0] + (KNEE_POLE_TUCK[side][0] - KNEE_POLE_STAND[side][0]) * tuck,
-          KNEE_POLE_STAND[side][1] + (KNEE_POLE_TUCK[side][1] - KNEE_POLE_STAND[side][1]) * tuck,
+          KNEE_POLE_STAND[side][0] + (KNEE_POLE_TUCK[side][0]  - KNEE_POLE_STAND[side][0]) * pumpFraction
+                                   + (KNEE_POLE_SQUAT[side][0] - KNEE_POLE_STAND[side][0]) * squatFraction,
+          KNEE_POLE_STAND[side][1] + (KNEE_POLE_TUCK[side][1]  - KNEE_POLE_STAND[side][1]) * pumpFraction
+                                   + (KNEE_POLE_SQUAT[side][1] - KNEE_POLE_STAND[side][1]) * squatFraction,
         ]
         const { elbow: knee, hand: footPos } = solveIK(hip, foot, pole, UPPER_LEG, LOWER_LEG)
         const lu = legRefs.current[`${side}Upper`]
