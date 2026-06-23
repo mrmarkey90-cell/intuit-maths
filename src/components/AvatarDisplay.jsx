@@ -104,10 +104,13 @@ function springStep(pos, vel, target, k, d, dt) {
 const SPRING_K = 240
 const SPRING_D = 22
 
-// Celebrate jump: sin arch gives 0.4s airborne, 0.4s on the floor per hop.
-// tSince (not global t) so the first hop always leaves from the floor.
-const JUMP_HEIGHT = 22  // SVG units
-const JUMP_FREQ   = Math.PI / 0.4  // ≈7.85 rad/s → 0.8 s period
+// Celebrate jump parameters.
+// JUMP_FREQ = π/0.4 → 0.4s airborne + 0.4s floor pause per hop.
+// MAX_ROTATION: body leans forward mid-way up, straightens at peak, leans
+// backward mid-way down, straightens on landing -- see rotation formula.
+const JUMP_HEIGHT   = 22   // SVG units
+const JUMP_FREQ     = Math.PI / 0.4
+const MAX_ROTATION  = 8    // degrees
 
 // --- Auto-gesture system (unchanged) ---
 
@@ -158,6 +161,7 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust', state: controlledSta
   // Refs for direct SVG mutation -- avoids 60fps React re-renders,
   // same pattern as FloatingLogos.
   const lineRefs     = useRef({ leftUpper: null, leftLower: null, rightUpper: null, rightLower: null })
+  const legRefs      = useRef({ left: null, right: null })
   const bodyGroupRef = useRef(null)
 
   // Spring simulation state lives in a ref (not React state) so the RAF
@@ -196,16 +200,43 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust', state: controlledSta
         prevPoseRef.current = pose
       }
 
-      // Celebrate jump: whole body translates on a sin arch.
-      // max(0, sin) gives a smooth rise-and-fall with a flat floor pause
-      // between hops. tSince resets on entry so the first hop always
-      // leaves from the floor (no mid-air snap on pose change).
-      let bodyY = 0
+      // --- Celebrate jump ---
+      // pumpFraction = max(0, sin(tSince * JUMP_FREQ)):
+      //   0 at floor, 1 at jump peak, 0 during floor pause.
+      //
+      // Body Y: smooth arch up then back down.
+      //
+      // Body rotation: 2 * pump * cos formula self-resets to 0 at both
+      //   floor (pump=0) and peak (cos=0), so the character leans forward
+      //   mid-way up and backward mid-way down with no floor-pause snap.
+      //
+      // Legs: tuck up and out at peak, return to neutral at floor.
+      //
+      // Arms: pushed down between hops (pump=0) and thrust up at peak
+      //   (pump=1) -- fist-pump feel. Spring handles the smooth travel.
+
+      let pumpFraction = 0
+      let bodyY        = 0
+      let rotation     = 0
+
       if (pose === 'celebrate') {
-        const tSince = t - celebrateStartRef.current
-        bodyY = -JUMP_HEIGHT * Math.max(0, Math.sin(tSince * JUMP_FREQ))
+        const tSince  = t - celebrateStartRef.current
+        const sinVal  = Math.sin(tSince * JUMP_FREQ)
+        const cosVal  = Math.cos(tSince * JUMP_FREQ)
+        pumpFraction  = Math.max(0, sinVal)
+        bodyY         = -JUMP_HEIGHT * pumpFraction
+        rotation      = 2 * MAX_ROTATION * pumpFraction * cosVal
       }
-      bodyGroupRef.current?.setAttribute('transform', `translate(0,${bodyY.toFixed(2)})`)
+
+      bodyGroupRef.current?.setAttribute('transform',
+        `translate(0,${bodyY.toFixed(2)}) rotate(${rotation.toFixed(2)},100,145)`)
+
+      // Legs: x2/y2 only -- hip anchor (x1/y1) is fixed in JSX.
+      const tuck = pumpFraction
+      const ll = legRefs.current.left
+      const rl = legRefs.current.right
+      if (ll) { ll.setAttribute('x2', (68.125  - 8 * tuck).toFixed(2)); ll.setAttribute('y2', (204.375 - 18 * tuck).toFixed(2)) }
+      if (rl) { rl.setAttribute('x2', (131.875 + 8 * tuck).toFixed(2)); rl.setAttribute('y2', (204.375 - 18 * tuck).toFixed(2)) }
 
       for (const side of ['left', 'right']) {
         const shoulder = SHOULDERS[side]
@@ -227,6 +258,12 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust', state: controlledSta
           // so the spring attenuates and phase-shifts the input naturally --
           // no separate filtering needed, the physics handles it.
           target[0] += 18 * Math.sin(t * 21)
+        }
+        if (pose === 'celebrate') {
+          // Fist-pump: arms drop between hops then thrust upward on takeoff.
+          // pumpFraction=0 at floor → hands 12 units lower (arms ready to pump).
+          // pumpFraction=1 at peak → hands at full celebrate height.
+          target[1] += 12 * (1 - pumpFraction)
         }
 
         const [newPos, newVel] = springStep(sp.pos, sp.vel, target, SPRING_K, SPRING_D, dt)
@@ -279,13 +316,14 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust', state: controlledSta
     // overflow="visible" lets the jump carry the avatar slightly above the
     // SVG's own layout box without clipping the top of the hair.
     <svg className="avatar-display" style={style} viewBox="0 0 200 300" overflow="visible">
-      {/* Single group so bodyY translate moves everything together. */}
+      {/* Single group so bodyY + rotation transform moves everything together. */}
       <g ref={bodyGroupRef}>
-        {/* Legs -- procedural. Hip pivot at y=165; legs paint before clothing
-            so the shirt hem overlaps them correctly. */}
+        {/* Legs -- procedural. Hip anchors fixed; foot endpoints animated
+            via legRefs in the RAF loop during celebrate. Legs paint before
+            clothing so the shirt hem overlaps them correctly. */}
         <g {...LIMB_STYLE}>
-          <line x1="70" y1="165" x2="68.125" y2="204.375" />
-          <line x1="130" y1="165" x2="131.875" y2="204.375" />
+          <line x1="70"  y1="165" x2="68.125"  y2="204.375" ref={el => { legRefs.current.left  = el }} />
+          <line x1="130" y1="165" x2="131.875" y2="204.375" ref={el => { legRefs.current.right = el }} />
         </g>
 
         {/* Clothing -- also serves as the torso visual, no recolouring */}
