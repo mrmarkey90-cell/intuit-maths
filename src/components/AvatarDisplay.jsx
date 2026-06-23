@@ -93,7 +93,7 @@ const POSE_TARGETS = {
   },
   wave: {
     left:  { hand: [60, 174],  pole: [40, 141] },
-    right: { hand: [148, 50],  pole: [170, 88] },
+    right: { hand: [148, 46],  pole: [172, 82] },
   },
   celebrate: {
     left:  { hand: [52, 50],   pole: [30, 88] },
@@ -285,7 +285,13 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust', state: controlledSta
           target[1] += 1.5 * Math.sin(t * 1.1  + (side === 'right' ? 0.4 : 0))
         }
         if (pose === 'wave' && side === 'right') {
-          target[0] += 18 * Math.sin(t * 21)
+          const w = Math.sin(t * 21)
+          target[0] += 20 * w                   // wider horizontal sweep
+          target[1] -= 6 * Math.abs(w)          // lifts at the extremes, arcs the path
+        }
+        if (pose === 'wave' && side === 'left') {
+          target[0] -= 9 * Math.sin(t * 2.5)   // slow weight-shift sway
+          target[1] += 4 * Math.sin(t * 1.8)
         }
         if (pose === 'celebrate') {
           // Each arm has its own phase so left and right are slightly out of
