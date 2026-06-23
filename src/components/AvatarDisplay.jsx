@@ -125,6 +125,10 @@ const ARM_PHASE_L = 0.6
 const ARM_DRIFT_F = 0.79
 const ARM_DRIFT_A = 0.10
 
+const MOUTH_SMILE = 'M 105 95 Q 115 100 125 95'
+// Bezier ellipse centred at (115,97), rx=6, ry=5 — surprised "O"
+const MOUTH_O = 'M 115,92 C 118.3,92 121,94.2 121,97 C 121,99.8 118.3,102 115,102 C 111.7,102 109,99.8 109,97 C 109,94.2 111.7,92 115,92 Z'
+
 const BROW_PATHS = {
   normal: {
     left:  'M 92 64 Q 100 59 108 62',
@@ -182,6 +186,7 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust', state: controlledSta
   const legRefs      = useRef({ leftUpper: null, leftLower: null, rightUpper: null, rightLower: null })
   const bodyGroupRef = useRef(null)
   const browRefs     = useRef({ left: null, right: null })
+  const mouthRef     = useRef(null)
 
   const springRef = useRef({
     left:  { pos: [60, 174],  vel: [0, 0] },
@@ -201,6 +206,36 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust', state: controlledSta
     browRefs.current.left?.setAttribute('d', paths.left)
     browRefs.current.right?.setAttribute('d', paths.right)
   }, [state])
+
+  useEffect(() => {
+    let cancelled = false
+    const ids = []
+    function after(ms, fn) { ids.push(setTimeout(() => { if (!cancelled) fn() }, ms)) }
+    function scheduleO() {
+      after(12000 + Math.random() * 15000, () => {
+        const el = mouthRef.current
+        if (el) {
+          el.setAttribute('d', MOUTH_O)
+          el.setAttribute('fill', '#1f2937')
+          el.setAttribute('stroke', 'none')
+          el.setAttribute('stroke-width', '0')
+        }
+        after(500 + Math.random() * 400, () => {
+          const el = mouthRef.current
+          if (el) {
+            el.setAttribute('d', MOUTH_SMILE)
+            el.setAttribute('fill', 'none')
+            el.setAttribute('stroke', '#1f2937')
+            el.setAttribute('stroke-width', '2.5')
+          }
+          scheduleO()
+        })
+      })
+    }
+    // Random initial offset so multiple avatars on one page don't sync up
+    after(Math.random() * 8000, scheduleO)
+    return () => { cancelled = true; ids.forEach(clearTimeout) }
+  }, [])
 
   useEffect(() => {
     function tick(ts) {
@@ -372,7 +407,7 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust', state: controlledSta
           <circle cx="100" cy="70" r="3.5" />
           <circle cx="130" cy="70" r="3.5" />
         </g>
-        <path d="M 105 95 Q 115 100 125 95" stroke="#1f2937" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+        <path ref={mouthRef} d={MOUTH_SMILE} stroke="#1f2937" strokeWidth="2.5" fill="none" strokeLinecap="round" />
 
         {/* Hair -- hair colour recolouring */}
         {renderShapes(assets.hair, 'hair', hairColor)}
