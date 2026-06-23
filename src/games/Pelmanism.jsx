@@ -23,8 +23,7 @@ const LEVELS = [
 // must be kept in sync by hand if these are retuned.
 const TIME_PENALTY_TIERS = [
   { maxSeconds: 20, pct: 0 },
-  { maxSeconds: 30, pct: 0.10 },
-  { maxSeconds: 45, pct: 0.25 },
+  { maxSeconds: 40, pct: 0.25 },
   { maxSeconds: 60, pct: 0.50 },
 ]
 
