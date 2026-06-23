@@ -75,8 +75,10 @@ const POSE_TARGETS = {
     right: { hand: [140, 174], pole: [160, 141] },
   },
   hips: {
-    left:  { hand: [84, 144],  pole: [48, 136] },
-    right: { hand: [116, 144], pole: [152, 136] },
+    // Hands at the sides of the waist (x=58/142), just above the shirt hem
+    // (y=158). Poles pushed wide so elbows flare outward (akimbo).
+    left:  { hand: [58, 158],  pole: [28, 136] },
+    right: { hand: [142, 158], pole: [172, 136] },
   },
   wave: {
     left:  { hand: [60, 174],  pole: [40, 141] },
@@ -101,6 +103,11 @@ function springStep(pos, vel, target, k, d, dt) {
 
 const SPRING_K = 240
 const SPRING_D = 22
+
+// Celebrate jump: sin arch gives 0.4s airborne, 0.4s on the floor per hop.
+// tSince (not global t) so the first hop always leaves from the floor.
+const JUMP_HEIGHT = 22  // SVG units
+const JUMP_FREQ   = Math.PI / 0.4  // ≈7.85 rad/s → 0.8 s period
 
 // --- Auto-gesture system (unchanged) ---
 
@@ -148,9 +155,10 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust', state: controlledSta
   const autoState = useAutoState(!!controlledState)
   const state = controlledState ?? autoState
 
-  // Refs for direct SVG line mutation -- avoids 60fps React re-renders,
+  // Refs for direct SVG mutation -- avoids 60fps React re-renders,
   // same pattern as FloatingLogos.
-  const lineRefs = useRef({ leftUpper: null, leftLower: null, rightUpper: null, rightLower: null })
+  const lineRefs     = useRef({ leftUpper: null, leftLower: null, rightUpper: null, rightLower: null })
+  const bodyGroupRef = useRef(null)
 
   // Spring simulation state lives in a ref (not React state) so the RAF
   // loop can update it without triggering re-renders. Initialised at idle
@@ -159,10 +167,12 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust', state: controlledSta
     left:  { pos: [60, 174],  vel: [0, 0] },
     right: { pos: [140, 174], vel: [0, 0] },
   })
-  const stateRef  = useRef(state)
-  const lastTsRef = useRef(null)
-  const timeRef   = useRef(0)
-  const rafRef    = useRef(null)
+  const stateRef          = useRef(state)
+  const prevPoseRef       = useRef(state)
+  const celebrateStartRef = useRef(0)
+  const lastTsRef         = useRef(null)
+  const timeRef           = useRef(0)
+  const rafRef            = useRef(null)
 
   // Keep stateRef current without restarting the RAF loop.
   useEffect(() => { stateRef.current = state }, [state])
@@ -176,9 +186,26 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust', state: controlledSta
       lastTsRef.current = ts
       timeRef.current += dt
 
-      const pose  = stateRef.current
-      const base  = POSE_TARGETS[pose] ?? POSE_TARGETS.idle
-      const t     = timeRef.current
+      const pose = stateRef.current
+      const base = POSE_TARGETS[pose] ?? POSE_TARGETS.idle
+      const t    = timeRef.current
+
+      // Detect pose transitions to reset phase-sensitive animations.
+      if (pose !== prevPoseRef.current) {
+        if (pose === 'celebrate') celebrateStartRef.current = t
+        prevPoseRef.current = pose
+      }
+
+      // Celebrate jump: whole body translates on a sin arch.
+      // max(0, sin) gives a smooth rise-and-fall with a flat floor pause
+      // between hops. tSince resets on entry so the first hop always
+      // leaves from the floor (no mid-air snap on pose change).
+      let bodyY = 0
+      if (pose === 'celebrate') {
+        const tSince = t - celebrateStartRef.current
+        bodyY = -JUMP_HEIGHT * Math.max(0, Math.sin(tSince * JUMP_FREQ))
+      }
+      bodyGroupRef.current?.setAttribute('transform', `translate(0,${bodyY.toFixed(2)})`)
 
       for (const side of ['left', 'right']) {
         const shoulder = SHOULDERS[side]
@@ -249,50 +276,55 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust', state: controlledSta
     : { width: size, height: size * aspect }
 
   return (
-    <svg className="avatar-display" style={style} viewBox="0 0 200 300">
-      {/* Legs -- procedural. Hip pivot at y=165; legs paint before clothing
-          so the shirt hem overlaps them correctly. */}
-      <g {...LIMB_STYLE}>
-        <line x1="70" y1="165" x2="68.125" y2="204.375" />
-        <line x1="130" y1="165" x2="131.875" y2="204.375" />
+    // overflow="visible" lets the jump carry the avatar slightly above the
+    // SVG's own layout box without clipping the top of the hair.
+    <svg className="avatar-display" style={style} viewBox="0 0 200 300" overflow="visible">
+      {/* Single group so bodyY translate moves everything together. */}
+      <g ref={bodyGroupRef}>
+        {/* Legs -- procedural. Hip pivot at y=165; legs paint before clothing
+            so the shirt hem overlaps them correctly. */}
+        <g {...LIMB_STYLE}>
+          <line x1="70" y1="165" x2="68.125" y2="204.375" />
+          <line x1="130" y1="165" x2="131.875" y2="204.375" />
+        </g>
+
+        {/* Clothing -- also serves as the torso visual, no recolouring */}
+        {renderShapes(assets.clothing, 'clothing', null)}
+
+        {/* Head -- skin tone recolouring */}
+        {renderShapes(assets.face, 'face', skinColor)}
+
+        {/* Eyebrows -- procedural, hair colour */}
+        <g stroke={hairColor} strokeWidth="3" fill="none" strokeLinecap="round">
+          <path d="M 92 64 Q 100 59 108 62" />
+          <path d="M 122 62 Q 130 59 138 64" />
+        </g>
+
+        {/* Eyes + mouth -- procedural, neutral expression. Shifted right of
+            the head's centreline to sell "facing screen-right". Eyes blink
+            periodically via .avatar-eyes CSS animation in App.css. */}
+        <g className="avatar-eyes" fill="#1f2937" style={{ animationDelay: `${blinkDelay}s` }}>
+          <circle cx="100" cy="70" r="3.5" />
+          <circle cx="130" cy="70" r="3.5" />
+        </g>
+        <path d="M 105 95 Q 115 100 125 95" stroke="#1f2937" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+
+        {/* Hair -- hair colour recolouring */}
+        {renderShapes(assets.hair, 'hair', hairColor)}
+
+        {/* Arms -- IK-driven. Four line elements mutated directly by the RAF
+            loop above; painted after head/hair so a raised arm (wave/celebrate)
+            draws in front of the head rather than behind it. */}
+        <g {...LIMB_STYLE}>
+          <line ref={el => { lineRefs.current.leftUpper  = el }} />
+          <line ref={el => { lineRefs.current.leftLower  = el }} />
+          <line ref={el => { lineRefs.current.rightUpper = el }} />
+          <line ref={el => { lineRefs.current.rightLower = el }} />
+        </g>
+
+        {/* Hat -- topmost, no recolouring */}
+        {renderShapes(assets.hat, 'hat', null)}
       </g>
-
-      {/* Clothing -- also serves as the torso visual, no recolouring */}
-      {renderShapes(assets.clothing, 'clothing', null)}
-
-      {/* Head -- skin tone recolouring */}
-      {renderShapes(assets.face, 'face', skinColor)}
-
-      {/* Eyebrows -- procedural, hair colour */}
-      <g stroke={hairColor} strokeWidth="3" fill="none" strokeLinecap="round">
-        <path d="M 92 64 Q 100 59 108 62" />
-        <path d="M 122 62 Q 130 59 138 64" />
-      </g>
-
-      {/* Eyes + mouth -- procedural, neutral expression. Shifted right of
-          the head's centreline to sell "facing screen-right". Eyes blink
-          periodically via .avatar-eyes CSS animation in App.css. */}
-      <g className="avatar-eyes" fill="#1f2937" style={{ animationDelay: `${blinkDelay}s` }}>
-        <circle cx="100" cy="70" r="3.5" />
-        <circle cx="130" cy="70" r="3.5" />
-      </g>
-      <path d="M 105 95 Q 115 100 125 95" stroke="#1f2937" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-
-      {/* Hair -- hair colour recolouring */}
-      {renderShapes(assets.hair, 'hair', hairColor)}
-
-      {/* Arms -- IK-driven. Four line elements mutated directly by the RAF
-          loop above; painted after head/hair so a raised arm (wave/celebrate)
-          draws in front of the head rather than behind it. */}
-      <g {...LIMB_STYLE}>
-        <line ref={el => { lineRefs.current.leftUpper  = el }} />
-        <line ref={el => { lineRefs.current.leftLower  = el }} />
-        <line ref={el => { lineRefs.current.rightUpper = el }} />
-        <line ref={el => { lineRefs.current.rightLower = el }} />
-      </g>
-
-      {/* Hat -- topmost, no recolouring */}
-      {renderShapes(assets.hat, 'hat', null)}
     </svg>
   )
 }
