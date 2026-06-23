@@ -93,7 +93,7 @@ const POSE_TARGETS = {
   },
   wave: {
     left:  { hand: [60, 174],  pole: [40, 141] },
-    right: { hand: [148, 46],  pole: [172, 82] },
+    right: { hand: [152, 55],  pole: [175, 82] },
   },
   celebrate: {
     left:  { hand: [52, 50],   pole: [30, 88] },
@@ -286,8 +286,8 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust', state: controlledSta
         }
         if (pose === 'wave' && side === 'right') {
           const w = Math.sin(t * 21)
-          target[0] += 20 * w                   // wider horizontal sweep
-          target[1] -= 6 * Math.abs(w)          // lifts at the extremes, arcs the path
+          target[0] += 14 * w                   // horizontal sweep
+          target[1] -= 5 * Math.abs(w)          // lifts at the extremes, arcs the path
         }
         if (pose === 'wave' && side === 'left') {
           target[0] -= 9 * Math.sin(t * 2.5)   // slow weight-shift sway
