@@ -88,8 +88,8 @@ const POSE_TARGETS = {
     right: { hand: [140, 174], pole: [160, 141] },
   },
   hips: {
-    left:  { hand: [58, 158],  pole: [28, 136] },
-    right: { hand: [142, 158], pole: [172, 136] },
+    left:  { hand: [68, 165],  pole: [28, 130] },
+    right: { hand: [132, 165], pole: [172, 130] },
   },
   wave: {
     left:  { hand: [60, 174],  pole: [40, 141] },
@@ -337,10 +337,10 @@ function AvatarDisplay({ avatar, size = 140, crop = 'bust', state: controlledSta
         {/* Head -- skin tone recolouring */}
         {renderShapes(assets.face, 'face', skinColor)}
 
-        {/* Eyebrows -- procedural, hair colour */}
-        <g stroke={hairColor} strokeWidth="3" fill="none" strokeLinecap="round">
-          <path d="M 92 64 Q 100 59 108 62" />
-          <path d="M 122 62 Q 130 59 138 64" />
+        {/* Eyebrows -- procedural, hair colour. Angled down toward nose for focused look. */}
+        <g stroke={hairColor} strokeWidth="3.5" fill="none" strokeLinecap="round">
+          <path d="M 90 59 Q 99 61 108 67" />
+          <path d="M 122 67 Q 131 61 140 59" />
         </g>
 
         {/* Eyes + mouth -- procedural. Eyes blink via .avatar-eyes in App.css. */}
