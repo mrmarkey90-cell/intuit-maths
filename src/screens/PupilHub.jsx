@@ -8,6 +8,7 @@ import PlacementTest from '../insight/PlacementTest'
 import InsightPractice from '../insight/InsightPractice'
 import GamesHub from '../games/GamesHub'
 import Pelmanism from '../games/Pelmanism'
+import WhackAMole from '../games/WhackAMole'
 import PupilVerification from '../components/PupilVerification'
 import PupilProfileCreate from './PupilProfileCreate'
 import SecurityQuestionsSetup from '../components/SecurityQuestionsSetup'
@@ -108,6 +109,12 @@ function PupilHub({ joinCode }) {
   }
 
   async function handlePelmanismComplete() {
+    const { data } = await supabase.rpc('get_pupil_history', { p_pupil_id: pupil.id })
+    if (data?.pupil) setPupil(data.pupil)
+    setView('hub')
+  }
+
+  async function handleWhackAMoleComplete() {
     const { data } = await supabase.rpc('get_pupil_history', { p_pupil_id: pupil.id })
     if (data?.pupil) setPupil(data.pupil)
     setView('hub')
@@ -216,6 +223,17 @@ function PupilHub({ joinCode }) {
     )
   }
 
+  if (view === 'whack-a-mole') {
+    return (
+      <WhackAMole
+        pupilId={pupil.id}
+        instinctLevel={pupil.instinct_level ?? 1}
+        avatar={pupil.avatar}
+        onComplete={handleWhackAMoleComplete}
+      />
+    )
+  }
+
   if (view === 'hub') {
     const instinctStreak = pupil.challenge_streak ?? 0
     const insightStreak = pupil.insight_streak ?? 0
@@ -261,12 +279,6 @@ function PupilHub({ joinCode }) {
               <StreakDots streak={insightStreak} />
             </div>
           </div>
-
-          <button className="hub-wardrobe-btn" disabled>
-            <span className="hub-wardrobe-icon">👕</span>
-            {t('pupilHub.wardrobe')}
-            <span className="hub-wardrobe-badge">{t('pupilHub.comingSoon')}</span>
-          </button>
 
           <button
             className="button-secondary hub-signout-btn"
@@ -319,6 +331,12 @@ function PupilHub({ joinCode }) {
               <span className="hub-area-tile-label">{t('pupilHub.practise')}</span>
             </button>
           )}
+
+          <button className="hub-area-tile hub-area-tile--wardrobe" disabled>
+            <AvatarDisplay avatar={pupil.avatar ?? DEFAULT_AVATAR} size="clamp(45px, 9vh, 65px)" />
+            <span className="hub-area-tile-label">{t('pupilHub.wardrobe')}</span>
+            <span className="hub-area-tile-badge">{t('pupilHub.comingSoon')}</span>
+          </button>
 
           <button className="hub-intoit-cta" disabled>
             <span className="hub-intoit-icon">🏰</span>

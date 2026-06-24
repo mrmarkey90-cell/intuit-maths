@@ -9,6 +9,11 @@ const GAMES = [
     name: 'Pelmanism',
     logo: Array(4).fill('/games/pelmanism/card-back.svg'),
   },
+  {
+    id: 'whack-a-mole',
+    name: 'Whack-a-Mole',
+    logo: Array(4).fill('/games/whack-a-mole/mole-alive.svg'),
+  },
 ]
 
 // Tile-select screen behind the Hub's Games tile -- currently one game,

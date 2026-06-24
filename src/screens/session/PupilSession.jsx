@@ -377,7 +377,7 @@ function PupilSession({ code }) {
 
     if (!results) return (
       <div className="screen marking-screen">
-        <AvatarDisplay avatar={pupil?.avatar ?? DEFAULT_AVATAR} size={90} />
+        <AvatarDisplay avatar={pupil?.avatar ?? DEFAULT_AVATAR} size="clamp(140px, 36vh, 250px)" />
         <div className="marking-icon">✨</div>
         <p className="tagline">{t('pupilSession.submitting')}</p>
         <HypePhrase language={language} />
@@ -400,7 +400,7 @@ function PupilSession({ code }) {
           <div className="level-up-banner">{t('pupilSession.levelUp').replace('{n}', newStage)}</div>
         )}
         <div className="results-celebration-header">
-          <AvatarDisplay avatar={pupil?.avatar ?? DEFAULT_AVATAR} size={72} state="celebrate" />
+          <AvatarDisplay avatar={pupil?.avatar ?? DEFAULT_AVATAR} size="clamp(120px, 26vh, 180px)" state="celebrate" />
           <h1 className="results-celebration-title">{t('pupilSession.resultsTitle')}</h1>
         </div>
         <div className="test-level-badge">{t('pupilSession.testLevelBadge').replace('{n}', displayStage)}</div>

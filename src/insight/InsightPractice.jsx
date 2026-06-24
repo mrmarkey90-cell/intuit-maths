@@ -122,6 +122,7 @@ function InsightPractice({ pupilId, insightLevel, avatar, onComplete }) {
   return (
     <div className="screen placement-test-screen">
       <div style={{ display: view === 'marking' ? 'flex' : 'none', flexDirection: 'column', alignItems: 'center' }} className="marking-screen">
+        <AvatarDisplay avatar={avatar ?? DEFAULT_AVATAR} size="clamp(140px, 36vh, 250px)" />
         <div className="marking-icon">✨</div>
         <p className="tagline">{t('insightPractice.submitting')}</p>
         <HypePhrase language={language} />
@@ -140,7 +141,7 @@ function InsightPractice({ pupilId, insightLevel, avatar, onComplete }) {
         ) : (
           <>
             <div className="results-celebration-header">
-              <AvatarDisplay avatar={avatar ?? DEFAULT_AVATAR} size={72} state="celebrate" />
+              <AvatarDisplay avatar={avatar ?? DEFAULT_AVATAR} size="clamp(120px, 26vh, 180px)" state="celebrate" />
               <h1 className="results-celebration-title">{t('insightPractice.resultsTitle')}</h1>
             </div>
             <div className="results-summary">

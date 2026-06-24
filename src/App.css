@@ -4429,3 +4429,178 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
     width: 100%;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Whack-a-Mole
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.wam-ready-screen .wam-rules-line {
+  font-size: clamp(0.85rem, 2.2vh, 1rem);
+  opacity: 0.75;
+  margin-top: -0.25rem;
+}
+
+/* Playing screen — full viewport height, no scroll */
+.wam-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: linear-gradient(to bottom, #4a8028 0%, #3a6820 100%);
+  color: white;
+  padding: clamp(4px, 1vh, 10px) clamp(6px, 1.5vw, 16px);
+  gap: clamp(4px, 0.8vh, 8px);
+  overflow: hidden;
+  user-select: none;
+}
+
+.wam-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.wam-question {
+  flex: 1;
+  font-size: clamp(1.4rem, 5vh, 3rem);
+  font-weight: 800;
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
+}
+
+.wam-timer {
+  font-size: clamp(1.1rem, 3.5vh, 2rem);
+  font-weight: 700;
+  min-width: 4ch;
+  text-align: right;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  transition: color 0.3s;
+}
+
+.wam-timer--urgent {
+  color: #ff4444;
+  animation: wam-timer-pulse 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes wam-timer-pulse {
+  from { transform: scale(1); }
+  to   { transform: scale(1.12); }
+}
+
+/* Grid wrapper centres the square grid in the remaining height */
+.wam-grid-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+.wam-grid {
+  /* Landscape grid — aspect ratio matches the mole SVG (284×203 ≈ 1.4:1)
+     so each cell is exactly the right shape for the artwork */
+  height: 100%;
+  aspect-ratio: 1.4;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: clamp(5px, 1.4vh, 14px);
+}
+
+/* Each hole — flat top, rounded bottom reads as a dirt hole */
+.wam-cell {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px 12px 45% 45% / 12px 12px 22% 22%;
+  background: radial-gradient(ellipse at 50% 55%, #1a0905 0%, #2d1408 45%, #6b3518 100%);
+  box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.6), 0 4px 8px rgba(0, 0, 0, 0.4);
+  cursor: default;
+}
+
+/* Mole container — slides up from below the cell boundary */
+.wam-mole-wrap {
+  position: absolute;
+  bottom: 0;
+  left: 0; right: 0;
+  transform: translateY(100%);
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+  cursor: pointer;
+}
+
+/* Visible: lower ~32% still underground */
+.wam-mole-wrap--visible {
+  transform: translateY(32%);
+  pointer-events: auto;
+}
+
+/* Wobble wrapper — img and sign overlay move together */
+.wam-mole-body {
+  position: relative;
+  width: 100%;
+  transform-origin: bottom center;
+}
+
+@keyframes wam-wobble {
+  0%, 100% { transform: rotate(-3deg); }
+  50%       { transform: rotate(3deg); }
+}
+
+.wam-mole-body--wobble {
+  animation: wam-wobble 0.9s ease-in-out infinite;
+}
+
+/* Answer text overlaid on the blank white sign in the SVG artwork.
+   Calibrated to mole-alive.svg (viewBox 0 0 284 203):
+   sign centre ≈ 71% / 24% of the viewBox, tilt ≈ 10° clockwise. */
+.wam-sign {
+  position: absolute;
+  left: 71%;
+  top: 24%;
+  transform: translate(-50%, -50%) rotate(10deg);
+  width: 46%;
+  font-size: clamp(0.8rem, 2.8vh, 1.6rem);
+  font-weight: 800;
+  color: #1a1a1a;
+  text-align: center;
+  line-height: 1;
+  padding: 0 3%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.wam-mole-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+@keyframes wam-squish {
+  0%   { transform: scaleY(1)    scaleX(1); }
+  35%  { transform: scaleY(0.55) scaleX(1.35); }
+  100% { transform: scaleY(0.7)  scaleX(1.2); }
+}
+
+.wam-mole-img--crushed {
+  animation: wam-squish 0.36s ease-out forwards;
+}
+
+.wam-footer {
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.wam-score-display {
+  font-size: clamp(0.9rem, 2.5vh, 1.3rem);
+  font-weight: 700;
+  opacity: 0.9;
+}
+
+/* pupil-viewport overrides — same pattern as Pelmanism/Insight Practice */
+.pupil-viewport .wam-screen {
+  height: 100dvh;
+}
+
+.pupil-viewport .results-summary .stat-number { font-size: clamp(1.6rem, 5vh, 2.8rem); }
+.pupil-viewport .results-summary .stat-label  { font-size: clamp(0.75rem, 2vh, 0.95rem); }
