@@ -4508,13 +4508,13 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   gap: clamp(5px, 1.4vh, 14px);
 }
 
-/* Each hole — oval opening in the ground */
+/* Each hole — clip-path ellipse gives a mathematically perfect oval,
+   clips child mole content at the rim, sized to fit the mole body only */
 .wam-cell {
   position: relative;
-  overflow: hidden;
-  border-radius: 50% 50% 50% 50% / 38% 38% 52% 52%;
-  background: radial-gradient(ellipse at 50% 55%, #1a0905 0%, #2d1408 45%, #6b3518 100%);
-  box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.6), 0 4px 8px rgba(0, 0, 0, 0.4);
+  clip-path: ellipse(37% 40% at 50% 56%);
+  background: radial-gradient(ellipse at 50% 58%, #1a0905 0%, #2d1408 45%, #6b3518 100%);
+  box-shadow: inset 0 6px 18px rgba(0, 0, 0, 0.75);
   cursor: default;
 }
 
