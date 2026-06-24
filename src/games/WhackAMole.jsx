@@ -309,7 +309,7 @@ function WhackAMole({ pupilId, instinctLevel, avatar, onComplete }) {
           </div>
           <div className="stat-box stat-box--large stat-box--coins">
             <div className="stat-number">🪙 +{creditsEarned}</div>
-            <div className="stat-label">Credits</div>
+            <div className="stat-label">Coins</div>
           </div>
         </div>
         <div className="results-action-btns">
@@ -351,7 +351,7 @@ function WhackAMole({ pupilId, instinctLevel, avatar, onComplete }) {
                     draggable={false}
                   />
                   <div className="wam-sign">
-                    {hole.phase !== 'empty' ? hole.answer : ''}
+                    {hole.phase === 'up' ? hole.answer : ''}
                   </div>
                 </div>
               </div>
