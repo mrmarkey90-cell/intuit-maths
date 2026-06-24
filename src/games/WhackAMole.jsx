@@ -7,8 +7,8 @@ import { generateQuestion } from '../lib/questionGenerator'
 
 const GRID_SIZE = 9
 const MAX_ACTIVE = 5       // max moles visible simultaneously
-const INITIAL_TIME = 10   // seconds
-const CORRECT_BONUS = 5   // seconds added per correct hit
+const INITIAL_TIME = 15   // seconds
+const CORRECT_BONUS = 2   // seconds added per correct hit
 const MOLE_MIN_MS = 1800
 const MOLE_MAX_MS = 3600
 const SPAWN_INTERVAL_MS = 650
@@ -277,7 +277,7 @@ function WhackAMole({ pupilId, instinctLevel, avatar, onComplete }) {
           Whack the mole with the right answer!
         </p>
         <p className="wam-rules-line">
-          Start with {INITIAL_TIME}s · +{CORRECT_BONUS}s for every correct hit
+          Start with {INITIAL_TIME}s · +{CORRECT_BONUS}s per correct hit
         </p>
         <AvatarDisplay avatar={avatar ?? DEFAULT_AVATAR} size={100} state="wave" />
         <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
@@ -292,20 +292,33 @@ function WhackAMole({ pupilId, instinctLevel, avatar, onComplete }) {
   if (view === 'results') {
     return (
       <div className="screen wam-results-screen">
-        <h1>{displayScore > 0 ? 'Nice whacking!' : 'Keep trying!'}</h1>
+        <div className="results-celebration-header">
+          <AvatarDisplay
+            avatar={avatar ?? DEFAULT_AVATAR}
+            size={72}
+            state={displayScore > 0 ? 'celebrate' : 'idle'}
+          />
+          <h1 className="results-celebration-title">
+            {displayScore > 0 ? 'Nice whacking!' : 'Keep trying!'}
+          </h1>
+        </div>
         <div className="results-summary">
-          <div className="stat-box">
-            <div className="stat-number">{displayScore}</div>
+          <div className="stat-box stat-box--large stat-box--score">
+            <div className="stat-number">🎯 {displayScore}</div>
             <div className="stat-label">Correct hits</div>
           </div>
-          <div className="stat-box">
-            <div className="stat-number">⭐ +{creditsEarned}</div>
-            <div className="stat-label">Credits earned</div>
+          <div className="stat-box stat-box--large stat-box--coins">
+            <div className="stat-number">🪙 +{creditsEarned}</div>
+            <div className="stat-label">Credits</div>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem', justifyContent: 'center' }}>
-          <button onClick={startGame}>Play again</button>
-          <button className="button-secondary" onClick={onComplete}>My Hub</button>
+        <div className="results-action-btns">
+          <button className="results-action-btn results-action-btn--secondary" onClick={startGame}>
+            Play again
+          </button>
+          <button className="results-action-btn results-action-btn--primary" onClick={onComplete}>
+            My Hub
+          </button>
         </div>
       </div>
     )
@@ -316,9 +329,6 @@ function WhackAMole({ pupilId, instinctLevel, avatar, onComplete }) {
     <div className="wam-screen">
       <div className="wam-header">
         <div className="wam-question">{questionRef.current?.question ?? ''}</div>
-        <div className={`wam-timer ${displayTime <= 5 ? 'wam-timer--urgent' : ''}`}>
-          ⏱ {displayTime}s
-        </div>
       </div>
 
       <div className="wam-grid-wrapper">
@@ -351,6 +361,9 @@ function WhackAMole({ pupilId, instinctLevel, avatar, onComplete }) {
       </div>
 
       <div className="wam-footer">
+        <div className={`wam-timer ${displayTime <= 5 ? 'wam-timer--urgent' : ''}`}>
+          ⏱ {displayTime}s
+        </div>
         <span className="wam-score-display">✓ {displayScore}</span>
       </div>
     </div>
