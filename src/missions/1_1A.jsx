@@ -15,7 +15,7 @@ const ALL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 function Progress({ step }) {
   return (
     <div className="mission-progress">
-      <div className="mission-progress-fill" style={{ width: `${(step / 6) * 100}%` }} />
+      <div className="mission-progress-fill" style={{ width: `${(step / 5) * 100}%` }} />
     </div>
   )
 }
@@ -357,58 +357,7 @@ function S4FillGap({ onNext }) {
   )
 }
 
-// ── Screen 5: Before / After ──────────────────────────────────────────────────
-
-function makeRound() {
-  const n = rnd(2, 9)
-  const before = Math.random() < 0.5
-  const correct = before ? n - 1 : n + 1
-  const pool = ALL.filter(v => v !== correct && v !== n)
-  return { n, before, correct, opts: shuffle([correct, ...shuffle(pool).slice(0, 2)]) }
-}
-
-function S5BeforeAfter({ onNext }) {
-  const rounds = useMemo(() => Array.from({ length: 4 }, makeRound), [])
-  const [idx, setIdx] = useState(0)
-  const [chosen, setChosen] = useState(null)
-  const round = rounds[idx]
-
-  function pick(n) {
-    if (chosen !== null) return
-    setChosen(n)
-    setTimeout(() => {
-      setChosen(null)
-      if (n === round.correct) {
-        if (idx + 1 >= rounds.length) onNext()
-        else setIdx(i => i + 1)
-      }
-      // wrong: retry same round
-    }, 700)
-  }
-
-  return (
-    <div className="mission-screen">
-      <Progress step={5} />
-      <div className="mission-ba-number">{round.n}</div>
-      <div className="mission-subtitle">What comes just {round.before ? 'before' : 'after'}?</div>
-      <div className="mission-ba-opts">
-        {round.opts.map(opt => (
-          <button
-            key={opt}
-            className={`mission-ba-btn${chosen != null ? opt === round.correct ? ' mission-ba-btn--correct' : opt === chosen ? ' mission-ba-btn--wrong' : '' : ''}`}
-            onClick={() => pick(opt)}
-            disabled={chosen !== null}
-          >
-            {opt}
-          </button>
-        ))}
-      </div>
-      <RoundDots total={rounds.length} current={idx} />
-    </div>
-  )
-}
-
-// ── Screen 6: Find X on the line ──────────────────────────────────────────────
+// ── Screen 5: Find X on the line ─────────────────────────────────────────────
 
 function S6FindX({ onFinish }) {
   const targets = useMemo(() => shuffle(ALL).slice(0, 3), [])
@@ -426,7 +375,7 @@ function S6FindX({ onFinish }) {
 
   return (
     <div className="mission-screen">
-      <Progress step={6} />
+      <Progress step={5} />
       <div className="mission-title">Find <strong>{target}</strong></div>
       <NumberLine value={val} onChange={setVal} correct={isCorrect} />
       <button className="mission-next-btn" onClick={advance} disabled={!isCorrect}>
@@ -456,14 +405,13 @@ export default function Mission1_1A({ pupilId, onComplete }) {
 
   async function finish() {
     await supabase.rpc('complete_mission', { p_pupil_id: pupilId, p_special_mission: '1_1A' })
-    setStep(6)
+    setStep(5)
   }
 
   if (step === 0) return <S1Bigger onNext={() => setStep(1)} />
   if (step === 1) return <S2CountPlace onNext={() => setStep(2)} />
   if (step === 2) return <S3Sort onNext={() => setStep(3)} />
   if (step === 3) return <S4FillGap onNext={() => setStep(4)} />
-  if (step === 4) return <S5BeforeAfter onNext={() => setStep(5)} />
-  if (step === 5) return <S6FindX onFinish={finish} />
+  if (step === 4) return <S6FindX onFinish={finish} />
   return <Complete onDone={onComplete} />
 }
