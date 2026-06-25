@@ -251,6 +251,22 @@ export const translations = {
     'pupilHub.practiceChoiceInstinct': 'Instinct',
     'pupilHub.practiceChoiceInsight': 'Insight',
 
+    'pupilHub.insightGateTitle': 'Time for Insight!',
+    'pupilHub.insightGateSub': "This week's test is ready for you",
+
+    'insightGraded.loading': 'Loading...',
+    'insightGraded.tapToSubmit': 'Tap ✓ to submit — {answered}/{total} answered',
+    'insightGraded.submitting': 'Marking your answers...',
+    'insightGraded.resultsTitle': 'Insight Complete!',
+    'insightGraded.correctLabel': 'Correct',
+    'insightGraded.check': 'Check',
+    'insightGraded.backToResults': '← Back to results',
+    'insightGraded.levelUpMsg': "You've moved to Level {level}! 🎉",
+    'insightGraded.streakLabel': 'Towards next level',
+    'insightGraded.levelDownPrompt': 'Would you like to try Level {level}?',
+    'insightGraded.levelDownYes': 'Drop to Level {level}',
+    'insightGraded.levelDownNo': 'Stay at Level {level}',
+
     'insightPractice.loading': 'Loading...',
     'insightPractice.tapToSubmit': 'Tap ✓ to submit — {answered}/{total} answered',
     'insightPractice.submitting': 'Marking your answers...',
@@ -726,6 +742,22 @@ export const translations = {
 
     'pupilHub.practiceChoiceInstinct': 'Instinct',
     'pupilHub.practiceChoiceInsight': 'Insight',
+
+    'pupilHub.insightGateTitle': 'Amser Insight!',
+    'pupilHub.insightGateSub': "Mae prawf yr wythnos yn barod i chi",
+
+    'insightGraded.loading': 'Wrth lwytho...',
+    'insightGraded.tapToSubmit': 'Tapiwch ✓ i gyflwyno — {answered}/{total} wedi ateb',
+    'insightGraded.submitting': "Wrth farcio'ch atebion...",
+    'insightGraded.resultsTitle': "Insight Wedi'i Gwblhau!",
+    'insightGraded.correctLabel': 'Cywir',
+    'insightGraded.check': 'Gwirio',
+    'insightGraded.backToResults': "← Nôl i'r canlyniadau",
+    'insightGraded.levelUpMsg': "Rydych chi wedi symud i Lefel {level}! 🎉",
+    'insightGraded.streakLabel': 'Tuag at y lefel nesaf',
+    'insightGraded.levelDownPrompt': 'Hoffech chi roi cynnig ar Lefel {level}?',
+    'insightGraded.levelDownYes': 'Gostyngiad i Lefel {level}',
+    'insightGraded.levelDownNo': 'Aros ar Lefel {level}',
 
     'insightPractice.loading': 'Wrth lwytho...',
     'insightPractice.tapToSubmit': 'Tapiwch ✓ i gyflwyno — {answered}/{total} wedi ateb',

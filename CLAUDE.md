@@ -130,6 +130,42 @@ The first real pupil-facing consumer of the Insight question engine (`src/insigh
 - Results screen and the brief pre-results wait both got a polish pass shared with Instinct's results screen — see "Results screens" below.
 - 12-question carousel mechanics (pre-generate all slots, keep every `InsightModule` mounted with `display`-toggled visibility, never unmount) are a direct port of the dev harness's `Carousel` in `InsightTest.jsx` — InsightModule only generates its random question once per mount, so unmounting to switch views would silently regenerate/lose answers.
 
+## Special Missions
+
+Targeted remediation activities, unlocked after a pupil completes a graded Insight test. The Special Missions tile on the Hub becomes active (not `disabled`) once `current_missions` is non-null.
+
+**Selection**: `submit_insight_attempt` picks the 4 subdomains from `pupil_subdomain_strength` with the lowest `strength` at the pupil's current `insight_level` that have a registered mission file (`hasMission` check). If fewer than 4 have signal (e.g. first-ever test), pads randomly from active subdomains at that level that have a registered mission. If a level has fewer than 4 missions registered, shows what's available.
+
+**Reset**: Replaced entirely each time a new graded Insight test completes — the 4 slots always reflect the most recent test's weak areas.
+
+**`current_missions` JSON structure** (stored in `pupil_profiles.current_missions`):
+```json
+[
+  { "special_mission": "2_1A", "completed": false },
+  { "special_mission": "2_3B", "completed": true },
+  { "special_mission": "2_5A", "completed": false },
+  { "special_mission": "1_7B", "completed": false }
+]
+```
+Key format is `{insight_level}_{subdomain}` — e.g. `"2_1A"` = Level 2, subdomain 1A. This matches directly to the mission file at `src/missions/2_1A.jsx`.
+
+**Mission format**: Each mission is handcrafted and varies in format, but the overall arc is: **teaching/explanation phase** (visual/demonstration) → **practice** → **short test** → **50 credits awarded** on first-time completion. Replay is allowed but never re-awards credits (`complete_mission` no-ops if already `completed: true`).
+
+**No write-back to `pupil_subdomain_strength`**: Missions are pure remediation — only graded Insight tests (`submit_insight_attempt`) write to that table.
+
+**File structure**:
+```
+src/missions/
+  index.js          ← registry: hasMission(key), loadMission(key) via dynamic import
+  1_1A.jsx
+  1_1B.jsx
+  2_1A.jsx
+  ...               ← one file per level+subdomain combo, built incrementally
+```
+The registry's `hasMission(key)` is the authoritative check used by both `submit_insight_attempt` (server-side equivalent — a hardcoded list mirrored in the RPC) and the Hub tile renderer (client-side). A subdomain that's active in `domainConfig.js` but has no mission file is simply never selected and never shown.
+
+**Hub UX**: The Special Missions tile expands in place (same pattern as Practise) to show the 4 mission slots — subdomain label, a ✓ badge if completed. Tapping a slot launches the mission component. After a mission completes (or on replay), the Hub returns to this expanded view.
+
 ## Results screens (Instinct + Insight Practice)
 
 - `HypePhrase` (`src/components/HypePhrase.jsx`) was extracted from `PupilSession.jsx` (where it's used for the begin-countdown) into a shared component, also used for a new hyped "marking your answers" wait screen (paired with a pulsing/rotating emoji icon) on both Instinct's and Insight Practice's results flows — replacing a flat "Submitting..." line.
@@ -157,7 +193,7 @@ One-time adaptive placement test (`src/insight/PlacementTest.jsx`) run immediate
 Redesigned from a single vertical card stack into a horizontal split (status panel + a 2×2 area grid), mirroring `PupilSession.jsx`'s `.question-body` split for the same reason: `.pupil-viewport` locks every child-facing route to `height: 100dvh; overflow: hidden` (no scroll to fall back on) and is landscape-only (portrait blocked by `PupilScreenGuard`), so a tall single column was the wrong direction — a wide-short viewport has width to spare, not height.
 
 - **Status panel** (left): avatar, name, Instinct/Insight level badges, credits, streak dots, sign-out.
-- **Areas panel** (right, 2×2 grid): **Special Missions** and **Games** (both fully styled/coloured but `disabled` — nothing built behind either yet); **Practise** (the only live tile — expands *in place* within its own grid cell into Instinct/Insight sub-buttons rather than navigating to a separate screen, with a small × to collapse back); **Into It!** (spans the full bottom row as a distinct gradient banner, not a 4th equal tile, since it's meant to read as its own call-to-action for the future standalone game — also `disabled`, not built).
+- **Areas panel** (right, 2×2 grid): **Special Missions** (styled, `disabled` until `current_missions` is non-null — shows up to 4 mission tiles each with a completion badge; see "Special Missions" below); **Games** (fully styled/coloured but `disabled` — nothing built behind it yet); **Practise** (the only currently live tile — expands *in place* within its own grid cell into Instinct/Insight sub-buttons rather than navigating to a separate screen, with a small × to collapse back); **Into It!** (spans the full bottom row as a distinct gradient banner, not a 4th equal tile, since it's meant to read as its own call-to-action for the future standalone game — also `disabled`, not built).
 - Locked tiles need an explicit `.your-tile-class:disabled { background: ... }` rule each — see the `button:disabled` cascade gotcha in "Known gotchas".
 - Avatar-wandering/walk-cycle animation was discussed as a future direction for this screen but explicitly deferred — not built.
 
@@ -241,7 +277,7 @@ id (uuid PK), name, school_id (FK), join_code (text, unique — auto-generated o
 - Codes issued before this format shipped remain uppercase/6-char — every lookup matches case-insensitively (`lower(x) = lower(y)`, not `upper(input) = stored`) specifically so old and new formats coexist with no backfill needed
 
 ### pupil_profiles
-id (uuid PK), user_id (FK, nullable — pupils have no auth account), class_id (FK, nullable), school_id (FK), first_name (text), last_name (text), instinct_level (int 1-6), insight_level (int 1-6), credits (int), avatar (jsonb), unlocked_items (jsonb), challenge_streak (int), bad_streak (int), insight_streak (int), insight_bad_streak (int), placement_complete (bool, default false — see "Setup Test"), security_answers (jsonb, nullable — see "Pupil identity check"; NULL means not set up yet), created_at
+id (uuid PK), user_id (FK, nullable — pupils have no auth account), class_id (FK, nullable), school_id (FK), first_name (text), last_name (text), instinct_level (int 1-6), insight_level (int 1-6), credits (int), avatar (jsonb), unlocked_items (jsonb), challenge_streak (int), bad_streak (int), insight_streak (int), insight_bad_streak (int), placement_complete (bool, default false — see "Setup Test"), security_answers (jsonb, nullable — see "Pupil identity check"; NULL means not set up yet), current_missions (jsonb, nullable — see "Special Missions"; array of `{ "special_mission": "2_1A", "completed": false }`, set by `submit_insight_attempt`, NULL until first graded Insight test), created_at
 
 ### sessions
 id (uuid PK), class_id (FK), join_code (text, unique — 5-char for `challenge_type = 'challenge'` via the shared `generate_join_code()`, 6-char alphanumeric inline for `'practice'` — see "Challenge session model"), status (lobby/active/finished), challenge_type (challenge/practice), started_at (timestamptz — set 4s in future when teacher clicks Begin; NULL until then, which is also what the weekly-limit check keys off), created_at
@@ -267,7 +303,7 @@ id (uuid PK), attempt_id (FK), domain (text), subdomain (text), correct (bool)
 pupil_id (FK), subdomain (text — e.g. `1A`, `7B`, matches the curriculum sheet codes), level (int — insight_level this was accrued at), strength (int — +1 per correct answer), attempts (int), last_attempted_at (timestamptz)
 - Unique on (pupil_id, subdomain)
 - Wiped entirely whenever the pupil's `insight_level` changes (level-up, level-down offer accepted, or teacher override)
-- Feeds future gap-fill activities on the pupil hub (not yet built)
+- Feeds Special Missions selection — the 4 weakest subdomains at the pupil's current `insight_level` (lowest `strength`) become the week's missions when a graded Insight test completes
 
 ### Key RLS notes
 - RLS enabled on all tables
@@ -316,9 +352,10 @@ pupil_id (FK), subdomain (text — e.g. `1A`, `7B`, matches the curriculum sheet
 
 #### Insight
 - `get_pupil_hub_status(pupil_id, class_id)` — anon, returns `{ insight_available }` — true once the class's weekly Instinct is done AND this pupil hasn't done a *graded* Insight test this week (not wired to any real flow yet — Insight Practice deliberately doesn't count toward this)
-- `submit_insight_attempt(pupil_id, p_modules)` — anon, `p_modules` is a jsonb array of `{ subdomain, correct }`; records the attempt, upserts `pupil_subdomain_strength` per subdomain, updates insight streak/level/credits, clears subdomain strength on level change; returns `{ credits_earned, level_up, level_down_offer, new_stage, new_streak, score, total }`. Only ever called from the dev harness today — see "Insight Practice" for the real pupil-facing equivalent.
+- `submit_insight_attempt(pupil_id, p_modules)` — anon, `p_modules` is a jsonb array of `{ subdomain, correct }`; records the attempt, upserts `pupil_subdomain_strength` per subdomain, updates insight streak/level/credits, clears subdomain strength on level change, and **sets `current_missions`** to the 4 weakest subdomains (lowest `strength` at current `insight_level` with a registered mission file; padded randomly if fewer than 4 have signal); returns `{ credits_earned, level_up, level_down_offer, new_stage, new_streak, score, total }`. Called from `InsightGraded.jsx` (real pupil-facing) and the dev harness.
 - `submit_insight_practice_attempt(pupil_id, p_modules)` — anon, credits-only (`p_score * 1`, no flat bonus): updates `pupil_profiles.credits` and nothing else — no attempts row, no domain_results, no subdomain_strength upsert, no streak/level change. Also returns `prev_score`/`prev_total` from the pupil's last *graded* (`activity_type = 'insight'`) attempt, for the results screen's comparison line.
 - `get_pupil_subdomain_strengths(pupil_id)` — anon, returns array of `{ subdomain, level, strength, attempts, last_attempted_at }`
+- `complete_mission(pupil_id, special_mission)` — anon, marks the matching entry in `current_missions` as `completed: true` and awards 50 credits; no-ops silently if already completed (so replay never re-awards coins)
 
 #### Session lifecycle
 - `get_class_session_status(class_id)` — returns `{ weekly_used, active_session }` — teacher dashboard uses this to check weekly limit and restore active sessions after page refresh. `weekly_used` requires `started_at IS NOT NULL`, not just row existence — see "Weekly limit correctness" under Challenge session model.
@@ -366,12 +403,12 @@ pupil_id (FK), subdomain (text — e.g. `1A`, `7B`, matches the curriculum sheet
 - **Pupil device chrome** (`src/components/PupilScreenGuard.jsx`) — wraps all three child-facing routes (`/join`, `/play`, `/hub`; never Staff/Leadership, since teachers use laptops): a persistent fullscreen toggle button (top right, SVG expand/compress icon, hidden entirely if `document.fullscreenEnabled` is false) and a portrait-blocking overlay (full-screen, high z-index, animated rotate-device icon + message) that appears whenever `window.innerHeight > window.innerWidth` and disappears the instant the device is rotated. Detection is plain resize/orientationchange listeners, not the Fullscreen/Screen Orientation APIs, for broad device support. Known limitation: rotating mid-Instinct-session does not pause the timer, since timing is derived from an absolute server timestamp (`sessions.started_at`), not a locally pausable countdown — the overlay just blocks interaction, it can't stop the clock.
 
 ### Not yet built
-- The *graded*, weekly-gated Insight test — real PupilHub integration, weekly gating, actual `submit_insight_attempt` calls (only the dev harness and the credits-only Insight Practice exist today — see "Insight session model"/"Insight Practice" above)
-- Special Missions and Games (Hub tiles exist, fully styled, but `disabled` — nothing built behind either)
+- The *graded*, weekly-gated Insight test — ✓ now wired: `InsightGraded.jsx` + hub gate tile + `get_pupil_hub_status` checks on every hub entry; `submit_insight_attempt` still needs the `current_missions` population logic added to the RPC (see "Special Missions")
+- **Special Missions** — design complete (see "Special Missions" above); prerequisite (graded Insight test wired to hub) is now done; mission files (`src/missions/*.jsx`) to be built incrementally per subdomain per level
+- Games (Hub tile exists, fully styled, but `disabled` — nothing built behind it)
 - Into It! — the future standalone game itself (Hub has a locked banner CTA for it; avatar system was built with this in mind, see "Avatar system (v2)")
 - Avatar-wandering/walk-cycle animation on the Hub — discussed, explicitly deferred
 - Bespoke SVG icons for the 5 pupil-identity-check categories (45 icons) — currently large emoji placeholders, see "Pupil identity check" above
-- Gap-fill activities on the pupil hub, driven by `pupil_subdomain_strength`
 - Reporting views (leadership)
 - Full hand-drawn avatar asset set (in progress — currently 1 face, 3 hairstyles, 5 of 10 planned clothing designs, 0 hats; see "Avatar system (v2)" above)
 - Procedural locomotion (walk/punch) — idle sway, hands-on-hips, waving, and celebrate (with jump, squat anticipation, and knee joints) are built (see "Avatar system (v2)" above); anything that needs forward locomotion/walking is not

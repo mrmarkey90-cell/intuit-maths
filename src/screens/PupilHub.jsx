@@ -6,6 +6,7 @@ import AvatarDisplay from '../components/AvatarDisplay'
 import { DEFAULT_AVATAR } from '../lib/avatarConfig'
 import PlacementTest from '../insight/PlacementTest'
 import InsightPractice from '../insight/InsightPractice'
+import InsightGraded from '../insight/InsightGraded'
 import GamesHub from '../games/GamesHub'
 import Pelmanism from '../games/Pelmanism'
 import WhackAMole from '../games/WhackAMole'
@@ -48,6 +49,7 @@ function PupilHub({ joinCode }) {
   const [pupil, setPupil] = useState(null)
   const [practicing, setPracticing] = useState(false)
   const [practiceExpanded, setPracticeExpanded] = useState(false)
+  const [insightAvailable, setInsightAvailable] = useState(false)
 
   useEffect(() => {
     async function init() {
@@ -63,9 +65,13 @@ function PupilHub({ joinCode }) {
       // Returning from practice in the same browser session — skip re-selection
       const storedId = sessionStorage.getItem(`hub_pupil_${joinCode}`)
       if (storedId) {
-        const { data } = await supabase.rpc('get_pupil_history', { p_pupil_id: storedId })
+        const [{ data }, { data: status }] = await Promise.all([
+          supabase.rpc('get_pupil_history', { p_pupil_id: storedId }),
+          supabase.rpc('get_pupil_hub_status', { p_pupil_id: storedId, p_class_id: info.class_id }),
+        ])
         if (data?.pupil) {
           setPupil(data.pupil)
+          setInsightAvailable(status?.insight_available ?? false)
           setView(data.pupil.placement_complete ? 'hub' : 'placement_prompt')
           return
         }
@@ -78,16 +84,24 @@ function PupilHub({ joinCode }) {
   }, [joinCode, setLanguage])
 
   async function confirmPupil(p) {
-    const { data } = await supabase.rpc('get_pupil_history', { p_pupil_id: p.id })
+    const [{ data }, { data: status }] = await Promise.all([
+      supabase.rpc('get_pupil_history', { p_pupil_id: p.id }),
+      supabase.rpc('get_pupil_hub_status', { p_pupil_id: p.id, p_class_id: classInfo.class_id }),
+    ])
     if (!data?.pupil) { setView('error'); return }
     setPupil(data.pupil)
+    setInsightAvailable(status?.insight_available ?? false)
     sessionStorage.setItem(`hub_pupil_${joinCode}`, p.id)
     setView(data.pupil.placement_complete ? 'hub' : 'placement_prompt')
   }
 
   async function handlePlacementComplete() {
-    const { data } = await supabase.rpc('get_pupil_history', { p_pupil_id: pupil.id })
+    const [{ data }, { data: status }] = await Promise.all([
+      supabase.rpc('get_pupil_history', { p_pupil_id: pupil.id }),
+      supabase.rpc('get_pupil_hub_status', { p_pupil_id: pupil.id, p_class_id: classInfo.class_id }),
+    ])
     if (data?.pupil) setPupil(data.pupil)
+    setInsightAvailable(status?.insight_available ?? false)
     setView('hub')
   }
 
@@ -105,6 +119,16 @@ function PupilHub({ joinCode }) {
     const { data } = await supabase.rpc('get_pupil_history', { p_pupil_id: pupil.id })
     if (data?.pupil) setPupil(data.pupil)
     setPracticeExpanded(false)
+    setView('hub')
+  }
+
+  async function handleInsightGradedComplete() {
+    const [{ data }, { data: status }] = await Promise.all([
+      supabase.rpc('get_pupil_history', { p_pupil_id: pupil.id }),
+      supabase.rpc('get_pupil_hub_status', { p_pupil_id: pupil.id, p_class_id: classInfo.class_id }),
+    ])
+    if (data?.pupil) setPupil(data.pupil)
+    setInsightAvailable(status?.insight_available ?? false)
     setView('hub')
   }
 
@@ -208,6 +232,17 @@ function PupilHub({ joinCode }) {
     )
   }
 
+  if (view === 'insight_graded') {
+    return (
+      <InsightGraded
+        pupilId={pupil.id}
+        insightLevel={pupil.insight_level ?? 1}
+        avatar={pupil.avatar}
+        onComplete={handleInsightGradedComplete}
+      />
+    )
+  }
+
   if (view === 'games') {
     return <GamesHub onSelect={id => setView(id)} onBack={() => setView('hub')} />
   }
@@ -292,58 +327,68 @@ function PupilHub({ joinCode }) {
           </button>
         </div>
 
-        <div className="hub-areas-panel">
-          <button className="hub-area-tile hub-area-tile--missions" disabled>
-            <span className="hub-area-tile-icon">🎯</span>
-            <span className="hub-area-tile-label">{t('pupilHub.specialMissions')}</span>
-            <RewardCoin size="large" />
-            <span className="hub-area-tile-badge">{t('pupilHub.comingSoon')}</span>
-          </button>
-
-          <button className="hub-area-tile hub-area-tile--games" onClick={() => setView('games')}>
-            <span className="hub-area-tile-icon">🎮</span>
-            <span className="hub-area-tile-label">{t('pupilHub.games')}</span>
-            <RewardCoin size="small" />
-          </button>
-
-          {practiceExpanded ? (
-            <div className="hub-area-tile hub-area-tile--practise hub-area-tile--practise-expanded">
-              <button
-                className="hub-tile-collapse-btn"
-                onClick={() => setPracticeExpanded(false)}
-                aria-label="Close"
-              >
-                ×
-              </button>
-              <button className="hub-practice-option" onClick={startPractice} disabled={practicing}>
-                {practicing ? t('pupilHub.startingPractice') : t('pupilHub.practiceChoiceInstinct')}
-              </button>
-              <button className="hub-practice-option" onClick={() => setView('insight_practice')}>
-                {t('pupilHub.practiceChoiceInsight')}
-              </button>
-            </div>
-          ) : (
-            <button
-              className="hub-area-tile hub-area-tile--practise"
-              onClick={() => setPracticeExpanded(true)}
-            >
-              <span className="hub-area-tile-icon">⚡</span>
-              <span className="hub-area-tile-label">{t('pupilHub.practise')}</span>
+        {insightAvailable ? (
+          <div className="hub-areas-panel hub-areas-panel--insight-gate">
+            <button className="hub-insight-gate-tile" onClick={() => setView('insight_graded')}>
+              <span className="hub-insight-gate-icon">🔬</span>
+              <span className="hub-insight-gate-title">{t('pupilHub.insightGateTitle')}</span>
+              <span className="hub-insight-gate-sub">{t('pupilHub.insightGateSub')}</span>
             </button>
-          )}
+          </div>
+        ) : (
+          <div className="hub-areas-panel">
+            <button className="hub-area-tile hub-area-tile--missions" disabled>
+              <span className="hub-area-tile-icon">🎯</span>
+              <span className="hub-area-tile-label">{t('pupilHub.specialMissions')}</span>
+              <RewardCoin size="large" />
+              <span className="hub-area-tile-badge">{t('pupilHub.comingSoon')}</span>
+            </button>
 
-          <button className="hub-area-tile hub-area-tile--wardrobe" disabled>
-            <AvatarDisplay avatar={pupil.avatar ?? DEFAULT_AVATAR} size="clamp(45px, 9vh, 65px)" />
-            <span className="hub-area-tile-label">{t('pupilHub.wardrobe')}</span>
-            <span className="hub-area-tile-badge">{t('pupilHub.comingSoon')}</span>
-          </button>
+            <button className="hub-area-tile hub-area-tile--games" onClick={() => setView('games')}>
+              <span className="hub-area-tile-icon">🎮</span>
+              <span className="hub-area-tile-label">{t('pupilHub.games')}</span>
+              <RewardCoin size="small" />
+            </button>
 
-          <button className="hub-intoit-cta" disabled>
-            <span className="hub-intoit-icon">🏰</span>
-            <span className="hub-intoit-label">{t('pupilHub.intoIt')}</span>
-            <span className="hub-intoit-badge">{t('pupilHub.comingSoon')}</span>
-          </button>
-        </div>
+            {practiceExpanded ? (
+              <div className="hub-area-tile hub-area-tile--practise hub-area-tile--practise-expanded">
+                <button
+                  className="hub-tile-collapse-btn"
+                  onClick={() => setPracticeExpanded(false)}
+                  aria-label="Close"
+                >
+                  ×
+                </button>
+                <button className="hub-practice-option" onClick={startPractice} disabled={practicing}>
+                  {practicing ? t('pupilHub.startingPractice') : t('pupilHub.practiceChoiceInstinct')}
+                </button>
+                <button className="hub-practice-option" onClick={() => setView('insight_practice')}>
+                  {t('pupilHub.practiceChoiceInsight')}
+                </button>
+              </div>
+            ) : (
+              <button
+                className="hub-area-tile hub-area-tile--practise"
+                onClick={() => setPracticeExpanded(true)}
+              >
+                <span className="hub-area-tile-icon">⚡</span>
+                <span className="hub-area-tile-label">{t('pupilHub.practise')}</span>
+              </button>
+            )}
+
+            <button className="hub-area-tile hub-area-tile--wardrobe" disabled>
+              <AvatarDisplay avatar={pupil.avatar ?? DEFAULT_AVATAR} size="clamp(45px, 9vh, 65px)" />
+              <span className="hub-area-tile-label">{t('pupilHub.wardrobe')}</span>
+              <span className="hub-area-tile-badge">{t('pupilHub.comingSoon')}</span>
+            </button>
+
+            <button className="hub-intoit-cta" disabled>
+              <span className="hub-intoit-icon">🏰</span>
+              <span className="hub-intoit-label">{t('pupilHub.intoIt')}</span>
+              <span className="hub-intoit-badge">{t('pupilHub.comingSoon')}</span>
+            </button>
+          </div>
+        )}
       </div>
     )
   }

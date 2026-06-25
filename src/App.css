@@ -2448,6 +2448,67 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   cursor: not-allowed;
 }
 
+/* When the weekly Insight test is available, the areas panel shows a
+   single full-size gate tile instead of the normal 2x2 grid. */
+.hub-areas-panel--insight-gate {
+  display: flex;
+  align-items: stretch;
+}
+
+.hub-insight-gate-tile {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.5rem, 1.8vh, 1rem);
+  border: none;
+  border-radius: clamp(14px, 2vw, 20px);
+  cursor: pointer;
+  color: white;
+  font-weight: 700;
+  background: linear-gradient(135deg, #0891b2 0%, #4f46e5 50%, #7c3aed 100%);
+  background-size: 200% 200%;
+  animation: insight-gate-shimmer 4s ease-in-out infinite;
+  box-shadow: 0 6px 28px rgba(124, 58, 237, 0.45);
+  transition: transform 0.15s, box-shadow 0.15s;
+  padding: 1.5rem;
+}
+.hub-insight-gate-tile:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 36px rgba(124, 58, 237, 0.55);
+}
+.hub-insight-gate-tile:active { transform: translateY(0); }
+
+@keyframes insight-gate-shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.hub-insight-gate-icon {
+  font-size: clamp(3rem, 10vh, 5.5rem);
+  animation: insight-gate-bounce 2.2s ease-in-out infinite;
+  display: block;
+}
+
+@keyframes insight-gate-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.hub-insight-gate-title {
+  font-size: clamp(1.3rem, 4vh, 2.2rem);
+  font-weight: 800;
+  text-align: center;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.hub-insight-gate-sub {
+  font-size: clamp(0.75rem, 2.2vh, 1rem);
+  opacity: 0.88;
+  text-align: center;
+}
+
 /* ─── Games hub (tile-select screen behind the Hub's Games tile) ── */
 
 .games-hub-grid {
