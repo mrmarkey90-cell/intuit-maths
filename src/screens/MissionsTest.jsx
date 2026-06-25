@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { listMissions, loadMission } from '../missions/index'
+import { useTranslation } from '../i18n/LanguageContext'
 
 // Dev harness for testing special missions at /missions-test.
 // Launches any registered mission in a simulated pupil-viewport environment.
@@ -19,6 +20,7 @@ const inputStyle = {
 }
 
 export default function MissionsTest() {
+  const { language, setLanguage } = useTranslation()
   const [selectedKey, setSelectedKey] = useState(MISSIONS[0] ?? '')
   const [pupilId, setPupilId] = useState('')
   const [MissionComp, setMissionComp] = useState(null)
@@ -60,9 +62,29 @@ export default function MissionsTest() {
 
   return (
     <div style={{ padding: '2rem', maxWidth: 560, margin: '0 auto', fontFamily: 'system-ui, sans-serif' }}>
-      <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>Mission Test Harness</h1>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: '1rem', marginBottom: 4 }}>
+        <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0 }}>Mission Test Harness</h1>
+        <div style={{ display: 'flex', gap: 4 }}>
+          {['en', 'cy'].map(lang => (
+            <button
+              key={lang}
+              onClick={() => setLanguage(lang)}
+              style={{
+                padding: '3px 10px', borderRadius: 6, border: '1.5px solid',
+                fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                borderColor: language === lang ? '#4f46e5' : '#d1d5db',
+                background: language === lang ? '#eef2ff' : '#fff',
+                color: language === lang ? '#4f46e5' : '#6b7280',
+              }}
+            >
+              {lang === 'en' ? 'EN' : 'CY'}
+            </button>
+          ))}
+        </div>
+      </div>
       <p style={{ color: '#6b7280', fontSize: 14, marginBottom: '1.75rem' }}>
         Runs any registered mission in a full-screen simulated pupil environment.
+        {language === 'cy' && <span style={{ color: '#d97706', fontWeight: 600 }}> Welsh not yet implemented in mission text.</span>}
       </p>
 
       {lastResult === 'completed' && (

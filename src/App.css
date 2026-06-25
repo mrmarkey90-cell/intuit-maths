@@ -4694,7 +4694,11 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   padding: clamp(10px, 2vh, 20px) clamp(16px, 3vw, 32px);
   gap: clamp(8px, 1.6vh, 18px);
   overflow: hidden;
-  background: #fff;
+  background-color: #fff;
+  background-image:
+    linear-gradient(rgba(147, 197, 253, 0.35) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(147, 197, 253, 0.35) 1px, transparent 1px);
+  background-size: 22px 22px;
 }
 
 .mission-progress {
@@ -4975,7 +4979,31 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   80%       { transform: translateX(3px); }
 }
 
-/* ── Screen 5: Before / After ────────────────────────────────────────────── */
+/* Gap label on the number line (screen 4) */
+.mission-gap-line-label {
+  background: #fffbeb;
+  border: 2px dashed #f59e0b;
+  border-radius: 6px;
+  padding: 1px 5px;
+  font-weight: 800;
+  color: #92400e;
+  white-space: nowrap;
+}
+
+.mission-gap-line-label--correct {
+  background: #dcfce7;
+  border: 2px solid #16a34a;
+  color: #15803d;
+}
+
+.mission-gap-line-label--wrong {
+  background: #fee2e2;
+  border: 2px solid #dc2626;
+  color: #b91c1c;
+  animation: mission-shake 0.4s ease;
+}
+
+/* ── Screen 5: Before / After (dead CSS – screen removed, retained) ──────── */
 
 .mission-ba-number {
   font-size: clamp(44px, 11vw, 76px);

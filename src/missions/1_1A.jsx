@@ -33,9 +33,10 @@ function RoundDots({ total, current }) {
   )
 }
 
-// Full 1-10 number line with draggable ▼ handle (all ticks labelled).
+// Full 1-10 number line with draggable ▼ handle.
+// endLabelsOnly: only show tick labels at 1 and 10; all other ticks are bare.
 // onCommit fires on pointer release with the snapped value.
-function NumberLine({ value, onChange, onCommit, correct = false, locked = false }) {
+function NumberLine({ value, onChange, onCommit, correct = false, locked = false, endLabelsOnly = false }) {
   const ref = useRef()
   const [dragging, setDragging] = useState(false)
 
@@ -78,7 +79,9 @@ function NumberLine({ value, onChange, onCommit, correct = false, locked = false
         {ALL.map(v => (
           <div key={v} className="insight-numberline-notch" style={{ left: `${pct(v)}%` }}>
             <span className="insight-numberline-mark" />
-            <span className="insight-numberline-label">{v}</span>
+            {(!endLabelsOnly || v === 1 || v === 10) && (
+              <span className="insight-numberline-label">{v}</span>
+            )}
           </div>
         ))}
         <div
@@ -174,7 +177,7 @@ function S2CountPlace({ onNext }) {
   return (
     <div className="mission-screen">
       <Progress step={2} />
-      <div className="mission-subtitle">Count the dots — find that number on the line</div>
+      <div className="mission-subtitle">How many?</div>
       <div className="mission-dots">
         {Array.from({ length: target }, (_, i) => <span key={i} className="mission-dot" />)}
       </div>
@@ -250,7 +253,7 @@ function S3Sort({ onNext }) {
     return (
       <div className="mission-screen">
         <Progress step={3} />
-        <div className="mission-subtitle">{phase === 'show' ? 'Remember the order!' : ''}</div>
+        <div className="mission-subtitle" />
         <div className="mission-sort-show">
           {ALL.map((n, i) => (
             <div
@@ -269,7 +272,7 @@ function S3Sort({ onNext }) {
   return (
     <div className="mission-screen">
       <Progress step={3} />
-      <div className="mission-subtitle">Put them back in order (1 → 10)</div>
+      <div className="mission-subtitle">Put them back!</div>
       <div className="mission-sort-slots">
         {Array.from({ length: 10 }, (_, i) => (
           <div
@@ -309,6 +312,30 @@ function S3Sort({ onNext }) {
   )
 }
 
+// ── GapLine: number line with the gap position shown as "?" ──────────────────
+
+function GapLine({ gap, attempt }) {
+  return (
+    <div className="mission-nl-wrap">
+      <div className="insight-numberline-rule mission-nl-rule">
+        <div className="insight-numberline-line" />
+        {ALL.map(v => (
+          <div key={v} className="insight-numberline-notch" style={{ left: `${pct(v)}%` }}>
+            <span className="insight-numberline-mark" />
+            {v === gap ? (
+              <span className={`insight-numberline-label mission-gap-line-label${attempt?.ok ? ' mission-gap-line-label--correct' : attempt ? ' mission-gap-line-label--wrong' : ''}`}>
+                {attempt ? attempt.value : '?'}
+              </span>
+            ) : (
+              <span className="insight-numberline-label">{v}</span>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // ── Screen 4: Fill the Gap ────────────────────────────────────────────────────
 
 function S4FillGap({ onNext }) {
@@ -336,17 +363,7 @@ function S4FillGap({ onNext }) {
     <div className="mission-screen">
       <Progress step={4} />
       <div className="mission-subtitle">What number is missing?</div>
-      <div className="mission-gap-row">
-        {ALL.map(n => {
-          const isGap = n === gap
-          const cls = `mission-gap-box${isGap ? ' mission-gap-box--gap' : ''}${isGap && attempt?.ok ? ' mission-gap-box--correct' : ''}${isGap && attempt && !attempt.ok ? ' mission-gap-box--wrong' : ''}`
-          return (
-            <div key={n} className={cls}>
-              {isGap ? (attempt ? attempt.value : '?') : n}
-            </div>
-          )
-        })}
-      </div>
+      <GapLine gap={gap} attempt={attempt} />
       <NumberPad
         key={`${idx}-${String(attempt?.ok ?? '')}`}
         onSubmit={submit}
@@ -360,7 +377,7 @@ function S4FillGap({ onNext }) {
 // ── Screen 5: Find X on the line ─────────────────────────────────────────────
 
 function S6FindX({ onFinish }) {
-  const targets = useMemo(() => shuffle(ALL).slice(0, 3), [])
+  const targets = useMemo(() => shuffle([2, 3, 4, 5, 6, 7, 8, 9]).slice(0, 3), [])
   const [idx, setIdx] = useState(0)
   const [val, setVal] = useState(1)
   const target = targets[idx]
@@ -377,7 +394,7 @@ function S6FindX({ onFinish }) {
     <div className="mission-screen">
       <Progress step={5} />
       <div className="mission-title">Find <strong>{target}</strong></div>
-      <NumberLine value={val} onChange={setVal} correct={isCorrect} />
+      <NumberLine value={val} onChange={setVal} correct={isCorrect} endLabelsOnly />
       <button className="mission-next-btn" onClick={advance} disabled={!isCorrect}>
         {isLast ? '🎯 Finish!' : 'Next →'}
       </button>
