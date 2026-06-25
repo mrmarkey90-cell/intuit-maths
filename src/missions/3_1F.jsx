@@ -203,7 +203,9 @@ function MultiScreen({ step, findPrompt, onDone }) {
         <MultiQ key={idx} q={qs[idx]} findPrompt={findPrompt} onComplete={advance} />
         <RoundDots total={qs.length} current={idx} />
       </div>
-      <div className="mission-actions" />
+      <div className="mission-actions">
+        <button className="mission-next-btn" style={{ visibility: 'hidden' }}>_</button>
+      </div>
     </div>
   )
 }
@@ -241,8 +243,8 @@ export default function Mission3_1F({ pupilId, onComplete }) {
 
   if (step === 0) return <S1Sequence onNext={() => setStep(1)} />
   if (step === 1) return <S2Teach onNext={() => setStep(2)} />
-  if (step === 2) return <MultiScreen step={3} findPrompt={findPrompt} onDone={() => setStep(3)} />
-  if (step === 3) return <MultiScreen step={4} findPrompt={findPrompt} onDone={() => setStep(4)} />
-  if (step === 4) return <MultiScreen step={5} findPrompt={findPrompt} onDone={finish} />
+  if (step === 2) return <MultiScreen key="m3" step={3} findPrompt={findPrompt} onDone={() => setStep(3)} />
+  if (step === 3) return <MultiScreen key="m4" step={4} findPrompt={findPrompt} onDone={() => setStep(4)} />
+  if (step === 4) return <MultiScreen key="m5" step={5} findPrompt={findPrompt} onDone={finish} />
   return <Complete onDone={onComplete} />
 }

@@ -199,7 +199,9 @@ function ClassifyScreen({ step, onDone }) {
         <EvenOddBtns key={idx} n={n} onComplete={onAnswer} />
         <RoundDots total={qs.length} current={idx} />
       </div>
-      <div className="mission-actions" />
+      <div className="mission-actions">
+        <button className="mission-next-btn" style={{ visibility: 'hidden' }}>_</button>
+      </div>
     </div>
   )
 }
@@ -235,8 +237,8 @@ export default function Mission2_1E({ pupilId, onComplete }) {
 
   if (step === 0) return <S1Dots onNext={() => setStep(1)} />
   if (step === 1) return <S2Teach onNext={() => setStep(2)} />
-  if (step === 2) return <ClassifyScreen step={3} onDone={() => setStep(3)} />
-  if (step === 3) return <ClassifyScreen step={4} onDone={() => setStep(4)} />
-  if (step === 4) return <ClassifyScreen step={5} onDone={finish} />
+  if (step === 2) return <ClassifyScreen key="c3" step={3} onDone={() => setStep(3)} />
+  if (step === 3) return <ClassifyScreen key="c4" step={4} onDone={() => setStep(4)} />
+  if (step === 4) return <ClassifyScreen key="c5" step={5} onDone={finish} />
   return <Complete onDone={onComplete} />
 }
