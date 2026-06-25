@@ -148,26 +148,24 @@ function S1Bigger({ onNext }) {
     <div className="mission-screen">
       <Progress step={1} />
       <div className="mission-body">
-        {done ? (
-          <div className="mission-title">{t('mission.5_1B.greatComparing')}</div>
-        ) : (
-          <>
-            <div className="mission-title">{t('mission.1_1A.whichIsBigger')}</div>
-            <div className="mission-bigger-row">
-              {[aDisp, bDisp].map(n => (
-                <button
-                  key={n}
-                  className={`mission-bigger-btn${fb ? n === fb.biggerDisp ? ' mission-bigger-btn--correct' : n === fb.chosen ? ' mission-bigger-btn--wrong' : '' : ''}`}
-                  onClick={() => pick(n)}
-                  disabled={!!fb}
-                >
-                  {n}
-                </button>
-              ))}
-            </div>
-            <RoundDots total={rounds.length} current={idx} />
-          </>
-        )}
+        <div className="mission-title">
+          {done ? t('mission.5_1B.greatComparing') : t('mission.1_1A.whichIsBigger')}
+        </div>
+        <div className="mission-bigger-row" style={{ visibility: done ? 'hidden' : 'visible', pointerEvents: done ? 'none' : 'auto' }}>
+          {[aDisp, bDisp].map(n => (
+            <button
+              key={n}
+              className={`mission-bigger-btn${fb ? n === fb.biggerDisp ? ' mission-bigger-btn--correct' : n === fb.chosen ? ' mission-bigger-btn--wrong' : '' : ''}`}
+              onClick={() => pick(n)}
+              disabled={!!fb}
+            >
+              {n}
+            </button>
+          ))}
+        </div>
+        <div style={{ visibility: done ? 'hidden' : 'visible' }}>
+          <RoundDots total={rounds.length} current={idx} />
+        </div>
       </div>
       <div className="mission-actions">
         <button
