@@ -299,11 +299,17 @@ id (uuid PK), session_id (FK, nullable — Insight/placement attempts have no se
 ### domain_results
 id (uuid PK), attempt_id (FK), domain (text), subdomain (text), correct (bool)
 
+### available_missions
+special_mission (text PK — format `{insight_level}_{subdomain}`, e.g. `'1_1A'`, `'2_3B'`)
+- One row per built mission file. Insert a row here whenever a new `src/missions/{key}.jsx` is created — this is the DB-side registry the `submit_insight_attempt` RPC filters against when selecting `current_missions`.
+- Has anon SELECT policy (read-only; INSERT only via DB migration when a new mission file ships).
+- Empty by default; `current_missions` remains NULL (hub tile stays locked) until the first missions are registered.
+
 ### pupil_subdomain_strength
 pupil_id (FK), subdomain (text — e.g. `1A`, `7B`, matches the curriculum sheet codes), level (int — insight_level this was accrued at), strength (int — +1 per correct answer), attempts (int), last_attempted_at (timestamptz)
 - Unique on (pupil_id, subdomain)
 - Wiped entirely whenever the pupil's `insight_level` changes (level-up, level-down offer accepted, or teacher override)
-- Feeds Special Missions selection — the 4 weakest subdomains at the pupil's current `insight_level` (lowest `strength`) become the week's missions when a graded Insight test completes
+- Feeds Special Missions selection — the 4 weakest subdomains at the pupil's current `insight_level` (lowest `strength`) become the week's missions when a graded Insight test completes (filtered against `available_missions` table)
 
 ### Key RLS notes
 - RLS enabled on all tables
@@ -403,7 +409,7 @@ pupil_id (FK), subdomain (text — e.g. `1A`, `7B`, matches the curriculum sheet
 - **Pupil device chrome** (`src/components/PupilScreenGuard.jsx`) — wraps all three child-facing routes (`/join`, `/play`, `/hub`; never Staff/Leadership, since teachers use laptops): a persistent fullscreen toggle button (top right, SVG expand/compress icon, hidden entirely if `document.fullscreenEnabled` is false) and a portrait-blocking overlay (full-screen, high z-index, animated rotate-device icon + message) that appears whenever `window.innerHeight > window.innerWidth` and disappears the instant the device is rotated. Detection is plain resize/orientationchange listeners, not the Fullscreen/Screen Orientation APIs, for broad device support. Known limitation: rotating mid-Instinct-session does not pause the timer, since timing is derived from an absolute server timestamp (`sessions.started_at`), not a locally pausable countdown — the overlay just blocks interaction, it can't stop the clock.
 
 ### Not yet built
-- The *graded*, weekly-gated Insight test — ✓ now wired: `InsightGraded.jsx` + hub gate tile + `get_pupil_hub_status` checks on every hub entry; `submit_insight_attempt` still needs the `current_missions` population logic added to the RPC (see "Special Missions")
+- The *graded*, weekly-gated Insight test — ✓ now wired: `InsightGraded.jsx` + hub gate tile + `get_pupil_hub_status` checks on every hub entry + `submit_insight_attempt` populates `current_missions` from `available_missions` table
 - **Special Missions** — design complete (see "Special Missions" above); prerequisite (graded Insight test wired to hub) is now done; mission files (`src/missions/*.jsx`) to be built incrementally per subdomain per level
 - Games (Hub tile exists, fully styled, but `disabled` — nothing built behind it)
 - Into It! — the future standalone game itself (Hub has a locked banner CTA for it; avatar system was built with this in mind, see "Avatar system (v2)")
