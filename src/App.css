@@ -5144,6 +5144,21 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   55%       { box-shadow: 0 0 0 5px rgba(79, 70, 229, 0); }
 }
 
+/* ── Negative numpad answer row (6_1D) ──────────────────────────────────── */
+
+.mission-neg-answer {
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 1.2vw, 12px);
+  justify-content: center;
+}
+.mission-neg-sign {
+  font-size: clamp(40px, 8.5vw, 64px);
+  font-weight: 800;
+  color: #4f46e5;
+  line-height: 1;
+}
+
 /* ── Completion screen ───────────────────────────────────────────────────── */
 
 .mission-complete-icon   { font-size: clamp(44px, 10vw, 72px); }
