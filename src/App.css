@@ -4454,6 +4454,8 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
 }
 
 .wam-header {
+  position: relative;
+  z-index: 10;
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -4543,9 +4545,9 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   z-index: 2;
 }
 
-/* Negative Y: head clears the hole's top rim, sign pokes above the cell */
+/* Negative Y: head just clears the hole's top rim */
 .wam-mole-wrap--visible {
-  transform: translateY(-38%);
+  transform: translateY(-22%);
   pointer-events: auto;
 }
 
