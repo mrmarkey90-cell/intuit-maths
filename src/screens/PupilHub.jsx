@@ -13,6 +13,7 @@ import WhackAMole from '../games/WhackAMole'
 import PupilVerification from '../components/PupilVerification'
 import PupilProfileCreate from './PupilProfileCreate'
 import SecurityQuestionsSetup from '../components/SecurityQuestionsSetup'
+import { hasMission, loadMission } from '../missions/index'
 
 function StreakDots({ streak }) {
   return (
@@ -50,6 +51,8 @@ function PupilHub({ joinCode }) {
   const [practicing, setPracticing] = useState(false)
   const [practiceExpanded, setPracticeExpanded] = useState(false)
   const [insightAvailable, setInsightAvailable] = useState(false)
+  const [missionsExpanded, setMissionsExpanded] = useState(false)
+  const [MissionComponent, setMissionComponent] = useState(null)
 
   useEffect(() => {
     async function init() {
@@ -141,6 +144,21 @@ function PupilHub({ joinCode }) {
   async function handleWhackAMoleComplete() {
     const { data } = await supabase.rpc('get_pupil_history', { p_pupil_id: pupil.id })
     if (data?.pupil) setPupil(data.pupil)
+    setView('hub')
+  }
+
+  async function launchMission(key) {
+    const Comp = await loadMission(key)
+    setMissionComponent(() => Comp)
+    setMissionsExpanded(false)
+    setView('mission')
+  }
+
+  async function handleMissionComplete() {
+    const { data } = await supabase.rpc('get_pupil_history', { p_pupil_id: pupil.id })
+    if (data?.pupil) setPupil(data.pupil)
+    setMissionComponent(null)
+    setMissionsExpanded(false)
     setView('hub')
   }
 
@@ -269,6 +287,10 @@ function PupilHub({ joinCode }) {
     )
   }
 
+  if (view === 'mission' && MissionComponent) {
+    return <MissionComponent pupilId={pupil.id} onComplete={handleMissionComplete} />
+  }
+
   if (view === 'hub') {
     const instinctStreak = pupil.challenge_streak ?? 0
     const insightStreak = pupil.insight_streak ?? 0
@@ -337,12 +359,42 @@ function PupilHub({ joinCode }) {
           </div>
         ) : (
           <div className="hub-areas-panel">
-            <button className="hub-area-tile hub-area-tile--missions" disabled>
-              <span className="hub-area-tile-icon">🎯</span>
-              <span className="hub-area-tile-label">{t('pupilHub.specialMissions')}</span>
-              <RewardCoin size="large" />
-              <span className="hub-area-tile-badge">{t('pupilHub.comingSoon')}</span>
-            </button>
+            {(() => {
+              const available = (pupil.current_missions ?? []).filter(m => hasMission(m.special_mission))
+              if (available.length === 0) {
+                return (
+                  <button className="hub-area-tile hub-area-tile--missions" disabled>
+                    <span className="hub-area-tile-icon">🎯</span>
+                    <span className="hub-area-tile-label">{t('pupilHub.specialMissions')}</span>
+                    <RewardCoin size="large" />
+                    <span className="hub-area-tile-badge">{t('pupilHub.comingSoon')}</span>
+                  </button>
+                )
+              }
+              if (missionsExpanded) {
+                return (
+                  <div className="hub-area-tile hub-area-tile--missions hub-area-tile--missions-expanded">
+                    <button className="hub-tile-collapse-btn" onClick={() => setMissionsExpanded(false)}>×</button>
+                    {available.map(m => {
+                      const sub = m.special_mission.split('_').slice(1).join('_')
+                      return (
+                        <button key={m.special_mission} className="hub-mission-slot" onClick={() => launchMission(m.special_mission)}>
+                          <span className="hub-mission-slot-label">{t(`insightSubdomain.${sub}`)}</span>
+                          {m.completed && <span className="hub-mission-slot-check">✓</span>}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )
+              }
+              return (
+                <button className="hub-area-tile hub-area-tile--missions" onClick={() => setMissionsExpanded(true)}>
+                  <span className="hub-area-tile-icon">🎯</span>
+                  <span className="hub-area-tile-label">{t('pupilHub.specialMissions')}</span>
+                  <RewardCoin size="large" />
+                </button>
+              )
+            })()}
 
             <button className="hub-area-tile hub-area-tile--games" onClick={() => setView('games')}>
               <span className="hub-area-tile-icon">🎮</span>

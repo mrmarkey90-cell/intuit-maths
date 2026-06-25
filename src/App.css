@@ -4680,5 +4680,374 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   height: 100dvh;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   SPECIAL MISSIONS
+   All mission screens sit inside .pupil-viewport (locked height, landscape)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.mission-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: clamp(10px, 2vh, 20px) clamp(16px, 3vw, 32px);
+  gap: clamp(8px, 1.6vh, 18px);
+  overflow: hidden;
+  background: #fff;
+}
+
+.mission-progress {
+  width: 100%;
+  max-width: 520px;
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 3px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.mission-progress-fill {
+  height: 100%;
+  background: #f59e0b;
+  border-radius: 3px;
+  transition: width 0.35s ease;
+}
+
+.mission-title {
+  font-size: clamp(20px, 4.5vw, 34px);
+  font-weight: 800;
+  color: #1f2937;
+  text-align: center;
+}
+
+.mission-title strong {
+  color: #4f46e5;
+}
+
+.mission-subtitle {
+  font-size: clamp(14px, 2.6vw, 20px);
+  font-weight: 600;
+  color: #6b7280;
+  text-align: center;
+  min-height: 1.4em;
+}
+
+.mission-next-btn {
+  font-size: clamp(15px, 2.8vw, 20px);
+  font-weight: 700;
+  padding: clamp(10px, 1.8vh, 14px) clamp(24px, 5vw, 40px);
+  background: #4f46e5;
+  color: #fff;
+  border: none;
+  border-radius: clamp(10px, 2vw, 16px);
+  cursor: pointer;
+}
+
+.mission-next-btn:not(:disabled):hover { background: #4338ca; }
+
+.mission-next-btn:disabled {
+  background: #a5a3e8;
+  cursor: not-allowed;
+}
+
+.mission-round-dots {
+  display: flex;
+  gap: clamp(6px, 1.2vw, 10px);
+}
+
+.mission-round-dot {
+  width: clamp(8px, 1.4vw, 11px);
+  height: clamp(8px, 1.4vw, 11px);
+  border-radius: 50%;
+  background: #e5e7eb;
+}
+
+.mission-round-dot--done { background: #f59e0b; }
+.mission-round-dot--active { background: #4f46e5; }
+
+/* ── Screen 1: Which is bigger? ──────────────────────────────────────────── */
+
+.mission-bigger-row {
+  display: flex;
+  gap: clamp(16px, 4vw, 48px);
+}
+
+.mission-bigger-btn {
+  width: clamp(80px, 17vw, 130px);
+  height: clamp(80px, 17vw, 130px);
+  font-size: clamp(32px, 7.5vw, 58px);
+  font-weight: 900;
+  background: #f3f4f6;
+  border: 3px solid #d1d5db;
+  border-radius: clamp(14px, 2.5vw, 22px);
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+  color: #1f2937;
+}
+
+.mission-bigger-btn--correct { background: #dcfce7; border-color: #16a34a; color: #15803d; }
+.mission-bigger-btn--wrong   { background: #fee2e2; border-color: #dc2626; color: #b91c1c; }
+
+/* ── Screen 2: Count and Place ───────────────────────────────────────────── */
+
+.mission-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(5px, 1vw, 9px);
+  justify-content: center;
+  max-width: 280px;
+}
+
+.mission-dot {
+  width: clamp(16px, 3vw, 24px);
+  height: clamp(16px, 3vw, 24px);
+  border-radius: 50%;
+  background: #f59e0b;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* Number line wrapper: overrides the flex:1 from insight-numberline-rule so
+   the line doesn't eat all remaining height in the mission flex column. */
+.mission-nl-wrap {
+  width: 100%;
+  max-width: 580px;
+}
+
+.mission-nl-rule {
+  flex: none !important;
+  height: clamp(64px, 11vh, 90px);
+  margin: clamp(22px, 4vw, 32px) clamp(18px, 4vw, 28px) clamp(24px, 4vw, 32px);
+}
+
+/* ── Screen 3: Sort ──────────────────────────────────────────────────────── */
+
+.mission-sort-show {
+  display: flex;
+  gap: clamp(4px, 0.8vw, 7px);
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 600px;
+}
+
+.mission-sort-chip {
+  width: clamp(34px, 6vw, 48px);
+  height: clamp(34px, 6vw, 48px);
+  background: #f59e0b;
+  color: #fff;
+  font-size: clamp(14px, 2.6vw, 20px);
+  font-weight: 800;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  border: 2px solid #d97706;
+  flex-shrink: 0;
+}
+
+/* Intro (show phase): pop in with staggered delay via inline animationDelay */
+.mission-sort-chip--intro {
+  background: #4f46e5;
+  border-color: #3730a3;
+  animation: mission-chip-pop 0.2s ease-out both;
+}
+
+@keyframes mission-chip-pop {
+  from { transform: scale(0.4); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+/* Fall phase: overrides --intro's animation (later in file = wins cascade) */
+.mission-sort-chip--fall {
+  animation: mission-chip-fall 0.6s ease-in forwards;
+}
+
+@keyframes mission-chip-fall {
+  to { transform: translateY(220px) rotate(18deg); opacity: 0; }
+}
+
+/* Wrong-slot reject: briefly shows the chip in the slot then falls out */
+.mission-sort-chip--reject {
+  animation: mission-chip-reject 0.45s ease-in forwards;
+  cursor: default;
+}
+
+@keyframes mission-chip-reject {
+  0%   { transform: scale(1);   opacity: 1; }
+  30%  { transform: scale(1.1); opacity: 1; }
+  100% { transform: translateY(60px) scale(0.7); opacity: 0; }
+}
+
+.mission-sort-slots {
+  display: flex;
+  gap: clamp(3px, 0.6vw, 6px);
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+
+.mission-sort-slot {
+  width: clamp(34px, 6vw, 48px);
+  height: clamp(34px, 6vw, 48px);
+  border: 2px dashed #d1d5db;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fafafa;
+  flex-shrink: 0;
+}
+
+.mission-sort-slot--filled  { border-style: solid; border-color: #4f46e5; background: #eef2ff; }
+.mission-sort-slot--correct { border-color: #16a34a; background: #f0fdf4; }
+
+.mission-sort-source {
+  display: flex;
+  gap: clamp(4px, 0.8vw, 7px);
+  flex-wrap: wrap;
+  justify-content: center;
+  min-height: clamp(40px, 7vw, 56px);
+  max-width: 560px;
+}
+
+.mission-sort-ghost {
+  position: fixed;
+  transform: translate(-50%, -50%) scale(1.12);
+  pointer-events: none;
+  z-index: 1000;
+  cursor: grabbing;
+}
+
+/* ── Screen 4: Fill the Gap ──────────────────────────────────────────────── */
+
+.mission-gap-row {
+  display: flex;
+  gap: clamp(3px, 0.6vw, 6px);
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+
+.mission-gap-box {
+  width: clamp(32px, 5.8vw, 46px);
+  height: clamp(32px, 5.8vw, 46px);
+  background: #f3f4f6;
+  border: 2px solid #d1d5db;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(12px, 2.2vw, 18px);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.mission-gap-box--gap {
+  background: #fffbeb;
+  border-color: #f59e0b;
+  border-style: dashed;
+  color: #92400e;
+  font-size: clamp(14px, 2.6vw, 20px);
+}
+
+.mission-gap-box--correct {
+  background: #dcfce7;
+  border-color: #16a34a;
+  border-style: solid;
+  color: #15803d;
+}
+
+.mission-gap-box--wrong {
+  background: #fee2e2;
+  border-color: #dc2626;
+  border-style: solid;
+  color: #b91c1c;
+  animation: mission-shake 0.4s ease;
+}
+
+@keyframes mission-shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-5px); }
+  40%       { transform: translateX(5px); }
+  60%       { transform: translateX(-3px); }
+  80%       { transform: translateX(3px); }
+}
+
+/* ── Screen 5: Before / After ────────────────────────────────────────────── */
+
+.mission-ba-number {
+  font-size: clamp(44px, 11vw, 76px);
+  font-weight: 900;
+  color: #4f46e5;
+  line-height: 1;
+}
+
+.mission-ba-opts {
+  display: flex;
+  gap: clamp(12px, 3vw, 28px);
+}
+
+.mission-ba-btn {
+  width: clamp(60px, 13vw, 96px);
+  height: clamp(60px, 13vw, 96px);
+  font-size: clamp(22px, 5.5vw, 42px);
+  font-weight: 900;
+  background: #f3f4f6;
+  border: 3px solid #d1d5db;
+  border-radius: clamp(12px, 2vw, 18px);
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+  color: #1f2937;
+}
+
+.mission-ba-btn--correct { background: #dcfce7; border-color: #16a34a; color: #15803d; }
+.mission-ba-btn--wrong   { background: #fee2e2; border-color: #dc2626; color: #b91c1c; animation: mission-shake 0.4s ease; }
+
+/* ── Completion screen ───────────────────────────────────────────────────── */
+
+.mission-complete-icon   { font-size: clamp(44px, 10vw, 72px); }
+.mission-complete-credits {
+  font-size: clamp(20px, 4.5vw, 32px);
+  font-weight: 800;
+  color: #f59e0b;
+}
+
+/* ── Hub: missions tile expanded state ───────────────────────────────────── */
+
+.hub-area-tile--missions-expanded {
+  position: relative;
+  cursor: default;
+  gap: clamp(5px, 1.2vh, 8px);
+  padding: clamp(8px, 2vh, 14px) clamp(8px, 1.5vw, 12px);
+}
+
+.hub-mission-slot {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  font-weight: 700;
+  border-radius: clamp(6px, 1.2vw, 10px);
+  padding: clamp(5px, 1.2vh, 8px) 0.6rem;
+  font-size: clamp(0.72rem, 1.7vh, 0.92rem);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  text-align: left;
+}
+
+.hub-mission-slot:hover:not(:disabled) { background: rgba(255, 255, 255, 0.3); }
+
+.hub-mission-slot-check {
+  font-weight: 900;
+  font-size: 1.1em;
+  color: #fef9c3;
+  flex-shrink: 0;
+}
+
 .pupil-viewport .results-summary .stat-number { font-size: clamp(1.6rem, 5vh, 2.8rem); }
 .pupil-viewport .results-summary .stat-label  { font-size: clamp(0.75rem, 2vh, 0.95rem); }
