@@ -507,6 +507,24 @@ export const translations = {
     'mission.1_1A.whatIsMissing': 'What number is missing?',
     'mission.1_1A.find': 'Find',
     'mission.1_1A.finish': '🎯 Finish!',
+
+    'mission.2_1A.greatComparing': 'Great comparing! 🎉',
+    'mission.2_1A.tapLandmarks': 'Tap 5, then 10, then 15, then 20',
+    'mission.2_1A.landmarksDone': 'Those are your stepping stones! 🪨',
+
+    'mission.3_1A.greatComparing': 'Great with big numbers! 🎉',
+    'mission.3_1A.watchIt': 'Watch what happens when we add 1...',
+    'mission.3_1A.alwaysAddOne': 'Always just add 1! ✨',
+    'mission.3_1A.whatComesNext': 'What comes next?',
+    'mission.3_1A.whatComesAfter': 'What comes after...',
+    'mission.3_1A.findTheMiddle': 'Find the missing number',
+
+    'mission.4_1A.watchCount': 'Watch the pattern build...',
+    'mission.4_1A.countingIn25s': "That's counting in 25s! ✨",
+    'mission.4_1A.whatsTheStep': 'What is the step?',
+    'mission.4_1A.greatSpotting': 'Great pattern spotting! 🎉',
+    'mission.4_1A.continueSeq': 'What comes next?',
+    'mission.4_1A.fillMiddle': 'Find the missing number',
   },
   cy: {
     'common.back': 'Nôl',
@@ -1008,5 +1026,23 @@ export const translations = {
     'mission.1_1A.whatIsMissing': "Pa rif sy'n eisiau?",
     'mission.1_1A.find': 'Canfod',
     'mission.1_1A.finish': '🎯 Gorffen!',
+
+    'mission.2_1A.greatComparing': 'Da iawn am gymharu! 🎉',
+    'mission.2_1A.tapLandmarks': 'Tapiwch 5, yna 10, yna 15, yna 20',
+    'mission.2_1A.landmarksDone': 'Dyna dy gerrig camu! 🪨',
+
+    'mission.3_1A.greatComparing': 'Da iawn gyda rhifau mawr! 🎉',
+    'mission.3_1A.watchIt': "Gwyliwch beth sy'n digwydd pan adiwn 1...",
+    'mission.3_1A.alwaysAddOne': 'Adio 1 bob tro! ✨',
+    'mission.3_1A.whatComesNext': 'Beth sy\'n dod nesaf?',
+    'mission.3_1A.whatComesAfter': 'Beth sy\'n dod ar ôl...',
+    'mission.3_1A.findTheMiddle': 'Canfod y rhif coll',
+
+    'mission.4_1A.watchCount': "Gwylliwch y patrwm yn adeiladu...",
+    'mission.4_1A.countingIn25s': "Dyna gyfrif mewn 25au! ✨",
+    'mission.4_1A.whatsTheStep': 'Beth yw\'r cam?',
+    'mission.4_1A.greatSpotting': 'Gwych am sylwi ar batrymau! 🎉',
+    'mission.4_1A.continueSeq': 'Beth sy\'n dod nesaf?',
+    'mission.4_1A.fillMiddle': 'Canfod y rhif coll',
   },
 }
