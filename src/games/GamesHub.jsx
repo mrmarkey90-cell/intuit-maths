@@ -24,8 +24,7 @@ function GamesHub({ onSelect, onBack }) {
       <div className="games-hub-grid">
         {GAMES.map(game => (
           <button key={game.id} className="games-hub-tile" onClick={() => onSelect(game.id)}>
-            <img className="games-hub-tile-logo" src={game.logo} alt="" />
-            <span className="games-hub-tile-name">{game.name}</span>
+            <img className="games-hub-tile-logo" src={game.logo} alt={game.name} />
           </button>
         ))}
       </div>

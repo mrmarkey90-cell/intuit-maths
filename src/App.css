@@ -2460,27 +2460,24 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   margin-bottom: clamp(10px, 2vh, 20px);
 }
 .games-hub-tile {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.4rem;
   border: none;
   border-radius: clamp(12px, 2vw, 18px);
   background: #ec4899;
-  color: white;
-  font-weight: 700;
-  padding: clamp(10px, 1.5vh, 14px);
+  padding: 0;
   cursor: pointer;
   transition: transform 0.15s;
+  overflow: hidden;
+  width: clamp(100px, 20vh, 150px);
+  height: clamp(100px, 20vh, 150px);
 }
 .games-hub-tile:hover { transform: translateY(-2px); }
 
 .games-hub-tile-logo {
-  width: clamp(70px, 16vh, 110px);
-  height: clamp(70px, 16vh, 110px);
+  width: 100%;
+  height: 100%;
   object-fit: contain;
+  display: block;
 }
-.games-hub-tile-name { font-size: clamp(0.85rem, 2.2vh, 1.05rem); }
 
 /* ─── Pelmanism (memory-match game) ──────────────────────────────
    Card grid height is sized with vh-based clamp()s rather than relying on
