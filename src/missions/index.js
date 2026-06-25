@@ -6,6 +6,10 @@ export function hasMission(key) {
   return REGISTERED.has(key)
 }
 
+export function listMissions() {
+  return [...REGISTERED].sort()
+}
+
 export async function loadMission(key) {
   const mod = await import(`./${key}.jsx`)
   return mod.default

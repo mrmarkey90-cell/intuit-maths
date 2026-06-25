@@ -17,6 +17,7 @@ import PupilEntry from './screens/PupilEntry'
 import InsightTest from './screens/InsightTest'
 import InstinctTest from './screens/InstinctTest'
 import AvatarTest from './screens/AvatarTest'
+import MissionsTest from './screens/MissionsTest'
 import PupilScreenGuard from './components/PupilScreenGuard'
 
 function LeadershipApp() {
@@ -174,6 +175,7 @@ function App() {
           <Route path="/insight-test" element={<InsightTest />} />
           <Route path="/instinct-test" element={<InstinctTest />} />
           <Route path="/avatar-test" element={<AvatarTest />} />
+          <Route path="/missions-test" element={<MissionsTest />} />
           <Route path="/*" element={<LeadershipApp />} />
         </Routes>
       </BrowserRouter>
