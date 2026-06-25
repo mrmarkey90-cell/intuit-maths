@@ -4545,9 +4545,9 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   z-index: 2;
 }
 
-/* Negative Y: head just clears the hole's top rim */
+/* Negative Y: sign clears the hole's top rim; face sits inside the oval */
 .wam-mole-wrap--visible {
-  transform: translateY(-22%);
+  transform: translateY(-14%);
   pointer-events: auto;
 }
 
@@ -4576,7 +4576,7 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   top: 24%;
   transform: translate(-50%, -50%) rotate(10deg);
   width: 46%;
-  font-size: clamp(0.8rem, 2.8vh, 1.6rem);
+  font-size: clamp(1.4rem, 5vh, 3rem);
   font-weight: 800;
   color: #1a1a1a;
   text-align: center;
