@@ -2476,16 +2476,9 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
 .games-hub-tile:hover { transform: translateY(-2px); }
 
 .games-hub-tile-logo {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 3px;
-  width: clamp(50px, 12vh, 80px);
-  height: clamp(50px, 12vh, 80px);
-}
-.games-hub-tile-logo img {
-  width: 100%;
-  height: 100%;
-  border-radius: 4px;
+  width: clamp(70px, 16vh, 110px);
+  height: clamp(70px, 16vh, 110px);
+  object-fit: contain;
 }
 .games-hub-tile-name { font-size: clamp(0.85rem, 2.2vh, 1.05rem); }
 
