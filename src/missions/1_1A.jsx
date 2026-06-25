@@ -128,29 +128,37 @@ function S1Bigger({ onNext }) {
   return (
     <div className="mission-screen">
       <Progress step={1} />
-      {done ? (
-        <>
+      <div className="mission-body">
+        {done ? (
           <div className="mission-title">{t('mission.1_1A.youKnowYourNumbers')}</div>
-          <button className="mission-next-btn" onClick={onNext}>{t('mission.next')}</button>
-        </>
-      ) : (
-        <>
-          <div className="mission-title">{t('mission.1_1A.whichIsBigger')}</div>
-          <div className="mission-bigger-row">
-            {[a, b].map(n => (
-              <button
-                key={n}
-                className={`mission-bigger-btn${fb ? n === fb.bigger ? ' mission-bigger-btn--correct' : n === fb.chosen ? ' mission-bigger-btn--wrong' : '' : ''}`}
-                onClick={() => pick(n)}
-                disabled={!!fb}
-              >
-                {n}
-              </button>
-            ))}
-          </div>
-          <RoundDots total={rounds.length} current={idx} />
-        </>
-      )}
+        ) : (
+          <>
+            <div className="mission-title">{t('mission.1_1A.whichIsBigger')}</div>
+            <div className="mission-bigger-row">
+              {[a, b].map(n => (
+                <button
+                  key={n}
+                  className={`mission-bigger-btn${fb ? n === fb.bigger ? ' mission-bigger-btn--correct' : n === fb.chosen ? ' mission-bigger-btn--wrong' : '' : ''}`}
+                  onClick={() => pick(n)}
+                  disabled={!!fb}
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
+            <RoundDots total={rounds.length} current={idx} />
+          </>
+        )}
+      </div>
+      <div className="mission-actions">
+        <button
+          className="mission-next-btn"
+          onClick={onNext}
+          style={{ visibility: done ? 'visible' : 'hidden' }}
+        >
+          {t('mission.next')}
+        </button>
+      </div>
     </div>
   )
 }
@@ -180,18 +188,21 @@ function S2CountPlace({ onNext }) {
   return (
     <div className="mission-screen">
       <Progress step={2} />
-      <div className="mission-subtitle">{t('mission.1_1A.howMany')}</div>
-      <div className="mission-dots">
-        {Array.from({ length: target }, (_, i) => <span key={i} className="mission-dot" />)}
+      <div className="mission-body">
+        <div className="mission-subtitle">{t('mission.1_1A.howMany')}</div>
+        <div className="mission-dots">
+          {Array.from({ length: target }, (_, i) => <span key={i} className="mission-dot" />)}
+        </div>
+        <NumberLine
+          value={val}
+          onChange={v => { if (!locked) setVal(v) }}
+          onCommit={commit}
+          correct={isCorrect && locked}
+          locked={locked}
+        />
+        <RoundDots total={targets.length} current={idx} />
       </div>
-      <NumberLine
-        value={val}
-        onChange={v => { if (!locked) setVal(v) }}
-        onCommit={commit}
-        correct={isCorrect && locked}
-        locked={locked}
-      />
-      <RoundDots total={targets.length} current={idx} />
+      <div className="mission-actions" />
     </div>
   )
 }
@@ -202,19 +213,19 @@ function S3Sort({ onNext }) {
   const { t } = useTranslation()
   const [phase, setPhase] = useState('show') // 'show' | 'fall' | 'sort'
   const [sourceItems, setSourceItems] = useState(() => shuffle(ALL))
-  const [placed, setPlaced] = useState(Array(10).fill(null)) // placed[i] = value at slot i+1
+  const [placed, setPlaced] = useState(Array(10).fill(null))
   const [drag, setDrag] = useState(null) // { v, x, y }
   const [wrongDrop, setWrongDrop] = useState(null) // { idx, value }
   const slotRefs = useRef([])
 
   useEffect(() => {
     if (phase === 'show') {
-      const t = setTimeout(() => setPhase('fall'), 1400)
-      return () => clearTimeout(t)
+      const timer = setTimeout(() => setPhase('fall'), 1400)
+      return () => clearTimeout(timer)
     }
     if (phase === 'fall') {
-      const t = setTimeout(() => setPhase('sort'), 1100)
-      return () => clearTimeout(t)
+      const timer = setTimeout(() => setPhase('sort'), 1100)
+      return () => clearTimeout(timer)
     }
   }, [phase])
 
@@ -257,18 +268,20 @@ function S3Sort({ onNext }) {
     return (
       <div className="mission-screen">
         <Progress step={3} />
-        <div className="mission-subtitle" />
-        <div className="mission-sort-show">
-          {ALL.map((n, i) => (
-            <div
-              key={n}
-              className={`mission-sort-chip mission-sort-chip--intro${phase === 'fall' ? ' mission-sort-chip--fall' : ''}`}
-              style={{ animationDelay: phase === 'show' ? `${i * 80}ms` : `${i * 45}ms` }}
-            >
-              {n}
-            </div>
-          ))}
+        <div className="mission-body">
+          <div className="mission-sort-show">
+            {ALL.map((n, i) => (
+              <div
+                key={n}
+                className={`mission-sort-chip mission-sort-chip--intro${phase === 'fall' ? ' mission-sort-chip--fall' : ''}`}
+                style={{ animationDelay: phase === 'show' ? `${i * 80}ms` : `${i * 45}ms` }}
+              >
+                {n}
+              </div>
+            ))}
+          </div>
         </div>
+        <div className="mission-actions" />
       </div>
     )
   }
@@ -276,37 +289,47 @@ function S3Sort({ onNext }) {
   return (
     <div className="mission-screen">
       <Progress step={3} />
-      <div className="mission-subtitle">{t('mission.1_1A.putThemBack')}</div>
-      <div className="mission-sort-slots">
-        {Array.from({ length: 10 }, (_, i) => (
-          <div
-            key={i}
-            ref={el => { slotRefs.current[i] = el }}
-            className={`mission-sort-slot${placed[i] != null ? ' mission-sort-slot--filled' : ''}${allPlaced ? ' mission-sort-slot--correct' : ''}`}
-          >
-            {placed[i] != null ? (
-              <span className="mission-sort-chip" style={{ cursor: 'default' }}>{placed[i]}</span>
-            ) : wrongDrop?.idx === i ? (
-              <span className="mission-sort-chip mission-sort-chip--reject">{wrongDrop.value}</span>
-            ) : null}
-          </div>
-        ))}
+      <div className="mission-body">
+        <div className="mission-subtitle">{t('mission.1_1A.putThemBack')}</div>
+        <div className="mission-sort-slots">
+          {Array.from({ length: 10 }, (_, i) => (
+            <div
+              key={i}
+              ref={el => { slotRefs.current[i] = el }}
+              className={`mission-sort-slot${placed[i] != null ? ' mission-sort-slot--filled' : ''}${allPlaced ? ' mission-sort-slot--correct' : ''}`}
+            >
+              {placed[i] != null ? (
+                <span className="mission-sort-chip" style={{ cursor: 'default' }}>{placed[i]}</span>
+              ) : wrongDrop?.idx === i ? (
+                <span className="mission-sort-chip mission-sort-chip--reject">{wrongDrop.value}</span>
+              ) : null}
+            </div>
+          ))}
+        </div>
+        <div className="mission-sort-source">
+          {sourceItems.map(v => (
+            <div
+              key={v}
+              className="mission-sort-chip"
+              style={{ visibility: drag?.v === v ? 'hidden' : 'visible' }}
+              onPointerDown={e => startDrag(e, v)}
+              onPointerMove={onMove}
+              onPointerUp={onUp}
+            >
+              {v}
+            </div>
+          ))}
+        </div>
       </div>
-      <div className="mission-sort-source">
-        {sourceItems.map(v => (
-          <div
-            key={v}
-            className="mission-sort-chip"
-            style={{ visibility: drag?.v === v ? 'hidden' : 'visible' }}
-            onPointerDown={e => startDrag(e, v)}
-            onPointerMove={onMove}
-            onPointerUp={onUp}
-          >
-            {v}
-          </div>
-        ))}
+      <div className="mission-actions">
+        <button
+          className="mission-next-btn"
+          onClick={onNext}
+          style={{ visibility: allPlaced ? 'visible' : 'hidden' }}
+        >
+          {t('mission.next')}
+        </button>
       </div>
-      {allPlaced && <button className="mission-next-btn" onClick={onNext}>{t('mission.next')}</button>}
       {drag && (
         <div className="mission-sort-ghost mission-sort-chip" style={{ left: drag.x, top: drag.y }}>
           {drag.v}
@@ -367,43 +390,59 @@ function S4FillGap({ onNext }) {
   return (
     <div className="mission-screen">
       <Progress step={4} />
-      <div className="mission-subtitle">{t('mission.1_1A.whatIsMissing')}</div>
-      <GapLine gap={gap} attempt={attempt} />
-      <NumberPad
-        key={`${idx}-${String(attempt?.ok ?? '')}`}
-        onSubmit={submit}
-        stage={1}
-        disabled={!!attempt}
-      />
+      <div className="mission-body">
+        <div className="mission-subtitle">{t('mission.1_1A.whatIsMissing')}</div>
+        <GapLine gap={gap} attempt={attempt} />
+        <NumberPad
+          key={`${idx}-${String(attempt?.ok ?? '')}`}
+          onSubmit={submit}
+          stage={1}
+          disabled={!!attempt}
+        />
+      </div>
+      <div className="mission-actions" />
     </div>
   )
 }
 
 // ── Screen 5: Find X on the line ─────────────────────────────────────────────
+// Auto-advances on a correct drop — no button, so the answer isn't telegraphed.
 
 function S6FindX({ onFinish }) {
   const { t } = useTranslation()
   const targets = useMemo(() => shuffle([2, 3, 4, 5, 6, 7, 8, 9]).slice(0, 3), [])
   const [idx, setIdx] = useState(0)
   const [val, setVal] = useState(1)
+  const [locked, setLocked] = useState(false)
   const target = targets[idx]
-  const isCorrect = val === target
   const isLast = idx + 1 >= targets.length
 
-  function advance() {
-    if (!isCorrect) return
-    if (isLast) onFinish()
-    else { setIdx(i => i + 1); setVal(1) }
+  function commit(v) {
+    if (locked || v !== target) return
+    setLocked(true)
+    setTimeout(() => {
+      setLocked(false)
+      if (isLast) onFinish()
+      else { setIdx(i => i + 1); setVal(1) }
+    }, 700)
   }
 
   return (
     <div className="mission-screen">
       <Progress step={5} />
-      <div className="mission-title">{t('mission.1_1A.find')} <strong>{target}</strong></div>
-      <NumberLine value={val} onChange={setVal} correct={isCorrect} endLabelsOnly />
-      <button className="mission-next-btn" onClick={advance} disabled={!isCorrect}>
-        {isLast ? t('mission.1_1A.finish') : t('mission.next')}
-      </button>
+      <div className="mission-body">
+        <div className="mission-title">{t('mission.1_1A.find')} <strong>{target}</strong></div>
+        <NumberLine
+          value={val}
+          onChange={v => { if (!locked) setVal(v) }}
+          onCommit={commit}
+          correct={locked}
+          locked={locked}
+          endLabelsOnly
+        />
+        <RoundDots total={targets.length} current={idx} />
+      </div>
+      <div className="mission-actions" />
     </div>
   )
 }
@@ -414,10 +453,15 @@ function Complete({ onDone }) {
   const { t } = useTranslation()
   return (
     <div className="mission-screen">
-      <div className="mission-complete-icon">🎯</div>
-      <div className="mission-title">{t('mission.complete')}</div>
-      <div className="mission-complete-credits">+50 🪙</div>
-      <button className="mission-next-btn" onClick={onDone}>{t('mission.backToHub')}</button>
+      <Progress step={5} />
+      <div className="mission-body">
+        <div className="mission-complete-icon">🎯</div>
+        <div className="mission-title">{t('mission.complete')}</div>
+        <div className="mission-complete-credits">+50 🪙</div>
+      </div>
+      <div className="mission-actions">
+        <button className="mission-next-btn" onClick={onDone}>{t('mission.backToHub')}</button>
+      </div>
     </div>
   )
 }

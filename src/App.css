@@ -4686,13 +4686,11 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .mission-screen {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
   height: 100%;
-  padding: clamp(10px, 2vh, 20px) clamp(16px, 3vw, 32px);
-  gap: clamp(8px, 1.6vh, 18px);
+  padding: clamp(10px, 2vh, 16px) clamp(16px, 3vw, 32px);
+  row-gap: clamp(6px, 1.2vh, 10px);
   overflow: hidden;
   background-color: #fff;
   background-image:
@@ -4701,14 +4699,37 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   background-size: 22px 22px;
 }
 
+/* Progress bar: first grid row — always at the top of the screen. */
+/* (flex-shrink removed — grid items don't need it) */
+
+/* Main content area: centred within its fixed 1fr slot so nothing shifts
+   when buttons appear/disappear in the action zone below. */
+.mission-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 1.6vh, 16px);
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Action zone: always reserves button-height space even when empty,
+   so content in .mission-body never shifts when a button appears. */
+.mission-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: clamp(44px, 7.5vh, 62px);
+}
+
 .mission-progress {
   width: 100%;
-  max-width: 520px;
   height: 6px;
   background: #e5e7eb;
   border-radius: 3px;
   overflow: hidden;
-  flex-shrink: 0;
+  align-self: center;
 }
 
 .mission-progress-fill {
@@ -4734,7 +4755,6 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   font-weight: 600;
   color: #6b7280;
   text-align: center;
-  min-height: 1.4em;
 }
 
 .mission-next-btn {
