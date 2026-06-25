@@ -84,7 +84,6 @@ export default function MissionsTest() {
       </div>
       <p style={{ color: '#6b7280', fontSize: 14, marginBottom: '1.75rem' }}>
         Runs any registered mission in a full-screen simulated pupil environment.
-        {language === 'cy' && <span style={{ color: '#d97706', fontWeight: 600 }}> Welsh not yet implemented in mission text.</span>}
       </p>
 
       {lastResult === 'completed' && (

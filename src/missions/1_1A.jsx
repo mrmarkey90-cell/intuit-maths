@@ -1,6 +1,7 @@
 import { useState, useRef, useMemo, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
 import NumberPad from '../components/NumberPad'
+import { useTranslation } from '../i18n/LanguageContext'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -99,6 +100,7 @@ function NumberLine({ value, onChange, onCommit, correct = false, locked = false
 // ── Screen 1: Which is bigger? ────────────────────────────────────────────────
 
 function S1Bigger({ onNext }) {
+  const { t } = useTranslation()
   const rounds = useMemo(() => {
     const out = []
     while (out.length < 4) {
@@ -128,12 +130,12 @@ function S1Bigger({ onNext }) {
       <Progress step={1} />
       {done ? (
         <>
-          <div className="mission-title">You know your numbers! 🎉</div>
-          <button className="mission-next-btn" onClick={onNext}>Next →</button>
+          <div className="mission-title">{t('mission.1_1A.youKnowYourNumbers')}</div>
+          <button className="mission-next-btn" onClick={onNext}>{t('mission.next')}</button>
         </>
       ) : (
         <>
-          <div className="mission-title">Which is bigger?</div>
+          <div className="mission-title">{t('mission.1_1A.whichIsBigger')}</div>
           <div className="mission-bigger-row">
             {[a, b].map(n => (
               <button
@@ -156,6 +158,7 @@ function S1Bigger({ onNext }) {
 // ── Screen 2: Count and Place ─────────────────────────────────────────────────
 
 function S2CountPlace({ onNext }) {
+  const { t } = useTranslation()
   const targets = useMemo(() => shuffle([2, 3, 4, 5, 6, 7, 8, 9]).slice(0, 3), [])
   const [idx, setIdx] = useState(0)
   const [val, setVal] = useState(1)
@@ -177,7 +180,7 @@ function S2CountPlace({ onNext }) {
   return (
     <div className="mission-screen">
       <Progress step={2} />
-      <div className="mission-subtitle">How many?</div>
+      <div className="mission-subtitle">{t('mission.1_1A.howMany')}</div>
       <div className="mission-dots">
         {Array.from({ length: target }, (_, i) => <span key={i} className="mission-dot" />)}
       </div>
@@ -196,6 +199,7 @@ function S2CountPlace({ onNext }) {
 // ── Screen 3: Sort — fall then rebuild ────────────────────────────────────────
 
 function S3Sort({ onNext }) {
+  const { t } = useTranslation()
   const [phase, setPhase] = useState('show') // 'show' | 'fall' | 'sort'
   const [sourceItems, setSourceItems] = useState(() => shuffle(ALL))
   const [placed, setPlaced] = useState(Array(10).fill(null)) // placed[i] = value at slot i+1
@@ -272,7 +276,7 @@ function S3Sort({ onNext }) {
   return (
     <div className="mission-screen">
       <Progress step={3} />
-      <div className="mission-subtitle">Put them back!</div>
+      <div className="mission-subtitle">{t('mission.1_1A.putThemBack')}</div>
       <div className="mission-sort-slots">
         {Array.from({ length: 10 }, (_, i) => (
           <div
@@ -302,7 +306,7 @@ function S3Sort({ onNext }) {
           </div>
         ))}
       </div>
-      {allPlaced && <button className="mission-next-btn" onClick={onNext}>Next →</button>}
+      {allPlaced && <button className="mission-next-btn" onClick={onNext}>{t('mission.next')}</button>}
       {drag && (
         <div className="mission-sort-ghost mission-sort-chip" style={{ left: drag.x, top: drag.y }}>
           {drag.v}
@@ -339,6 +343,7 @@ function GapLine({ gap, attempt }) {
 // ── Screen 4: Fill the Gap ────────────────────────────────────────────────────
 
 function S4FillGap({ onNext }) {
+  const { t } = useTranslation()
   const gaps = useMemo(() => shuffle([2, 3, 4, 5, 6, 7, 8, 9]).slice(0, 3), [])
   const [idx, setIdx] = useState(0)
   const [attempt, setAttempt] = useState(null) // { value, ok }
@@ -362,7 +367,7 @@ function S4FillGap({ onNext }) {
   return (
     <div className="mission-screen">
       <Progress step={4} />
-      <div className="mission-subtitle">What number is missing?</div>
+      <div className="mission-subtitle">{t('mission.1_1A.whatIsMissing')}</div>
       <GapLine gap={gap} attempt={attempt} />
       <NumberPad
         key={`${idx}-${String(attempt?.ok ?? '')}`}
@@ -377,6 +382,7 @@ function S4FillGap({ onNext }) {
 // ── Screen 5: Find X on the line ─────────────────────────────────────────────
 
 function S6FindX({ onFinish }) {
+  const { t } = useTranslation()
   const targets = useMemo(() => shuffle([2, 3, 4, 5, 6, 7, 8, 9]).slice(0, 3), [])
   const [idx, setIdx] = useState(0)
   const [val, setVal] = useState(1)
@@ -393,10 +399,10 @@ function S6FindX({ onFinish }) {
   return (
     <div className="mission-screen">
       <Progress step={5} />
-      <div className="mission-title">Find <strong>{target}</strong></div>
+      <div className="mission-title">{t('mission.1_1A.find')} <strong>{target}</strong></div>
       <NumberLine value={val} onChange={setVal} correct={isCorrect} endLabelsOnly />
       <button className="mission-next-btn" onClick={advance} disabled={!isCorrect}>
-        {isLast ? '🎯 Finish!' : 'Next →'}
+        {isLast ? t('mission.1_1A.finish') : t('mission.next')}
       </button>
     </div>
   )
@@ -405,12 +411,13 @@ function S6FindX({ onFinish }) {
 // ── Completion ────────────────────────────────────────────────────────────────
 
 function Complete({ onDone }) {
+  const { t } = useTranslation()
   return (
     <div className="mission-screen">
       <div className="mission-complete-icon">🎯</div>
-      <div className="mission-title">Mission Complete!</div>
+      <div className="mission-title">{t('mission.complete')}</div>
       <div className="mission-complete-credits">+50 🪙</div>
-      <button className="mission-next-btn" onClick={onDone}>Back to Hub</button>
+      <button className="mission-next-btn" onClick={onDone}>{t('mission.backToHub')}</button>
     </div>
   )
 }
