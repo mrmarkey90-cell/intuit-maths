@@ -5,7 +5,7 @@ import { hasGenerator } from './generators/index'
 
 export const SUBDOMAIN_CONFIG = {
   '1A': { domain: 1, domainName: 'Number System', label: 'Counting',             minLevel: 1, maxLevel: 4 },
-  '1B': { domain: 1, domainName: 'Number System', label: 'Partitioning',         minLevel: 2, maxLevel: 5 },
+  '1B': { domain: 1, domainName: 'Number System', label: 'Partitioning',         minLevel: 2, maxLevel: 6 },
   '1C': { domain: 1, domainName: 'Number System', label: 'Decimals',             minLevel: 4, maxLevel: 5 },
   '1D': { domain: 1, domainName: 'Number System', label: 'Negatives',            minLevel: 5, maxLevel: 6 },
   '1E': { domain: 1, domainName: 'Number System', label: 'Even / Odd',           minLevel: 2, maxLevel: 4 },

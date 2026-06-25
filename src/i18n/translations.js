@@ -560,6 +560,21 @@ export const translations = {
     'mission.5_1B.fillAll': 'Fill in all the parts',
     'mission.5_1B.whole': 'Whole',
     'mission.5_1B.tenths': 'Tenths',
+
+    'mission.4_1C.greatComparing': 'Great with decimals! 🎉',
+    'mission.4_1C.watchLine': 'Watch where the decimal falls...',
+
+    'mission.5_1C.greatComparing': 'Great with decimals! 🎉',
+    'mission.5_1C.watchLine': 'See how we estimate position...',
+    'mission.5_1C.estimateHint': 'Get as close as you can! ✨',
+
+    'mission.6_1B.greatComparing': 'Great with decimals! 🎉',
+    'mission.6_1B.watchSplit': 'Watch how we split this decimal...',
+    'mission.6_1B.splitDone': 'Whole and Decimal part! ✨',
+    'mission.6_1B.fillMissing': 'Fill the missing part',
+    'mission.6_1B.fillAll': 'Fill in both parts',
+    'mission.6_1B.whole': 'Whole',
+    'mission.6_1B.decimal': 'Decimal',
   },
   cy: {
     'common.back': 'Nôl',
@@ -1114,5 +1129,20 @@ export const translations = {
     'mission.5_1B.fillAll': 'Llenwch yr holl rannau',
     'mission.5_1B.whole': 'Cyfanrif',
     'mission.5_1B.tenths': 'Degfedau',
+
+    'mission.4_1C.greatComparing': 'Da iawn gyda degolion! 🎉',
+    'mission.4_1C.watchLine': "Gwylliwch ble mae'r degol yn disgyn...",
+
+    'mission.5_1C.greatComparing': 'Da iawn gyda degolion! 🎉',
+    'mission.5_1C.watchLine': 'Gweler sut rydym yn amcangyfrif safle...',
+    'mission.5_1C.estimateHint': 'Ceisiwch fod mor agos â phosib! ✨',
+
+    'mission.6_1B.greatComparing': 'Da iawn gyda degolion! 🎉',
+    'mission.6_1B.watchSplit': "Gwylliwch sut rydym yn rhannu'r degol hwn...",
+    'mission.6_1B.splitDone': 'Cyfanrif a rhan ddigidol! ✨',
+    'mission.6_1B.fillMissing': "Llenwch y rhan sy'n eisiau",
+    'mission.6_1B.fillAll': 'Llenwch y ddwy ran',
+    'mission.6_1B.whole': 'Cyfanrif',
+    'mission.6_1B.decimal': 'Degol',
   },
 }
