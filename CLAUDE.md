@@ -134,7 +134,7 @@ The first real pupil-facing consumer of the Insight question engine (`src/insigh
 
 Targeted remediation activities, unlocked after a pupil completes a graded Insight test. The Special Missions tile on the Hub becomes active (not `disabled`) once `current_missions` is non-null.
 
-**Selection**: `submit_insight_attempt` picks the 4 subdomains from `pupil_subdomain_strength` with the lowest `strength` at the pupil's current `insight_level` that have a registered mission file (`hasMission` check). If fewer than 4 have signal (e.g. first-ever test), pads randomly from active subdomains at that level that have a registered mission. If a level has fewer than 4 missions registered, shows what's available.
+**Selection**: `submit_insight_attempt` picks the 4 subdomains from `pupil_subdomain_strength` with the lowest `strength` at the pupil's (new) `insight_level`, ordered by `strength ASC` with random tiebreak. No extra filtering is needed — `p_modules` only ever contains active subdomains (validated client-side), so all rows in `pupil_subdomain_strength` are already valid. On a level-up the strength table is wiped, so `current_missions` is set to NULL and the hub tile stays locked until the pupil's first test at the new level.
 
 **Reset**: Replaced entirely each time a new graded Insight test completes — the 4 slots always reflect the most recent test's weak areas.
 
@@ -162,7 +162,7 @@ src/missions/
   2_1A.jsx
   ...               ← one file per level+subdomain combo, built incrementally
 ```
-The registry's `hasMission(key)` is the authoritative check used by both `submit_insight_attempt` (server-side equivalent — a hardcoded list mirrored in the RPC) and the Hub tile renderer (client-side). A subdomain that's active in `domainConfig.js` but has no mission file is simply never selected and never shown.
+The client-side `hasMission(key)` is the only guard needed — the hub skips rendering any slot whose key has no file. The DB does not need a separate registry: `submit_insight_attempt` only selects from `pupil_subdomain_strength`, which is populated exclusively from `p_modules`, which is already constrained to active subdomains client-side.
 
 **Hub UX**: The Special Missions tile expands in place (same pattern as Practise) to show the 4 mission slots — subdomain label, a ✓ badge if completed. Tapping a slot launches the mission component. After a mission completes (or on replay), the Hub returns to this expanded view.
 
@@ -299,17 +299,11 @@ id (uuid PK), session_id (FK, nullable — Insight/placement attempts have no se
 ### domain_results
 id (uuid PK), attempt_id (FK), domain (text), subdomain (text), correct (bool)
 
-### available_missions
-special_mission (text PK — format `{insight_level}_{subdomain}`, e.g. `'1_1A'`, `'2_3B'`)
-- One row per built mission file. Insert a row here whenever a new `src/missions/{key}.jsx` is created — this is the DB-side registry the `submit_insight_attempt` RPC filters against when selecting `current_missions`.
-- Has anon SELECT policy (read-only; INSERT only via DB migration when a new mission file ships).
-- Empty by default; `current_missions` remains NULL (hub tile stays locked) until the first missions are registered.
-
 ### pupil_subdomain_strength
 pupil_id (FK), subdomain (text — e.g. `1A`, `7B`, matches the curriculum sheet codes), level (int — insight_level this was accrued at), strength (int — +1 per correct answer), attempts (int), last_attempted_at (timestamptz)
 - Unique on (pupil_id, subdomain)
 - Wiped entirely whenever the pupil's `insight_level` changes (level-up, level-down offer accepted, or teacher override)
-- Feeds Special Missions selection — the 4 weakest subdomains at the pupil's current `insight_level` (lowest `strength`) become the week's missions when a graded Insight test completes (filtered against `available_missions` table)
+- Feeds Special Missions selection — the 4 weakest subdomains at the pupil's current `insight_level` (lowest `strength`) become the week's missions when a graded Insight test completes. No extra filtering needed: `p_modules` only ever contains active subdomains (validated client-side by `generateModuleSlots`/`getActiveSubdomains`), so all rows here are already valid.
 
 ### Key RLS notes
 - RLS enabled on all tables
