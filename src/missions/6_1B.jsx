@@ -5,20 +5,28 @@ import { useTranslation } from '../i18n/LanguageContext'
 
 function rnd(a, b) { return a + Math.floor(Math.random() * (b - a + 1)) }
 
-// Two variants matching the L6_1B generator:
-//   1dp: whole 10–99 + tenths (e.g. 43.7 → [43, 0.7])
-//   2dp: whole 1–9  + hundredths (e.g. 3.42 → [3, 0.42])
+// Two variants — each partitions every individual place value:
+//   1dp: tens + units + tenths  e.g. 43.7 → [40, 3, 0.7]
+//   2dp: units + tenths + hundredths  e.g. 3.47 → [3, 0.4, 0.07]
 function genQ() {
   if (Math.random() < 0.5) {
-    const whole = rnd(10, 99)
-    const tenths = rnd(1, 9)
-    const number = Math.round((whole + tenths / 10) * 10) / 10
-    return { number, parts: [whole, tenths / 10], displayNum: number.toFixed(1) }
+    const tens = rnd(1, 9), units = rnd(0, 9), tenths = rnd(1, 9)
+    const number = Math.round((tens * 10 + units + tenths / 10) * 10) / 10
+    return {
+      number,
+      parts: [tens * 10, units, tenths / 10],
+      displayNum: number.toFixed(1),
+      labelKeys: ['tens', 'units', 'tenths'],
+    }
   }
-  const whole = rnd(1, 9)
-  const hundredths = rnd(1, 99)
-  const number = Math.round((whole + hundredths / 100) * 100) / 100
-  return { number, parts: [whole, hundredths / 100], displayNum: number.toFixed(2) }
+  const units = rnd(1, 9), tenths = rnd(1, 9), hundredths = rnd(1, 9)
+  const number = Math.round((units + tenths / 10 + hundredths / 100) * 100) / 100
+  return {
+    number,
+    parts: [units, tenths / 10, hundredths / 100],
+    displayNum: number.toFixed(2),
+    labelKeys: ['units', 'tenths', 'hundredths'],
+  }
 }
 
 function fmtPart(p) {
@@ -51,8 +59,9 @@ function RoundDots({ total, current }) {
   )
 }
 
-// ── PartitionInput: decimal partition (whole + decimal remainder) ──────────────
-// allowDecimal is derived per active box so the numpad matches what's expected.
+// ── PartitionInput: 3-box decimal partition ───────────────────────────────────
+// allowDecimal is derived per active box so the numpad shows the point only
+// when the box being filled is a decimal value (tenths or hundredths).
 
 function PartitionInput({ displayNum, parts, labels, hiddenIdxs, onComplete }) {
   const [filled, setFilled] = useState({})
@@ -124,18 +133,17 @@ function PartitionInput({ displayNum, parts, labels, hiddenIdxs, onComplete }) {
   )
 }
 
-// ── Screen 1: Which is bigger? (mixed decimals) ───────────────────────────────
+// ── Screen 1: Which is bigger? (mixed 1dp and 2dp decimals) ──────────────────
 
 function S1Bigger({ onNext }) {
   const { t } = useTranslation()
   const rounds = useMemo(() => {
     const out = []
     while (out.length < 4) {
-      // keep both numbers in the same decimal range per round
       const use1dp = Math.random() < 0.5
       const makeNum = () => use1dp
         ? Math.round((rnd(10, 99) + rnd(1, 9) / 10) * 10) / 10
-        : Math.round((rnd(1, 9) + rnd(1, 99) / 100) * 100) / 100
+        : Math.round((rnd(1, 9) + rnd(1, 9) / 10 + rnd(1, 9) / 100) * 100) / 100
       const a = makeNum(), b = makeNum()
       if (Math.abs(a - b) > 0.05) out.push({ a, b, dp: use1dp ? 1 : 2 })
     }
@@ -198,42 +206,59 @@ function S1Bigger({ onNext }) {
   )
 }
 
-// ── Screen 2: Teach — watch a decimal split into whole + decimal part ─────────
+// ── Screen 2: Teach — two examples, one of each variant ──────────────────────
 
 function S2Teach({ onNext }) {
   const { t } = useTranslation()
-  const example = useMemo(() => {
-    const whole = rnd(10, 99), tenths = rnd(1, 9)
-    const number = Math.round((whole + tenths / 10) * 10) / 10
-    return { number, parts: [whole, tenths / 10], displayNum: number.toFixed(1) }
-  }, [])
-  const labels = [t('mission.6_1B.whole'), t('mission.6_1B.decimal')]
+  const examples = useMemo(() => [
+    // 1dp: tens + units + tenths
+    (() => {
+      const tens = rnd(2, 8), units = rnd(1, 8), tenths = rnd(2, 8)
+      const number = Math.round((tens * 10 + units + tenths / 10) * 10) / 10
+      return { number, parts: [tens * 10, units, tenths / 10], displayNum: number.toFixed(1), labelKeys: ['tens', 'units', 'tenths'] }
+    })(),
+    // 2dp: units + tenths + hundredths
+    (() => {
+      const units = rnd(2, 8), tenths = rnd(2, 8), hundredths = rnd(2, 8)
+      const number = Math.round((units + tenths / 10 + hundredths / 100) * 100) / 100
+      return { number, parts: [units, tenths / 10, hundredths / 100], displayNum: number.toFixed(2), labelKeys: ['units', 'tenths', 'hundredths'] }
+    })(),
+  ], [])
+  const [exIdx, setExIdx] = useState(0)
   const [phase, setPhase] = useState(0)
+  const ex = examples[exIdx]
+  const labels = ex.labelKeys.map(k => t(`mission.6_1B.${k}`))
 
   useEffect(() => {
+    setPhase(0)
     const timer = setTimeout(() => setPhase(1), 1000)
     return () => clearTimeout(timer)
-  }, [])
+  }, [exIdx])
+
+  function handleNext() {
+    if (exIdx < examples.length - 1) setExIdx(i => i + 1)
+    else onNext()
+  }
 
   return (
     <div className="mission-screen">
       <Progress step={2} />
       <div className="mission-body">
         <div className="mission-subtitle">{t('mission.6_1B.watchSplit')}</div>
-        <div className="mission-ba-number" style={{ fontSize: 'clamp(28px, 7vw, 52px)' }}>{example.displayNum}</div>
+        <div className="mission-ba-number" style={{ fontSize: 'clamp(28px, 7vw, 52px)' }}>{ex.displayNum}</div>
         {phase >= 1 && (
           <div className="mission-partition-boxes">
-            {example.parts.map((p, i) => (
+            {ex.parts.map((p, i) => (
               <Fragment key={i}>
                 {i > 0 && (
                   <span
                     className="mission-partition-plus"
-                    style={{ animation: 'mission-chip-pop 0.25s 0.1s ease-out both' }}
+                    style={{ animation: `mission-chip-pop 0.25s ${i * 0.12}s ease-out both` }}
                   >+</span>
                 )}
                 <div
                   className="mission-partition-col"
-                  style={{ animation: `mission-chip-pop 0.3s ${i * 200}ms ease-out both` }}
+                  style={{ animation: `mission-chip-pop 0.3s ${i * 160}ms ease-out both` }}
                 >
                   <div className="mission-gap-box mission-gap-box--wide">{fmtPart(p)}</div>
                   <div className="mission-partition-label">{labels[i]}</div>
@@ -245,7 +270,7 @@ function S2Teach({ onNext }) {
         {phase >= 1 && (
           <div
             className="mission-subtitle"
-            style={{ animation: 'mission-chip-pop 0.35s 0.55s ease-out both' }}
+            style={{ animation: 'mission-chip-pop 0.35s 0.65s ease-out both' }}
           >
             {t('mission.6_1B.splitDone')}
           </div>
@@ -254,29 +279,29 @@ function S2Teach({ onNext }) {
       <div className="mission-actions">
         <button
           className="mission-next-btn"
-          onClick={onNext}
+          onClick={handleNext}
           style={{ visibility: phase >= 1 ? 'visible' : 'hidden' }}
         >
-          {t('mission.next')}
+          {exIdx < examples.length - 1 ? t('mission.anotherExample') : t('mission.next')}
         </button>
       </div>
     </div>
   )
 }
 
-// ── Screen 3: Fill the missing part (one box hidden) ──────────────────────────
+// ── Screen 3: Fill the missing part (one of three boxes hidden) ───────────────
 
 function S3OneBox({ onNext }) {
   const { t } = useTranslation()
-  const labels = [t('mission.6_1B.whole'), t('mission.6_1B.decimal')]
   const questions = useMemo(() =>
     Array.from({ length: 3 }, () => {
       const q = genQ()
-      return { ...q, hiddenIdxs: [rnd(0, 1)] }
+      return { ...q, hiddenIdxs: [rnd(0, 2)] }
     })
   , [])
   const [idx, setIdx] = useState(0)
   const q = questions[idx]
+  const labels = q.labelKeys.map(k => t(`mission.6_1B.${k}`))
 
   function advance() {
     if (idx + 1 >= questions.length) onNext()
@@ -303,19 +328,19 @@ function S3OneBox({ onNext }) {
   )
 }
 
-// ── Screen 4: Fill both parts ─────────────────────────────────────────────────
+// ── Screen 4: Fill all three parts ───────────────────────────────────────────
 
 function S4AllParts({ onNext }) {
   const { t } = useTranslation()
-  const labels = [t('mission.6_1B.whole'), t('mission.6_1B.decimal')]
   const questions = useMemo(() =>
     Array.from({ length: 3 }, () => {
       const q = genQ()
-      return { ...q, hiddenIdxs: [0, 1] }
+      return { ...q, hiddenIdxs: [0, 1, 2] }
     })
   , [])
   const [idx, setIdx] = useState(0)
   const q = questions[idx]
+  const labels = q.labelKeys.map(k => t(`mission.6_1B.${k}`))
 
   function advance() {
     if (idx + 1 >= questions.length) onNext()
@@ -346,15 +371,15 @@ function S4AllParts({ onNext }) {
 
 function S5More({ onFinish }) {
   const { t } = useTranslation()
-  const labels = [t('mission.6_1B.whole'), t('mission.6_1B.decimal')]
   const questions = useMemo(() =>
     Array.from({ length: 3 }, () => {
       const q = genQ()
-      return { ...q, hiddenIdxs: [0, 1] }
+      return { ...q, hiddenIdxs: [0, 1, 2] }
     })
   , [])
   const [idx, setIdx] = useState(0)
   const q = questions[idx]
+  const labels = q.labelKeys.map(k => t(`mission.6_1B.${k}`))
 
   function advance() {
     if (idx + 1 >= questions.length) onFinish()

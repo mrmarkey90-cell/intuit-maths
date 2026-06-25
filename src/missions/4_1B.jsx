@@ -175,37 +175,45 @@ function S1Bigger({ onNext }) {
   )
 }
 
-// ── Screen 2: Watch the number split into Th + H + T + U ─────────────────────
+// ── Screen 2: Watch the number split into Th + H + T + U (two examples) ──────
 
 function S2Teach({ onNext }) {
   const { t } = useTranslation()
-  const example = useMemo(() => {
+  const examples = useMemo(() => Array.from({ length: 2 }, () => {
     const th = rnd(1, 9), h = rnd(1, 9), ten = rnd(1, 9), u = rnd(1, 9)
     const num = th * 1000 + h * 100 + ten * 10 + u
     return { displayNum: String(num), parts: [th * 1000, h * 100, ten * 10, u] }
-  }, [])
+  }), [])
   const labels = [
     t('mission.4_1B.thousands'),
     t('mission.4_1B.hundreds'),
     t('mission.4_1B.tens'),
     t('mission.4_1B.units'),
   ]
+  const [exIdx, setExIdx] = useState(0)
   const [phase, setPhase] = useState(0)
+  const ex = examples[exIdx]
 
   useEffect(() => {
+    setPhase(0)
     const timer = setTimeout(() => setPhase(1), 1000)
     return () => clearTimeout(timer)
-  }, [])
+  }, [exIdx])
+
+  function handleNext() {
+    if (exIdx < examples.length - 1) setExIdx(i => i + 1)
+    else onNext()
+  }
 
   return (
     <div className="mission-screen">
       <Progress step={2} />
       <div className="mission-body">
         <div className="mission-subtitle">{t('mission.4_1B.watchSplit')}</div>
-        <div className="mission-ba-number" style={{ fontSize: 'clamp(28px, 7vw, 52px)' }}>{example.displayNum}</div>
+        <div className="mission-ba-number" style={{ fontSize: 'clamp(28px, 7vw, 52px)' }}>{ex.displayNum}</div>
         {phase >= 1 && (
           <div className="mission-partition-boxes">
-            {example.parts.map((p, i) => (
+            {ex.parts.map((p, i) => (
               <Fragment key={i}>
                 {i > 0 && (
                   <span
@@ -236,10 +244,10 @@ function S2Teach({ onNext }) {
       <div className="mission-actions">
         <button
           className="mission-next-btn"
-          onClick={onNext}
+          onClick={handleNext}
           style={{ visibility: phase >= 1 ? 'visible' : 'hidden' }}
         >
-          {t('mission.next')}
+          {exIdx < examples.length - 1 ? t('mission.anotherExample') : t('mission.next')}
         </button>
       </div>
     </div>

@@ -182,36 +182,44 @@ function S1Bigger({ onNext }) {
   )
 }
 
-// ── Screen 2: Watch the decimal split into whole + tenths ─────────────────────
+// ── Screen 2: Decimal split into whole + tenths (two examples) ───────────────
 
 function S2Teach({ onNext }) {
   const { t } = useTranslation()
-  const example = useMemo(() => {
+  const examples = useMemo(() => Array.from({ length: 2 }, () => {
     const whole = rnd(1, 9), tenths = rnd(1, 9)
     const num = Math.round((whole + tenths / 10) * 10) / 10
     return { displayNum: num.toFixed(1), parts: [whole, tenths / 10] }
-  }, [])
+  }), [])
   const labels = [t('mission.5_1B.whole'), t('mission.5_1B.tenths')]
+  const [exIdx, setExIdx] = useState(0)
   const [phase, setPhase] = useState(0)
+  const ex = examples[exIdx]
 
   function fmtPart(p) {
     return p % 1 === 0 ? String(p) : p.toFixed(1)
   }
 
   useEffect(() => {
+    setPhase(0)
     const timer = setTimeout(() => setPhase(1), 1000)
     return () => clearTimeout(timer)
-  }, [])
+  }, [exIdx])
+
+  function handleNext() {
+    if (exIdx < examples.length - 1) setExIdx(i => i + 1)
+    else onNext()
+  }
 
   return (
     <div className="mission-screen">
       <Progress step={2} />
       <div className="mission-body">
         <div className="mission-subtitle">{t('mission.5_1B.watchSplit')}</div>
-        <div className="mission-ba-number">{example.displayNum}</div>
+        <div className="mission-ba-number">{ex.displayNum}</div>
         {phase >= 1 && (
           <div className="mission-partition-boxes">
-            {example.parts.map((p, i) => (
+            {ex.parts.map((p, i) => (
               <Fragment key={i}>
                 {i > 0 && (
                   <span
@@ -242,10 +250,10 @@ function S2Teach({ onNext }) {
       <div className="mission-actions">
         <button
           className="mission-next-btn"
-          onClick={onNext}
+          onClick={handleNext}
           style={{ visibility: phase >= 1 ? 'visible' : 'hidden' }}
         >
-          {t('mission.next')}
+          {exIdx < examples.length - 1 ? t('mission.anotherExample') : t('mission.next')}
         </button>
       </div>
     </div>
