@@ -264,14 +264,11 @@ function S2Teach({ onNext }) {
 function MultiScreen({ step, onDone }) {
   const qs = useMemo(() => Array.from({ length: 3 }, genMultiQ), [])
   const [idx, setIdx] = useState(0)
-  const [done, setDone] = useState(false)
 
   function advance() {
-    if (idx + 1 >= qs.length) setDone(true)
+    if (idx + 1 >= qs.length) onDone()
     else setIdx(i => i + 1)
   }
-
-  useEffect(() => { if (done) onDone() }, [done]) // eslint-disable-line
 
   return (
     <div className="mission-screen">

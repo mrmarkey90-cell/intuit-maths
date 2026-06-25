@@ -5144,6 +5144,86 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   55%       { box-shadow: 0 0 0 5px rgba(79, 70, 229, 0); }
 }
 
+/* ── Multiples strip (1F) ────────────────────────────────────────────────── */
+
+.mission-multiples-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(5px, 0.9vw, 9px);
+  justify-content: center;
+  max-width: 480px;
+}
+.mission-multiples-chip {
+  padding: clamp(3px, 0.6vw, 6px) clamp(6px, 1.1vw, 10px);
+  border-radius: 7px;
+  font-size: clamp(13px, 2.2vw, 19px);
+  font-weight: 700;
+  background: #f3f4f6;
+  color: #d1d5db;
+  border: 2px solid #e5e7eb;
+  min-width: clamp(28px, 5vw, 42px);
+  text-align: center;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.mission-multiples-chip--lit {
+  background: #eef2ff;
+  color: #4338ca;
+  border-color: #a5b4fc;
+}
+
+/* ── Sequence completion (3_1F, 4_1F) ───────────────────────────────────── */
+
+.mission-seq-row {
+  display: flex;
+  align-items: center;
+  gap: clamp(4px, 0.8vw, 8px);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.mission-seq-num {
+  font-size: clamp(22px, 4.5vw, 36px);
+  font-weight: 800;
+  color: #1e1b4b;
+}
+.mission-seq-blank {
+  font-size: clamp(22px, 4.5vw, 36px);
+  font-weight: 800;
+  color: #9ca3af;
+  min-width: clamp(38px, 7vw, 56px);
+  height: clamp(38px, 7vw, 56px);
+  border: 2px dashed #d1d5db;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mission-seq-blank--filled {
+  background: #dcfce7;
+  border-style: solid;
+  border-color: #16a34a;
+  color: #15803d;
+}
+.mission-seq-opts {
+  display: flex;
+  gap: clamp(8px, 1.5vw, 16px);
+  justify-content: center;
+}
+.mission-seq-opt {
+  min-width: clamp(48px, 9vw, 72px);
+  padding: clamp(8px, 1.5vw, 14px) clamp(10px, 2vw, 18px);
+  font-size: clamp(18px, 3.5vw, 28px);
+  font-weight: 700;
+  background: #f9fafb;
+  border: 2px solid #d1d5db;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #1e1b4b;
+  transition: background 0.12s, border-color 0.12s;
+}
+.mission-seq-opt--correct { background: #dcfce7; border-color: #16a34a; color: #15803d; }
+.mission-seq-opt--wrong   { background: #fee2e2; border-color: #dc2626; color: #b91c1c; }
+.mission-seq-opt:disabled { cursor: default; }
+
 /* ── Even/Odd dot grid (2_1E) ────────────────────────────────────────────── */
 
 .mission-dot-grid {

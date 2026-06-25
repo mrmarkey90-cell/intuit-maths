@@ -181,33 +181,23 @@ function ClassifyScreen({ step, onDone }) {
   const { t } = useTranslation()
   const qs = useMemo(() => Array.from({ length: 3 }, () => rnd(10, 50)), [])
   const [idx, setIdx] = useState(0)
-  const [done, setDone] = useState(false)
   const n = qs[Math.min(idx, qs.length - 1)]
 
   function onAnswer() {
-    if (idx + 1 >= qs.length) setDone(true)
+    if (idx + 1 >= qs.length) onDone()
     else setIdx(i => i + 1)
   }
-
-  useEffect(() => { if (done) onDone() }, [done]) // eslint-disable-line
 
   return (
     <div className="mission-screen">
       <Progress step={step} />
       <div className="mission-body">
         <div className="mission-subtitle">{t('mission.2_1E.isItEven')}</div>
-        <div
-          className="mission-title"
-          style={{ fontSize: 'clamp(48px, 11vw, 80px)', visibility: done ? 'hidden' : 'visible' }}
-        >
+        <div className="mission-title" style={{ fontSize: 'clamp(48px, 11vw, 80px)' }}>
           {n}
         </div>
-        <div style={{ visibility: done ? 'hidden' : 'visible', pointerEvents: done ? 'none' : 'auto' }}>
-          <EvenOddBtns key={idx} n={n} onComplete={onAnswer} />
-        </div>
-        <div style={{ visibility: done ? 'hidden' : 'visible' }}>
-          <RoundDots total={qs.length} current={idx} />
-        </div>
+        <EvenOddBtns key={idx} n={n} onComplete={onAnswer} />
+        <RoundDots total={qs.length} current={idx} />
       </div>
       <div className="mission-actions" />
     </div>
