@@ -25,7 +25,6 @@ function RoundDots({ total, current }) {
 }
 
 // Dot grid showing n as pairs, with the extra dot in red if odd.
-// Designed for small numbers (2-12) in the teach screen.
 function DotGrid({ n }) {
   const pairs = Math.floor(n / 2)
   const isOdd = n % 2 === 1
@@ -75,7 +74,6 @@ function EvenOddBtns({ n, onComplete }) {
 }
 
 // ── Screen 1: Dot grid — even or odd? ────────────────────────────────────────
-// Shows small numbers (2-12) as dot pairs. Red extra dot = odd.
 
 function S1Dots({ onNext }) {
   const { t } = useTranslation()
@@ -119,8 +117,6 @@ function S1Dots({ onNext }) {
 }
 
 // ── Screen 2: Animated dot-pair teach ────────────────────────────────────────
-// Two examples (one even, one odd), cycles with "Another one!" / "Next".
-// Phases: 1 = number appears, 2 = dots appear, 3 = label, 4 = button.
 
 function S2Teach({ onNext }) {
   const { t } = useTranslation()
@@ -175,7 +171,152 @@ function S2Teach({ onNext }) {
   )
 }
 
-// ── Screens 3-5: classify larger numbers (no dots) ────────────────────────────
+// ── Screen 3: Spot the even — 4 tiles, 1 correct ─────────────────────────────
+
+function genSpotEven() {
+  const used = new Set()
+  const even = rnd(1, 10) * 2
+  used.add(even)
+  const odds = []
+  while (odds.length < 3) {
+    const v = rnd(1, 20)
+    if (!used.has(v) && v % 2 !== 0) { used.add(v); odds.push(v) }
+  }
+  return { values: [even, ...odds].sort(() => Math.random() - 0.5), correct: even }
+}
+
+function SpotRound({ values, correct, onComplete }) {
+  const [picked, setPicked] = useState(null)
+  function pick(v) {
+    if (picked !== null) return
+    setPicked(v)
+    setTimeout(onComplete, 700)
+  }
+  function cls(v) {
+    if (picked === null) return 'mission-spot-btn'
+    if (v === correct) return 'mission-spot-btn mission-spot-btn--correct'
+    if (v === picked && v !== correct) return 'mission-spot-btn mission-spot-btn--wrong'
+    return 'mission-spot-btn'
+  }
+  return (
+    <div className="mission-spot-grid">
+      {values.map(v => (
+        <button key={v} className={cls(v)} onClick={() => pick(v)} disabled={picked !== null}>{v}</button>
+      ))}
+    </div>
+  )
+}
+
+function SpotScreen({ step, onDone }) {
+  const { t } = useTranslation()
+  const qs = useMemo(() => Array.from({ length: 4 }, genSpotEven), [])
+  const [idx, setIdx] = useState(0)
+  const [done, setDone] = useState(false)
+
+  function advance() {
+    if (idx + 1 >= qs.length) setDone(true)
+    else setIdx(i => i + 1)
+  }
+
+  return (
+    <div className="mission-screen">
+      <Progress step={step} />
+      <div className="mission-body">
+        <div className="mission-title">
+          {done ? t('mission.2_1E.greatSpotting') : t('mission.1E.spotEven')}
+        </div>
+        <div style={{ visibility: done ? 'hidden' : 'visible', pointerEvents: done ? 'none' : 'auto' }}>
+          <SpotRound key={idx} {...qs[idx]} onComplete={advance} />
+        </div>
+        <div style={{ visibility: done ? 'hidden' : 'visible' }}>
+          <RoundDots total={qs.length} current={idx} />
+        </div>
+      </div>
+      <div className="mission-actions">
+        <button className="mission-next-btn" onClick={onDone} style={{ visibility: done ? 'visible' : 'hidden' }}>
+          {t('mission.next')}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Screen 4: Multi-select find even numbers ──────────────────────────────────
+
+function genMultiMiniQ() {
+  let values
+  do {
+    const pool = new Set()
+    while (pool.size < 6) pool.add(rnd(1, 30))
+    values = [...pool]
+  } while (!values.some(v => v % 2 === 0) || values.every(v => v % 2 === 0))
+  return values
+}
+
+function MultiMiniRound({ values, onComplete }) {
+  const [selected, setSelected] = useState(new Set())
+  const [submitted, setSubmitted] = useState(false)
+  const correctSet = new Set(values.filter(v => v % 2 === 0))
+
+  function toggle(v) {
+    if (submitted) return
+    setSelected(s => { const n = new Set(s); if (n.has(v)) n.delete(v); else n.add(v); return n })
+  }
+  function check() { setSubmitted(true); setTimeout(onComplete, 1000) }
+  function tileCls(v) {
+    if (!submitted) return `mission-eo-tile${selected.has(v) ? ' mission-eo-tile--selected' : ''}`
+    if (correctSet.has(v) && selected.has(v)) return 'mission-eo-tile mission-eo-tile--correct'
+    if (!correctSet.has(v) && selected.has(v)) return 'mission-eo-tile mission-eo-tile--wrong'
+    if (correctSet.has(v) && !selected.has(v)) return 'mission-eo-tile mission-eo-tile--missed'
+    return 'mission-eo-tile'
+  }
+  return (
+    <>
+      <div className="mission-eo-grid">
+        {values.map(v => (
+          <button key={v} className={tileCls(v)} onClick={() => toggle(v)} disabled={submitted}>{v}</button>
+        ))}
+      </div>
+      <button className="mission-next-btn" onClick={check} disabled={selected.size === 0 || submitted}>✓</button>
+    </>
+  )
+}
+
+function MultiMiniScreen({ step, onDone }) {
+  const { t } = useTranslation()
+  const qs = useMemo(() => Array.from({ length: 3 }, genMultiMiniQ), [])
+  const [idx, setIdx] = useState(0)
+  const [done, setDone] = useState(false)
+
+  function advance() {
+    if (idx + 1 >= qs.length) setDone(true)
+    else setIdx(i => i + 1)
+  }
+
+  return (
+    <div className="mission-screen">
+      <Progress step={step} />
+      <div className="mission-body">
+        <div className="mission-title">
+          {done ? t('mission.2_1E.greatSpotting') : t('mission.2_1E.findEven')}
+        </div>
+        <div style={{ visibility: done ? 'hidden' : 'visible', pointerEvents: done ? 'none' : 'auto' }}>
+          <MultiMiniRound key={idx} values={qs[idx]} onComplete={advance} />
+        </div>
+        <div style={{ visibility: done ? 'hidden' : 'visible' }}>
+          <RoundDots total={qs.length} current={idx} />
+        </div>
+      </div>
+      <div className="mission-actions">
+        <button className="mission-next-btn" onClick={onDone} style={{ visibility: done ? 'visible' : 'hidden' }}>
+          {t('mission.next')}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Screen 5: Classify (test) ─────────────────────────────────────────────────
 
 function ClassifyScreen({ step, onDone }) {
   const { t } = useTranslation()
@@ -237,8 +378,8 @@ export default function Mission2_1E({ pupilId, onComplete }) {
 
   if (step === 0) return <S1Dots onNext={() => setStep(1)} />
   if (step === 1) return <S2Teach onNext={() => setStep(2)} />
-  if (step === 2) return <ClassifyScreen key="c3" step={3} onDone={() => setStep(3)} />
-  if (step === 3) return <ClassifyScreen key="c4" step={4} onDone={() => setStep(4)} />
-  if (step === 4) return <ClassifyScreen key="c5" step={5} onDone={finish} />
+  if (step === 2) return <SpotScreen step={3} onDone={() => setStep(3)} />
+  if (step === 3) return <MultiMiniScreen step={4} onDone={() => setStep(4)} />
+  if (step === 4) return <ClassifyScreen step={5} onDone={finish} />
   return <Complete onDone={onComplete} />
 }

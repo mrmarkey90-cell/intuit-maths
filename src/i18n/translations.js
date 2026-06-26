@@ -504,23 +504,31 @@ export const translations = {
     'mission.even': 'Even',
     'mission.odd': 'Odd',
 
+    'mission.1E.spotEven': 'Which is even?',
+
     'mission.2_1E.isItEven': 'Even or odd?',
     'mission.2_1E.greatSpotting': 'Great spotting! 🎉',
     'mission.2_1E.watchPairs': 'Even numbers pair up perfectly...',
     'mission.2_1E.evenLabel': '✓ Pairs up! Even.',
     'mission.2_1E.oddLabel': 'One left over! Odd.',
+    'mission.2_1E.findEven': 'Find the even numbers',
 
     'mission.3_1E.isItEven': 'Even or odd?',
     'mission.3_1E.greatSpotting': 'Great digit spotting! 🎉',
     'mission.3_1E.watchLastDigit': 'The last digit tells you...',
     'mission.3_1E.findEven': 'Find the even numbers',
     'mission.3_1E.findOdd': 'Find the odd numbers',
+    'mission.3_1E.whichIn2Table': 'Which are in the 2 times table?',
+    'mission.3_1E.great2Table': 'You know your 2 times table! 🎉',
 
     'mission.4_1E.isItEven': 'Even or odd?',
     'mission.4_1E.greatSpotting': 'Last-digit expert! 🎉',
     'mission.4_1E.watchLastDigit': 'The last digit still tells you...',
     'mission.4_1E.findEven': 'Find the even numbers',
     'mission.4_1E.findOdd': 'Find the odd numbers',
+    'mission.4_1E.halfOf': 'Half of',
+    'mission.4_1E.halveIt': 'Halve it!',
+    'mission.4_1E.greatHalving': 'Halving hero! 🎉',
 
     'mission.1F.isItPrefix': 'Is this in the ',
     'mission.1F.isItSuffix': ' times table?',
@@ -530,6 +538,7 @@ export const translations = {
     'mission.1F.findSuffix': ' times table?',
     'mission.1F.yes': 'Yes ✓',
     'mission.1F.no': 'No',
+    'mission.1F.whatNext': 'What comes next?',
 
     'mission.3_1F.countIn': 'Count in 2s:',
     'mission.3_1F.great': 'You know your 2 times table! 🎉',
@@ -1128,23 +1137,31 @@ export const translations = {
     'mission.even': 'Eilrif',
     'mission.odd': 'Odrif',
 
+    'mission.1E.spotEven': "Pa un sy'n eilrif?",
+
     'mission.2_1E.isItEven': 'Eilrif neu odrif?',
     'mission.2_1E.greatSpotting': 'Sylwi da! 🎉',
     'mission.2_1E.watchPairs': "Mae eilrifau'n paru'n berffaith...",
     'mission.2_1E.evenLabel': "✓ Yn paru! Eilrif.",
     'mission.2_1E.oddLabel': 'Un ar ôl! Odrif.',
+    'mission.2_1E.findEven': "Canfod yr eilrifau",
 
     'mission.3_1E.isItEven': 'Eilrif neu odrif?',
     'mission.3_1E.greatSpotting': 'Da iawn yn sylwi! 🎉',
     'mission.3_1E.watchLastDigit': "Mae'r digid olaf yn dweud wrthoch...",
     'mission.3_1E.findEven': 'Canfod y rhifau eilrif',
     'mission.3_1E.findOdd': 'Canfod y rhifau odrif',
+    'mission.3_1E.whichIn2Table': "Pa rai sydd yn nhabl 2?",
+    'mission.3_1E.great2Table': 'Da iawn gyda thabl 2! 🎉',
 
     'mission.4_1E.isItEven': 'Eilrif neu odrif?',
     'mission.4_1E.greatSpotting': 'Arbenigwr digid olaf! 🎉',
     'mission.4_1E.watchLastDigit': "Mae'r digid olaf yn dal i ddweud...",
     'mission.4_1E.findEven': 'Canfod y rhifau eilrif',
     'mission.4_1E.findOdd': 'Canfod y rhifau odrif',
+    'mission.4_1E.halfOf': 'Hanner',
+    'mission.4_1E.halveIt': 'Hanera!',
+    'mission.4_1E.greatHalving': 'Arwr haneru! 🎉',
 
     'mission.1F.isItPrefix': 'Ydy hwn yn nhabl ',
     'mission.1F.isItSuffix': '?',
@@ -1154,6 +1171,7 @@ export const translations = {
     'mission.1F.findSuffix': '?',
     'mission.1F.yes': 'Ydy ✓',
     'mission.1F.no': 'Nac ydy',
+    'mission.1F.whatNext': "Beth sy'n dod nesaf?",
 
     'mission.3_1F.countIn': 'Cyfrwch mewn 2au:',
     'mission.3_1F.great': 'Da iawn gyda thabl 2! 🎉',

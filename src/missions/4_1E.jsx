@@ -24,7 +24,6 @@ function RoundDots({ total, current }) {
   )
 }
 
-// Number with the last digit highlighted. revealed = show green/red colour.
 function LastDigit({ n, revealed }) {
   const s = String(n)
   const prefix = s.slice(0, -1)
@@ -41,7 +40,6 @@ function LastDigit({ n, revealed }) {
   )
 }
 
-// Even/Odd reference strip
 function DigitStrips() {
   const { t } = useTranslation()
   return (
@@ -62,14 +60,12 @@ function DigitStrips() {
   )
 }
 
-// Even/Odd tap buttons
 function EvenOddBtns({ n, onComplete }) {
   const { t } = useTranslation()
   const [fb, setFb] = useState(null)
   function pick(isEven) {
     if (fb) return
-    const correct = isEven === (n % 2 === 0)
-    setFb({ isEven, correct })
+    setFb({ isEven, correct: isEven === (n % 2 === 0) })
     setTimeout(onComplete, 700)
   }
   function cls(isEven) {
@@ -90,91 +86,58 @@ function EvenOddBtns({ n, onComplete }) {
   )
 }
 
-// Generates a multi-select question: 6 random numbers from 25-99,
-// guaranteed to have at least one (but not all) of the target parity.
-function genMultiQ() {
-  const wantEven = Math.random() < 0.5
-  let values
-  do {
-    const pool = new Set()
-    while (pool.size < 6) pool.add(rnd(25, 99))
-    values = [...pool]
-  } while (
-    !values.some(v => (v % 2 === 0) === wantEven) ||
-    values.every(v => (v % 2 === 0) === wantEven)
-  )
-  return { values, wantEven }
-}
+// ── Screen 1: Halving warm-up ─────────────────────────────────────────────────
 
-// Multi-select tile grid + Check button
-function MultiQ({ q, onComplete }) {
-  const { t } = useTranslation()
-  const [selected, setSelected] = useState(new Set())
-  const [submitted, setSubmitted] = useState(false)
-  const correctSet = new Set(q.values.filter(v => (v % 2 === 0) === q.wantEven))
+function HalveRound({ n, onComplete }) {
+  const correct = n / 2
+  const options = useMemo(() => {
+    const d1 = correct + 2
+    const d2 = correct >= 3 ? correct - 2 : correct + 4
+    return [correct, d1, d2].sort(() => Math.random() - 0.5)
+  }, [correct])
+  const [picked, setPicked] = useState(null)
 
-  function toggle(v) {
-    if (submitted) return
-    setSelected(s => {
-      const n = new Set(s)
-      if (n.has(v)) n.delete(v); else n.add(v)
-      return n
-    })
+  function pick(v) {
+    if (picked !== null) return
+    setPicked(v)
+    setTimeout(onComplete, 700)
   }
-
-  function check() {
-    setSubmitted(true)
-    setTimeout(onComplete, 1000)
+  function cls(v) {
+    if (picked === null) return 'mission-seq-opt'
+    if (v === correct) return 'mission-seq-opt mission-seq-opt--correct'
+    if (v === picked && v !== correct) return 'mission-seq-opt mission-seq-opt--wrong'
+    return 'mission-seq-opt'
   }
-
-  function tileCls(v) {
-    if (!submitted) return `mission-eo-tile${selected.has(v) ? ' mission-eo-tile--selected' : ''}`
-    if (correctSet.has(v) && selected.has(v)) return 'mission-eo-tile mission-eo-tile--correct'
-    if (!correctSet.has(v) && selected.has(v)) return 'mission-eo-tile mission-eo-tile--wrong'
-    if (correctSet.has(v) && !selected.has(v)) return 'mission-eo-tile mission-eo-tile--missed'
-    return 'mission-eo-tile'
-  }
-
-  const prompt = q.wantEven ? t('mission.4_1E.findEven') : t('mission.4_1E.findOdd')
 
   return (
-    <>
-      <div className="mission-subtitle">{prompt}</div>
-      <div className="mission-eo-grid">
-        {q.values.map(v => (
-          <button key={v} className={tileCls(v)} onClick={() => toggle(v)} disabled={submitted}>
-            {v}
-          </button>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.5vw, 20px)' }}>
+      <div className="mission-title" style={{ fontSize: 'clamp(48px, 11vw, 80px)', margin: 0 }}>{n}</div>
+      <div className="mission-seq-opts">
+        {options.map(v => (
+          <button key={v} className={cls(v)} onClick={() => pick(v)} disabled={picked !== null}>{v}</button>
         ))}
       </div>
-      <button
-        className="mission-next-btn"
-        onClick={check}
-        disabled={selected.size === 0 || submitted}
-      >
-        ✓
-      </button>
-    </>
+    </div>
   )
 }
 
-// ── Screen 1: Classify 2-digit numbers with last-digit highlight ──────────────
-
-function S1Classify({ onNext }) {
+function S1Halving({ onNext }) {
   const { t } = useTranslation()
-  const nums = useMemo(() => Array.from({ length: 4 }, () => rnd(25, 99)), [])
+  const qs = useMemo(() => {
+    const used = new Set()
+    const arr = []
+    while (arr.length < 4) {
+      const n = rnd(5, 20) * 2
+      if (!used.has(n)) { used.add(n); arr.push(n) }
+    }
+    return arr
+  }, [])
   const [idx, setIdx] = useState(0)
   const [done, setDone] = useState(false)
-  const [revealed, setRevealed] = useState(false)
-  const n = nums[Math.min(idx, nums.length - 1)]
 
-  function onAnswer() {
-    setRevealed(true)
-    if (idx + 1 >= nums.length) {
-      setTimeout(() => setDone(true), 400)
-    } else {
-      setTimeout(() => { setRevealed(false); setIdx(i => i + 1) }, 700)
-    }
+  function advance() {
+    if (idx + 1 >= qs.length) setDone(true)
+    else setIdx(i => i + 1)
   }
 
   return (
@@ -182,16 +145,16 @@ function S1Classify({ onNext }) {
       <Progress step={1} />
       <div className="mission-body">
         <div className="mission-title">
-          {done ? t('mission.4_1E.greatSpotting') : t('mission.4_1E.isItEven')}
+          {done ? t('mission.4_1E.greatHalving') : t('mission.4_1E.halveIt')}
         </div>
-        <div style={{ visibility: done ? 'hidden' : 'visible' }}>
-          <LastDigit n={n} revealed={revealed} />
+        <div className="mission-subtitle" style={{ visibility: done ? 'hidden' : 'visible' }}>
+          {t('mission.4_1E.halfOf')}
         </div>
         <div style={{ visibility: done ? 'hidden' : 'visible', pointerEvents: done ? 'none' : 'auto' }}>
-          <EvenOddBtns key={idx} n={n} onComplete={onAnswer} />
+          <HalveRound key={idx} n={qs[idx]} onComplete={advance} />
         </div>
         <div style={{ visibility: done ? 'hidden' : 'visible' }}>
-          <RoundDots total={nums.length} current={idx} />
+          <RoundDots total={qs.length} current={idx} />
         </div>
       </div>
       <div className="mission-actions">
@@ -203,13 +166,13 @@ function S1Classify({ onNext }) {
   )
 }
 
-// ── Screen 2: Digit strip + animated example teach ───────────────────────────
+// ── Screen 2: Digit strip + animated teach ───────────────────────────────────
 
 function S2Teach({ onNext }) {
   const { t } = useTranslation()
   const examples = useMemo(() => {
-    const e = rnd(13, 49) * 2         // even 26-98
-    const o = rnd(13, 49) * 2 - 1     // odd 25-97
+    const e = rnd(13, 49) * 2
+    const o = rnd(13, 49) * 2 - 1
     return Math.random() < 0.5 ? [e, o] : [o, e]
   }, [])
   const [exIdx, setExIdx] = useState(0)
@@ -253,7 +216,157 @@ function S2Teach({ onNext }) {
   )
 }
 
-// ── Screens 3-5: multi-select grid ───────────────────────────────────────────
+// ── Screen 3: Last-digit classify (2-digit numbers) ──────────────────────────
+
+function SingleClassify({ step, onDone }) {
+  const { t } = useTranslation()
+  const qs = useMemo(() => Array.from({ length: 3 }, () => rnd(25, 99)), [])
+  const [idx, setIdx] = useState(0)
+  const [revealed, setRevealed] = useState(false)
+  const n = qs[Math.min(idx, qs.length - 1)]
+
+  function onAnswer() {
+    setRevealed(true)
+    if (idx + 1 >= qs.length) {
+      setTimeout(onDone, 600)
+    } else {
+      setTimeout(() => { setRevealed(false); setIdx(i => i + 1) }, 700)
+    }
+  }
+
+  return (
+    <div className="mission-screen">
+      <Progress step={step} />
+      <div className="mission-body">
+        <div className="mission-subtitle">{t('mission.4_1E.isItEven')}</div>
+        <LastDigit n={n} revealed={revealed} />
+        <EvenOddBtns key={idx} n={n} onComplete={onAnswer} />
+        <RoundDots total={qs.length} current={idx} />
+      </div>
+      <div className="mission-actions">
+        <button className="mission-next-btn" style={{ visibility: 'hidden' }}>_</button>
+      </div>
+    </div>
+  )
+}
+
+// ── Screen 4: Spot the even (2-digit numbers) ────────────────────────────────
+
+function genSpotEven() {
+  const used = new Set()
+  const even = rnd(13, 49) * 2
+  used.add(even)
+  const odds = []
+  while (odds.length < 3) {
+    const v = rnd(25, 99)
+    if (!used.has(v) && v % 2 !== 0) { used.add(v); odds.push(v) }
+  }
+  return { values: [even, ...odds].sort(() => Math.random() - 0.5), correct: even }
+}
+
+function SpotRound({ values, correct, onComplete }) {
+  const [picked, setPicked] = useState(null)
+  function pick(v) {
+    if (picked !== null) return
+    setPicked(v)
+    setTimeout(onComplete, 700)
+  }
+  function cls(v) {
+    if (picked === null) return 'mission-spot-btn'
+    if (v === correct) return 'mission-spot-btn mission-spot-btn--correct'
+    if (v === picked && v !== correct) return 'mission-spot-btn mission-spot-btn--wrong'
+    return 'mission-spot-btn'
+  }
+  return (
+    <div className="mission-spot-grid">
+      {values.map(v => (
+        <button key={v} className={cls(v)} onClick={() => pick(v)} disabled={picked !== null}>{v}</button>
+      ))}
+    </div>
+  )
+}
+
+function SpotScreen({ step, onDone }) {
+  const { t } = useTranslation()
+  const qs = useMemo(() => Array.from({ length: 4 }, genSpotEven), [])
+  const [idx, setIdx] = useState(0)
+  const [done, setDone] = useState(false)
+
+  function advance() {
+    if (idx + 1 >= qs.length) setDone(true)
+    else setIdx(i => i + 1)
+  }
+
+  return (
+    <div className="mission-screen">
+      <Progress step={step} />
+      <div className="mission-body">
+        <div className="mission-title">
+          {done ? t('mission.4_1E.greatSpotting') : t('mission.1E.spotEven')}
+        </div>
+        <div style={{ visibility: done ? 'hidden' : 'visible', pointerEvents: done ? 'none' : 'auto' }}>
+          <SpotRound key={idx} {...qs[idx]} onComplete={advance} />
+        </div>
+        <div style={{ visibility: done ? 'hidden' : 'visible' }}>
+          <RoundDots total={qs.length} current={idx} />
+        </div>
+      </div>
+      <div className="mission-actions">
+        <button className="mission-next-btn" onClick={onDone} style={{ visibility: done ? 'visible' : 'hidden' }}>
+          {t('mission.next')}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Screen 5: Multi-select grid (test) ───────────────────────────────────────
+
+function genMultiQ() {
+  const wantEven = Math.random() < 0.5
+  let values
+  do {
+    const pool = new Set()
+    while (pool.size < 6) pool.add(rnd(25, 99))
+    values = [...pool]
+  } while (
+    !values.some(v => (v % 2 === 0) === wantEven) ||
+    values.every(v => (v % 2 === 0) === wantEven)
+  )
+  return { values, wantEven }
+}
+
+function MultiQ({ q, onComplete }) {
+  const { t } = useTranslation()
+  const [selected, setSelected] = useState(new Set())
+  const [submitted, setSubmitted] = useState(false)
+  const correctSet = new Set(q.values.filter(v => (v % 2 === 0) === q.wantEven))
+
+  function toggle(v) {
+    if (submitted) return
+    setSelected(s => { const n = new Set(s); if (n.has(v)) n.delete(v); else n.add(v); return n })
+  }
+  function check() { setSubmitted(true); setTimeout(onComplete, 1000) }
+  function tileCls(v) {
+    if (!submitted) return `mission-eo-tile${selected.has(v) ? ' mission-eo-tile--selected' : ''}`
+    if (correctSet.has(v) && selected.has(v)) return 'mission-eo-tile mission-eo-tile--correct'
+    if (!correctSet.has(v) && selected.has(v)) return 'mission-eo-tile mission-eo-tile--wrong'
+    if (correctSet.has(v) && !selected.has(v)) return 'mission-eo-tile mission-eo-tile--missed'
+    return 'mission-eo-tile'
+  }
+  const prompt = q.wantEven ? t('mission.4_1E.findEven') : t('mission.4_1E.findOdd')
+  return (
+    <>
+      <div className="mission-subtitle">{prompt}</div>
+      <div className="mission-eo-grid">
+        {q.values.map(v => (
+          <button key={v} className={tileCls(v)} onClick={() => toggle(v)} disabled={submitted}>{v}</button>
+        ))}
+      </div>
+      <button className="mission-next-btn" onClick={check} disabled={selected.size === 0 || submitted}>✓</button>
+    </>
+  )
+}
 
 function MultiScreen({ step, onDone }) {
   const qs = useMemo(() => Array.from({ length: 3 }, genMultiQ), [])
@@ -307,10 +420,10 @@ export default function Mission4_1E({ pupilId, onComplete }) {
     setStep(5)
   }
 
-  if (step === 0) return <S1Classify onNext={() => setStep(1)} />
+  if (step === 0) return <S1Halving onNext={() => setStep(1)} />
   if (step === 1) return <S2Teach onNext={() => setStep(2)} />
-  if (step === 2) return <MultiScreen key="m3" step={3} onDone={() => setStep(3)} />
-  if (step === 3) return <MultiScreen key="m4" step={4} onDone={() => setStep(4)} />
+  if (step === 2) return <SingleClassify step={3} onDone={() => setStep(3)} />
+  if (step === 3) return <SpotScreen step={4} onDone={() => setStep(4)} />
   if (step === 4) return <MultiScreen key="m5" step={5} onDone={finish} />
   return <Complete onDone={onComplete} />
 }

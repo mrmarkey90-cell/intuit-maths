@@ -27,7 +27,7 @@ function RoundDots({ total, current }) {
   )
 }
 
-// ── Sequence round ────────────────────────────────────────────────────────────
+// ── Screen 1: sequence completion warm-up ─────────────────────────────────────
 
 function SeqRound({ shown, answer, options, onComplete }) {
   const [picked, setPicked] = useState(null)
@@ -61,16 +61,13 @@ function SeqRound({ shown, answer, options, onComplete }) {
   )
 }
 
-// ── Screen 1: sequence completion warm-up ─────────────────────────────────────
-
 function S1Sequence({ onNext }) {
   const { t } = useTranslation()
   const rounds = useMemo(() =>
     [1, 3, 5, 7].map(startIdx => {
       const shown = [1, 2, 3].map(i => (startIdx + i - 1) * TABLE)
       const answer = (startIdx + 3) * TABLE
-      // distractors: answer ± 1 are never multiples of 3
-      const options = [answer, answer - 1, answer + 1].sort(() => Math.random() - 0.5)
+      const options = [answer, answer - 1, answer + TABLE].sort(() => Math.random() - 0.5)
       return { shown, answer, options }
     })
   , [])
@@ -105,7 +102,7 @@ function S1Sequence({ onNext }) {
   )
 }
 
-// ── Screen 2: animated multiples strip ───────────────────────────────────────
+// ── Screen 2: animated multiples strip (2 rows of 5) ─────────────────────────
 
 function S2Teach({ onNext }) {
   const { t } = useTranslation()
@@ -132,10 +129,15 @@ function S2Teach({ onNext }) {
       <div className="mission-body">
         <div className="mission-subtitle">{watchText}</div>
         <div className="mission-multiples-strip">
-          {multiples.map((m, i) => (
-            <span key={m} className={`mission-multiples-chip${i < revealed ? ' mission-multiples-chip--lit' : ''}`}>
-              {m}
-            </span>
+          {[multiples.slice(0, 5), multiples.slice(5)].map((row, rowIdx) => (
+            <div key={rowIdx} className="mission-multiples-row">
+              {row.map((m, colIdx) => {
+                const gi = rowIdx * 5 + colIdx
+                return (
+                  <span key={m} className={`mission-multiples-chip${gi < revealed ? ' mission-multiples-chip--lit' : ''}`}>{m}</span>
+                )
+              })}
+            </div>
           ))}
         </div>
       </div>
@@ -148,7 +150,151 @@ function S2Teach({ onNext }) {
   )
 }
 
-// ── Multi-select (screens 3-5) ────────────────────────────────────────────────
+// ── Screen 3: True/False — is this in the 3 times table? ─────────────────────
+
+function TrueFalseScreen({ step, onDone }) {
+  const { t } = useTranslation()
+  const rounds = useMemo(() => {
+    const used = new Set()
+    const yes = [], no = []
+    while (yes.length < 2) {
+      const v = rnd(1, 10) * TABLE
+      if (!used.has(v)) { used.add(v); yes.push(v) }
+    }
+    while (no.length < 2) {
+      const v = rnd(1, MAX_VAL)
+      if (!used.has(v) && v % TABLE !== 0) { used.add(v); no.push(v) }
+    }
+    return [...yes, ...no].sort(() => Math.random() - 0.5)
+  }, [])
+
+  const [idx, setIdx] = useState(0)
+  const [fb, setFb] = useState(null)
+  const [done, setDone] = useState(false)
+  const n = rounds[Math.min(idx, rounds.length - 1)]
+  const isMultiple = n % TABLE === 0
+
+  function pickYN(yes) {
+    if (fb || done) return
+    setFb({ yes, correct: yes === isMultiple })
+    setTimeout(() => {
+      setFb(null)
+      if (idx + 1 >= rounds.length) setDone(true)
+      else setIdx(i => i + 1)
+    }, 700)
+  }
+
+  function btnCls(yes) {
+    if (!fb) return 'mission-bigger-btn'
+    if (yes === isMultiple) return 'mission-bigger-btn mission-bigger-btn--correct'
+    if (fb.yes === yes) return 'mission-bigger-btn mission-bigger-btn--wrong'
+    return 'mission-bigger-btn'
+  }
+
+  const questionText = `${t('mission.1F.isItPrefix')}${TABLE}${t('mission.1F.isItSuffix')}`
+
+  return (
+    <div className="mission-screen">
+      <Progress step={step} />
+      <div className="mission-body">
+        <div className="mission-title">
+          {done ? t('mission.4_1F.great') : questionText}
+        </div>
+        <div className="mission-title" style={{ fontSize: 'clamp(40px, 9vw, 68px)', visibility: done ? 'hidden' : 'visible' }}>
+          {n}
+        </div>
+        <div className="mission-bigger-row" style={{ visibility: done ? 'hidden' : 'visible', pointerEvents: done ? 'none' : 'auto' }}>
+          <button className={btnCls(true)} style={{ fontSize: 'clamp(16px, 3vw, 24px)' }} onClick={() => pickYN(true)} disabled={!!fb}>
+            {t('mission.1F.yes')}
+          </button>
+          <button className={btnCls(false)} style={{ fontSize: 'clamp(16px, 3vw, 24px)' }} onClick={() => pickYN(false)} disabled={!!fb}>
+            {t('mission.1F.no')}
+          </button>
+        </div>
+        <div style={{ visibility: done ? 'hidden' : 'visible' }}>
+          <RoundDots total={rounds.length} current={idx} />
+        </div>
+      </div>
+      <div className="mission-actions">
+        <button className="mission-next-btn" onClick={onDone} style={{ visibility: done ? 'visible' : 'hidden' }}>
+          {t('mission.next')}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Screen 4: Spot the multiple — 4 tiles, 1 correct ─────────────────────────
+
+function genSpotQ() {
+  const used = new Set()
+  const mult = rnd(1, 10) * TABLE
+  used.add(mult)
+  const nonMults = []
+  while (nonMults.length < 3) {
+    const v = rnd(1, MAX_VAL)
+    if (!used.has(v) && v % TABLE !== 0) { used.add(v); nonMults.push(v) }
+  }
+  return { values: [mult, ...nonMults].sort(() => Math.random() - 0.5), correct: mult }
+}
+
+function SpotRound({ values, correct, onComplete }) {
+  const [picked, setPicked] = useState(null)
+  function pick(v) {
+    if (picked !== null) return
+    setPicked(v)
+    setTimeout(onComplete, 700)
+  }
+  function cls(v) {
+    if (picked === null) return 'mission-spot-btn'
+    if (v === correct) return 'mission-spot-btn mission-spot-btn--correct'
+    if (v === picked && v !== correct) return 'mission-spot-btn mission-spot-btn--wrong'
+    return 'mission-spot-btn'
+  }
+  return (
+    <div className="mission-spot-grid">
+      {values.map(v => (
+        <button key={v} className={cls(v)} onClick={() => pick(v)} disabled={picked !== null}>{v}</button>
+      ))}
+    </div>
+  )
+}
+
+function SpotScreen({ step, findPrompt, onDone }) {
+  const { t } = useTranslation()
+  const qs = useMemo(() => Array.from({ length: 4 }, genSpotQ), [])
+  const [idx, setIdx] = useState(0)
+  const [done, setDone] = useState(false)
+
+  function advance() {
+    if (idx + 1 >= qs.length) setDone(true)
+    else setIdx(i => i + 1)
+  }
+
+  return (
+    <div className="mission-screen">
+      <Progress step={step} />
+      <div className="mission-body">
+        <div className="mission-title">
+          {done ? t('mission.4_1F.great') : findPrompt}
+        </div>
+        <div style={{ visibility: done ? 'hidden' : 'visible', pointerEvents: done ? 'none' : 'auto' }}>
+          <SpotRound key={idx} {...qs[idx]} onComplete={advance} />
+        </div>
+        <div style={{ visibility: done ? 'hidden' : 'visible' }}>
+          <RoundDots total={qs.length} current={idx} />
+        </div>
+      </div>
+      <div className="mission-actions">
+        <button className="mission-next-btn" onClick={onDone} style={{ visibility: done ? 'visible' : 'hidden' }}>
+          {t('mission.next')}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Screen 5: Multi-select (test) ─────────────────────────────────────────────
 
 function genMultiQ() {
   let values
@@ -244,8 +390,8 @@ export default function Mission4_1F({ pupilId, onComplete }) {
 
   if (step === 0) return <S1Sequence onNext={() => setStep(1)} />
   if (step === 1) return <S2Teach onNext={() => setStep(2)} />
-  if (step === 2) return <MultiScreen key="m3" step={3} findPrompt={findPrompt} onDone={() => setStep(3)} />
-  if (step === 3) return <MultiScreen key="m4" step={4} findPrompt={findPrompt} onDone={() => setStep(4)} />
+  if (step === 2) return <TrueFalseScreen step={3} onDone={() => setStep(3)} />
+  if (step === 3) return <SpotScreen step={4} findPrompt={findPrompt} onDone={() => setStep(4)} />
   if (step === 4) return <MultiScreen key="m5" step={5} findPrompt={findPrompt} onDone={finish} />
   return <Complete onDone={onComplete} />
 }

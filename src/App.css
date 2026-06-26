@@ -5148,10 +5148,15 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
 
 .mission-multiples-strip {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(6px, 1.2vw, 10px);
+  width: 100%;
+}
+.mission-multiples-row {
+  display: flex;
   gap: clamp(5px, 0.9vw, 9px);
   justify-content: center;
-  max-width: 480px;
 }
 .mission-multiples-chip {
   padding: clamp(3px, 0.6vw, 6px) clamp(6px, 1.1vw, 10px);
@@ -5223,6 +5228,31 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
 .mission-seq-opt--correct { background: #dcfce7; border-color: #16a34a; color: #15803d; }
 .mission-seq-opt--wrong   { background: #fee2e2; border-color: #dc2626; color: #b91c1c; }
 .mission-seq-opt:disabled { cursor: default; }
+
+/* ── Spot-the-multiple grid (1E, 1F) ─────────────────────────────────────── */
+
+.mission-spot-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(10px, 2vw, 16px);
+  width: min(300px, 80vw);
+}
+.mission-spot-btn {
+  padding: clamp(14px, 3vw, 22px) clamp(10px, 2vw, 16px);
+  font-size: clamp(22px, 4.5vw, 36px);
+  font-weight: 800;
+  border: 2px solid #c7d2fe;
+  border-radius: 12px;
+  background: #fff;
+  color: #1e1b4b;
+  cursor: pointer;
+  transition: background 0.1s, border-color 0.1s;
+}
+.mission-spot-btn:disabled         { background: #fff; }
+.mission-spot-btn--correct         { background: #dcfce7; border-color: #16a34a; color: #15803d; }
+.mission-spot-btn--wrong           { background: #fee2e2; border-color: #dc2626; color: #991b1b; }
+.mission-spot-btn--correct:disabled { background: #dcfce7; }
+.mission-spot-btn--wrong:disabled   { background: #fee2e2; }
 
 /* ── Even/Odd dot grid (2_1E) ────────────────────────────────────────────── */
 

@@ -24,8 +24,6 @@ function RoundDots({ total, current }) {
   )
 }
 
-// Number with the last digit highlighted in a coloured box.
-// `revealed`: false = neutral indigo, true = green (even) or red (odd)
 function LastDigit({ n, revealed }) {
   const s = String(n)
   const prefix = s.slice(0, -1)
@@ -42,7 +40,6 @@ function LastDigit({ n, revealed }) {
   )
 }
 
-// Even/Odd reference strip: "Even: 0 2 4 6 8" / "Odd: 1 3 5 7 9"
 function DigitStrips() {
   const { t } = useTranslation()
   return (
@@ -63,14 +60,12 @@ function DigitStrips() {
   )
 }
 
-// Even/Odd tap buttons
 function EvenOddBtns({ n, onComplete }) {
   const { t } = useTranslation()
   const [fb, setFb] = useState(null)
   function pick(isEven) {
     if (fb) return
-    const correct = isEven === (n % 2 === 0)
-    setFb({ isEven, correct })
+    setFb({ isEven, correct: isEven === (n % 2 === 0) })
     setTimeout(onComplete, 700)
   }
   function cls(isEven) {
@@ -91,43 +86,28 @@ function EvenOddBtns({ n, onComplete }) {
   )
 }
 
-// Generates a multi-select question: 6 random numbers from 1-30,
-// guaranteed to have at least one (but not all) of the target parity.
-function genMultiQ() {
-  const wantEven = Math.random() < 0.5
+// ── Screen 1: Warm-up — "Which are in the 2 times table?" ────────────────────
+
+function genWarmupQ() {
   let values
   do {
     const pool = new Set()
-    while (pool.size < 6) pool.add(rnd(1, 30))
+    while (pool.size < 6) pool.add(rnd(1, 20))
     values = [...pool]
-  } while (
-    !values.some(v => (v % 2 === 0) === wantEven) ||
-    values.every(v => (v % 2 === 0) === wantEven)
-  )
-  return { values, wantEven }
+  } while (!values.some(v => v % 2 === 0) || values.every(v => v % 2 === 0))
+  return values
 }
 
-// Multi-select tile grid + Check button
-function MultiQ({ q, onComplete }) {
-  const { t } = useTranslation()
+function WarmupGrid({ values, onComplete }) {
   const [selected, setSelected] = useState(new Set())
   const [submitted, setSubmitted] = useState(false)
-  const correctSet = new Set(q.values.filter(v => (v % 2 === 0) === q.wantEven))
+  const correctSet = new Set(values.filter(v => v % 2 === 0))
 
   function toggle(v) {
     if (submitted) return
-    setSelected(s => {
-      const n = new Set(s)
-      if (n.has(v)) n.delete(v); else n.add(v)
-      return n
-    })
+    setSelected(s => { const n = new Set(s); if (n.has(v)) n.delete(v); else n.add(v); return n })
   }
-
-  function check() {
-    setSubmitted(true)
-    setTimeout(onComplete, 1000)
-  }
-
+  function check() { setSubmitted(true); setTimeout(onComplete, 1000) }
   function tileCls(v) {
     if (!submitted) return `mission-eo-tile${selected.has(v) ? ' mission-eo-tile--selected' : ''}`
     if (correctSet.has(v) && selected.has(v)) return 'mission-eo-tile mission-eo-tile--correct'
@@ -135,47 +115,27 @@ function MultiQ({ q, onComplete }) {
     if (correctSet.has(v) && !selected.has(v)) return 'mission-eo-tile mission-eo-tile--missed'
     return 'mission-eo-tile'
   }
-
-  const prompt = q.wantEven ? t('mission.3_1E.findEven') : t('mission.3_1E.findOdd')
-
   return (
     <>
-      <div className="mission-subtitle">{prompt}</div>
       <div className="mission-eo-grid">
-        {q.values.map(v => (
-          <button key={v} className={tileCls(v)} onClick={() => toggle(v)} disabled={submitted}>
-            {v}
-          </button>
+        {values.map(v => (
+          <button key={v} className={tileCls(v)} onClick={() => toggle(v)} disabled={submitted}>{v}</button>
         ))}
       </div>
-      <button
-        className="mission-next-btn"
-        onClick={check}
-        disabled={selected.size === 0 || submitted}
-      >
-        ✓
-      </button>
+      <button className="mission-next-btn" onClick={check} disabled={selected.size === 0 || submitted}>✓</button>
     </>
   )
 }
 
-// ── Screen 1: Classify single numbers with last-digit highlight ───────────────
-
-function S1Classify({ onNext }) {
+function S1MultiWarmup({ onNext }) {
   const { t } = useTranslation()
-  const nums = useMemo(() => Array.from({ length: 4 }, () => rnd(1, 30)), [])
+  const qs = useMemo(() => Array.from({ length: 3 }, genWarmupQ), [])
   const [idx, setIdx] = useState(0)
   const [done, setDone] = useState(false)
-  const [revealed, setRevealed] = useState(false)
-  const n = nums[Math.min(idx, nums.length - 1)]
 
-  function onAnswer() {
-    setRevealed(true)
-    if (idx + 1 >= nums.length) {
-      setTimeout(() => setDone(true), 400)
-    } else {
-      setTimeout(() => { setRevealed(false); setIdx(i => i + 1) }, 700)
-    }
+  function advance() {
+    if (idx + 1 >= qs.length) setDone(true)
+    else setIdx(i => i + 1)
   }
 
   return (
@@ -183,16 +143,13 @@ function S1Classify({ onNext }) {
       <Progress step={1} />
       <div className="mission-body">
         <div className="mission-title">
-          {done ? t('mission.3_1E.greatSpotting') : t('mission.3_1E.isItEven')}
-        </div>
-        <div style={{ visibility: done ? 'hidden' : 'visible' }}>
-          <LastDigit n={n} revealed={revealed} />
+          {done ? t('mission.3_1E.great2Table') : t('mission.3_1E.whichIn2Table')}
         </div>
         <div style={{ visibility: done ? 'hidden' : 'visible', pointerEvents: done ? 'none' : 'auto' }}>
-          <EvenOddBtns key={idx} n={n} onComplete={onAnswer} />
+          <WarmupGrid key={idx} values={qs[idx]} onComplete={advance} />
         </div>
         <div style={{ visibility: done ? 'hidden' : 'visible' }}>
-          <RoundDots total={nums.length} current={idx} />
+          <RoundDots total={qs.length} current={idx} />
         </div>
       </div>
       <div className="mission-actions">
@@ -205,16 +162,13 @@ function S1Classify({ onNext }) {
 }
 
 // ── Screen 2: Digit strip + animated example teach ───────────────────────────
-// Strip always visible. Two example numbers cycle (one even, one odd).
-// Phases: 1 = number, 2 = last digit colour revealed, 3 = label + button.
 
 function S2Teach({ onNext }) {
   const { t } = useTranslation()
   const examples = useMemo(() => {
-    const e = rnd(2, 28) * 2       // random even 2-28, making it 2-digit by padding
-    const o = rnd(1, 15) * 2 - 1   // random odd 1-29
-    // ensure both are 2 digits (>= 10) for the visual
+    const e = rnd(2, 28) * 2
     const even = e < 10 ? e + 10 : e
+    const o = rnd(1, 15) * 2 - 1
     const odd = o < 10 ? o + 10 : o
     return Math.random() < 0.5 ? [even, odd] : [odd, even]
   }, [])
@@ -259,7 +213,157 @@ function S2Teach({ onNext }) {
   )
 }
 
-// ── Screens 3-5: multi-select grid ───────────────────────────────────────────
+// ── Screen 3: Last-digit classify ─────────────────────────────────────────────
+
+function SingleClassify({ step, onDone }) {
+  const { t } = useTranslation()
+  const qs = useMemo(() => Array.from({ length: 3 }, () => rnd(1, 30)), [])
+  const [idx, setIdx] = useState(0)
+  const [revealed, setRevealed] = useState(false)
+  const n = qs[Math.min(idx, qs.length - 1)]
+
+  function onAnswer() {
+    setRevealed(true)
+    if (idx + 1 >= qs.length) {
+      setTimeout(onDone, 600)
+    } else {
+      setTimeout(() => { setRevealed(false); setIdx(i => i + 1) }, 700)
+    }
+  }
+
+  return (
+    <div className="mission-screen">
+      <Progress step={step} />
+      <div className="mission-body">
+        <div className="mission-subtitle">{t('mission.3_1E.isItEven')}</div>
+        <LastDigit n={n} revealed={revealed} />
+        <EvenOddBtns key={idx} n={n} onComplete={onAnswer} />
+        <RoundDots total={qs.length} current={idx} />
+      </div>
+      <div className="mission-actions">
+        <button className="mission-next-btn" style={{ visibility: 'hidden' }}>_</button>
+      </div>
+    </div>
+  )
+}
+
+// ── Screen 4: Spot the even — 4 tiles, 1 correct ─────────────────────────────
+
+function genSpotEven() {
+  const used = new Set()
+  const even = rnd(1, 15) * 2
+  used.add(even)
+  const odds = []
+  while (odds.length < 3) {
+    const v = rnd(1, 30)
+    if (!used.has(v) && v % 2 !== 0) { used.add(v); odds.push(v) }
+  }
+  return { values: [even, ...odds].sort(() => Math.random() - 0.5), correct: even }
+}
+
+function SpotRound({ values, correct, onComplete }) {
+  const [picked, setPicked] = useState(null)
+  function pick(v) {
+    if (picked !== null) return
+    setPicked(v)
+    setTimeout(onComplete, 700)
+  }
+  function cls(v) {
+    if (picked === null) return 'mission-spot-btn'
+    if (v === correct) return 'mission-spot-btn mission-spot-btn--correct'
+    if (v === picked && v !== correct) return 'mission-spot-btn mission-spot-btn--wrong'
+    return 'mission-spot-btn'
+  }
+  return (
+    <div className="mission-spot-grid">
+      {values.map(v => (
+        <button key={v} className={cls(v)} onClick={() => pick(v)} disabled={picked !== null}>{v}</button>
+      ))}
+    </div>
+  )
+}
+
+function SpotScreen({ step, onDone }) {
+  const { t } = useTranslation()
+  const qs = useMemo(() => Array.from({ length: 4 }, genSpotEven), [])
+  const [idx, setIdx] = useState(0)
+  const [done, setDone] = useState(false)
+
+  function advance() {
+    if (idx + 1 >= qs.length) setDone(true)
+    else setIdx(i => i + 1)
+  }
+
+  return (
+    <div className="mission-screen">
+      <Progress step={step} />
+      <div className="mission-body">
+        <div className="mission-title">
+          {done ? t('mission.3_1E.greatSpotting') : t('mission.1E.spotEven')}
+        </div>
+        <div style={{ visibility: done ? 'hidden' : 'visible', pointerEvents: done ? 'none' : 'auto' }}>
+          <SpotRound key={idx} {...qs[idx]} onComplete={advance} />
+        </div>
+        <div style={{ visibility: done ? 'hidden' : 'visible' }}>
+          <RoundDots total={qs.length} current={idx} />
+        </div>
+      </div>
+      <div className="mission-actions">
+        <button className="mission-next-btn" onClick={onDone} style={{ visibility: done ? 'visible' : 'hidden' }}>
+          {t('mission.next')}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Screen 5: Multi-select grid (test) ───────────────────────────────────────
+
+function genMultiQ() {
+  const wantEven = Math.random() < 0.5
+  let values
+  do {
+    const pool = new Set()
+    while (pool.size < 6) pool.add(rnd(1, 30))
+    values = [...pool]
+  } while (
+    !values.some(v => (v % 2 === 0) === wantEven) ||
+    values.every(v => (v % 2 === 0) === wantEven)
+  )
+  return { values, wantEven }
+}
+
+function MultiQ({ q, onComplete }) {
+  const { t } = useTranslation()
+  const [selected, setSelected] = useState(new Set())
+  const [submitted, setSubmitted] = useState(false)
+  const correctSet = new Set(q.values.filter(v => (v % 2 === 0) === q.wantEven))
+
+  function toggle(v) {
+    if (submitted) return
+    setSelected(s => { const n = new Set(s); if (n.has(v)) n.delete(v); else n.add(v); return n })
+  }
+  function check() { setSubmitted(true); setTimeout(onComplete, 1000) }
+  function tileCls(v) {
+    if (!submitted) return `mission-eo-tile${selected.has(v) ? ' mission-eo-tile--selected' : ''}`
+    if (correctSet.has(v) && selected.has(v)) return 'mission-eo-tile mission-eo-tile--correct'
+    if (!correctSet.has(v) && selected.has(v)) return 'mission-eo-tile mission-eo-tile--wrong'
+    if (correctSet.has(v) && !selected.has(v)) return 'mission-eo-tile mission-eo-tile--missed'
+    return 'mission-eo-tile'
+  }
+  const prompt = q.wantEven ? t('mission.3_1E.findEven') : t('mission.3_1E.findOdd')
+  return (
+    <>
+      <div className="mission-subtitle">{prompt}</div>
+      <div className="mission-eo-grid">
+        {q.values.map(v => (
+          <button key={v} className={tileCls(v)} onClick={() => toggle(v)} disabled={submitted}>{v}</button>
+        ))}
+      </div>
+      <button className="mission-next-btn" onClick={check} disabled={selected.size === 0 || submitted}>✓</button>
+    </>
+  )
+}
 
 function MultiScreen({ step, onDone }) {
   const qs = useMemo(() => Array.from({ length: 3 }, genMultiQ), [])
@@ -313,10 +417,10 @@ export default function Mission3_1E({ pupilId, onComplete }) {
     setStep(5)
   }
 
-  if (step === 0) return <S1Classify onNext={() => setStep(1)} />
+  if (step === 0) return <S1MultiWarmup onNext={() => setStep(1)} />
   if (step === 1) return <S2Teach onNext={() => setStep(2)} />
-  if (step === 2) return <MultiScreen key="m3" step={3} onDone={() => setStep(3)} />
-  if (step === 3) return <MultiScreen key="m4" step={4} onDone={() => setStep(4)} />
+  if (step === 2) return <SingleClassify step={3} onDone={() => setStep(3)} />
+  if (step === 3) return <SpotScreen step={4} onDone={() => setStep(4)} />
   if (step === 4) return <MultiScreen key="m5" step={5} onDone={finish} />
   return <Complete onDone={onComplete} />
 }

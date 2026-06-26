@@ -29,7 +29,6 @@ function RoundDots({ total, current }) {
 }
 
 // ── Screen 1: Yes / No — is this number a multiple of [table]? ────────────────
-// 4 rounds: 2 multiples, 2 non-multiples, shuffled.
 
 function S1YesNo({ table, onNext }) {
   const { t } = useTranslation()
@@ -79,30 +78,14 @@ function S1YesNo({ table, onNext }) {
         <div className="mission-title">
           {done ? t('mission.5_1F.great') : questionText}
         </div>
-        <div
-          className="mission-title"
-          style={{ fontSize: 'clamp(44px, 10vw, 72px)', visibility: done ? 'hidden' : 'visible' }}
-        >
+        <div className="mission-title" style={{ fontSize: 'clamp(44px, 10vw, 72px)', visibility: done ? 'hidden' : 'visible' }}>
           {n}
         </div>
-        <div
-          className="mission-bigger-row"
-          style={{ visibility: done ? 'hidden' : 'visible', pointerEvents: done ? 'none' : 'auto' }}
-        >
-          <button
-            className={btnCls(true)}
-            style={{ fontSize: 'clamp(16px, 3vw, 24px)' }}
-            onClick={() => pickYN(true)}
-            disabled={!!fb}
-          >
+        <div className="mission-bigger-row" style={{ visibility: done ? 'hidden' : 'visible', pointerEvents: done ? 'none' : 'auto' }}>
+          <button className={btnCls(true)} style={{ fontSize: 'clamp(16px, 3vw, 24px)' }} onClick={() => pickYN(true)} disabled={!!fb}>
             {t('mission.1F.yes')}
           </button>
-          <button
-            className={btnCls(false)}
-            style={{ fontSize: 'clamp(16px, 3vw, 24px)' }}
-            onClick={() => pickYN(false)}
-            disabled={!!fb}
-          >
+          <button className={btnCls(false)} style={{ fontSize: 'clamp(16px, 3vw, 24px)' }} onClick={() => pickYN(false)} disabled={!!fb}>
             {t('mission.1F.no')}
           </button>
         </div>
@@ -119,7 +102,7 @@ function S1YesNo({ table, onNext }) {
   )
 }
 
-// ── Screen 2: animated multiples strip ───────────────────────────────────────
+// ── Screen 2: animated multiples strip (2 rows of 5) ─────────────────────────
 
 function S2Teach({ table, onNext }) {
   const { t } = useTranslation()
@@ -146,10 +129,15 @@ function S2Teach({ table, onNext }) {
       <div className="mission-body">
         <div className="mission-subtitle">{watchText}</div>
         <div className="mission-multiples-strip">
-          {multiples.map((m, i) => (
-            <span key={m} className={`mission-multiples-chip${i < revealed ? ' mission-multiples-chip--lit' : ''}`}>
-              {m}
-            </span>
+          {[multiples.slice(0, 5), multiples.slice(5)].map((row, rowIdx) => (
+            <div key={rowIdx} className="mission-multiples-row">
+              {row.map((m, colIdx) => {
+                const gi = rowIdx * 5 + colIdx
+                return (
+                  <span key={m} className={`mission-multiples-chip${gi < revealed ? ' mission-multiples-chip--lit' : ''}`}>{m}</span>
+                )
+              })}
+            </div>
           ))}
         </div>
       </div>
@@ -162,7 +150,159 @@ function S2Teach({ table, onNext }) {
   )
 }
 
-// ── Multi-select (screens 3-5) ────────────────────────────────────────────────
+// ── Screen 3: Spot the multiple — 4 tiles, 1 correct ─────────────────────────
+
+function genSpotQ(table) {
+  const maxVal = table * 10
+  const used = new Set()
+  const mult = rnd(1, 10) * table
+  used.add(mult)
+  const nonMults = []
+  while (nonMults.length < 3) {
+    const v = rnd(1, maxVal)
+    if (!used.has(v) && v % table !== 0) { used.add(v); nonMults.push(v) }
+  }
+  return { values: [mult, ...nonMults].sort(() => Math.random() - 0.5), correct: mult }
+}
+
+function SpotRound({ values, correct, onComplete }) {
+  const [picked, setPicked] = useState(null)
+  function pick(v) {
+    if (picked !== null) return
+    setPicked(v)
+    setTimeout(onComplete, 700)
+  }
+  function cls(v) {
+    if (picked === null) return 'mission-spot-btn'
+    if (v === correct) return 'mission-spot-btn mission-spot-btn--correct'
+    if (v === picked && v !== correct) return 'mission-spot-btn mission-spot-btn--wrong'
+    return 'mission-spot-btn'
+  }
+  return (
+    <div className="mission-spot-grid">
+      {values.map(v => (
+        <button key={v} className={cls(v)} onClick={() => pick(v)} disabled={picked !== null}>{v}</button>
+      ))}
+    </div>
+  )
+}
+
+function SpotScreen({ step, table, findPrompt, onDone }) {
+  const { t } = useTranslation()
+  const qs = useMemo(() => Array.from({ length: 4 }, () => genSpotQ(table)), [table])
+  const [idx, setIdx] = useState(0)
+  const [done, setDone] = useState(false)
+
+  function advance() {
+    if (idx + 1 >= qs.length) setDone(true)
+    else setIdx(i => i + 1)
+  }
+
+  return (
+    <div className="mission-screen">
+      <Progress step={step} />
+      <div className="mission-body">
+        <div className="mission-title">
+          {done ? t('mission.5_1F.great') : findPrompt}
+        </div>
+        <div style={{ visibility: done ? 'hidden' : 'visible', pointerEvents: done ? 'none' : 'auto' }}>
+          <SpotRound key={idx} {...qs[idx]} onComplete={advance} />
+        </div>
+        <div style={{ visibility: done ? 'hidden' : 'visible' }}>
+          <RoundDots total={qs.length} current={idx} />
+        </div>
+      </div>
+      <div className="mission-actions">
+        <button className="mission-next-btn" onClick={onDone} style={{ visibility: done ? 'visible' : 'hidden' }}>
+          {t('mission.next')}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Screen 4: What comes next? — sequence completion ─────────────────────────
+
+function SeqRound({ shown, answer, options, onComplete }) {
+  const [picked, setPicked] = useState(null)
+  function pick(v) {
+    if (picked) return
+    setPicked(v)
+    setTimeout(onComplete, 700)
+  }
+  function optCls(v) {
+    if (!picked) return 'mission-seq-opt'
+    if (v === answer) return 'mission-seq-opt mission-seq-opt--correct'
+    if (v === picked) return 'mission-seq-opt mission-seq-opt--wrong'
+    return 'mission-seq-opt'
+  }
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 18px)' }}>
+      <div className="mission-seq-row">
+        {shown.map((n, i) => (
+          <span key={i}><span className="mission-seq-num">{n}</span>{' → '}</span>
+        ))}
+        <div className={`mission-seq-blank${picked === answer ? ' mission-seq-blank--filled' : ''}`}>
+          {picked === answer ? answer : '?'}
+        </div>
+      </div>
+      <div className="mission-seq-opts">
+        {options.map(v => (
+          <button key={v} className={optCls(v)} onClick={() => pick(v)} disabled={!!picked}>{v}</button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function SeqNextScreen({ step, table, onDone }) {
+  const { t } = useTranslation()
+  const rounds = useMemo(() => {
+    const used = new Set()
+    const arr = []
+    while (arr.length < 4) {
+      const startIdx = rnd(1, 7)
+      if (used.has(startIdx)) continue
+      used.add(startIdx)
+      const shown = [1, 2, 3].map(i => (startIdx + i - 1) * table)
+      const answer = (startIdx + 3) * table
+      const options = [answer, answer - 1, answer + 1].sort(() => Math.random() - 0.5)
+      arr.push({ shown, answer, options })
+    }
+    return arr
+  }, [table])
+  const [idx, setIdx] = useState(0)
+  const [done, setDone] = useState(false)
+
+  function advance() {
+    if (idx + 1 >= rounds.length) setDone(true)
+    else setIdx(i => i + 1)
+  }
+
+  return (
+    <div className="mission-screen">
+      <Progress step={step} />
+      <div className="mission-body">
+        <div className="mission-title">
+          {done ? t('mission.5_1F.great') : t('mission.1F.whatNext')}
+        </div>
+        <div style={{ visibility: done ? 'hidden' : 'visible', pointerEvents: done ? 'none' : 'auto' }}>
+          <SeqRound key={idx} {...rounds[idx]} onComplete={advance} />
+        </div>
+        <div style={{ visibility: done ? 'hidden' : 'visible' }}>
+          <RoundDots total={rounds.length} current={idx} />
+        </div>
+      </div>
+      <div className="mission-actions">
+        <button className="mission-next-btn" onClick={onDone} style={{ visibility: done ? 'visible' : 'hidden' }}>
+          {t('mission.next')}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Screen 5: Multi-select (test) ─────────────────────────────────────────────
 
 function genMultiQ(table) {
   let values
@@ -259,8 +399,8 @@ export default function Mission5_1F({ pupilId, onComplete }) {
 
   if (step === 0) return <S1YesNo table={table} onNext={() => setStep(1)} />
   if (step === 1) return <S2Teach table={table} onNext={() => setStep(2)} />
-  if (step === 2) return <MultiScreen key="m3" step={3} table={table} findPrompt={findPrompt} onDone={() => setStep(3)} />
-  if (step === 3) return <MultiScreen key="m4" step={4} table={table} findPrompt={findPrompt} onDone={() => setStep(4)} />
+  if (step === 2) return <SpotScreen step={3} table={table} findPrompt={findPrompt} onDone={() => setStep(3)} />
+  if (step === 3) return <SeqNextScreen step={4} table={table} onDone={() => setStep(4)} />
   if (step === 4) return <MultiScreen key="m5" step={5} table={table} findPrompt={findPrompt} onDone={finish} />
   return <Complete onDone={onComplete} />
 }
