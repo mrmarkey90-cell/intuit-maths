@@ -116,14 +116,14 @@ function WarmupGrid({ values, onComplete }) {
     return 'mission-eo-tile'
   }
   return (
-    <>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 1.2vw, 12px)', width: '100%', maxWidth: '380px' }}>
       <div className="mission-eo-grid">
         {values.map(v => (
           <button key={v} className={tileCls(v)} onClick={() => toggle(v)} disabled={submitted}>{v}</button>
         ))}
       </div>
-      <button className="mission-next-btn" onClick={check} disabled={selected.size === 0 || submitted}>✓</button>
-    </>
+      <button className="mission-next-btn" style={{ width: '100%' }} onClick={check} disabled={selected.size === 0 || submitted}>✓</button>
+    </div>
   )
 }
 
@@ -353,15 +353,15 @@ function MultiQ({ q, onComplete }) {
   }
   const prompt = q.wantEven ? t('mission.3_1E.findEven') : t('mission.3_1E.findOdd')
   return (
-    <>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 1.2vw, 12px)', width: '100%', maxWidth: '380px' }}>
       <div className="mission-subtitle">{prompt}</div>
       <div className="mission-eo-grid">
         {q.values.map(v => (
           <button key={v} className={tileCls(v)} onClick={() => toggle(v)} disabled={submitted}>{v}</button>
         ))}
       </div>
-      <button className="mission-next-btn" onClick={check} disabled={selected.size === 0 || submitted}>✓</button>
-    </>
+      <button className="mission-next-btn" style={{ width: '100%' }} onClick={check} disabled={selected.size === 0 || submitted}>✓</button>
+    </div>
   )
 }
 
