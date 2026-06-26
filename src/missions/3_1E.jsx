@@ -60,13 +60,15 @@ function DigitStrips() {
   )
 }
 
+// Calls onComplete(isCorrect) after 700ms feedback.
 function EvenOddBtns({ n, onComplete }) {
   const { t } = useTranslation()
   const [fb, setFb] = useState(null)
   function pick(isEven) {
     if (fb) return
-    setFb({ isEven, correct: isEven === (n % 2 === 0) })
-    setTimeout(onComplete, 700)
+    const correct = isEven === (n % 2 === 0)
+    setFb({ isEven, correct })
+    setTimeout(() => onComplete(correct), 700)
   }
   function cls(isEven) {
     if (!fb) return 'mission-bigger-btn'
@@ -107,7 +109,11 @@ function WarmupGrid({ values, onComplete }) {
     if (submitted) return
     setSelected(s => { const n = new Set(s); if (n.has(v)) n.delete(v); else n.add(v); return n })
   }
-  function check() { setSubmitted(true); setTimeout(onComplete, 1000) }
+  function check() {
+    const allCorrect = [...correctSet].every(v => selected.has(v)) && [...selected].every(v => correctSet.has(v))
+    setSubmitted(true)
+    setTimeout(() => onComplete(allCorrect), 1000)
+  }
   function tileCls(v) {
     if (!submitted) return `mission-eo-tile${selected.has(v) ? ' mission-eo-tile--selected' : ''}`
     if (correctSet.has(v) && selected.has(v)) return 'mission-eo-tile mission-eo-tile--correct'
@@ -129,13 +135,17 @@ function WarmupGrid({ values, onComplete }) {
 
 function S1MultiWarmup({ onNext }) {
   const { t } = useTranslation()
-  const qs = useMemo(() => Array.from({ length: 3 }, genWarmupQ), [])
-  const [idx, setIdx] = useState(0)
+  const TOTAL = 3
+  const [count, setCount] = useState(0)
+  const [q, setQ] = useState(genWarmupQ)
+  const [roundKey, setRoundKey] = useState(0)
   const [done, setDone] = useState(false)
 
-  function advance() {
-    if (idx + 1 >= qs.length) setDone(true)
-    else setIdx(i => i + 1)
+  function advance(correct) {
+    if (correct && count + 1 >= TOTAL) { setDone(true); return }
+    if (correct) setCount(c => c + 1)
+    setQ(genWarmupQ())
+    setRoundKey(k => k + 1)
   }
 
   return (
@@ -146,10 +156,10 @@ function S1MultiWarmup({ onNext }) {
           {done ? t('mission.3_1E.great2Table') : t('mission.3_1E.whichIn2Table')}
         </div>
         <div style={{ visibility: done ? 'hidden' : 'visible', pointerEvents: done ? 'none' : 'auto' }}>
-          <WarmupGrid key={idx} values={qs[idx]} onComplete={advance} />
+          <WarmupGrid key={roundKey} values={q} onComplete={advance} />
         </div>
         <div style={{ visibility: done ? 'hidden' : 'visible' }}>
-          <RoundDots total={qs.length} current={idx} />
+          <RoundDots total={TOTAL} current={count} />
         </div>
       </div>
       <div className="mission-actions">
@@ -217,18 +227,24 @@ function S2Teach({ onNext }) {
 
 function SingleClassify({ step, onDone }) {
   const { t } = useTranslation()
-  const qs = useMemo(() => Array.from({ length: 3 }, () => rnd(1, 30)), [])
-  const [idx, setIdx] = useState(0)
+  const TOTAL = 3
+  const [count, setCount] = useState(0)
+  const [n, setN] = useState(() => rnd(1, 30))
   const [revealed, setRevealed] = useState(false)
-  const n = qs[Math.min(idx, qs.length - 1)]
+  const [roundKey, setRoundKey] = useState(0)
 
-  function onAnswer() {
+  function onAnswer(correct) {
     setRevealed(true)
-    if (idx + 1 >= qs.length) {
+    if (correct && count + 1 >= TOTAL) {
       setTimeout(onDone, 600)
-    } else {
-      setTimeout(() => { setRevealed(false); setIdx(i => i + 1) }, 700)
+      return
     }
+    setTimeout(() => {
+      setRevealed(false)
+      if (correct) setCount(c => c + 1)
+      setN(rnd(1, 30))
+      setRoundKey(k => k + 1)
+    }, 700)
   }
 
   return (
@@ -237,8 +253,8 @@ function SingleClassify({ step, onDone }) {
       <div className="mission-body">
         <div className="mission-subtitle">{t('mission.3_1E.isItEven')}</div>
         <LastDigit n={n} revealed={revealed} />
-        <EvenOddBtns key={idx} n={n} onComplete={onAnswer} />
-        <RoundDots total={qs.length} current={idx} />
+        <EvenOddBtns key={roundKey} n={n} onComplete={onAnswer} />
+        <RoundDots total={TOTAL} current={count} />
       </div>
       <div className="mission-actions">
         <button className="mission-next-btn" style={{ visibility: 'hidden' }}>_</button>
@@ -266,7 +282,7 @@ function SpotRound({ values, correct, onComplete }) {
   function pick(v) {
     if (picked !== null) return
     setPicked(v)
-    setTimeout(onComplete, 700)
+    setTimeout(() => onComplete(v === correct), 700)
   }
   function cls(v) {
     if (picked === null) return 'mission-spot-btn'
@@ -285,13 +301,17 @@ function SpotRound({ values, correct, onComplete }) {
 
 function SpotScreen({ step, onDone }) {
   const { t } = useTranslation()
-  const qs = useMemo(() => Array.from({ length: 4 }, genSpotEven), [])
-  const [idx, setIdx] = useState(0)
+  const TOTAL = 4
+  const [count, setCount] = useState(0)
+  const [q, setQ] = useState(genSpotEven)
+  const [roundKey, setRoundKey] = useState(0)
   const [done, setDone] = useState(false)
 
-  function advance() {
-    if (idx + 1 >= qs.length) setDone(true)
-    else setIdx(i => i + 1)
+  function advance(correct) {
+    if (correct && count + 1 >= TOTAL) { setDone(true); return }
+    if (correct) setCount(c => c + 1)
+    setQ(genSpotEven())
+    setRoundKey(k => k + 1)
   }
 
   return (
@@ -302,10 +322,10 @@ function SpotScreen({ step, onDone }) {
           {done ? t('mission.3_1E.greatSpotting') : t('mission.1E.spotEven')}
         </div>
         <div style={{ visibility: done ? 'hidden' : 'visible', pointerEvents: done ? 'none' : 'auto' }}>
-          <SpotRound key={idx} {...qs[idx]} onComplete={advance} />
+          <SpotRound key={roundKey} {...q} onComplete={advance} />
         </div>
         <div style={{ visibility: done ? 'hidden' : 'visible' }}>
-          <RoundDots total={qs.length} current={idx} />
+          <RoundDots total={TOTAL} current={count} />
         </div>
       </div>
       <div className="mission-actions">
@@ -343,7 +363,11 @@ function MultiQ({ q, onComplete }) {
     if (submitted) return
     setSelected(s => { const n = new Set(s); if (n.has(v)) n.delete(v); else n.add(v); return n })
   }
-  function check() { setSubmitted(true); setTimeout(onComplete, 1000) }
+  function check() {
+    const allCorrect = [...correctSet].every(v => selected.has(v)) && [...selected].every(v => correctSet.has(v))
+    setSubmitted(true)
+    setTimeout(() => onComplete(allCorrect), 1000)
+  }
   function tileCls(v) {
     if (!submitted) return `mission-eo-tile${selected.has(v) ? ' mission-eo-tile--selected' : ''}`
     if (correctSet.has(v) && selected.has(v)) return 'mission-eo-tile mission-eo-tile--correct'
@@ -366,20 +390,24 @@ function MultiQ({ q, onComplete }) {
 }
 
 function MultiScreen({ step, onDone }) {
-  const qs = useMemo(() => Array.from({ length: 3 }, genMultiQ), [])
-  const [idx, setIdx] = useState(0)
+  const TOTAL = 3
+  const [count, setCount] = useState(0)
+  const [q, setQ] = useState(genMultiQ)
+  const [roundKey, setRoundKey] = useState(0)
 
-  function advance() {
-    if (idx + 1 >= qs.length) onDone()
-    else setIdx(i => i + 1)
+  function advance(correct) {
+    if (correct && count + 1 >= TOTAL) { onDone(); return }
+    if (correct) setCount(c => c + 1)
+    setQ(genMultiQ())
+    setRoundKey(k => k + 1)
   }
 
   return (
     <div className="mission-screen">
       <Progress step={step} />
       <div className="mission-body">
-        <MultiQ key={idx} q={qs[idx]} onComplete={advance} />
-        <RoundDots total={qs.length} current={idx} />
+        <MultiQ key={roundKey} q={q} onComplete={advance} />
+        <RoundDots total={TOTAL} current={count} />
       </div>
       <div className="mission-actions">
         <button className="mission-next-btn" style={{ visibility: 'hidden' }}>_</button>
