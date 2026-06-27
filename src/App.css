@@ -4770,6 +4770,34 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   animation: tipLineIn 0.45s ease-out forwards;
 }
 
+.rounding-tip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rounding-tip-number {
+  font-size: clamp(52px, 11vw, 88px);
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  color: #1f2937;
+  margin-bottom: 0.2rem;
+  opacity: 0;
+  animation: tipLineIn 0.45s ease-out forwards;
+}
+
+.rounding-tip-digit--key {
+  display: inline-block;
+  animation: digitPop 0.5s ease-out forwards;
+}
+
+@keyframes digitPop {
+  0%   { color: #1f2937; transform: scale(1); }
+  55%  { transform: scale(1.45); }
+  100% { color: #5b4fe8; transform: scale(1.25); }
+}
+
 .mission-subtitle {
   font-size: clamp(14px, 2.6vw, 20px);
   font-weight: 600;

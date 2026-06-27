@@ -735,19 +735,19 @@ export const translations = {
     'mission.2C.halfwayTip': '✓ Exactly halfway?|Always round UP!',
 
     'mission.2_2C.roundTo10': 'Round to the nearest 10',
-    'mission.2_2C.tip': '✓ Units digit|5 or more? Round UP.|Less than 5? Round down.',
+    'mission.2_2C.tip': 'Look at the units digit|5 or more? Round UP.|Less than 5? Round down.',
 
     'mission.3_2C.roundTo100': 'Round to the nearest 100',
-    'mission.3_2C.tip': '✓ Tens digit|5 or more? Round UP.|Less than 5? Round down.',
+    'mission.3_2C.tip': 'Look at the tens digit|5 or more? Round UP.|Less than 5? Round down.',
 
     'mission.4_2C.roundTo1000': 'Round to the nearest 1,000',
-    'mission.4_2C.tip': '✓ Hundreds digit|5 or more? Round UP.|Less than 5? Round down.',
+    'mission.4_2C.tip': 'Look at the hundreds digit|5 or more? Round UP.|Less than 5? Round down.',
 
     'mission.5_2C.roundToWhole': 'Round to the nearest whole number',
-    'mission.5_2C.tip': '✓ Tenths digit|5 or more? Round UP.|Less than 5? Round down.',
+    'mission.5_2C.tip': 'Look at the tenths digit|5 or more? Round UP.|Less than 5? Round down.',
 
     'mission.6_2C.roundTo1dp': 'Round to 1 decimal place',
-    'mission.6_2C.tip': '✓ Hundredths digit|5 or more? Round UP.|Less than 5? Round down.',
+    'mission.6_2C.tip': 'Look at the hundredths digit|5 or more? Round UP.|Less than 5? Round down.',
   },
   cy: {
     'common.back': 'Nôl',
@@ -1477,18 +1477,18 @@ export const translations = {
     'mission.2C.halfwayTip': '✓ Hanner ffordd yn union?|Talgrynnwch I FYNY bob tro!',
 
     'mission.2_2C.roundTo10': "Talgrynnu i'r 10 agosaf",
-    'mission.2_2C.tip': '✓ Digid unedau|5 neu fwy? Talgrynnwch I FYNY.|Llai na 5? Talgrynnwch i lawr.',
+    'mission.2_2C.tip': 'Edrychwch ar y digid unedau|5 neu fwy? Talgrynnwch I FYNY.|Llai na 5? Talgrynnwch i lawr.',
 
     'mission.3_2C.roundTo100': "Talgrynnu i'r 100 agosaf",
-    'mission.3_2C.tip': '✓ Digid degau|5 neu fwy? Talgrynnwch I FYNY.|Llai na 5? Talgrynnwch i lawr.',
+    'mission.3_2C.tip': 'Edrychwch ar y digid degau|5 neu fwy? Talgrynnwch I FYNY.|Llai na 5? Talgrynnwch i lawr.',
 
     'mission.4_2C.roundTo1000': "Talgrynnu i'r 1,000 agosaf",
-    'mission.4_2C.tip': '✓ Digid cannoedd|5 neu fwy? Talgrynnwch I FYNY.|Llai na 5? Talgrynnwch i lawr.',
+    'mission.4_2C.tip': 'Edrychwch ar y digid cannoedd|5 neu fwy? Talgrynnwch I FYNY.|Llai na 5? Talgrynnwch i lawr.',
 
     'mission.5_2C.roundToWhole': "Talgrynnu i'r rhif cyfan agosaf",
-    'mission.5_2C.tip': '✓ Digid degfedau|5 neu fwy? Talgrynnwch I FYNY.|Llai na 5? Talgrynnwch i lawr.',
+    'mission.5_2C.tip': 'Edrychwch ar y digid degfedau|5 neu fwy? Talgrynnwch I FYNY.|Llai na 5? Talgrynnwch i lawr.',
 
     'mission.6_2C.roundTo1dp': 'Talgrynnu i 1 lle degol',
-    'mission.6_2C.tip': '✓ Digid canfedau|5 neu fwy? Talgrynnwch I FYNY.|Llai na 5? Talgrynnwch i lawr.',
+    'mission.6_2C.tip': 'Edrychwch ar y digid canfedau|5 neu fwy? Talgrynnwch I FYNY.|Llai na 5? Talgrynnwch i lawr.',
   },
 }
