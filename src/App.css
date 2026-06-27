@@ -4933,6 +4933,132 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   font-weight: 600;
 }
 
+/* ── Ten-frame ──────────────────────────────────────────────────────────── */
+
+.ten-frame {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 6px;
+  width: min(320px, 58vw);
+  margin: 0.5rem auto;
+}
+
+.tf-cell {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  border: 2px solid #d1d5db;
+  background: #f9fafb;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.tf-cell--pre {
+  background: #5b4fe8;
+  border-color: #4338ca;
+}
+
+.tf-cell--player {
+  background: #16a34a;
+  border-color: #15803d;
+}
+
+.tf-cell--empty {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+  cursor: pointer;
+}
+
+.tf-cell--empty:hover {
+  background: #d1d5db;
+}
+
+/* ── Bond bubbles ───────────────────────────────────────────────────────── */
+
+.bubble-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(8px, 2vw, 16px);
+  margin: 0.6rem auto;
+  width: min(380px, 70vw);
+}
+
+.bond-bubble {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #5b4fe8;
+  color: white;
+  font-size: clamp(18px, 4vw, 30px);
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  user-select: none;
+}
+
+.bond-bubble:active { transform: scale(0.93); }
+
+.bond-bubble--selected {
+  background: #d97706;
+  transform: scale(1.1);
+}
+
+.bond-bubble--ghost {
+  background: transparent;
+  border: 2px dashed #d1d5db;
+  cursor: default;
+}
+
+@keyframes bondShake {
+  0%,100% { transform: translateX(0); }
+  20%     { transform: translateX(-6px); }
+  40%     { transform: translateX(6px); }
+  60%     { transform: translateX(-4px); }
+  80%     { transform: translateX(4px); }
+}
+
+.bond-bubble--shake {
+  background: #dc2626;
+  animation: bondShake 0.4s ease-in-out;
+}
+
+/* ── Staircase ──────────────────────────────────────────────────────────── */
+
+.staircase {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0.4rem auto;
+  width: fit-content;
+}
+
+.staircase-row {
+  font-size: clamp(14px, 2.8vw, 20px);
+  font-weight: 700;
+  color: #1f2937;
+  background: #f0f2ff;
+  border-radius: 8px;
+  padding: 0.3rem 1rem;
+  text-align: center;
+  min-width: 120px;
+}
+
+.staircase-row--hidden {
+  color: #9ca3af;
+  background: transparent;
+  border: 2px dashed #9ca3af;
+  font-style: italic;
+}
+
+/* ── Pair-select first-tap highlight ─────────────────────────────────────── */
+
+.mission-bigger-btn--selected,
+.mission-bigger-btn--selected:disabled {
+  background: #d97706 !important;
+  color: white;
+}
+
 .mission-subtitle {
   font-size: clamp(14px, 2.6vw, 20px);
   font-weight: 600;
