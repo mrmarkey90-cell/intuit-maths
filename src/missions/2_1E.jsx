@@ -73,20 +73,60 @@ function EvenOddBtns({ n, onComplete }) {
   )
 }
 
-// ── Screen 1: Dot grid — even or odd? ────────────────────────────────────────
+// ── Screen 1: Count in 2s — sequence completion ───────────────────────────────
 
-function S1Dots({ onNext }) {
+function genSeqRound() {
+  const startIdx = rnd(1, 8)
+  const shown = [1, 2, 3].map(i => (startIdx + i - 1) * 2)
+  const answer = (startIdx + 3) * 2
+  const options = [answer, answer - 1, answer + 1].sort(() => Math.random() - 0.5)
+  return { shown, answer, options }
+}
+
+function SeqRound({ shown, answer, options, onComplete }) {
+  const [picked, setPicked] = useState(null)
+  function pick(v) {
+    if (picked !== null) return
+    setPicked(v)
+    setTimeout(() => onComplete(v === answer), 700)
+  }
+  function optCls(v) {
+    if (picked === null) return 'mission-seq-opt'
+    if (v === answer) return 'mission-seq-opt mission-seq-opt--correct'
+    if (v === picked) return 'mission-seq-opt mission-seq-opt--wrong'
+    return 'mission-seq-opt'
+  }
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 18px)' }}>
+      <div className="mission-seq-row">
+        {shown.map((n, i) => (
+          <span key={i}><span className="mission-seq-num">{n}</span>{' → '}</span>
+        ))}
+        <div className={`mission-seq-blank${picked === answer ? ' mission-seq-blank--filled' : ''}`}>
+          {picked === answer ? answer : '?'}
+        </div>
+      </div>
+      <div className="mission-seq-opts">
+        {options.map(v => (
+          <button key={v} className={optCls(v)} onClick={() => pick(v)} disabled={picked !== null}>{v}</button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function S1Sequence({ onNext }) {
   const { t } = useTranslation()
   const TOTAL = 4
   const [count, setCount] = useState(0)
-  const [n, setN] = useState(() => rnd(2, 12))
+  const [q, setQ] = useState(genSeqRound)
   const [roundKey, setRoundKey] = useState(0)
   const [done, setDone] = useState(false)
 
-  function onAnswer(correct) {
+  function onComplete(correct) {
     if (correct && count + 1 >= TOTAL) { setDone(true); return }
     if (correct) setCount(c => c + 1)
-    setN(rnd(2, 12))
+    setQ(genSeqRound())
     setRoundKey(k => k + 1)
   }
 
@@ -95,16 +135,10 @@ function S1Dots({ onNext }) {
       <Progress step={1} />
       <div className="mission-body">
         <div className="mission-title">
-          {done ? t('mission.2_1E.greatSpotting') : t('mission.2_1E.isItEven')}
-        </div>
-        <div style={{ visibility: done ? 'hidden' : 'visible' }}>
-          <div className="mission-title" style={{ fontSize: 'clamp(40px, 9vw, 68px)' }}>{n}</div>
-        </div>
-        <div style={{ visibility: done ? 'hidden' : 'visible' }}>
-          <DotGrid n={n} />
+          {done ? t('mission.3_1F.great') : t('mission.3_1F.countIn')}
         </div>
         <div style={{ visibility: done ? 'hidden' : 'visible', pointerEvents: done ? 'none' : 'auto' }}>
-          <EvenOddBtns key={roundKey} n={n} onComplete={onAnswer} />
+          <SeqRound key={roundKey} {...q} onComplete={onComplete} />
         </div>
         <div style={{ visibility: done ? 'hidden' : 'visible' }}>
           <RoundDots total={TOTAL} current={count} />
@@ -394,7 +428,7 @@ export default function Mission2_1E({ pupilId, onComplete }) {
     setStep(5)
   }
 
-  if (step === 0) return <S1Dots onNext={() => setStep(1)} />
+  if (step === 0) return <S1Sequence onNext={() => setStep(1)} />
   if (step === 1) return <S2Teach onNext={() => setStep(2)} />
   if (step === 2) return <SpotScreen step={3} onDone={() => setStep(3)} />
   if (step === 3) return <MultiMiniScreen step={4} onDone={() => setStep(4)} />

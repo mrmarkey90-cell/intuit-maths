@@ -536,7 +536,7 @@ export const translations = {
     'mission.1F.watchSuffix': '...',
     'mission.1F.findPrefix': 'Which are in the ',
     'mission.1F.findSuffix': ' times table?',
-    'mission.1F.yes': 'Yes ✓',
+    'mission.1F.yes': 'Yes',
     'mission.1F.no': 'No',
     'mission.1F.whatNext': 'What comes next?',
 
@@ -1169,7 +1169,7 @@ export const translations = {
     'mission.1F.watchSuffix': '...',
     'mission.1F.findPrefix': 'Pa rifau sydd yn nhabl ',
     'mission.1F.findSuffix': '?',
-    'mission.1F.yes': 'Ydy ✓',
+    'mission.1F.yes': 'Ydy',
     'mission.1F.no': 'Nac ydy',
     'mission.1F.whatNext': "Beth sy'n dod nesaf?",
 
