@@ -748,6 +748,10 @@ export const translations = {
 
     'mission.6_2C.roundTo1dp': 'Round to 1 decimal place',
     'mission.6_2C.tip': 'Look at the hundredths digit|5 or more? Round UP.|Less than 5? Round down.',
+
+    'higherLower.prompt': 'The next card will be...',
+    'higherLower.higher': 'Higher',
+    'higherLower.lower': 'Lower',
   },
   cy: {
     'common.back': 'Nôl',
@@ -1490,5 +1494,9 @@ export const translations = {
 
     'mission.6_2C.roundTo1dp': 'Talgrynnu i 1 lle degol',
     'mission.6_2C.tip': 'Edrychwch ar y digid canfedau|5 neu fwy? Talgrynnwch I FYNY.|Llai na 5? Talgrynnwch i lawr.',
+
+    'higherLower.prompt': 'Bydd y cerdyn nesaf yn...',
+    'higherLower.higher': 'Uwch',
+    'higherLower.lower': 'Is',
   },
 }

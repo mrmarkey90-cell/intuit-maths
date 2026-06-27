@@ -3,6 +3,7 @@ import { supabase } from '../supabaseClient'
 import NumberPad from '../components/NumberPad'
 import TipLines from '../components/TipLines'
 import RoundingTip from '../components/RoundingTip'
+import HigherLower from '../components/HigherLower'
 import { useTranslation } from '../i18n/LanguageContext'
 
 function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5) }
@@ -285,13 +286,14 @@ export default function Mission5_2C({ pupilId, onComplete }) {
 
   async function finish() {
     await supabase.rpc('complete_mission', { p_pupil_id: pupilId, p_special_mission: '5_2C' })
-    setStep(5)
+    setStep(6)
   }
 
-  if (step === 0) return <S1 onNext={() => setStep(1)} />
-  if (step === 1) return <S2 onNext={() => setStep(2)} />
-  if (step === 2) return <S3 onNext={() => setStep(3)} />
-  if (step === 3) return <S4 onNext={() => setStep(4)} />
-  if (step === 4) return <S5 onFinish={finish} />
+  if (step === 0) return <HigherLower onComplete={() => setStep(1)} />
+  if (step === 1) return <S1 onNext={() => setStep(2)} />
+  if (step === 2) return <S2 onNext={() => setStep(3)} />
+  if (step === 3) return <S3 onNext={() => setStep(4)} />
+  if (step === 4) return <S4 onNext={() => setStep(5)} />
+  if (step === 5) return <S5 onFinish={finish} />
   return <Complete onDone={onComplete} />
 }

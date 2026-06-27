@@ -1,0 +1,100 @@
+import { useState, useMemo } from 'react'
+import { useTranslation } from '../i18n/LanguageContext'
+
+const TOTAL = 7  // 8 cards, 7 guesses
+
+function genCards() {
+  const vals = []
+  for (let i = 0; i < 8; i++) {
+    let v
+    do { v = 1 + Math.floor(Math.random() * 10) }
+    while (i > 0 && v === vals[i - 1])
+    vals.push(v)
+  }
+  return vals
+}
+
+function CardFace({ value }) {
+  // TODO: swap to <img src={`/cards/${value}.svg`} alt={value} className="hl-card-img" /> when assets arrive
+  return (
+    <div className="hl-card-face">
+      <span className="hl-card-num">{value}</span>
+      <span className="hl-card-suit">♦</span>
+    </div>
+  )
+}
+
+export default function HigherLower({ onComplete }) {
+  const { t } = useTranslation()
+  const cards = useMemo(genCards, [])
+  const [pos, setPos] = useState(0)      // index of current face-up card
+  const [fb, setFb] = useState(null)     // { ok, higher } during reveal
+  const [score, setScore] = useState(0)
+  const done = pos >= TOTAL
+
+  function guess(higher) {
+    if (fb || done) return
+    const ok = higher ? cards[pos + 1] > cards[pos] : cards[pos + 1] < cards[pos]
+    const nextScore = ok ? score + 1 : score
+    const nextPos = pos + 1
+    setFb({ ok, higher })
+    setTimeout(() => {
+      setScore(nextScore)
+      setPos(nextPos)
+      setFb(null)
+    }, 900)
+  }
+
+  const cardRow = (
+    <div className="hl-cards">
+      {cards.map((val, i) => {
+        const revealed = i <= pos || (fb != null && i === pos + 1)
+        const fbClass = fb != null && i === pos + 1
+          ? (fb.ok ? ' hl-card--correct' : ' hl-card--wrong') : ''
+        return (
+          <div
+            key={i}
+            className={`hl-card${revealed ? ' hl-card--revealed' : ''}${i === pos && !done ? ' hl-card--current' : ''}${fbClass}`}
+          >
+            {revealed && <CardFace key={`${i}-face`} value={val} />}
+          </div>
+        )
+      })}
+    </div>
+  )
+
+  if (done) {
+    return (
+      <div className="higher-lower">
+        {cardRow}
+        <div className="hl-result">
+          <div className="hl-score">{score}<span>/{TOTAL}</span></div>
+          <button className="mission-next-btn" onClick={() => onComplete({ score, total: TOTAL })}>
+            {t('mission.next')}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="higher-lower">
+      {cardRow}
+      <div className="hl-prompt">
+        <div className="hl-prompt-label">{t('higherLower.prompt')}</div>
+        <div className="hl-buttons">
+          <button
+            className={`hl-btn${fb != null && fb.higher && fb.ok ? ' hl-btn--correct' : ''}${fb != null && fb.higher && !fb.ok ? ' hl-btn--wrong' : ''}`}
+            onClick={() => guess(true)}
+            disabled={!!fb}
+          >{t('higherLower.higher')} ↑</button>
+          <button
+            className={`hl-btn${fb != null && !fb.higher && fb.ok ? ' hl-btn--correct' : ''}${fb != null && !fb.higher && !fb.ok ? ' hl-btn--wrong' : ''}`}
+            onClick={() => guess(false)}
+            disabled={!!fb}
+          >{t('higherLower.lower')} ↓</button>
+        </div>
+      </div>
+    </div>
+  )
+}

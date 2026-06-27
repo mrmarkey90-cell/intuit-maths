@@ -4798,6 +4798,141 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   100% { color: #5b4fe8; transform: scale(1.25); }
 }
 
+/* ── Higher / Lower card game ─────────────────────────────────────────────── */
+
+.higher-lower {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 1.4rem;
+  padding: 0.5rem 1rem;
+}
+
+.hl-cards {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+}
+
+.hl-card {
+  width: clamp(50px, 8vw, 74px);
+  aspect-ratio: 5 / 7;
+  border-radius: 7px;
+  border: 2px solid transparent;
+  background: #4338ca;
+  overflow: hidden;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.hl-card--revealed {
+  background: white;
+  border-color: #d1d5db;
+}
+
+.hl-card--current {
+  border-color: #5b4fe8;
+  box-shadow: 0 0 0 2px #5b4fe8;
+}
+
+.hl-card--correct { background: #dcfce7 !important; border-color: #16a34a !important; }
+.hl-card--wrong   { background: #fee2e2 !important; border-color: #dc2626 !important; }
+
+@keyframes cardReveal {
+  from { opacity: 0; transform: scale(0.55); }
+  70%  { transform: scale(1.07); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.hl-card-face {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  animation: cardReveal 0.3s ease-out;
+}
+
+/* TODO: uncomment when SVG assets arrive */
+/* .hl-card-img { width: 100%; height: 100%; object-fit: contain; } */
+
+.hl-card-num {
+  font-size: clamp(18px, 3.5vw, 30px);
+  font-weight: 900;
+  color: #dc2626;
+  line-height: 1;
+}
+
+.hl-card-suit {
+  position: absolute;
+  bottom: 4px;
+  right: 5px;
+  font-size: clamp(7px, 1.2vw, 11px);
+  color: #dc2626;
+  line-height: 1;
+}
+
+.hl-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.hl-prompt-label {
+  font-size: clamp(14px, 2.4vw, 20px);
+  font-weight: 600;
+  color: #6b7280;
+  text-align: center;
+}
+
+.hl-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.hl-btn {
+  padding: clamp(0.5rem, 1.2vh, 0.85rem) clamp(1.2rem, 3vw, 2.2rem);
+  font-size: clamp(15px, 2.8vw, 22px);
+  font-weight: 700;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  background: #5b4fe8;
+  color: white;
+  transition: background-color 0.12s, transform 0.1s;
+}
+
+.hl-btn:active:not(:disabled) { transform: scale(0.95); }
+
+/* beat the global button:disabled rule */
+.hl-btn--correct,
+.hl-btn--correct:disabled { background: #16a34a !important; }
+.hl-btn--wrong,
+.hl-btn--wrong:disabled   { background: #dc2626 !important; }
+
+.hl-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.hl-score {
+  font-size: clamp(40px, 9vw, 72px);
+  font-weight: 900;
+  color: #1f2937;
+}
+
+.hl-score span {
+  font-size: 0.5em;
+  color: #9ca3af;
+  font-weight: 600;
+}
+
 .mission-subtitle {
   font-size: clamp(14px, 2.6vw, 20px);
   font-weight: 600;
