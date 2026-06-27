@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { supabase } from '../supabaseClient'
 import NumberPad from '../components/NumberPad'
+import TipLines from '../components/TipLines'
 import { useTranslation } from '../i18n/LanguageContext'
 
 function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5) }
@@ -76,7 +77,7 @@ function S1({ onNext }) {
       <Progress step={1} />
       <div className="mission-body">
         {done ? (
-          <div className="mission-title">{t('mission.5_2C.tip')}</div>
+          <TipLines text={t('mission.5_2C.tip')} />
         ) : (
           <>
             <div className="mission-subtitle">{t('mission.2C.whichCloser')}</div>
@@ -204,7 +205,7 @@ function S4({ onNext }) {
       <Progress step={4} />
       <div className="mission-body">
         {done ? (
-          <div className="mission-title">{t('mission.2C.halfwayTip')}</div>
+          <TipLines text={t('mission.2C.halfwayTip')} />
         ) : (
           <>
             <div className="mission-subtitle">{t('mission.2C.halfwayTitle')}</div>

@@ -4750,6 +4750,26 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   color: #4f46e5;
 }
 
+@keyframes tipLineIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.tip-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  text-align: center;
+}
+
+.tip-line {
+  font-size: clamp(20px, 4.5vw, 34px);
+  font-weight: 800;
+  color: #1f2937;
+  opacity: 0;
+  animation: tipLineIn 0.45s ease-out forwards;
+}
+
 .mission-subtitle {
   font-size: clamp(14px, 2.6vw, 20px);
   font-weight: 600;
