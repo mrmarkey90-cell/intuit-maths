@@ -670,6 +670,35 @@ export const translations = {
     'mission.6_1H.great': 'Prime expert! 🎉',
     'mission.6_1H.nextPrimeAfter': 'Next prime after...',
     'mission.6_1H.largestBelow': 'Largest prime below ',
+
+    'mission.2A.whichBigger': 'Which is bigger?',
+    'mission.2A.tapSmallest': 'Tap the smallest!',
+    'mission.2A.tapBiggest': 'Tap the biggest!',
+    'mission.2A.sortIt': 'Drag them in order — smallest first',
+    'mission.2A.fillGap': 'What comes next? Fill the gap.',
+    'mission.2A.great': 'Spot on! 🎉',
+    'mission.2A.whereGoesPrefix': 'Where does',
+    'mission.2A.whereGoesSuffix': 'fit in the row?',
+    'mission.2A.before': 'Before',
+    'mission.2A.after': 'After',
+
+    'mission.1_2A.great': 'You\'re on a roll! 🎉',
+
+    'mission.2_2A.tensTip': '✓ Look at the tens digit first!',
+    'mission.2_2A.unitsTip': '✓ Same tens — check the units!',
+    'mission.2_2A.sameTensTitle': 'The tens are the same — which is bigger?',
+
+    'mission.3_2A.hundredsTip': '✓ Hundreds first — count the digits!',
+    'mission.3_2A.sameTensTitle': 'Same zone — which is bigger?',
+
+    'mission.4_2A.hundredsTip': '✓ Hundreds digit wins when they differ!',
+    'mission.4_2A.sameTens': 'Same hundreds — which is bigger?',
+
+    'mission.5_2A.decimalTip': '✓ Whole part first — decimal comes after!',
+    'mission.5_2A.sameWhole': '✓ Same whole — bigger decimal digit wins!',
+
+    'mission.6_2A.padTip': '✓ Tip: pad with a zero to compare — 3.5 = 3.50',
+    'mission.6_2A.mixedTitle': 'Same whole — which is bigger?',
   },
   cy: {
     'common.back': 'Nôl',
@@ -1334,5 +1363,34 @@ export const translations = {
     'mission.6_1H.great': 'Arbenigwr cysefin! 🎉',
     'mission.6_1H.nextPrimeAfter': 'Y rhif cysefin nesaf ar ôl...',
     'mission.6_1H.largestBelow': "Y rhif cysefin mwyaf o dan ",
+
+    'mission.2A.whichBigger': 'Pa un sy\'n fwy?',
+    'mission.2A.tapSmallest': 'Tapiwch y lleiaf!',
+    'mission.2A.tapBiggest': 'Tapiwch y mwyaf!',
+    'mission.2A.sortIt': 'Llusgwch nhw yn nhrefn — y lleiaf yn gyntaf',
+    'mission.2A.fillGap': 'Beth sy\'n dod nesaf? Llenwch y bwlch.',
+    'mission.2A.great': 'Ardderchog! 🎉',
+    'mission.2A.whereGoesPrefix': 'Ble mae',
+    'mission.2A.whereGoesSuffix': 'yn mynd yn y rhes?',
+    'mission.2A.before': 'Cyn',
+    'mission.2A.after': 'Ar ôl',
+
+    'mission.1_2A.great': 'Da iawn chi! 🎉',
+
+    'mission.2_2A.tensTip': '✓ Edrychwch ar y degau yn gyntaf!',
+    'mission.2_2A.unitsTip': '✓ Degau yr un fath — edrychwch ar yr unedau!',
+    'mission.2_2A.sameTensTitle': 'Mae\'r degau yr un fath — pa un sy\'n fwy?',
+
+    'mission.3_2A.hundredsTip': '✓ Cannoedd yn gyntaf — cyfrifwch y digidau!',
+    'mission.3_2A.sameTensTitle': 'Yr un parth — pa un sy\'n fwy?',
+
+    'mission.4_2A.hundredsTip': '✓ Y digid cannoedd sy\'n ennill pan fo\'n wahanol!',
+    'mission.4_2A.sameTens': 'Cannoedd yr un fath — pa un sy\'n fwy?',
+
+    'mission.5_2A.decimalTip': '✓ Rhan gyfan yn gyntaf — degol yn dilyn!',
+    'mission.5_2A.sameWhole': '✓ Rhan gyfan yr un fath — y digid degol mwyaf sy\'n ennill!',
+
+    'mission.6_2A.padTip': '✓ Tip: ychwanegu sero i gymharu — 3.5 = 3.50',
+    'mission.6_2A.mixedTitle': 'Rhan gyfan yr un fath — pa un sy\'n fwy?',
   },
 }
