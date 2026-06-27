@@ -376,8 +376,8 @@ export default function Mission6_1G({ pupilId, onComplete }) {
 
   if (step === 0) return <S1FactorWarmup onNext={() => setStep(1)} />
   if (step === 1) return <S2Teach onNext={() => setStep(2)} />
-  if (step === 2) return <CircleScreen step={3} maxN={36} total={3} onDone={() => setStep(3)} />
-  if (step === 3) return <CircleScreen step={4} maxN={50} total={3} onDone={() => setStep(4)} />
+  if (step === 2) return <CircleScreen key="s3" step={3} maxN={36} total={3} onDone={() => setStep(3)} />
+  if (step === 3) return <CircleScreen key="s4" step={4} maxN={50} total={3} onDone={() => setStep(4)} />
   if (step === 4) return <S5Numpad onFinish={finish} />
   return <Complete onDone={onComplete} />
 }

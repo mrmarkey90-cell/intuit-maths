@@ -258,8 +258,8 @@ export default function Mission5_1G({ pupilId, onComplete }) {
 
   if (step === 0) return <S1DivisibleCheck onNext={() => setStep(1)} />
   if (step === 1) return <S2Teach onNext={() => setStep(2)} />
-  if (step === 2) return <GridScreen step={3} min={12} max={18} total={3} onDone={() => setStep(3)} />
-  if (step === 3) return <GridScreen step={4} min={16} max={24} total={3} onDone={() => setStep(4)} />
-  if (step === 4) return <GridScreen key="test" step={5} min={12} max={24} total={3} onDone={finish} />
+  if (step === 2) return <GridScreen key="s3" step={3} min={12} max={18} total={3} onDone={() => setStep(3)} />
+  if (step === 3) return <GridScreen key="s4" step={4} min={16} max={24} total={3} onDone={() => setStep(4)} />
+  if (step === 4) return <GridScreen key="s5" step={5} min={12} max={24} total={3} onDone={finish} />
   return <Complete onDone={onComplete} />
 }

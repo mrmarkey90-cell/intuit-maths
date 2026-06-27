@@ -274,8 +274,8 @@ export default function Mission4_1G({ pupilId, onComplete }) {
 
   if (step === 0) return <S1FactorPair onNext={() => setStep(1)} />
   if (step === 1) return <S2Teach onNext={() => setStep(2)} />
-  if (step === 2) return <FactorScreen step={3} min={6} max={11} total={3} onDone={() => setStep(3)} />
-  if (step === 3) return <FactorScreen step={4} min={10} max={15} total={4} onDone={() => setStep(4)} />
-  if (step === 4) return <FactorScreen key="test" step={5} min={6} max={15} total={3} onDone={finish} />
+  if (step === 2) return <FactorScreen key="s3" step={3} min={6} max={11} total={3} onDone={() => setStep(3)} />
+  if (step === 3) return <FactorScreen key="s4" step={4} min={10} max={15} total={4} onDone={() => setStep(4)} />
+  if (step === 4) return <FactorScreen key="s5" step={5} min={6} max={15} total={3} onDone={finish} />
   return <Complete onDone={onComplete} />
 }
