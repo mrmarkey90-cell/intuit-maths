@@ -159,53 +159,33 @@ function S2({ onNext }) {
   )
 }
 
-// Numpad with decimal answers (S3, S5)
-function NumpadRound({ step, count, instruction, genQ, onDone }) {
-  const qs = useMemo(() => Array.from({ length: count }, genQ), [])
+function S3({ onNext }) {
+  const { t } = useTranslation()
+  const qs = useMemo(() => Array.from({ length: 3 }, () => { const n = genAny(); return { n, answer: roundedN(n) } }), [])
   const [qi, setQi] = useState(0)
-  const [val, setVal] = useState('')
   const [fb, setFb] = useState(null)
 
-  function submit() {
-    if (fb || val === '') return
-    // answer stored as hundredths integer; student types e.g. "4.4" → 44 tenths = 440 hundredths
-    const entered = Math.round(parseFloat(val) * 10) * 10
-    const ok = entered === qs[qi].answer
+  function submit(val) {
+    // answer is a hundredths integer; student types e.g. "4.4" → 44 tenths = 440 hundredths
+    const ok = Math.round(parseFloat(val) * 10) * 10 === qs[qi].answer
     setFb(ok ? 'correct' : 'wrong')
-    if (ok) {
-      setTimeout(() => { setFb(null); setVal(''); if (qi + 1 >= qs.length) onDone(); else setQi(i => i + 1) }, 700)
-    } else {
-      setTimeout(() => { setFb(null); setVal('') }, 700)
-    }
+    if (ok) { setTimeout(() => { setFb(null); qi + 1 >= qs.length ? onNext() : setQi(i => i + 1) }, 700) }
+    else { setTimeout(() => setFb(null), 700) }
   }
 
   return (
     <div className="mission-screen">
-      <Progress step={step} />
+      <Progress step={3} />
       <div className="mission-body">
-        <div className="mission-subtitle">{instruction}</div>
+        <div className="mission-subtitle">{t('mission.6_2C.roundTo1dp')}</div>
         <div style={{ fontSize: 'clamp(26px,6vw,46px)', fontWeight: 700, textAlign: 'center', letterSpacing: '0.06em', marginBottom: '0.5rem', color: fb === 'correct' ? '#2e7d32' : fb === 'wrong' ? '#c62828' : 'inherit' }}>
           {fmtN(qs[qi].n)}
         </div>
-        <div style={{ pointerEvents: fb ? 'none' : 'auto' }}>
-          <NumberPad value={val} onChange={setVal} onSubmit={submit} allowDecimal={true} />
-        </div>
+        <NumberPad key={qi} onSubmit={submit} allowDecimal={true} disabled={!!fb} />
         <RoundDots total={qs.length} current={qi} />
       </div>
       <div className="mission-actions" />
     </div>
-  )
-}
-
-function S3({ onNext }) {
-  const { t } = useTranslation()
-  return (
-    <NumpadRound
-      step={3} count={3}
-      instruction={t('mission.6_2C.roundTo1dp')}
-      genQ={() => { const n = genAny(); return { n, answer: roundedN(n) } }}
-      onDone={onNext}
-    />
   )
 }
 
@@ -273,13 +253,30 @@ function S4({ onNext }) {
 
 function S5({ onFinish }) {
   const { t } = useTranslation()
+  const qs = useMemo(() => Array.from({ length: 4 }, () => { const n = genAny(); return { n, answer: roundedN(n) } }), [])
+  const [qi, setQi] = useState(0)
+  const [fb, setFb] = useState(null)
+
+  function submit(val) {
+    const ok = Math.round(parseFloat(val) * 10) * 10 === qs[qi].answer
+    setFb(ok ? 'correct' : 'wrong')
+    if (ok) { setTimeout(() => { setFb(null); qi + 1 >= qs.length ? onFinish() : setQi(i => i + 1) }, 700) }
+    else { setTimeout(() => setFb(null), 700) }
+  }
+
   return (
-    <NumpadRound
-      step={5} count={4}
-      instruction={t('mission.6_2C.roundTo1dp')}
-      genQ={() => { const n = genAny(); return { n, answer: roundedN(n) } }}
-      onDone={onFinish}
-    />
+    <div className="mission-screen">
+      <Progress step={5} />
+      <div className="mission-body">
+        <div className="mission-subtitle">{t('mission.6_2C.roundTo1dp')}</div>
+        <div style={{ fontSize: 'clamp(26px,6vw,46px)', fontWeight: 700, textAlign: 'center', letterSpacing: '0.06em', marginBottom: '0.5rem', color: fb === 'correct' ? '#2e7d32' : fb === 'wrong' ? '#c62828' : 'inherit' }}>
+          {fmtN(qs[qi].n)}
+        </div>
+        <NumberPad key={qi} onSubmit={submit} allowDecimal={true} disabled={!!fb} />
+        <RoundDots total={qs.length} current={qi} />
+      </div>
+      <div className="mission-actions" />
+    </div>
   )
 }
 

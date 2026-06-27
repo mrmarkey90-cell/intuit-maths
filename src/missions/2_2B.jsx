@@ -117,29 +117,42 @@ function S2({ onNext }) {
   )
 }
 
-// ── Screen 3: pick < > or = ───────────────────────────────────────────────────
+// ── Screen 3: mixed consolidation — bigger/smaller, both pair types ───────────
+// Rounds 0-1: different tens (easy). Rounds 2-3: same tens (harder).
+// Alternates bigger/smaller prompt. Advance always — still teaching phase.
 
 function S3({ onNext }) {
   const { t } = useTranslation()
-  const rounds = useMemo(() => Array.from({ length: 4 }, () => {
-    let a = rnd(10, 99), b = rnd(10, 99)
-    while (a === b) b = rnd(10, 99)
-    return { a, b, correct: a < b ? '<' : '>' }
-  }), [])
+  const rounds = useMemo(() => {
+    const arr = []
+    for (let i = 0; i < 4; i++) {
+      const wantBig = i % 2 === 0
+      let a, b
+      if (i < 2) {
+        let t1 = rnd(1, 8), t2 = rnd(1, 9); while (t2 === t1) t2 = rnd(1, 9)
+        ;[a, b] = shuffle([t1 * 10 + rnd(0, 9), t2 * 10 + rnd(0, 9)])
+      } else {
+        const tens = rnd(1, 9) * 10
+        let u1 = rnd(0, 9), u2 = rnd(0, 9); while (u1 === u2) u2 = rnd(0, 9)
+        ;[a, b] = shuffle([tens + u1, tens + u2])
+      }
+      arr.push({ a, b, wantBig })
+    }
+    return arr
+  }, [])
   const [ri, setRi] = useState(0)
   const [fb, setFb] = useState(null)
-  const { a, b, correct } = rounds[ri]
+  const [done, setDone] = useState(false)
+  const { a, b, wantBig } = rounds[Math.min(ri, rounds.length - 1)]
+  const target = wantBig ? Math.max(a, b) : Math.min(a, b)
 
-  function pick(sym) {
-    if (fb) return
-    const ok = sym === correct
-    setFb({ sym, ok })
+  function pick(v) {
+    if (fb || done) return
+    setFb({ v, ok: v === target })
     setTimeout(() => {
       setFb(null)
-      if (ok) {
-        if (ri + 1 >= rounds.length) onNext()
-        else setRi(i => i + 1)
-      }
+      if (ri + 1 >= rounds.length) setDone(true)
+      else setRi(i => i + 1)
     }, 700)
   }
 
@@ -147,46 +160,52 @@ function S3({ onNext }) {
     <div className="mission-screen">
       <Progress step={3} />
       <div className="mission-body">
-        <div className="mission-subtitle">{t('mission.2B.pickSymbol')}</div>
-        <div className="mission-gap-row" style={{ pointerEvents: 'none', marginBottom: '1rem' }}>
-          <div className="mission-gap-box">{fmt(a)}</div>
-          <div className="mission-gap-box mission-gap-box--gap" style={{ minWidth: 44, width: 44 }}>?</div>
-          <div className="mission-gap-box">{fmt(b)}</div>
-        </div>
-        <div className="mission-bigger-row">
-          {['<', '>', '='].map(sym => (
-            <button
-              key={sym}
-              className={`mission-bigger-btn${fb
-                ? sym === correct ? ' mission-bigger-btn--correct'
-                : sym === fb.sym && !fb.ok ? ' mission-bigger-btn--wrong'
-                : '' : ''}`}
-              style={{ width: 'clamp(60px, 12vw, 88px)', height: 'clamp(60px, 12vw, 88px)', fontSize: 'clamp(22px, 5vw, 38px)' }}
-              onClick={() => pick(sym)}
-              disabled={!!fb}
-            >{sym}</button>
-          ))}
-        </div>
-        <RoundDots total={rounds.length} current={ri} />
+        {done ? (
+          <div className="mission-title">{t('mission.2_2B.mixTip')}</div>
+        ) : (
+          <>
+            <div className="mission-title">{wantBig ? t('mission.2B.whichBigger') : t('mission.2B.whichSmaller')}</div>
+            <div className="mission-bigger-row">
+              {[a, b].map(v => (
+                <button
+                  key={v}
+                  className={`mission-bigger-btn${fb ? v === target ? ' mission-bigger-btn--correct' : v === fb.v && !fb.ok ? ' mission-bigger-btn--wrong' : '' : ''}`}
+                  style={{ fontSize: 'clamp(22px, 5vw, 38px)' }}
+                  onClick={() => pick(v)}
+                  disabled={!!fb}
+                >{fmt(v)}</button>
+              ))}
+            </div>
+            <RoundDots total={rounds.length} current={ri} />
+          </>
+        )}
       </div>
-      <div className="mission-actions" />
+      <div className="mission-actions">
+        <button className="mission-next-btn" onClick={onNext} style={{ visibility: done ? 'visible' : 'hidden' }}>
+          {t('mission.next')}
+        </button>
+      </div>
     </div>
   )
 }
 
-// ── Screen 4: true or false? ──────────────────────────────────────────────────
+// ── Screen 4: true or false? — words only, no symbols ────────────────────────
+// Statement: "{a} is bigger than {b}" — half true, half false
 
 function S4({ onNext }) {
   const { t } = useTranslation()
   const rounds = useMemo(() => Array.from({ length: 4 }, () => {
     let a = rnd(10, 99), b = rnd(10, 99)
     while (a === b) b = rnd(10, 99)
-    const showGT = Math.random() < 0.5
-    return { a, b, showGT, isTrue: showGT ? a > b : a < b }
+    const isTrue = Math.random() < 0.5 ? a > b : !(a > b)
+    const displayA = isTrue ? Math.max(a, b) : Math.min(a, b)
+    const displayB = isTrue ? Math.min(a, b) : Math.max(a, b)
+    // shows "{displayA} is bigger than {displayB}" — isTrue means the statement is correct
+    return { a: displayA, b: displayB, isTrue }
   }), [])
   const [ri, setRi] = useState(0)
   const [fb, setFb] = useState(null)
-  const { a, b, showGT, isTrue } = rounds[ri]
+  const { a, b, isTrue } = rounds[ri]
 
   function pick(chosen) {
     if (fb) return
@@ -201,14 +220,14 @@ function S4({ onNext }) {
     }, 700)
   }
 
-  const statementStyle = { background: '#f0f2ff', borderRadius: 12, padding: '0.8rem 1.2rem', fontSize: 'clamp(20px, 4.5vw, 34px)', fontWeight: 700, margin: '0.4rem 0 1rem', textAlign: 'center', letterSpacing: '0.08em' }
+  const statementStyle = { background: '#f0f2ff', borderRadius: 12, padding: '0.8rem 1.2rem', fontSize: 'clamp(16px, 3.5vw, 26px)', fontWeight: 700, margin: '0.4rem 0 1rem', textAlign: 'center', lineHeight: 1.4 }
 
   return (
     <div className="mission-screen">
       <Progress step={4} />
       <div className="mission-body">
         <div className="mission-subtitle">{t('mission.2B.trueOrFalse')}</div>
-        <div style={statementStyle}>{fmt(a)} {showGT ? '>' : '<'} {fmt(b)}</div>
+        <div style={statementStyle}>{fmt(a)} {t('mission.2_2B.biggerThan')} {fmt(b)}</div>
         <div className="mission-bigger-row">
           {[true, false].map(v => (
             <button

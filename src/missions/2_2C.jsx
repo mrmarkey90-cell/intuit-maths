@@ -158,57 +158,34 @@ function S2({ onNext }) {
   )
 }
 
-// ── Numpad screen (S3 + S5) ───────────────────────────────────────────────────
-
-function NumpadRound({ step, count, instruction, genQ, fmtQ, checkAns, allowDecimal, onDone }) {
-  const qs = useMemo(() => Array.from({ length: count }, genQ), [])
-  const [qi, setQi] = useState(0)
-  const [val, setVal] = useState('')
-  const [fb, setFb] = useState(null)
-
-  function submit() {
-    if (fb || val === '') return
-    const ok = checkAns(val, qs[qi].answer)
-    setFb(ok ? 'correct' : 'wrong')
-    if (ok) {
-      setTimeout(() => { setFb(null); setVal(''); if (qi + 1 >= qs.length) onDone(); else setQi(i => i + 1) }, 700)
-    } else {
-      setTimeout(() => { setFb(null); setVal('') }, 700)
-    }
-  }
-
-  return (
-    <div className="mission-screen">
-      <Progress step={step} />
-      <div className="mission-body">
-        <div className="mission-subtitle">{instruction}</div>
-        <div style={{ fontSize: 'clamp(28px,6vw,48px)', fontWeight: 700, textAlign: 'center', letterSpacing: '0.05em', marginBottom: '0.5rem', color: fb === 'correct' ? '#2e7d32' : fb === 'wrong' ? '#c62828' : 'inherit' }}>
-          {fmtQ(qs[qi].n)}
-        </div>
-        <div style={{ pointerEvents: fb ? 'none' : 'auto' }}>
-          <NumberPad value={val} onChange={setVal} onSubmit={submit} allowDecimal={allowDecimal} />
-        </div>
-        <RoundDots total={qs.length} current={qi} />
-      </div>
-      <div className="mission-actions" />
-    </div>
-  )
-}
-
 // ── Screen 3 ──────────────────────────────────────────────────────────────────
 
 function S3({ onNext }) {
   const { t } = useTranslation()
+  const qs = useMemo(() => Array.from({ length: 3 }, () => { const n = genAny(); return { n, answer: roundedN(n) } }), [])
+  const [qi, setQi] = useState(0)
+  const [fb, setFb] = useState(null)
+
+  function submit(val) {
+    const ok = parseInt(val) === qs[qi].answer
+    setFb(ok ? 'correct' : 'wrong')
+    if (ok) { setTimeout(() => { setFb(null); qi + 1 >= qs.length ? onNext() : setQi(i => i + 1) }, 700) }
+    else { setTimeout(() => setFb(null), 700) }
+  }
+
   return (
-    <NumpadRound
-      step={3} count={3}
-      instruction={t('mission.2_2C.roundTo10')}
-      genQ={() => { const n = genAny(); return { n, answer: roundedN(n) } }}
-      fmtQ={n => String(n)}
-      checkAns={(val, ans) => parseInt(val) === ans}
-      allowDecimal={false}
-      onDone={onNext}
-    />
+    <div className="mission-screen">
+      <Progress step={3} />
+      <div className="mission-body">
+        <div className="mission-subtitle">{t('mission.2_2C.roundTo10')}</div>
+        <div style={{ fontSize: 'clamp(28px,6vw,48px)', fontWeight: 700, textAlign: 'center', letterSpacing: '0.05em', marginBottom: '0.5rem', color: fb === 'correct' ? '#2e7d32' : fb === 'wrong' ? '#c62828' : 'inherit' }}>
+          {String(qs[qi].n)}
+        </div>
+        <NumberPad key={qi} onSubmit={submit} allowDecimal={false} disabled={!!fb} />
+        <RoundDots total={qs.length} current={qi} />
+      </div>
+      <div className="mission-actions" />
+    </div>
   )
 }
 
@@ -271,16 +248,30 @@ function S4({ onNext }) {
 
 function S5({ onFinish }) {
   const { t } = useTranslation()
+  const qs = useMemo(() => Array.from({ length: 4 }, () => { const n = genAny(); return { n, answer: roundedN(n) } }), [])
+  const [qi, setQi] = useState(0)
+  const [fb, setFb] = useState(null)
+
+  function submit(val) {
+    const ok = parseInt(val) === qs[qi].answer
+    setFb(ok ? 'correct' : 'wrong')
+    if (ok) { setTimeout(() => { setFb(null); qi + 1 >= qs.length ? onFinish() : setQi(i => i + 1) }, 700) }
+    else { setTimeout(() => setFb(null), 700) }
+  }
+
   return (
-    <NumpadRound
-      step={5} count={4}
-      instruction={t('mission.2_2C.roundTo10')}
-      genQ={() => { const n = genAny(); return { n, answer: roundedN(n) } }}
-      fmtQ={n => String(n)}
-      checkAns={(val, ans) => parseInt(val) === ans}
-      allowDecimal={false}
-      onDone={onFinish}
-    />
+    <div className="mission-screen">
+      <Progress step={5} />
+      <div className="mission-body">
+        <div className="mission-subtitle">{t('mission.2_2C.roundTo10')}</div>
+        <div style={{ fontSize: 'clamp(28px,6vw,48px)', fontWeight: 700, textAlign: 'center', letterSpacing: '0.05em', marginBottom: '0.5rem', color: fb === 'correct' ? '#2e7d32' : fb === 'wrong' ? '#c62828' : 'inherit' }}>
+          {String(qs[qi].n)}
+        </div>
+        <NumberPad key={qi} onSubmit={submit} allowDecimal={false} disabled={!!fb} />
+        <RoundDots total={qs.length} current={qi} />
+      </div>
+      <div className="mission-actions" />
+    </div>
   )
 }
 

@@ -714,6 +714,8 @@ export const translations = {
 
     'mission.2_2B.bigTip': '✓ Check the tens digit first — bigger tens = bigger number!',
     'mission.2_2B.smallTip': '✓ Same tens? Smaller units = smaller number!',
+    'mission.2_2B.mixTip': '✓ Tens first — then units when they match!',
+    'mission.2_2B.biggerThan': 'is bigger than',
 
     'mission.3_2B.bigTip': '✓ Compare hundreds first — most hundreds wins!',
     'mission.3_2B.smallTip': '✓ Same hundreds? Compare tens, then units!',
@@ -727,7 +729,7 @@ export const translations = {
     'mission.6_2B.bigTip': '✓ Closer to zero = higher! −15 is higher than −40.',
     'mission.6_2B.smallTip': '✓ Further from zero = lower on the number line!',
 
-    'mission.2C.whichCloser': 'Which does it round to?',
+    'mission.2C.whichCloser': 'What is it nearest to?',
     'mission.2C.roundsToWord': 'rounds to',
     'mission.2C.halfwayTitle': 'Exactly halfway — which way?',
     'mission.2C.halfwayTip': '✓ Exactly halfway — always round UP!',
@@ -1454,6 +1456,8 @@ export const translations = {
 
     'mission.2_2B.bigTip': '✓ Edrychwch ar y digid degau — degau mwy = rhif mwy!',
     'mission.2_2B.smallTip': '✓ Yr un degau? Yr unedau llai = y rhif llai!',
+    'mission.2_2B.mixTip': '✓ Degau yn gyntaf — wedyn unedau os ydyn nhw\'r un fath!',
+    'mission.2_2B.biggerThan': 'yn fwy na',
 
     'mission.3_2B.bigTip': '✓ Cymharwch y cannoedd yn gyntaf — y mwyaf o gannoedd sy\'n ennill!',
     'mission.3_2B.smallTip': '✓ Yr un cannoedd? Cymharwch y degau, yna\'r unedau!',
@@ -1467,7 +1471,7 @@ export const translations = {
     'mission.6_2B.bigTip': '✓ Agosach at sero = uwch! Mae −15 yn uwch na −40.',
     'mission.6_2B.smallTip': '✓ Pellach oddi wrth sero = is ar y llinell rhif!',
 
-    'mission.2C.whichCloser': "Pa un mae'n talgrynnu iddo?",
+    'mission.2C.whichCloser': "Beth yw'r agosaf ato?",
     'mission.2C.roundsToWord': 'yn talgrynnu i',
     'mission.2C.halfwayTitle': 'Hanner ffordd yn union — pa ffordd?',
     'mission.2C.halfwayTip': '✓ Hanner ffordd yn union — talgrynnwch I FYNY bob tro!',
