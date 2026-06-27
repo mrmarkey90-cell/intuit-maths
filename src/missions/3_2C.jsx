@@ -123,7 +123,6 @@ function S2({ onNext }) {
     <div className="mission-screen">
       <Progress step={2} />
       <div className="mission-body">
-        <div className="mission-subtitle">{t('mission.2B.trueOrFalse')}</div>
         <div style={{ background: '#f0f2ff', borderRadius: 12, padding: '0.8rem 1.4rem', fontSize: 'clamp(18px,4vw,30px)', fontWeight: 700, margin: '0.4rem 0 1rem', textAlign: 'center' }}>
           {fmtN} {t('mission.2C.roundsToWord')} {fmtClaimed}
         </div>

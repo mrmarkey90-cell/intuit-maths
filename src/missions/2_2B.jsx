@@ -226,7 +226,6 @@ function S4({ onNext }) {
     <div className="mission-screen">
       <Progress step={4} />
       <div className="mission-body">
-        <div className="mission-subtitle">{t('mission.2B.trueOrFalse')}</div>
         <div style={statementStyle}>{fmt(a)} {t('mission.2_2B.biggerThan')} {fmt(b)}</div>
         <div className="mission-bigger-row">
           {[true, false].map(v => (
