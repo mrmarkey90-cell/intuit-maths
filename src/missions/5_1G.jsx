@@ -157,12 +157,12 @@ function S2Teach({ onNext }) {
 
 function Grid25Q({ n, onComplete }) {
   const { t } = useTranslation()
-  const [selected, setSelected] = useState(new Set())
+  const [selected, setSelected] = useState(new Set([1]))
   const [submitted, setSubmitted] = useState(false)
   const correctSet = useMemo(() => new Set(GRID25.filter(v => n % v === 0)), [n])
 
   function toggle(v) {
-    if (submitted) return
+    if (submitted || v === 1) return
     setSelected(s => { const ns = new Set(s); if (ns.has(v)) ns.delete(v); else ns.add(v); return ns })
   }
   function check() {

@@ -49,12 +49,12 @@ function genFactorQ(min, max, excludeN = null) {
 
 function FactorMultiQ({ q, onComplete }) {
   const { t } = useTranslation()
-  const [selected, setSelected] = useState(new Set())
+  const [selected, setSelected] = useState(new Set([1]))
   const [submitted, setSubmitted] = useState(false)
   const correctSet = new Set(q.values.filter(v => q.n % v === 0))
 
   function toggle(v) {
-    if (submitted) return
+    if (submitted || v === 1) return
     setSelected(s => { const ns = new Set(s); if (ns.has(v)) ns.delete(v); else ns.add(v); return ns })
   }
   function check() {
