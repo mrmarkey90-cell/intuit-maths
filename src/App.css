@@ -5051,6 +5051,22 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   font-style: italic;
 }
 
+/* ── Bond list (staggered fade-in) ──────────────────────────────────────── */
+
+@keyframes bondFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.bond-list-item {
+  font-size: clamp(22px, 5vw, 38px);
+  font-weight: 800;
+  color: #1f2937;
+  letter-spacing: 0.04em;
+  opacity: 0;
+  animation: bondFadeIn 0.35s ease-out forwards;
+}
+
 /* ── Pair-select first-tap highlight ─────────────────────────────────────── */
 
 .mission-bigger-btn--selected,

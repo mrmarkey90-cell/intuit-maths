@@ -6,6 +6,21 @@ import { useTranslation } from '../i18n/LanguageContext'
 function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5) }
 function rnd(a, b) { return a + Math.floor(Math.random() * (b - a + 1)) }
 
+const BONDS = [[1,9],[2,8],[3,7],[4,6],[5,5]]
+
+function BondList() {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem' }}>
+      <div style={{ fontSize: 'clamp(52px,13vw,88px)', fontWeight: 900, color: '#5b4fe8', lineHeight: 1, marginBottom: '0.4rem' }}>10</div>
+      {BONDS.map(([a, b], i) => (
+        <div key={i} className="bond-list-item" style={{ animationDelay: `${i * 0.18}s` }}>
+          {a} + {b}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function Progress({ step }) {
   return (
     <div className="mission-progress">
@@ -120,7 +135,7 @@ function S1({ onNext }) {
       <Progress step={1} />
       <div className="mission-body">
         {done ? (
-          <div className="mission-title">{t('mission.3A.pairTip')}</div>
+          <BondList />
         ) : (
           <>
             <div className="mission-title">{t('mission.3A.tapTwoMake10')}</div>
@@ -345,7 +360,7 @@ function S5({ onFinish }) {
       <Progress step={5} />
       <div className="mission-body">
         {done ? (
-          <div className="mission-title">{t('mission.3A.pairTip')}</div>
+          <BondList />
         ) : (
           <>
             <div className="mission-title">{t('mission.3A.tapOddOne')}</div>
