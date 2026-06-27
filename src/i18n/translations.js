@@ -699,6 +699,33 @@ export const translations = {
 
     'mission.6_2A.padTip': '✓ Tip: pad with a zero to compare — 3.5 = 3.50',
     'mission.6_2A.mixedTitle': 'Same whole — which is bigger?',
+
+    'mission.2B.whichBigger': 'Which is bigger?',
+    'mission.2B.whichSmaller': 'Which is smaller?',
+    'mission.2B.whichHigher': 'Which is higher?',
+    'mission.2B.whichLower': 'Which is lower?',
+    'mission.2B.pickSymbol': 'Which symbol fits?',
+    'mission.2B.trueOrFalse': 'True or false?',
+    'mission.2B.trueBtn': 'True',
+    'mission.2B.falseBtn': 'False',
+
+    'mission.1_2B.bigTip': '✓ Bigger numbers are further along the number line!',
+    'mission.1_2B.smallTip': '✓ Smaller numbers come first on the line!',
+
+    'mission.2_2B.bigTip': '✓ Check the tens digit first — bigger tens = bigger number!',
+    'mission.2_2B.smallTip': '✓ Same tens? Smaller units = smaller number!',
+
+    'mission.3_2B.bigTip': '✓ Compare hundreds first — most hundreds wins!',
+    'mission.3_2B.smallTip': '✓ Same hundreds? Compare tens, then units!',
+
+    'mission.4_2B.bigTip': '✓ Compare the whole part first — then the decimal digit!',
+    'mission.4_2B.smallTip': '✓ Same whole? Smaller decimal = smaller number!',
+
+    'mission.5_2B.bigTip': '✓ Compare digit by digit from left to right!',
+    'mission.5_2B.smallTip': '✓ The first digit that differs tells you which is smaller!',
+
+    'mission.6_2B.bigTip': '✓ Closer to zero = higher! −15 is higher than −40.',
+    'mission.6_2B.smallTip': '✓ Further from zero = lower on the number line!',
   },
   cy: {
     'common.back': 'Nôl',
@@ -1392,5 +1419,32 @@ export const translations = {
 
     'mission.6_2A.padTip': '✓ Tip: ychwanegu sero i gymharu — 3.5 = 3.50',
     'mission.6_2A.mixedTitle': 'Rhan gyfan yr un fath — pa un sy\'n fwy?',
+
+    'mission.2B.whichBigger': 'Pa un sy\'n fwy?',
+    'mission.2B.whichSmaller': 'Pa un sy\'n llai?',
+    'mission.2B.whichHigher': 'Pa un sy\'n uwch?',
+    'mission.2B.whichLower': 'Pa un sy\'n is?',
+    'mission.2B.pickSymbol': 'Pa symbol sy\'n addas?',
+    'mission.2B.trueOrFalse': 'Gwir neu gau?',
+    'mission.2B.trueBtn': 'Gwir',
+    'mission.2B.falseBtn': 'Gau',
+
+    'mission.1_2B.bigTip': '✓ Mae rhifau mwy ymhellach ar hyd y llinell rhif!',
+    'mission.1_2B.smallTip': '✓ Mae rhifau llai yn dod yn gyntaf ar y llinell!',
+
+    'mission.2_2B.bigTip': '✓ Edrychwch ar y digid degau — degau mwy = rhif mwy!',
+    'mission.2_2B.smallTip': '✓ Yr un degau? Yr unedau llai = y rhif llai!',
+
+    'mission.3_2B.bigTip': '✓ Cymharwch y cannoedd yn gyntaf — y mwyaf o gannoedd sy\'n ennill!',
+    'mission.3_2B.smallTip': '✓ Yr un cannoedd? Cymharwch y degau, yna\'r unedau!',
+
+    'mission.4_2B.bigTip': '✓ Cymharwch y rhan gyfan yn gyntaf — yna\'r digid degol!',
+    'mission.4_2B.smallTip': '✓ Rhan gyfan yr un fath? Degol llai = rhif llai!',
+
+    'mission.5_2B.bigTip': '✓ Cymharwch ddigid wrth ddigid o\'r chwith i\'r dde!',
+    'mission.5_2B.smallTip': '✓ Y digid cyntaf sy\'n wahanol sy\'n dweud pa un sy\'n llai!',
+
+    'mission.6_2B.bigTip': '✓ Agosach at sero = uwch! Mae −15 yn uwch na −40.',
+    'mission.6_2B.smallTip': '✓ Pellach oddi wrth sero = is ar y llinell rhif!',
   },
 }
