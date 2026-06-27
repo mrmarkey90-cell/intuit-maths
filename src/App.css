@@ -5352,7 +5352,10 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
 .mission-eo-tile--correct  { background: #dcfce7; border-color: #16a34a; color: #15803d; }
 .mission-eo-tile--wrong    { background: #fee2e2; border-color: #dc2626; color: #b91c1c; }
 .mission-eo-tile--missed   { background: #fef9c3; border-color: #d97706; color: #b45309; }
-.mission-eo-tile:disabled  { cursor: default; }
+.mission-eo-tile:disabled          { cursor: default; }
+.mission-eo-tile--correct:disabled { background: #dcfce7; }
+.mission-eo-tile--wrong:disabled   { background: #fee2e2; }
+.mission-eo-tile--missed:disabled  { background: #fef9c3; }
 
 /* ── Negative numpad answer row (6_1D) ──────────────────────────────────── */
 
