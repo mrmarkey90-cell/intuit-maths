@@ -34,12 +34,12 @@ function RoundDots({ total, current }) {
 
 // ── Screen 1: Find all factors of N (warm-up, 6-tile) ────────────────────────
 
-function genFactorQ(min, max) {
+function genFactorQ(min, max, excludeN = null) {
   let n, factors
   do {
     n = rnd(min, max)
     factors = factorsOf(n)
-  } while (factors.length > 5)
+  } while (factors.length < 3 || factors.length > 5 || n === excludeN)
   const nonFactors = []
   for (let i = 2; i <= n + 2; i++) if (n % i !== 0) nonFactors.push(i)
   const distractors = shuffle(nonFactors).slice(0, 6 - factors.length)
@@ -91,7 +91,7 @@ function S1FactorWarmup({ onNext }) {
   function advance(correct) {
     if (correct && count + 1 >= TOTAL) { onNext(); return }
     if (correct) setCount(c => c + 1)
-    setQ(genFactorQ(8, 15))
+    setQ(prev => genFactorQ(8, 15, prev.n))
     setRoundKey(k => k + 1)
   }
 
@@ -190,14 +190,14 @@ function S2Teach({ onNext }) {
 
 // ── Screens 3–4: Circle — which divides both? ─────────────────────────────────
 
-function genCircleQ(maxN) {
+function genCircleQ(maxN, excludeA = null) {
   let a, b, cf
   do {
     const shared = rnd(2, 8)
     a = shared * rnd(2, 5)
     b = shared * rnd(2, 5)
     cf = commonFactors(a, b)
-  } while (a === b || a > maxN || b > maxN || cf.length === 0)
+  } while (a === b || a > maxN || b > maxN || cf.length === 0 || a === excludeA)
   const correct = pick(cf)
   const wrong = shuffle([
     ...factorsOf(a).filter(v => v > 1 && b % v !== 0),
@@ -247,7 +247,7 @@ function CircleScreen({ step, maxN, total, onDone }) {
   function advance(correct) {
     if (correct && count + 1 >= total) { setDone(true); return }
     if (correct) setCount(c => c + 1)
-    setQ(genCircleQ(maxN))
+    setQ(prev => genCircleQ(maxN, prev.a))
     setRoundKey(k => k + 1)
   }
 

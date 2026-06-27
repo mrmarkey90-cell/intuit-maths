@@ -28,19 +28,17 @@ function RoundDots({ total, current }) {
 
 // ── Screen 1: "Does N divide M exactly?" Yes / No ─────────────────────────────
 
-function genIsDivisibleQ() {
-  const m = rnd(12, 24)
+function genIsDivisibleQ(excludeM = null) {
+  let m
+  do { m = rnd(12, 24) } while (factorsOf(m).length < 3 || m === excludeM)
   const factors = factorsOf(m)
   if (Math.random() < 0.5) {
-    // Pick a non-trivial factor
     const inner = factors.filter(x => x !== 1 && x !== m)
-    const n = inner.length > 0 ? inner[Math.floor(Math.random() * inner.length)] : factors[1]
+    const n = inner[Math.floor(Math.random() * inner.length)]
     return { m, n, divides: true }
   } else {
-    // Pick a non-factor (2-9 range to keep numbers friendly)
     const nonFactors = []
     for (let x = 2; x <= 9; x++) if (m % x !== 0) nonFactors.push(x)
-    if (nonFactors.length === 0) return genIsDivisibleQ()
     const n = nonFactors[Math.floor(Math.random() * nonFactors.length)]
     return { m, n, divides: false }
   }
@@ -65,7 +63,7 @@ function S1DivisibleCheck({ onNext }) {
         setDone(true)
       } else {
         if (correct) setCount(c => c + 1)
-        setQ(genIsDivisibleQ())
+        setQ(prev => genIsDivisibleQ(prev.m))
       }
     }, 700)
   }
@@ -197,15 +195,21 @@ function Grid25Q({ n, onComplete }) {
   )
 }
 
+function genGridN(min, max, excludeN = null) {
+  let n
+  do { n = rnd(min, max) } while (factorsOf(n).length < 3 || n === excludeN)
+  return n
+}
+
 function GridScreen({ step, min, max, total, onDone }) {
   const [count, setCount] = useState(0)
-  const [n, setN] = useState(() => rnd(min, max))
+  const [n, setN] = useState(() => genGridN(min, max))
   const [roundKey, setRoundKey] = useState(0)
 
   function advance(correct) {
     if (correct && count + 1 >= total) { onDone(); return }
     if (correct) setCount(c => c + 1)
-    setN(rnd(min, max))
+    setN(prev => genGridN(min, max, prev))
     setRoundKey(k => k + 1)
   }
 

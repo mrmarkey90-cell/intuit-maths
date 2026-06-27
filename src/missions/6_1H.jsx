@@ -32,8 +32,9 @@ function RoundDots({ total, current }) {
 
 // ── Screen 1: "Is this prime?" Yes / No (range 2–30) ─────────────────────────
 
-function genIsPrimeQ() {
-  const n = rnd(2, 30)
+function genIsPrimeQ(excludeN = null) {
+  let n
+  do { n = rnd(2, 30) } while (n === excludeN)
   return { n, prime: isPrime(n) }
 }
 
@@ -56,7 +57,7 @@ function S1IsPrime({ onNext }) {
         setDone(true)
       } else {
         if (correct) setCount(c => c + 1)
-        setQ(genIsPrimeQ())
+        setQ(prev => genIsPrimeQ(prev.n))
       }
     }, 700)
   }
@@ -141,8 +142,9 @@ function S2Teach({ onNext }) {
 
 // ── Screen 3: What is the next prime after N? (circle 4 options) ──────────────
 
-function genNextPrimeQ() {
-  const idx = Math.floor(Math.random() * (PRIMES_TO_30.length - 1))
+function genNextPrimeQ(excludeN = null) {
+  let idx
+  do { idx = Math.floor(Math.random() * (PRIMES_TO_30.length - 1)) } while (PRIMES_TO_30[idx] === excludeN)
   const n = PRIMES_TO_30[idx]
   const answer = PRIMES_TO_30[idx + 1]
   const wrong = shuffle([answer + 1, answer + 2, answer - 1, PRIMES_TO_30[idx - 1] ?? answer + 4]
@@ -187,7 +189,7 @@ function S3NextPrime({ onNext }) {
   function advance(correct) {
     if (correct && count + 1 >= TOTAL) { setDone(true); return }
     if (correct) setCount(c => c + 1)
-    setQ(genNextPrimeQ())
+    setQ(prev => genNextPrimeQ(prev.n))
     setRoundKey(k => k + 1)
   }
 
@@ -216,8 +218,9 @@ function S3NextPrime({ onNext }) {
 
 // ── Screen 4: Largest prime below N (circle 4 options) ───────────────────────
 
-function genLargestBelowQ() {
-  const n = rnd(12, 30)
+function genLargestBelowQ(excludeN = null) {
+  let n
+  do { n = rnd(12, 30) } while (n === excludeN)
   let answer = n - 1
   while (!isPrime(answer)) answer--
   const wrong = shuffle([answer - 2, answer - 4, answer + 1, answer - 6]
@@ -237,7 +240,7 @@ function S4LargestBelow({ onNext }) {
   function advance(correct) {
     if (correct && count + 1 >= TOTAL) { setDone(true); return }
     if (correct) setCount(c => c + 1)
-    setQ(genLargestBelowQ())
+    setQ(prev => genLargestBelowQ(prev.n))
     setRoundKey(k => k + 1)
   }
 

@@ -33,8 +33,9 @@ function RoundDots({ total, current }) {
 
 // ── Screen 1: How many factors does N have? ───────────────────────────────────
 
-function genFactorCountQ() {
-  const n = rnd(2, 15)
+function genFactorCountQ(excludeN = null) {
+  let n
+  do { n = rnd(2, 15) } while (n === excludeN)
   const answer = factorsOf(n).length
   const wrongs = new Set()
   while (wrongs.size < 2) {
@@ -80,7 +81,7 @@ function S1FactorCount({ onNext }) {
   function advance(correct) {
     if (correct && count + 1 >= TOTAL) { setDone(true); return }
     if (correct) setCount(c => c + 1)
-    setQ(genFactorCountQ())
+    setQ(prev => genFactorCountQ(prev.n))
     setRoundKey(k => k + 1)
   }
 
@@ -172,8 +173,9 @@ function S2Teach({ onNext }) {
 
 // ── Screen 3: "Is this prime?" Yes / No ──────────────────────────────────────
 
-function genIsPrimeQ() {
-  const n = rnd(2, 15)
+function genIsPrimeQ(excludeN = null) {
+  let n
+  do { n = rnd(2, 15) } while (n === excludeN)
   return { n, prime: isPrime(n) }
 }
 
@@ -196,7 +198,7 @@ function S3IsPrime({ onNext }) {
         setDone(true)
       } else {
         if (correct) setCount(c => c + 1)
-        setQ(genIsPrimeQ())
+        setQ(prev => genIsPrimeQ(prev.n))
       }
     }, 700)
   }
@@ -241,8 +243,9 @@ function S3IsPrime({ onNext }) {
 
 // ── Screen 4: Spot the prime — 4 tiles, 1 prime ───────────────────────────────
 
-function genSpotPrimeQ() {
-  const correct = pick(PRIMES_TO_15)
+function genSpotPrimeQ(excludeCorrect = null) {
+  const pool = PRIMES_TO_15.filter(p => p !== excludeCorrect)
+  const correct = pick(pool.length > 0 ? pool : PRIMES_TO_15)
   const wrong = shuffle(COMPOSITES_TO_15).slice(0, 3)
   return { correct, values: shuffle([correct, ...wrong]) }
 }
@@ -280,7 +283,7 @@ function S4SpotPrime({ onNext }) {
   function advance(correct) {
     if (correct && count + 1 >= TOTAL) { setDone(true); return }
     if (correct) setCount(c => c + 1)
-    setQ(genSpotPrimeQ())
+    setQ(prev => genSpotPrimeQ(prev.correct))
     setRoundKey(k => k + 1)
   }
 

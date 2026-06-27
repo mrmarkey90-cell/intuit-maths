@@ -29,12 +29,12 @@ function RoundDots({ total, current }) {
 
 // ── Screen 1: Complete the factor pair ────────────────────────────────────────
 
-function genPairQ() {
+function genPairQ(excludeN = null) {
   let n, innerFactors
   do {
     n = rnd(6, 24)
     innerFactors = factorsOf(n).filter(x => x !== 1 && x !== n)
-  } while (innerFactors.length === 0)
+  } while (innerFactors.length === 0 || n === excludeN)
   const f = pick(innerFactors)
   const answer = n / f
   const candidates = []
@@ -88,7 +88,7 @@ function S1FactorPair({ onNext }) {
   function advance(correct) {
     if (correct && count + 1 >= TOTAL) { setDone(true); return }
     if (correct) setCount(c => c + 1)
-    setQ(genPairQ())
+    setQ(prev => genPairQ(prev.n))
     setRoundKey(k => k + 1)
   }
 
@@ -169,12 +169,12 @@ function S2Teach({ onNext }) {
 
 // ── Screens 3–5: Multi-select factor finder ───────────────────────────────────
 
-function genFactorQ(min, max) {
+function genFactorQ(min, max, excludeN = null) {
   let n, factors
   do {
     n = rnd(min, max)
     factors = factorsOf(n)
-  } while (factors.length > 5)
+  } while (factors.length < 3 || factors.length > 5 || n === excludeN)
   const nonFactors = []
   for (let i = 2; i <= n + 2; i++) if (n % i !== 0) nonFactors.push(i)
   const distractors = shuffle(nonFactors).slice(0, 6 - factors.length)
@@ -225,7 +225,7 @@ function FactorScreen({ step, min, max, total, onDone }) {
   function advance(correct) {
     if (correct && count + 1 >= total) { onDone(); return }
     if (correct) setCount(c => c + 1)
-    setQ(genFactorQ(min, max))
+    setQ(prev => genFactorQ(min, max, prev.n))
     setRoundKey(k => k + 1)
   }
 
