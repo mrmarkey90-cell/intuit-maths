@@ -164,12 +164,11 @@ function S1({ onNext }) {
             <div className="mission-title" style={{ fontSize: 'clamp(30px,7vw,52px)', marginBottom: '0.5rem' }}>
               {a} + {b} = ?
             </div>
-            <div className="mission-bigger-row">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem', width: 'min(320px, 62vw)' }}>
               {opts.map(opt => (
                 <button
                   key={opt}
                   className={`mission-bigger-btn${fb ? opt === correct ? ' mission-bigger-btn--correct' : opt === fb.opt && !fb.ok ? ' mission-bigger-btn--wrong' : '' : ''}`}
-                  style={{ width: 'clamp(64px,13vw,90px)' }}
                   onClick={() => pick(opt)}
                   disabled={!!fb}
                 >{opt}</button>
