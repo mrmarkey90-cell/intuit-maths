@@ -646,7 +646,7 @@ export const translations = {
     'mission.1G.pairsMultiply': 'All pairs that multiply to make ',
     'mission.1G.great': 'Factor expert! 🎉',
     'mission.1G.isAFactor': 'Does it divide exactly?',
-    'mission.1G.yesBtn': 'Yes — factor!',
+    'mission.1G.yesBtn': 'Yes',
     'mission.1G.noBtn': 'No',
 
     'mission.6_1G.commonOf': 'Common factors of ',
@@ -1310,7 +1310,7 @@ export const translations = {
     'mission.1G.pairsMultiply': "Yr holl barau sy'n lluosi i wneud ",
     'mission.1G.great': 'Arbenigwr ffactor! 🎉',
     'mission.1G.isAFactor': "Ydy'n rhannu'n union?",
-    'mission.1G.yesBtn': 'Ydy — ffactor!',
+    'mission.1G.yesBtn': 'Ydy',
     'mission.1G.noBtn': 'Nac ydy',
 
     'mission.6_1G.commonOf': 'Ffactorau cyffredin ',
