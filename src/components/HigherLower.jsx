@@ -4,14 +4,12 @@ import { useTranslation } from '../i18n/LanguageContext'
 const TOTAL = 7  // 8 cards, 7 guesses
 
 function genCards() {
-  const vals = []
-  for (let i = 0; i < 8; i++) {
-    let v
-    do { v = 1 + Math.floor(Math.random() * 10) }
-    while (i > 0 && v === vals[i - 1])
-    vals.push(v)
+  const pool = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]]
   }
-  return vals
+  return pool.slice(0, 8)
 }
 
 function CardFace({ value }) {
