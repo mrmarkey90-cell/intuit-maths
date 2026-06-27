@@ -30,6 +30,7 @@ export default function HigherLower({ onComplete }) {
   const [pos, setPos] = useState(0)      // index of current face-up card
   const [fb, setFb] = useState(null)     // { ok, higher } during reveal
   const [score, setScore] = useState(0)
+  const [results, setResults] = useState([])  // bool per guess, for end-screen colouring
   const done = pos >= TOTAL
 
   function guess(higher) {
@@ -41,6 +42,7 @@ export default function HigherLower({ onComplete }) {
     setTimeout(() => {
       setScore(nextScore)
       setPos(nextPos)
+      setResults(r => [...r, ok])
       setFb(null)
     }, 900)
   }
@@ -64,9 +66,21 @@ export default function HigherLower({ onComplete }) {
   )
 
   if (done) {
+    const doneCardRow = (
+      <div className="hl-cards">
+        {cards.map((val, i) => {
+          const resultClass = i === 0 ? '' : results[i - 1] ? ' hl-card--correct' : ' hl-card--wrong'
+          return (
+            <div key={i} className={`hl-card hl-card--revealed${resultClass}`}>
+              <CardFace value={val} />
+            </div>
+          )
+        })}
+      </div>
+    )
     return (
       <div className="higher-lower">
-        {cardRow}
+        {doneCardRow}
         <div className="hl-result">
           <div className="hl-score">{score}<span>/{TOTAL}</span></div>
           <button className="mission-next-btn" onClick={() => onComplete({ score, total: TOTAL })}>
