@@ -5293,13 +5293,13 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   height: clamp(22px, 4vw, 32px);
 }
 
-/* Fixed 5×2 grid — always 10 slots; dots beyond `total` are visibility:hidden
-   so width and height never change between questions. */
+/* Single-row 10-slot grid — dots beyond `total` are visibility:hidden
+   so width never changes between questions. */
 .mission-subdots {
   display: grid;
-  grid-template-columns: repeat(5, clamp(22px, 4vw, 32px));
-  grid-template-rows: repeat(2, clamp(22px, 4vw, 32px));
-  gap: clamp(5px, 1vw, 9px);
+  grid-template-columns: repeat(10, clamp(20px, 3.5vw, 28px));
+  grid-template-rows: clamp(20px, 3.5vw, 28px);
+  gap: clamp(4px, 0.7vw, 7px);
 }
 .mission-dot--green { background: #16a34a; }
 .mission-dot--crossed {
