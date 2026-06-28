@@ -759,7 +759,7 @@ export const translations = {
     'higherLower.higher': 'Higher',
     'higherLower.lower': 'Lower',
 
-    'mission.3A.dragToMake10': 'Drag the dots into the gap to make 10!',
+    'mission.3A.dragToMake10': 'Drag the dots!',
     'mission.3A.fillFrame': 'Tap the empty squares to make 10!',
     'mission.3A.tapTwoMake10': 'Tap two numbers that add up to 10',
     'mission.3A.pairTip': '1+9  2+8  3+7  4+6  5+5',
@@ -1592,7 +1592,7 @@ export const translations = {
     'higherLower.higher': 'Uwch',
     'higherLower.lower': 'Is',
 
-    'mission.3A.dragToMake10': 'Llusgwch y dotiau i\'r bwlch i wneud 10!',
+    'mission.3A.dragToMake10': 'Llusgwch y dotiau!',
     'mission.3A.fillFrame': 'Tapiwch y sgwariau gwag i wneud 10!',
     'mission.3A.tapTwoMake10': 'Tapiwch ddau rif sy\'n adio i 10',
     'mission.3A.pairTip': '1+9  2+8  3+7  4+6  5+5',

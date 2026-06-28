@@ -5073,6 +5073,7 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   grid-template-columns: repeat(3, clamp(28px, 6vw, 40px));
   grid-template-rows: repeat(3, clamp(28px, 6vw, 40px));
   gap: clamp(8px, 2vw, 12px);
+  margin-top: clamp(12px, 3vh, 28px);
 }
 
 .bond-drag-pool-dot {
