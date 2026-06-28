@@ -129,17 +129,18 @@ function S1({ onNext }) {
       <RoundDots total={rounds.length} current={ri} />
       <div className="mission-body">
         <div className="mission-subtitle">{t('mission.4A.countGreen')}</div>
-        <div style={{ background: '#f0f2ff', borderRadius: 12, padding: '0.4rem 1.2rem', fontSize: 'clamp(26px,6.5vw,48px)', fontWeight: 700, textAlign: 'center', margin: '0.2rem 0 0.6rem' }}>
+        <div style={{ background: '#f0f2ff', borderRadius: 12, padding: '0.4rem 1.2rem', fontSize: 'clamp(26px,6.5vw,48px)', fontWeight: 700, textAlign: 'center', margin: '0.2rem 0 0.8rem' }}>
           {a} − {b}
         </div>
-        <SubDots total={a} green={diff} />
-        <div style={{ height: '0.6rem' }} />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem', width: 'min(240px,50vw)' }}>
-          {opts.map(opt => (
-            <button key={opt}
-              className={`mission-bigger-btn${fb ? opt === diff ? ' mission-bigger-btn--correct' : opt === fb.opt && !fb.ok ? ' mission-bigger-btn--wrong' : '' : ''}`}
-              onClick={() => pick(opt)} disabled={!!fb}>{opt}</button>
-          ))}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.6rem' }}>
+          <SubDots total={a} green={diff} />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, clamp(80px,17vw,130px))', gap: '0.6rem' }}>
+            {opts.map(opt => (
+              <button key={opt}
+                className={`mission-bigger-btn${fb ? opt === diff ? ' mission-bigger-btn--correct' : opt === fb.opt && !fb.ok ? ' mission-bigger-btn--wrong' : '' : ''}`}
+                onClick={() => pick(opt)} disabled={!!fb}>{opt}</button>
+            ))}
+          </div>
         </div>
       </div>
       <div className="mission-actions" />
@@ -148,11 +149,15 @@ function S1({ onNext }) {
 }
 
 // ── S2: Dots shown — how many are crossed out? (missing subtrahend) ───────────
+// a must be >= 5: with a=4 there are only 3 values in (0,a), causing an
+// infinite loop when the while tries to collect 4 distinct distractors.
 
 function S2({ onNext }) {
   const { t } = useTranslation()
   const rounds = useMemo(() => Array.from({ length: 3 }, () => {
-    const { a, b, diff } = genQ()
+    const a = rnd(5, 10)
+    const b = rnd(1, a - 1)
+    const diff = a - b
     const opts = new Set([b])
     for (const off of shuffle([-2, -1, 1, 2, -3, 3])) {
       if (opts.size >= 4) break
@@ -182,17 +187,18 @@ function S2({ onNext }) {
       <RoundDots total={rounds.length} current={ri} />
       <div className="mission-body">
         <div className="mission-subtitle">{t('mission.4A.howManyCrossed')}</div>
-        <div style={{ background: '#f0f2ff', borderRadius: 12, padding: '0.4rem 1.2rem', fontSize: 'clamp(20px,5vw,38px)', fontWeight: 700, textAlign: 'center', margin: '0.2rem 0 0.6rem' }}>
+        <div style={{ background: '#f0f2ff', borderRadius: 12, padding: '0.4rem 1.2rem', fontSize: 'clamp(20px,5vw,38px)', fontWeight: 700, textAlign: 'center', margin: '0.2rem 0 0.8rem' }}>
           {a} − <span style={{ color: '#4f46e5', fontSize: 'clamp(24px,6vw,44px)' }}>?</span> = {diff}
         </div>
-        <SubDots total={a} green={diff} />
-        <div style={{ height: '0.6rem' }} />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem', width: 'min(240px,50vw)' }}>
-          {opts.map(opt => (
-            <button key={opt}
-              className={`mission-bigger-btn${fb ? opt === b ? ' mission-bigger-btn--correct' : opt === fb.opt && !fb.ok ? ' mission-bigger-btn--wrong' : '' : ''}`}
-              onClick={() => pick(opt)} disabled={!!fb}>{opt}</button>
-          ))}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.6rem' }}>
+          <SubDots total={a} green={diff} />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, clamp(80px,17vw,130px))', gap: '0.6rem' }}>
+            {opts.map(opt => (
+              <button key={opt}
+                className={`mission-bigger-btn${fb ? opt === b ? ' mission-bigger-btn--correct' : opt === fb.opt && !fb.ok ? ' mission-bigger-btn--wrong' : '' : ''}`}
+                onClick={() => pick(opt)} disabled={!!fb}>{opt}</button>
+            ))}
+          </div>
         </div>
       </div>
       <div className="mission-actions" />
