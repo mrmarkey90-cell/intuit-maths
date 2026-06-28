@@ -839,6 +839,12 @@ export const translations = {
     'mission.4D.complementTip': '✓ Borrow from the tenths column to get the hundredths!',
     'mission.4D.fixDigit': 'Find the missing digit:',
     'mission.4D.whichBigger': 'Which has the bigger answer?',
+    // 6A — Sharing equally, Level 1
+    'mission.6A.howMany': 'How many sweets?',
+    'mission.6A.watch': 'Watch how we share them out!',
+    'mission.6A.eachBox': 'in each box',
+    'mission.6A.letsGo': "Let's go!",
+    'mission.6A.yourTurn': 'Your turn — share them out!',
   },
   cy: {
     'common.back': 'Nôl',
@@ -1672,5 +1678,11 @@ export const translations = {
     'mission.4D.complementTip': "✓ Benthycwch o golofn y degfedau i gael canfedau!",
     'mission.4D.fixDigit': "Dewch o hyd i'r digid coll:",
     'mission.4D.whichBigger': "Pa un sydd â'r ateb mwyaf?",
+    // 6A — Sharing equally, Level 1
+    'mission.6A.howMany': 'Faint o losin?',
+    'mission.6A.watch': "Gwyliwch sut rydyn ni'n eu rhannu nhw!",
+    'mission.6A.eachBox': 'ym mhob blwch',
+    'mission.6A.letsGo': 'Awn ni!',
+    'mission.6A.yourTurn': "Eich tro chi — rhannwch nhw!",
   },
 }
