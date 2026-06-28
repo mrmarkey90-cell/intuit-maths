@@ -23,7 +23,7 @@ function BondList() {
 function Progress({ step }) {
   return (
     <div className="mission-progress">
-      <div className="mission-progress-fill" style={{ width: `${(step / 4) * 100}%` }} />
+      <div className="mission-progress-fill" style={{ width: `${(step / 5) * 100}%` }} />
     </div>
   )
 }
@@ -128,33 +128,44 @@ function S1({ onNext }) {
 
   return (
     <div className="mission-screen">
-      <Progress step={4} />
+      <Progress step={5} />
       {!done && <RoundDots total={rounds.length} current={ri} />}
       <div className="mission-body">
-        {done ? (
-          <BondList />
-        ) : (
-          <>
-            <div className="mission-title">{t('mission.3A.tapTwoMake10')}</div>
-            <div className="mission-bigger-row">
-              {nums.map((n, i) => {
-                const inPair = fb && (i === fb.i1 || i === fb.i2)
-                const cls = inPair ? (fb.ok ? ' mission-bigger-btn--correct' : ' mission-bigger-btn--wrong')
-                  : sel === i ? ' mission-bigger-btn--selected' : ''
-                return (
-                  <button key={i} className={`mission-bigger-btn${cls}`} onClick={() => tap(i)} disabled={!!fb}>
-                    {n}
-                  </button>
-                )
-              })}
-            </div>
-          </>
-        )}
+        <div className="mission-title">{t('mission.3A.tapTwoMake10')}</div>
+        <div className="mission-bigger-row">
+          {nums.map((n, i) => {
+            const inPair = fb && (i === fb.i1 || i === fb.i2)
+            const cls = inPair ? (fb.ok ? ' mission-bigger-btn--correct' : ' mission-bigger-btn--wrong')
+              : sel === i ? ' mission-bigger-btn--selected' : ''
+            return (
+              <button key={i} className={`mission-bigger-btn${cls}`} onClick={() => tap(i)} disabled={!!fb || done}>
+                {n}
+              </button>
+            )
+          })}
+        </div>
       </div>
       <div className="mission-actions">
         <button className="mission-next-btn" onClick={onNext} style={{ visibility: done ? 'visible' : 'hidden' }}>
           {t('mission.next')}
         </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Bond list screen — shown before S1 so pupils see all bonds first ──────────
+
+function BondListScreen({ onNext }) {
+  const { t } = useTranslation()
+  return (
+    <div className="mission-screen">
+      <Progress step={4} />
+      <div className="mission-body">
+        <BondList />
+      </div>
+      <div className="mission-actions">
+        <button className="mission-next-btn" onClick={onNext}>{t('mission.next')}</button>
       </div>
     </div>
   )
@@ -389,7 +400,7 @@ function Complete({ onDone }) {
   const { t } = useTranslation()
   return (
     <div className="mission-screen">
-      <Progress step={4} />
+      <Progress step={5} />
       <div className="mission-body">
         <div className="mission-complete-icon">🏆</div>
         <div className="mission-title">{t('mission.complete')}</div>
@@ -409,13 +420,14 @@ export default function Mission1_3A({ pupilId, onComplete }) {
 
   async function finish() {
     await supabase.rpc('complete_mission', { p_pupil_id: pupilId, p_special_mission: '1_3A' })
-    setStep(5)
+    setStep(6)
   }
 
   if (step === 0) return <TenFrameFill onDone={() => setStep(1)} />
   if (step === 1) return <S2 onNext={() => setStep(2)} />
   if (step === 2) return <S3 onNext={() => setStep(3)} />
   if (step === 3) return <S4 onNext={() => setStep(4)} />
-  if (step === 4) return <S1 onNext={finish} />
+  if (step === 4) return <BondListScreen onNext={() => setStep(5)} />
+  if (step === 5) return <S1 onNext={finish} />
   return <Complete onDone={onComplete} />
 }
