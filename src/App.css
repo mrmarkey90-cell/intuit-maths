@@ -5293,11 +5293,10 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   height: clamp(22px, 4vw, 32px);
 }
 
-/* Single-row 10-slot grid — dots beyond `total` are visibility:hidden
-   so width never changes between questions. */
+/* Single-row dot grid — column count set inline per question (= total dots)
+   so the grid is exactly as wide as the visible content and centers properly. */
 .mission-subdots {
   display: grid;
-  grid-template-columns: repeat(10, clamp(20px, 3.5vw, 28px));
   grid-template-rows: clamp(20px, 3.5vw, 28px);
   gap: clamp(4px, 0.7vw, 7px);
 }

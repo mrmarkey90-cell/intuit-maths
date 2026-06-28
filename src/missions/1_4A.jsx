@@ -30,18 +30,15 @@ function RoundDots({ total, current }) {
   )
 }
 
-// Fixed 5×2 grid of 10 slots — dimensions never change between questions.
-// Slots beyond `total` are invisible; slots beyond `green` but within `total` are red/crossed.
+// Renders exactly `total` dots (no hidden padding slots) so the row centers
+// visually on its visible content. Green dots first, then crossed.
 function SubDots({ total, green }) {
   return (
-    <div className="mission-subdots">
-      {Array.from({ length: 10 }, (_, i) => (
-        <span
-          key={i}
-          className={`mission-dot mission-dot--lg${i < green ? ' mission-dot--green' : i < total ? ' mission-dot--crossed' : ''}`}
-          style={{ visibility: i < total ? 'visible' : 'hidden' }}
-        >
-          {i >= green && i < total ? '×' : null}
+    <div className="mission-subdots" style={{ gridTemplateColumns: `repeat(${total}, clamp(20px,3.5vw,28px))` }}>
+      {Array.from({ length: total }, (_, i) => (
+        <span key={i}
+          className={`mission-dot mission-dot--lg${i < green ? ' mission-dot--green' : ' mission-dot--crossed'}`}>
+          {i >= green ? '×' : null}
         </span>
       ))}
     </div>
@@ -132,15 +129,13 @@ function S1({ onNext }) {
         <div style={{ background: '#f0f2ff', borderRadius: 12, padding: '0.4rem 1.2rem', fontSize: 'clamp(26px,6.5vw,48px)', fontWeight: 700, textAlign: 'center', margin: '0.2rem 0 0.8rem' }}>
           {a} − {b}
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.6rem' }}>
-          <SubDots total={a} green={diff} />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, clamp(80px,17vw,130px))', gap: '0.6rem' }}>
-            {opts.map(opt => (
-              <button key={opt}
-                className={`mission-bigger-btn${fb ? opt === diff ? ' mission-bigger-btn--correct' : opt === fb.opt && !fb.ok ? ' mission-bigger-btn--wrong' : '' : ''}`}
-                onClick={() => pick(opt)} disabled={!!fb}>{opt}</button>
-            ))}
-          </div>
+        <SubDots total={a} green={diff} />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, clamp(80px,17vw,130px))', gap: '0.6rem', marginTop: '0.4rem' }}>
+          {opts.map(opt => (
+            <button key={opt}
+              className={`mission-bigger-btn${fb ? opt === diff ? ' mission-bigger-btn--correct' : opt === fb.opt && !fb.ok ? ' mission-bigger-btn--wrong' : '' : ''}`}
+              onClick={() => pick(opt)} disabled={!!fb}>{opt}</button>
+          ))}
         </div>
       </div>
       <div className="mission-actions" />
@@ -190,15 +185,13 @@ function S2({ onNext }) {
         <div style={{ background: '#f0f2ff', borderRadius: 12, padding: '0.4rem 1.2rem', fontSize: 'clamp(20px,5vw,38px)', fontWeight: 700, textAlign: 'center', margin: '0.2rem 0 0.8rem' }}>
           {a} − <span style={{ color: '#4f46e5', fontSize: 'clamp(24px,6vw,44px)' }}>?</span> = {diff}
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.6rem' }}>
-          <SubDots total={a} green={diff} />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, clamp(80px,17vw,130px))', gap: '0.6rem' }}>
-            {opts.map(opt => (
-              <button key={opt}
-                className={`mission-bigger-btn${fb ? opt === b ? ' mission-bigger-btn--correct' : opt === fb.opt && !fb.ok ? ' mission-bigger-btn--wrong' : '' : ''}`}
-                onClick={() => pick(opt)} disabled={!!fb}>{opt}</button>
-            ))}
-          </div>
+        <SubDots total={a} green={diff} />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, clamp(80px,17vw,130px))', gap: '0.6rem', marginTop: '0.4rem' }}>
+          {opts.map(opt => (
+            <button key={opt}
+              className={`mission-bigger-btn${fb ? opt === b ? ' mission-bigger-btn--correct' : opt === fb.opt && !fb.ok ? ' mission-bigger-btn--wrong' : '' : ''}`}
+              onClick={() => pick(opt)} disabled={!!fb}>{opt}</button>
+          ))}
         </div>
       </div>
       <div className="mission-actions" />
