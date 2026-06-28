@@ -167,7 +167,163 @@ function S2Teach({ onNext }) {
   )
 }
 
-// ── Screens 3–5: Multi-select factor finder ───────────────────────────────────
+// ── Screen 3: Tap a factor ────────────────────────────────────────────────────
+
+function genTapFactorQ(excludeN = null) {
+  let n
+  do { n = rnd(6, 20) } while (factorsOf(n).length < 3 || n === excludeN)
+  const inner = factorsOf(n).filter(x => x !== 1 && x !== n)
+  const correct = pick(inner)
+  const nonFactors = []
+  for (let x = 2; x <= n + 5; x++) if (n % x !== 0) nonFactors.push(x)
+  const wrong = shuffle(nonFactors).slice(0, 3)
+  return { n, correct, options: shuffle([correct, ...wrong]) }
+}
+
+function TapFactorRound({ n, correct, options, onComplete }) {
+  const [picked, setPicked] = useState(null)
+  function choose(v) {
+    if (picked !== null) return
+    setPicked(v)
+    setTimeout(() => onComplete(v === correct), 700)
+  }
+  function cls(v) {
+    if (picked === null) return 'mission-spot-btn'
+    if (v === correct) return 'mission-spot-btn mission-spot-btn--correct'
+    if (v === picked) return 'mission-spot-btn mission-spot-btn--wrong'
+    return 'mission-spot-btn'
+  }
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 18px)' }}>
+      <div className="mission-title" style={{ fontSize: 'clamp(40px, 9vw, 68px)', margin: 0 }}>{n}</div>
+      <div className="mission-spot-grid">
+        {options.map(v => (
+          <button key={v} className={cls(v)} onClick={() => choose(v)} disabled={picked !== null}>{v}</button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function S3TapFactor({ onNext }) {
+  const { t } = useTranslation()
+  const TOTAL = 3
+  const [count, setCount] = useState(0)
+  const [q, setQ] = useState(genTapFactorQ)
+  const [roundKey, setRoundKey] = useState(0)
+  const [done, setDone] = useState(false)
+
+  function advance(correct) {
+    if (correct && count + 1 >= TOTAL) { setDone(true); return }
+    if (correct) setCount(c => c + 1)
+    setQ(prev => genTapFactorQ(prev.n))
+    setRoundKey(k => k + 1)
+  }
+
+  return (
+    <div className="mission-screen">
+      <Progress step={3} />
+      <div className="mission-body">
+        <div className="mission-subtitle">
+          {done ? t('mission.1G.great') : t('mission.1G.tapFactor')}
+        </div>
+        <div style={{ visibility: done ? 'hidden' : 'visible', pointerEvents: done ? 'none' : 'auto' }}>
+          <TapFactorRound key={roundKey} {...q} onComplete={advance} />
+        </div>
+        <div style={{ visibility: done ? 'hidden' : 'visible' }}>
+          <RoundDots total={TOTAL} current={count} />
+        </div>
+      </div>
+      <div className="mission-actions">
+        <button className="mission-next-btn" onClick={onNext} style={{ visibility: done ? 'visible' : 'hidden' }}>
+          {t('mission.next')}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Screen 4: How many factors? ───────────────────────────────────────────────
+
+function genHowManyQ(excludeN = null) {
+  let n, factors
+  do {
+    n = rnd(6, 20)
+    factors = factorsOf(n)
+  } while (factors.length < 3 || factors.length > 8 || n === excludeN)
+  const answer = factors.length
+  const wrongs = new Set()
+  while (wrongs.size < 3) {
+    const w = Math.max(2, answer + pick([-2, -1, 1, 2]))
+    if (w !== answer) wrongs.add(w)
+  }
+  return { n, answer, options: shuffle([answer, ...[...wrongs]]) }
+}
+
+function HowManyRound({ n, answer, options, onComplete }) {
+  const [picked, setPicked] = useState(null)
+  function choose(v) {
+    if (picked !== null) return
+    setPicked(v)
+    setTimeout(() => onComplete(v === answer), 700)
+  }
+  function cls(v) {
+    if (picked === null) return 'mission-spot-btn'
+    if (v === answer) return 'mission-spot-btn mission-spot-btn--correct'
+    if (v === picked) return 'mission-spot-btn mission-spot-btn--wrong'
+    return 'mission-spot-btn'
+  }
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 18px)' }}>
+      <div className="mission-title" style={{ fontSize: 'clamp(40px, 9vw, 68px)', margin: 0 }}>{n}</div>
+      <div className="mission-spot-grid">
+        {options.map(v => (
+          <button key={v} className={cls(v)} onClick={() => choose(v)} disabled={picked !== null}>{v}</button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function S4HowMany({ onNext }) {
+  const { t } = useTranslation()
+  const TOTAL = 3
+  const [count, setCount] = useState(0)
+  const [q, setQ] = useState(genHowManyQ)
+  const [roundKey, setRoundKey] = useState(0)
+  const [done, setDone] = useState(false)
+
+  function advance(correct) {
+    if (correct && count + 1 >= TOTAL) { setDone(true); return }
+    if (correct) setCount(c => c + 1)
+    setQ(prev => genHowManyQ(prev.n))
+    setRoundKey(k => k + 1)
+  }
+
+  return (
+    <div className="mission-screen">
+      <Progress step={4} />
+      <div className="mission-body">
+        <div className="mission-subtitle">
+          {done ? t('mission.1G.great') : t('mission.4_1G.howManyFactors')}
+        </div>
+        <div style={{ visibility: done ? 'hidden' : 'visible', pointerEvents: done ? 'none' : 'auto' }}>
+          <HowManyRound key={roundKey} {...q} onComplete={advance} />
+        </div>
+        <div style={{ visibility: done ? 'hidden' : 'visible' }}>
+          <RoundDots total={TOTAL} current={count} />
+        </div>
+      </div>
+      <div className="mission-actions">
+        <button className="mission-next-btn" onClick={onNext} style={{ visibility: done ? 'visible' : 'hidden' }}>
+          {t('mission.next')}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Screen 5: Multi-select factor finder (test) ───────────────────────────────
 
 function genFactorQ(min, max, excludeN = null) {
   let n, factors
@@ -274,8 +430,8 @@ export default function Mission4_1G({ pupilId, onComplete }) {
 
   if (step === 0) return <S1FactorPair onNext={() => setStep(1)} />
   if (step === 1) return <S2Teach onNext={() => setStep(2)} />
-  if (step === 2) return <FactorScreen key="s3" step={3} min={6} max={11} total={3} onDone={() => setStep(3)} />
-  if (step === 3) return <FactorScreen key="s4" step={4} min={10} max={15} total={4} onDone={() => setStep(4)} />
+  if (step === 2) return <S3TapFactor onNext={() => setStep(3)} />
+  if (step === 3) return <S4HowMany onNext={() => setStep(4)} />
   if (step === 4) return <FactorScreen key="s5" step={5} min={6} max={15} total={3} onDone={finish} />
   return <Complete onDone={onComplete} />
 }

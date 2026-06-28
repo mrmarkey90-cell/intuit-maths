@@ -3,6 +3,7 @@ import { supabase } from '../supabaseClient'
 import { useTranslation } from '../i18n/LanguageContext'
 
 function rnd(a, b) { return a + Math.floor(Math.random() * (b - a + 1)) }
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)] }
 function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5) }
 function factorsOf(n) { const f = []; for (let i = 1; i <= n; i++) if (n % i === 0) f.push(i); return f }
 
@@ -53,7 +54,7 @@ function S1DivisibleCheck({ onNext }) {
   const [done, setDone] = useState(false)
   const { m, n, divides } = q
 
-  function pick(yes) {
+  function pickBtn(yes) {
     if (fb || done) return
     const correct = yes === divides
     setFb({ yes, correct })
@@ -86,10 +87,10 @@ function S1DivisibleCheck({ onNext }) {
           {done ? t('mission.1G.great') : t('mission.1G.isAFactor')}
         </div>
         <div className="mission-bigger-row" style={{ visibility: done ? 'hidden' : 'visible', pointerEvents: done ? 'none' : 'auto' }}>
-          <button className={btnCls(true)} style={{ fontSize: 'clamp(16px, 3vw, 24px)' }} onClick={() => pick(true)} disabled={!!fb}>
+          <button className={btnCls(true)} style={{ fontSize: 'clamp(16px, 3vw, 24px)' }} onClick={() => pickBtn(true)} disabled={!!fb}>
             {t('mission.1G.yesBtn')}
           </button>
-          <button className={btnCls(false)} style={{ fontSize: 'clamp(16px, 3vw, 24px)' }} onClick={() => pick(false)} disabled={!!fb}>
+          <button className={btnCls(false)} style={{ fontSize: 'clamp(16px, 3vw, 24px)' }} onClick={() => pickBtn(false)} disabled={!!fb}>
             {t('mission.1G.noBtn')}
           </button>
         </div>
@@ -153,7 +154,162 @@ function S2Teach({ onNext }) {
   )
 }
 
-// ── Screens 3–5: 5×5 grid multi-select ───────────────────────────────────────
+// ── Screen 3: Tap a factor ────────────────────────────────────────────────────
+
+function genCircleQ(excludeN = null) {
+  let n
+  do { n = rnd(12, 24) } while (factorsOf(n).length < 3 || n === excludeN)
+  const inner = factorsOf(n).filter(x => x !== 1 && x !== n)
+  const correct = pick(inner)
+  const nonFactors = []
+  for (let x = 2; x <= n + 5; x++) if (n % x !== 0) nonFactors.push(x)
+  const wrong = shuffle(nonFactors).slice(0, 3)
+  return { n, correct, options: shuffle([correct, ...wrong]) }
+}
+
+function CircleQ({ n, correct, options, onComplete }) {
+  const [picked, setPicked] = useState(null)
+  function choose(v) {
+    if (picked !== null) return
+    setPicked(v)
+    setTimeout(() => onComplete(v === correct), 700)
+  }
+  function cls(v) {
+    if (picked === null) return 'mission-spot-btn'
+    if (v === correct) return 'mission-spot-btn mission-spot-btn--correct'
+    if (v === picked) return 'mission-spot-btn mission-spot-btn--wrong'
+    return 'mission-spot-btn'
+  }
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 18px)' }}>
+      <div className="mission-title" style={{ fontSize: 'clamp(40px, 9vw, 68px)', margin: 0 }}>{n}</div>
+      <div className="mission-spot-grid">
+        {options.map(v => (
+          <button key={v} className={cls(v)} onClick={() => choose(v)} disabled={picked !== null}>{v}</button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function S3Circle({ onNext }) {
+  const { t } = useTranslation()
+  const TOTAL = 3
+  const [count, setCount] = useState(0)
+  const [q, setQ] = useState(genCircleQ)
+  const [roundKey, setRoundKey] = useState(0)
+  const [done, setDone] = useState(false)
+
+  function advance(correct) {
+    if (correct && count + 1 >= TOTAL) { setDone(true); return }
+    if (correct) setCount(c => c + 1)
+    setQ(prev => genCircleQ(prev.n))
+    setRoundKey(k => k + 1)
+  }
+
+  return (
+    <div className="mission-screen">
+      <Progress step={3} />
+      <div className="mission-body">
+        <div className="mission-subtitle">
+          {done ? t('mission.1G.great') : t('mission.1G.tapFactor')}
+        </div>
+        <div style={{ visibility: done ? 'hidden' : 'visible', pointerEvents: done ? 'none' : 'auto' }}>
+          <CircleQ key={roundKey} {...q} onComplete={advance} />
+        </div>
+        <div style={{ visibility: done ? 'hidden' : 'visible' }}>
+          <RoundDots total={TOTAL} current={count} />
+        </div>
+      </div>
+      <div className="mission-actions">
+        <button className="mission-next-btn" onClick={onNext} style={{ visibility: done ? 'visible' : 'hidden' }}>
+          {t('mission.next')}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Screen 4: Odd one out — which is NOT a factor? ───────────────────────────
+
+function genOddOneOutQ(excludeN = null) {
+  let n, factors, inner
+  do {
+    n = rnd(16, 36)
+    factors = factorsOf(n)
+    inner = factors.filter(x => x !== 1 && x !== n)
+  } while (inner.length < 3 || n === excludeN)
+  const realFactors = shuffle(inner).slice(0, 3)
+  const nonFactors = []
+  for (let x = 2; x < n; x++) if (n % x !== 0) nonFactors.push(x)
+  const impostor = pick(nonFactors)
+  return { n, impostor, options: shuffle([...realFactors, impostor]) }
+}
+
+function OddOneOutQ({ n, impostor, options, onComplete }) {
+  const [picked, setPicked] = useState(null)
+  function choose(v) {
+    if (picked !== null) return
+    setPicked(v)
+    setTimeout(() => onComplete(v === impostor), 700)
+  }
+  function cls(v) {
+    if (picked === null) return 'mission-spot-btn'
+    if (v === impostor) return 'mission-spot-btn mission-spot-btn--correct'
+    if (v === picked) return 'mission-spot-btn mission-spot-btn--wrong'
+    return 'mission-spot-btn'
+  }
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 18px)' }}>
+      <div className="mission-title" style={{ fontSize: 'clamp(40px, 9vw, 68px)', margin: 0 }}>{n}</div>
+      <div className="mission-spot-grid">
+        {options.map(v => (
+          <button key={v} className={cls(v)} onClick={() => choose(v)} disabled={picked !== null}>{v}</button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function S4OddOneOut({ onNext }) {
+  const { t } = useTranslation()
+  const TOTAL = 3
+  const [count, setCount] = useState(0)
+  const [q, setQ] = useState(genOddOneOutQ)
+  const [roundKey, setRoundKey] = useState(0)
+  const [done, setDone] = useState(false)
+
+  function advance(correct) {
+    if (correct && count + 1 >= TOTAL) { setDone(true); return }
+    if (correct) setCount(c => c + 1)
+    setQ(prev => genOddOneOutQ(prev.n))
+    setRoundKey(k => k + 1)
+  }
+
+  return (
+    <div className="mission-screen">
+      <Progress step={4} />
+      <div className="mission-body">
+        <div className="mission-subtitle">
+          {done ? t('mission.1G.great') : t('mission.5_1G.whichNotFactor')}
+        </div>
+        <div style={{ visibility: done ? 'hidden' : 'visible', pointerEvents: done ? 'none' : 'auto' }}>
+          <OddOneOutQ key={roundKey} {...q} onComplete={advance} />
+        </div>
+        <div style={{ visibility: done ? 'hidden' : 'visible' }}>
+          <RoundDots total={TOTAL} current={count} />
+        </div>
+      </div>
+      <div className="mission-actions">
+        <button className="mission-next-btn" onClick={onNext} style={{ visibility: done ? 'visible' : 'hidden' }}>
+          {t('mission.next')}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Screen 5: 5×5 grid test ───────────────────────────────────────────────────
 
 function Grid25Q({ n, onComplete }) {
   const { t } = useTranslation()
@@ -258,8 +414,8 @@ export default function Mission5_1G({ pupilId, onComplete }) {
 
   if (step === 0) return <S1DivisibleCheck onNext={() => setStep(1)} />
   if (step === 1) return <S2Teach onNext={() => setStep(2)} />
-  if (step === 2) return <GridScreen key="s3" step={3} min={12} max={18} total={3} onDone={() => setStep(3)} />
-  if (step === 3) return <GridScreen key="s4" step={4} min={16} max={24} total={3} onDone={() => setStep(4)} />
+  if (step === 2) return <S3Circle onNext={() => setStep(3)} />
+  if (step === 3) return <S4OddOneOut onNext={() => setStep(4)} />
   if (step === 4) return <GridScreen key="s5" step={5} min={12} max={24} total={3} onDone={finish} />
   return <Complete onDone={onComplete} />
 }

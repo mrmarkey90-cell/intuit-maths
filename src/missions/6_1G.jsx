@@ -32,6 +32,16 @@ function RoundDots({ total, current }) {
   )
 }
 
+function PairChips({ a, b }) {
+  return (
+    <div style={{ display: 'flex', gap: 'clamp(8px, 1.5vw, 14px)', alignItems: 'center', justifyContent: 'center' }}>
+      <span className="mission-multiples-chip mission-multiples-chip--lit" style={{ fontSize: 'clamp(18px, 3.5vw, 28px)' }}>{a}</span>
+      <span style={{ color: '#6b7280', fontSize: 'clamp(14px, 2.5vw, 20px)' }}>&</span>
+      <span className="mission-multiples-chip mission-multiples-chip--lit" style={{ fontSize: 'clamp(18px, 3.5vw, 28px)' }}>{b}</span>
+    </div>
+  )
+}
+
 // ── Screen 1: Find all factors of N (warm-up, 6-tile) ────────────────────────
 
 function genFactorQ(min, max, excludeN = null) {
@@ -188,85 +198,83 @@ function S2Teach({ onNext }) {
   )
 }
 
-// ── Screens 3–4: Circle — which divides both? ─────────────────────────────────
+// ── Screen 3: "Is this a common factor?" Yes / No ────────────────────────────
 
-function genCircleQ(maxN, excludeA = null) {
+function genIsCommonQ(excludeA = null) {
   let a, b, cf
   do {
     const shared = rnd(2, 8)
     a = shared * rnd(2, 5)
     b = shared * rnd(2, 5)
     cf = commonFactors(a, b)
-  } while (a === b || a > maxN || b > maxN || cf.length === 0 || a === excludeA)
-  const correct = pick(cf)
-  const wrong = shuffle([
+  } while (a === b || a > 50 || b > 50 || cf.length === 0 || a === excludeA)
+  if (Math.random() < 0.5) {
+    return { a, b, n: pick(cf), isCommon: true }
+  }
+  const nonCommon = [
     ...factorsOf(a).filter(v => v > 1 && b % v !== 0),
     ...factorsOf(b).filter(v => v > 1 && a % v !== 0),
-  ]).slice(0, 3)
-  const options = shuffle([correct, ...wrong]).slice(0, 4)
-  return { a, b, correct, options }
+  ]
+  if (nonCommon.length === 0) return { a, b, n: pick(cf), isCommon: true }
+  return { a, b, n: pick(nonCommon), isCommon: false }
 }
 
-function CircleRound({ a, b, correct, options, onComplete }) {
+function S3IsCommonFactor({ onNext }) {
   const { t } = useTranslation()
-  const [picked, setPicked] = useState(null)
-  function choose(v) {
-    if (picked !== null) return
-    setPicked(v)
-    setTimeout(() => onComplete(v === correct), 700)
-  }
-  function cls(v) {
-    if (picked === null) return 'mission-spot-btn'
-    if (v === correct) return 'mission-spot-btn mission-spot-btn--correct'
-    if (v === picked) return 'mission-spot-btn mission-spot-btn--wrong'
-    return 'mission-spot-btn'
-  }
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 18px)' }}>
-      <div style={{ display: 'flex', gap: 'clamp(10px, 2vw, 18px)', alignItems: 'center' }}>
-        <span className="mission-multiples-chip mission-multiples-chip--lit" style={{ fontSize: 'clamp(18px, 3.5vw, 28px)' }}>{a}</span>
-        <span style={{ color: '#6b7280', fontSize: 'clamp(14px, 2.5vw, 20px)' }}>&</span>
-        <span className="mission-multiples-chip mission-multiples-chip--lit" style={{ fontSize: 'clamp(18px, 3.5vw, 28px)' }}>{b}</span>
-      </div>
-      <div className="mission-spot-grid">
-        {options.map(v => (
-          <button key={v} className={cls(v)} onClick={() => choose(v)} disabled={picked !== null}>{v}</button>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function CircleScreen({ step, maxN, total, onDone }) {
-  const { t } = useTranslation()
+  const TOTAL = 3
   const [count, setCount] = useState(0)
-  const [q, setQ] = useState(() => genCircleQ(maxN))
-  const [roundKey, setRoundKey] = useState(0)
+  const [q, setQ] = useState(genIsCommonQ)
+  const [fb, setFb] = useState(null)
   const [done, setDone] = useState(false)
+  const { a, b, n, isCommon } = q
 
-  function advance(correct) {
-    if (correct && count + 1 >= total) { setDone(true); return }
-    if (correct) setCount(c => c + 1)
-    setQ(prev => genCircleQ(maxN, prev.a))
-    setRoundKey(k => k + 1)
+  function choose(yes) {
+    if (fb || done) return
+    const correct = yes === isCommon
+    setFb({ yes, correct })
+    setTimeout(() => {
+      setFb(null)
+      if (correct && count + 1 >= TOTAL) {
+        setDone(true)
+      } else {
+        if (correct) setCount(c => c + 1)
+        setQ(prev => genIsCommonQ(prev.a))
+      }
+    }, 700)
+  }
+
+  function btnCls(yes) {
+    if (!fb) return 'mission-bigger-btn'
+    if (yes === isCommon) return 'mission-bigger-btn mission-bigger-btn--correct'
+    if (fb.yes === yes) return 'mission-bigger-btn mission-bigger-btn--wrong'
+    return 'mission-bigger-btn'
   }
 
   return (
     <div className="mission-screen">
-      <Progress step={step} />
+      <Progress step={3} />
       <div className="mission-body">
-        <div className="mission-title">
-          {done ? t('mission.6_1G.great') : t('mission.6_1G.whichCommon')}
+        <div style={{ visibility: done ? 'hidden' : 'visible', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(4px, 0.8vw, 8px)' }}>
+          <PairChips a={a} b={b} />
+          <div className="mission-title" style={{ fontSize: 'clamp(36px, 8vw, 60px)', margin: 0 }}>{n}</div>
         </div>
-        <div style={{ visibility: done ? 'hidden' : 'visible', pointerEvents: done ? 'none' : 'auto' }}>
-          <CircleRound key={roundKey} {...q} onComplete={advance} />
+        <div className="mission-subtitle">
+          {done ? t('mission.6_1G.great') : t('mission.6_1G.isItCommon')}
+        </div>
+        <div className="mission-bigger-row" style={{ visibility: done ? 'hidden' : 'visible', pointerEvents: done ? 'none' : 'auto' }}>
+          <button className={btnCls(true)} onClick={() => choose(true)} disabled={!!fb}>
+            {t('mission.1G.yesBtn')}
+          </button>
+          <button className={btnCls(false)} onClick={() => choose(false)} disabled={!!fb}>
+            {t('mission.1G.noBtn')}
+          </button>
         </div>
         <div style={{ visibility: done ? 'hidden' : 'visible' }}>
-          <RoundDots total={total} current={count} />
+          <RoundDots total={TOTAL} current={count} />
         </div>
       </div>
       <div className="mission-actions">
-        <button className="mission-next-btn" onClick={onDone} style={{ visibility: done ? 'visible' : 'hidden' }}>
+        <button className="mission-next-btn" onClick={onNext} style={{ visibility: done ? 'visible' : 'hidden' }}>
           {t('mission.next')}
         </button>
       </div>
@@ -274,7 +282,96 @@ function CircleScreen({ step, maxN, total, onDone }) {
   )
 }
 
-// ── Screen 5: Numpad — write a common factor ──────────────────────────────────
+// ── Screen 4: Tap all common factors ─────────────────────────────────────────
+
+function genMultiCommonQ(excludeA = null) {
+  let a, b, cf
+  do {
+    const shared = rnd(2, 8)
+    a = shared * rnd(2, 5)
+    b = shared * rnd(2, 5)
+    cf = commonFactors(a, b)
+  } while (a === b || a > 50 || b > 50 || cf.length < 2 || cf.length > 4 || a === excludeA)
+  const nonCommon = shuffle([
+    ...factorsOf(a).filter(v => v > 1 && b % v !== 0),
+    ...factorsOf(b).filter(v => v > 1 && a % v !== 0),
+  ]).slice(0, 6 - cf.length)
+  const values = shuffle([...cf, ...nonCommon])
+  return { a, b, cfSet: new Set(cf), values }
+}
+
+function MultiCommonQ({ a, b, cfSet, values, onComplete }) {
+  const [selected, setSelected] = useState(new Set())
+  const [submitted, setSubmitted] = useState(false)
+
+  function toggle(v) {
+    if (submitted) return
+    setSelected(s => { const ns = new Set(s); if (ns.has(v)) ns.delete(v); else ns.add(v); return ns })
+  }
+  function check() {
+    const allCorrect = [...cfSet].every(v => selected.has(v)) && [...selected].every(v => cfSet.has(v))
+    setSubmitted(true)
+    setTimeout(() => onComplete(allCorrect), 1000)
+  }
+  function tileCls(v) {
+    if (!submitted) return `mission-eo-tile${selected.has(v) ? ' mission-eo-tile--selected' : ''}`
+    if (cfSet.has(v) && selected.has(v)) return 'mission-eo-tile mission-eo-tile--correct'
+    if (!cfSet.has(v) && selected.has(v)) return 'mission-eo-tile mission-eo-tile--wrong'
+    if (cfSet.has(v) && !selected.has(v)) return 'mission-eo-tile mission-eo-tile--missed'
+    return 'mission-eo-tile'
+  }
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 1.2vw, 12px)', width: '100%', maxWidth: '380px' }}>
+      <PairChips a={a} b={b} />
+      <div className="mission-eo-grid">
+        {values.map(v => (
+          <button key={v} className={tileCls(v)} onClick={() => toggle(v)} disabled={submitted}>{v}</button>
+        ))}
+      </div>
+      <button className="mission-next-btn" style={{ width: '100%' }} onClick={check} disabled={submitted}>✓</button>
+    </div>
+  )
+}
+
+function S4MultiCommonFactor({ onNext }) {
+  const { t } = useTranslation()
+  const TOTAL = 3
+  const [count, setCount] = useState(0)
+  const [q, setQ] = useState(genMultiCommonQ)
+  const [roundKey, setRoundKey] = useState(0)
+  const [done, setDone] = useState(false)
+
+  function advance(correct) {
+    if (correct && count + 1 >= TOTAL) { setDone(true); return }
+    if (correct) setCount(c => c + 1)
+    setQ(prev => genMultiCommonQ(prev.a))
+    setRoundKey(k => k + 1)
+  }
+
+  return (
+    <div className="mission-screen">
+      <Progress step={4} />
+      <div className="mission-body">
+        <div className="mission-title">
+          {done ? t('mission.6_1G.great') : t('mission.6_1G.tapAllCommon')}
+        </div>
+        <div style={{ visibility: done ? 'hidden' : 'visible', pointerEvents: done ? 'none' : 'auto' }}>
+          <MultiCommonQ key={roundKey} {...q} onComplete={advance} />
+        </div>
+        <div style={{ visibility: done ? 'hidden' : 'visible' }}>
+          <RoundDots total={TOTAL} current={count} />
+        </div>
+      </div>
+      <div className="mission-actions">
+        <button className="mission-next-btn" onClick={onNext} style={{ visibility: done ? 'visible' : 'hidden' }}>
+          {t('mission.next')}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Screen 5: Numpad — write a common factor (test) ──────────────────────────
 
 function genNumpadQ() {
   let a, b, cf
@@ -312,11 +409,7 @@ function NumpadQ({ q, onComplete }) {
 
   return (
     <>
-      <div style={{ display: 'flex', gap: 'clamp(8px, 1.5vw, 14px)', alignItems: 'center', justifyContent: 'center' }}>
-        <span className="mission-multiples-chip mission-multiples-chip--lit" style={{ fontSize: 'clamp(18px, 3.5vw, 28px)' }}>{q.a}</span>
-        <span style={{ color: '#6b7280', fontSize: 'clamp(14px, 2.5vw, 20px)' }}>&</span>
-        <span className="mission-multiples-chip mission-multiples-chip--lit" style={{ fontSize: 'clamp(18px, 3.5vw, 28px)' }}>{q.b}</span>
-      </div>
+      <PairChips a={q.a} b={q.b} />
       <div style={{ display: 'flex', justifyContent: 'center' }}>
         <div className={boxCls()}>{correct ? '✓' : wrongVal !== null ? wrongVal : '?'}</div>
       </div>
@@ -376,8 +469,8 @@ export default function Mission6_1G({ pupilId, onComplete }) {
 
   if (step === 0) return <S1FactorWarmup onNext={() => setStep(1)} />
   if (step === 1) return <S2Teach onNext={() => setStep(2)} />
-  if (step === 2) return <CircleScreen key="s3" step={3} maxN={36} total={3} onDone={() => setStep(3)} />
-  if (step === 3) return <CircleScreen key="s4" step={4} maxN={50} total={3} onDone={() => setStep(4)} />
+  if (step === 2) return <S3IsCommonFactor onNext={() => setStep(3)} />
+  if (step === 3) return <S4MultiCommonFactor onNext={() => setStep(4)} />
   if (step === 4) return <S5Numpad onFinish={finish} />
   return <Complete onDone={onComplete} />
 }
