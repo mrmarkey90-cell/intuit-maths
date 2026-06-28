@@ -810,6 +810,7 @@ export const translations = {
     'mission.4A.howManyCrossed': 'How many are crossed out?',
     'mission.4A.countLeft': 'How many are left?',
     'mission.4A.trackLabel': 'Count back to find the answer:',
+    'mission.4A.tapPairLabel': 'Tap two that add to:',
     // 4B — Column Subtraction (no borrowing), Levels 3–4
     'mission.4B.snapLabel': 'What is the units digit of the sum?',
     'mission.4B.pickAnswer': 'What is the answer?',
@@ -1640,6 +1641,7 @@ export const translations = {
     'mission.4A.howManyCrossed': "Faint sydd wedi'u croesi allan?",
     'mission.4A.countLeft': 'Faint sydd ar ôl?',
     'mission.4A.trackLabel': 'Cyfrifwch yn ôl i ddod o hyd i\'r ateb:',
+    'mission.4A.tapPairLabel': "Tapiwch ddau sy'n adio i:",
     // 4B — Column Subtraction (no borrowing), Levels 3–4
     'mission.4B.snapLabel': "Beth yw digid yr unedau o'r swm?",
     'mission.4B.pickAnswer': "Beth yw'r ateb?",
