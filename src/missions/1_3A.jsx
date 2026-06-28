@@ -81,11 +81,9 @@ function TenFrameFill({ onDone }) {
             />
           ))}
         </div>
-        {showEq && (
-          <div className="mission-title" style={{ color: '#5b4fe8', marginTop: '0.6rem' }}>
-            {n} + {10 - n} = 10 ✓
-          </div>
-        )}
+        <div className="mission-title" style={{ color: '#5b4fe8', marginTop: '0.6rem', visibility: showEq ? 'visible' : 'hidden' }}>
+          {n} + {10 - n} = 10 ✓
+        </div>
       </div>
       <div className="mission-actions">
         <button className="mission-next-btn" onClick={nextRound} style={{ visibility: showEq ? 'visible' : 'hidden' }}>
