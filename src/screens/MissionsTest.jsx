@@ -24,23 +24,32 @@ export default function MissionsTest() {
   const [selectedKey, setSelectedKey] = useState(MISSIONS[0] ?? '')
   const [pupilId, setPupilId] = useState('')
   const [MissionComp, setMissionComp] = useState(null)
+  const [activeKey, setActiveKey] = useState(null)
   const [lastResult, setLastResult] = useState(null) // 'completed'
   const [loading, setLoading] = useState(false)
 
-  async function launch() {
-    if (!selectedKey || loading) return
+  async function doLaunch(key) {
+    if (!key || loading) return
     setLoading(true)
     try {
-      const Comp = await loadMission(selectedKey)
+      const Comp = await loadMission(key)
       setMissionComp(() => Comp)
+      setActiveKey(key)
       setLastResult(null)
     } finally {
       setLoading(false)
     }
   }
 
+  function launchRandom() {
+    const key = MISSIONS[Math.floor(Math.random() * MISSIONS.length)]
+    setSelectedKey(key)
+    doLaunch(key)
+  }
+
   function handleComplete() {
     setMissionComp(null)
+    setActiveKey(null)
     setLastResult('completed')
   }
 
@@ -56,6 +65,17 @@ export default function MissionsTest() {
           pupilId={pupilId.trim() || null}
           onComplete={handleComplete}
         />
+        {activeKey && (
+          <div style={{
+            position: 'absolute', top: 10, right: 10,
+            background: 'rgba(0,0,0,0.52)', color: '#fff',
+            borderRadius: 6, padding: '3px 10px',
+            fontSize: 13, fontWeight: 700, fontFamily: 'monospace',
+            pointerEvents: 'none', zIndex: 10000, letterSpacing: '0.03em',
+          }}>
+            {activeKey}
+          </div>
+        )}
       </div>
     )
   }
@@ -120,23 +140,34 @@ export default function MissionsTest() {
           />
         </div>
 
-        <button
-          onClick={launch}
-          disabled={!selectedKey || loading}
-          style={{
-            alignSelf: 'flex-start',
-            padding: '10px 28px',
-            background: selectedKey && !loading ? '#4f46e5' : '#a5a3e8',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 10,
-            fontSize: 15,
-            fontWeight: 700,
-            cursor: selectedKey && !loading ? 'pointer' : 'not-allowed',
-          }}
-        >
-          {loading ? 'Loading…' : 'Launch Mission'}
-        </button>
+        <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+          <button
+            onClick={() => doLaunch(selectedKey)}
+            disabled={!selectedKey || loading}
+            style={{
+              padding: '10px 28px',
+              background: selectedKey && !loading ? '#4f46e5' : '#a5a3e8',
+              color: '#fff', border: 'none', borderRadius: 10,
+              fontSize: 15, fontWeight: 700,
+              cursor: selectedKey && !loading ? 'pointer' : 'not-allowed',
+            }}
+          >
+            {loading ? 'Loading…' : 'Launch Mission'}
+          </button>
+          <button
+            onClick={launchRandom}
+            disabled={loading || MISSIONS.length === 0}
+            style={{
+              padding: '10px 20px',
+              background: !loading && MISSIONS.length > 0 ? '#0ea5e9' : '#a5a3e8',
+              color: '#fff', border: 'none', borderRadius: 10,
+              fontSize: 15, fontWeight: 700,
+              cursor: !loading && MISSIONS.length > 0 ? 'pointer' : 'not-allowed',
+            }}
+          >
+            🎲 Random
+          </button>
+        </div>
       </div>
 
       <div style={{ marginTop: '2.5rem', padding: '1rem', background: '#f9fafb', borderRadius: 8, fontSize: 13, color: '#6b7280', lineHeight: 1.6 }}>
