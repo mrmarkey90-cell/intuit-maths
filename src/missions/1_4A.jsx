@@ -217,7 +217,7 @@ function S3({ onNext }) {
       const v = b + off
       if (v > 0 && v < a && v !== b) opts.add(v)
     }
-    while (opts.size < 4) { const v = rnd(1, a - 1); if (!opts.has(v)) opts.add(v) }
+    while (opts.size < 4) { const v = rnd(1, 9); if (!opts.has(v)) opts.add(v) }
     return { a, b, diff, opts: shuffle([...opts]) }
   }), [])
   const [ri, setRi] = useState(0)
