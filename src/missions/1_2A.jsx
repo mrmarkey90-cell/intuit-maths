@@ -188,12 +188,12 @@ function S1({ onNext }) {
   )
 }
 
-// ── Screen 2: Tap the biggest of 3 numbers (1–20) ────────────────────────────
+// ── Screen 2: Tap the biggest of 3 numbers (1–10) ────────────────────────────
 
 function S2({ onNext }) {
   const { t } = useTranslation()
   const rounds = useMemo(() => Array.from({ length: 4 }, () => {
-    const s = new Set(); while (s.size < 3) s.add(rnd(1, 20)); return [...s]
+    const s = new Set(); while (s.size < 3) s.add(rnd(1, 10)); return [...s]
   }), [])
   const [ri, setRi] = useState(0)
   const [fb, setFb] = useState(null)
@@ -249,7 +249,7 @@ function S2({ onNext }) {
 function S3({ onNext }) {
   const { t } = useTranslation()
   const qs = useMemo(() => Array.from({ length: 3 }, () => {
-    const start = rnd(1, 16)
+    const start = rnd(1, 6)
     const seq = [0, 1, 2, 3, 4].map(i => start + i)
     const gi = rnd(1, 3)
     return { seq, gi, answer: seq[gi] }
@@ -380,14 +380,14 @@ function DragSortScreen({ step, values, onDone }) {
 // ── Screen 4: Drag-sort 3 numbers ────────────────────────────────────────────
 
 function S4({ onNext }) {
-  const values = useMemo(() => { const s = new Set(); while (s.size < 3) s.add(rnd(1, 15)); return [...s] }, [])
+  const values = useMemo(() => { const s = new Set(); while (s.size < 3) s.add(rnd(1, 10)); return [...s] }, [])
   return <DragSortScreen step={4} values={values} onDone={onNext} />
 }
 
 // ── Screen 5: Drag-sort 4 numbers → finish ───────────────────────────────────
 
 function S5({ onFinish }) {
-  const values = useMemo(() => { const s = new Set(); while (s.size < 4) s.add(rnd(1, 20)); return [...s] }, [])
+  const values = useMemo(() => { const s = new Set(); while (s.size < 4) s.add(rnd(1, 10)); return [...s] }, [])
   return <DragSortScreen step={5} values={values} onDone={onFinish} />
 }
 
