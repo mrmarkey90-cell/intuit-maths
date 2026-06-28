@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react'
+import { useState, useMemo, useRef, useLayoutEffect } from 'react'
 import { supabase } from '../supabaseClient'
 import NumberPad from '../components/NumberPad'
 import { useTranslation } from '../i18n/LanguageContext'
@@ -24,55 +24,163 @@ function RoundDots({ total, current }) {
   )
 }
 
-// ── Screen 1: Tap the smallest of 3 numbers (1–15) ───────────────────────────
+// ── Screen 1: Connect dot tiles to number tiles ───────────────────────────────
+
+function DotGrid({ n }) {
+  return (
+    <div className="mission-connect-dotgrid">
+      {Array.from({ length: n }, (_, i) => <span key={i} className="mission-connect-dot" />)}
+    </div>
+  )
+}
+
+function tileState(isConnected, isCorrect, allFilled, done) {
+  if (!isConnected) return ''
+  if (done) return ' mission-connect-tile--correct'
+  if (allFilled) return isCorrect ? ' mission-connect-tile--correct' : ' mission-connect-tile--wrong'
+  return ' mission-connect-tile--connected'
+}
 
 function S1({ onNext }) {
   const { t } = useTranslation()
-  const rounds = useMemo(() => Array.from({ length: 4 }, () => {
-    const s = new Set(); while (s.size < 3) s.add(rnd(1, 15)); return [...s]
-  }), [])
-  const [ri, setRi] = useState(0)
-  const [fb, setFb] = useState(null)
+  const items = useMemo(() => { const s = new Set(); while (s.size < 4) s.add(rnd(1, 10)); return [...s] }, [])
+  const rightOrder = useMemo(() => shuffle(items), [items])
+  const [connections, setConnections] = useState([null, null, null, null])
+  const [drag, setDrag] = useState(null)
+  const [lines, setLines] = useState([])
   const [done, setDone] = useState(false)
-  const opts = rounds[Math.min(ri, rounds.length - 1)]
-  const target = Math.min(...opts)
+  const wrapRef = useRef(null)
+  const leftRefs = useRef([])
+  const rightRefs = useRef([])
+  const allFilled = connections.every(v => v !== null)
 
-  function pick(n) {
-    if (fb || done) return
-    setFb({ n, ok: n === target })
-    setTimeout(() => {
-      setFb(null)
-      if (ri + 1 >= rounds.length) setDone(true)
-      else setRi(i => i + 1)
-    }, 700)
+  function anchorFor(el, wrapRect, side) {
+    const r = el.getBoundingClientRect()
+    return { x: (side === 'left' ? r.right : r.left) - wrapRect.left, y: r.top + r.height / 2 - wrapRect.top }
   }
+
+  function recalcLines() {
+    const wrap = wrapRef.current; if (!wrap) return
+    const wr = wrap.getBoundingClientRect()
+    setLines(connections.map((ri, li) => {
+      if (ri === null) return null
+      const l = leftRefs.current[li], r = rightRefs.current[ri]
+      if (!l || !r) return null
+      const a = anchorFor(l, wr, 'left'), b = anchorFor(r, wr, 'right')
+      return { x1: a.x, y1: a.y, x2: b.x, y2: b.y, correct: rightOrder[ri] === items[li] }
+    }))
+  }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useLayoutEffect(() => {
+    recalcLines()
+    const wrap = wrapRef.current; if (!wrap) return
+    const ro = new ResizeObserver(recalcLines)
+    ro.observe(wrap)
+    return () => ro.disconnect()
+  }, [connections, done])
+
+  function startDrag(e, li) {
+    if (done) return
+    e.currentTarget.setPointerCapture?.(e.pointerId)
+    setDrag({ li, x: e.clientX, y: e.clientY })
+  }
+  function onMove(e) {
+    if (!drag) return
+    setDrag(d => d && ({ ...d, x: e.clientX, y: e.clientY }))
+  }
+  function rightAt(x, y) {
+    for (let i = 0; i < rightRefs.current.length; i++) {
+      const el = rightRefs.current[i]; if (!el) continue
+      const r = el.getBoundingClientRect()
+      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return i
+    }
+    return null
+  }
+  function onUp(e) {
+    if (!drag) return
+    const ri = rightAt(e.clientX, e.clientY)
+    if (ri !== null) {
+      setConnections(prev => {
+        const next = prev.map(v => (v === ri ? null : v))
+        next[drag.li] = ri
+        if (next.every((r, l) => r !== null && rightOrder[r] === items[l])) setDone(true)
+        return next
+      })
+    }
+    setDrag(null)
+  }
+
+  const dragLine = (() => {
+    if (!drag || !wrapRef.current) return null
+    const l = leftRefs.current[drag.li]; if (!l) return null
+    const wr = wrapRef.current.getBoundingClientRect()
+    const a = anchorFor(l, wr, 'left')
+    return { x1: a.x, y1: a.y, x2: drag.x - wr.left, y2: drag.y - wr.top }
+  })()
 
   return (
     <div className="mission-screen">
       <Progress step={1} />
       <div className="mission-body">
-        {done ? (
-          <div className="mission-title">{t('mission.1_2A.great')}</div>
-        ) : (
-          <>
-            <div className="mission-title">{t('mission.2A.tapSmallest')}</div>
-            <div className="mission-bigger-row">
-              {opts.map(n => (
-                <button
-                  key={n}
-                  className={`mission-bigger-btn${fb ? n === target ? ' mission-bigger-btn--correct' : n === fb.n && !fb.ok ? ' mission-bigger-btn--wrong' : '' : ''}`}
-                  style={{ width: 'clamp(70px, 14vw, 108px)', height: 'clamp(70px, 14vw, 108px)', fontSize: 'clamp(26px, 6vw, 46px)' }}
-                  onClick={() => pick(n)}
-                  disabled={!!fb}
-                >{n}</button>
-              ))}
-            </div>
-            <RoundDots total={rounds.length} current={ri} />
-          </>
-        )}
+        <div className="mission-title">
+          {done ? t('mission.1_2A.great') : t('mission.2A.matchDots')}
+        </div>
+        <div className="mission-connect-wrap" ref={wrapRef}>
+          <svg className="mission-connect-svg">
+            {lines.map((ln, i) => ln && (
+              <line key={i} x1={ln.x1} y1={ln.y1} x2={ln.x2} y2={ln.y2}
+                stroke={done ? '#16a34a' : allFilled ? (ln.correct ? '#16a34a' : '#dc2626') : '#4f46e5'}
+                strokeWidth="3.5" strokeLinecap="round"
+              />
+            ))}
+            {dragLine && (
+              <line x1={dragLine.x1} y1={dragLine.y1} x2={dragLine.x2} y2={dragLine.y2}
+                stroke="#9ca3af" strokeWidth="3" strokeDasharray="6 4" strokeLinecap="round"
+              />
+            )}
+          </svg>
+
+          <div className="mission-connect-col">
+            {items.map((n, i) => {
+              const ri = connections[i]
+              const correct = ri !== null && rightOrder[ri] === items[i]
+              return (
+                <button key={i}
+                  ref={el => { leftRefs.current[i] = el }}
+                  className={`mission-connect-tile${tileState(ri !== null, correct, allFilled, done)}`}
+                  onPointerDown={e => startDrag(e, i)}
+                  onPointerMove={onMove}
+                  onPointerUp={onUp}
+                  style={{ touchAction: 'none' }}
+                  disabled={done}
+                >
+                  <DotGrid n={n} />
+                </button>
+              )
+            })}
+          </div>
+
+          <div className="mission-connect-col">
+            {rightOrder.map((n, i) => {
+              const from = connections.indexOf(i)
+              const connected = from !== -1
+              const correct = connected && rightOrder[i] === items[from]
+              return (
+                <div key={i}
+                  ref={el => { rightRefs.current[i] = el }}
+                  className={`mission-connect-tile mission-connect-tile--number${tileState(connected, correct, allFilled, done)}`}
+                >
+                  {n}
+                </div>
+              )
+            })}
+          </div>
+        </div>
       </div>
       <div className="mission-actions">
-        <button className="mission-next-btn" onClick={onNext} style={{ visibility: done ? 'visible' : 'hidden' }}>
+        <button className="mission-next-btn" onClick={onNext}
+          style={{ visibility: done ? 'visible' : 'hidden' }}>
           {t('mission.next')}
         </button>
       </div>
