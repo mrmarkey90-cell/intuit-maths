@@ -23,7 +23,7 @@ function BondList() {
 function Progress({ step }) {
   return (
     <div className="mission-progress">
-      <div className="mission-progress-fill" style={{ width: `${(step / 5) * 100}%` }} />
+      <div className="mission-progress-fill" style={{ width: `${(step / 4) * 100}%` }} />
     </div>
   )
 }
@@ -39,7 +39,6 @@ function RoundDots({ total, current }) {
 }
 
 // ── S0: Ten-frame fill (warm-up) ──────────────────────────────────────────────
-// Pre-fill N cells; player taps the rest to complete 10
 
 const TF_STARTS = [3, 5, 7]
 
@@ -70,6 +69,7 @@ function TenFrameFill({ onDone }) {
 
   return (
     <div className="mission-screen">
+      <RoundDots total={TF_STARTS.length} current={ri} />
       <div className="mission-body">
         <div className="mission-title">{t('mission.3A.fillFrame')}</div>
         <div className="ten-frame">
@@ -86,7 +86,6 @@ function TenFrameFill({ onDone }) {
             {n} + {10 - n} = 10 ✓
           </div>
         )}
-        <RoundDots total={TF_STARTS.length} current={ri} />
       </div>
       <div className="mission-actions">
         <button className="mission-next-btn" onClick={nextRound} style={{ visibility: showEq ? 'visible' : 'hidden' }}>
@@ -131,7 +130,8 @@ function S1({ onNext }) {
 
   return (
     <div className="mission-screen">
-      <Progress step={5} />
+      <Progress step={4} />
+      {!done && <RoundDots total={rounds.length} current={ri} />}
       <div className="mission-body">
         {done ? (
           <BondList />
@@ -150,7 +150,6 @@ function S1({ onNext }) {
                 )
               })}
             </div>
-            <RoundDots total={rounds.length} current={ri} />
           </>
         )}
       </div>
@@ -216,6 +215,7 @@ function S2({ onNext }) {
   return (
     <div className="mission-screen">
       <Progress step={1} />
+      <RoundDots total={rounds.length} current={ri} />
       <div className="mission-body">
         <div className="mission-title">{t('mission.3A.dragToMake10')}</div>
         <div className={`bond-drag-eq${done ? ' bond-drag-eq--done' : ''}`}>
@@ -250,7 +250,6 @@ function S2({ onNext }) {
             )
           })}
         </div>
-        <RoundDots total={rounds.length} current={ri} />
       </div>
       <div className="mission-actions">
         <button className="mission-next-btn" onClick={advance}
@@ -297,6 +296,7 @@ function S3({ onNext }) {
   return (
     <div className="mission-screen">
       <Progress step={2} />
+      <RoundDots total={rounds.length} current={ri} />
       <div className="mission-body">
         <div style={{ background: '#f0f2ff', borderRadius: 12, padding: '0.8rem 1.4rem', fontSize: 'clamp(24px,5.5vw,42px)', fontWeight: 700, margin: '0.4rem 0 1rem', textAlign: 'center' }}>
           {a} + {b} = 10
@@ -312,7 +312,6 @@ function S3({ onNext }) {
             >{v ? t('mission.2B.trueBtn') : t('mission.2B.falseBtn')}</button>
           ))}
         </div>
-        <RoundDots total={rounds.length} current={ri} />
       </div>
       <div className="mission-actions" />
     </div>
@@ -352,6 +351,7 @@ function S4({ onNext }) {
   return (
     <div className="mission-screen">
       <Progress step={3} />
+      {!done && <RoundDots total={rounds.length} current={ri} />}
       <div className="mission-body">
         {done ? (
           <div className="mission-title">{t('mission.3A.bondTip')}</div>
@@ -369,75 +369,11 @@ function S4({ onNext }) {
                 >{opt}</button>
               ))}
             </div>
-            <RoundDots total={rounds.length} current={ri} />
           </>
         )}
       </div>
       <div className="mission-actions">
         <button className="mission-next-btn" onClick={onNext} style={{ visibility: done ? 'visible' : 'hidden' }}>
-          {t('mission.next')}
-        </button>
-      </div>
-    </div>
-  )
-}
-
-// ── S5: Odd one out — 4 form two bond pairs, 1 has no partner shown ───────────
-
-const BOND_PAIRS = [[1,9],[2,8],[3,7],[4,6]]  // exclude [5,5] (same number twice)
-
-function genOddRounds(count) {
-  return Array.from({ length: count }, () => {
-    const sh = shuffle(BOND_PAIRS)
-    const [p1, p2, p3] = sh
-    const odd = shuffle(p3)[0]
-    const nums = shuffle([...p1, ...p2, odd])
-    return { nums, oddIdx: nums.indexOf(odd) }
-  })
-}
-
-function S5({ onFinish }) {
-  const { t } = useTranslation()
-  const rounds = useMemo(() => genOddRounds(4), [])
-  const [ri, setRi] = useState(0)
-  const [fb, setFb] = useState(null)
-  const [done, setDone] = useState(false)
-  const { nums, oddIdx } = rounds[Math.min(ri, rounds.length - 1)]
-
-  function pick(i) {
-    if (fb || done) return
-    const ok = i === oddIdx
-    setFb({ i, ok })
-    setTimeout(() => {
-      setFb(null)
-      if (ok) { if (ri + 1 >= rounds.length) setDone(true); else setRi(r => r + 1) }
-    }, 700)
-  }
-
-  return (
-    <div className="mission-screen">
-      <Progress step={4} />
-      <div className="mission-body">
-        {done ? (
-          <BondList />
-        ) : (
-          <>
-            <div className="mission-title">{t('mission.3A.tapOddOne')}</div>
-            <div className="mission-bigger-row">
-              {nums.map((n, i) => (
-                <button
-                  key={i}
-                  className={`mission-bigger-btn${fb ? i === oddIdx ? ' mission-bigger-btn--correct' : i === fb.i && !fb.ok ? ' mission-bigger-btn--wrong' : '' : ''}`}
-                  onClick={() => pick(i)}
-                  disabled={!!fb}
-                >{n}</button>
-              ))}
-            </div>
-          </>
-        )}
-      </div>
-      <div className="mission-actions">
-        <button className="mission-next-btn" onClick={done ? onFinish : undefined} style={{ visibility: done ? 'visible' : 'hidden' }}>
           {t('mission.next')}
         </button>
       </div>
@@ -451,7 +387,7 @@ function Complete({ onDone }) {
   const { t } = useTranslation()
   return (
     <div className="mission-screen">
-      <Progress step={5} />
+      <Progress step={4} />
       <div className="mission-body">
         <div className="mission-complete-icon">🏆</div>
         <div className="mission-title">{t('mission.complete')}</div>
@@ -471,14 +407,13 @@ export default function Mission1_3A({ pupilId, onComplete }) {
 
   async function finish() {
     await supabase.rpc('complete_mission', { p_pupil_id: pupilId, p_special_mission: '1_3A' })
-    setStep(6)
+    setStep(5)
   }
 
   if (step === 0) return <TenFrameFill onDone={() => setStep(1)} />
   if (step === 1) return <S2 onNext={() => setStep(2)} />
   if (step === 2) return <S3 onNext={() => setStep(3)} />
   if (step === 3) return <S4 onNext={() => setStep(4)} />
-  if (step === 4) return <S5 onFinish={() => setStep(5)} />
-  if (step === 5) return <S1 onNext={finish} />
+  if (step === 4) return <S1 onNext={finish} />
   return <Complete onDone={onComplete} />
 }
