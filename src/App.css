@@ -4699,12 +4699,15 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   background-size: 22px 22px;
 }
 
-/* RoundDots rendered as a direct child of mission-screen sit in row 2,
-   pinned just below the progress bar and never pushed by body content. */
+/* Pin all mission-screen direct children to explicit rows so auto-placement
+   can't reorder them regardless of which children are present. */
 .mission-screen > .mission-round-dots {
   grid-row: 2;
   justify-self: center;
+  align-self: center;
 }
+.mission-screen > .mission-body { grid-row: 3; }
+.mission-screen > .mission-actions { grid-row: 4; }
 
 /* Progress bar: first grid row — always at the top of the screen. */
 /* (flex-shrink removed — grid items don't need it) */
@@ -4999,6 +5002,7 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
 .bond-drag-eq--done .bond-drag-op { color: #15803d; }
 
 .bond-drag-tile {
+  position: relative;
   width: clamp(72px, 16vw, 108px);
   height: clamp(72px, 16vw, 108px);
   border-radius: 14px;
@@ -5025,24 +5029,17 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   border-style: solid;
 }
 
-.bond-drag-slot-col {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .bond-drag-counter {
   position: absolute;
-  bottom: 100%;
+  bottom: 5px;
   left: 50%;
   transform: translateX(-50%);
-  margin-bottom: 4px;
-  font-size: clamp(16px, 3.5vw, 24px);
+  font-size: clamp(13px, 2.8vw, 19px);
   font-weight: 800;
   color: #f59e0b;
   line-height: 1;
   white-space: nowrap;
+  pointer-events: none;
 }
 
 .bond-drag-slot-hint {
@@ -5070,13 +5067,12 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   flex-shrink: 0;
 }
 
-/* Large draggable dots in the pool */
+/* Large draggable dots in the pool — fixed 3×3 grid so nothing ever reflows */
 .bond-drag-pool {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, clamp(28px, 6vw, 40px));
+  grid-template-rows: repeat(3, clamp(28px, 6vw, 40px));
   gap: clamp(8px, 2vw, 12px);
-  justify-content: center;
-  max-width: min(340px, 65vw);
 }
 
 .bond-drag-pool-dot {

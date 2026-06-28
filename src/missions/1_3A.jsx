@@ -180,16 +180,19 @@ function S2({ onNext }) {
   const { t } = useTranslation()
   const rounds = useMemo(() => genDotDragRounds(), [])
   const [ri, setRi] = useState(0)
-  const [count, setCount] = useState(0)
+  const [usedIdx, setUsedIdx] = useState(() => new Set())
   const [drag, setDrag] = useState(null)
+  const [dragIndex, setDragIndex] = useState(null)
   const slotRef = useRef(null)
 
   const { question, correct } = rounds[ri]
-  const done = count === correct
+  const dropped = usedIdx.size
+  const done = dropped === correct
 
-  function startDrag(e) {
+  function startDrag(e, idx) {
     if (done) return
     e.currentTarget.setPointerCapture?.(e.pointerId)
+    setDragIndex(idx)
     setDrag({ x: e.clientX, y: e.clientY })
   }
   function onMove(e) {
@@ -199,17 +202,20 @@ function S2({ onNext }) {
   function onUp(e) {
     if (!drag) return
     const r = slotRef.current?.getBoundingClientRect()
-    if (r && e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) {
-      setCount(c => Math.min(c + 1, correct))
+    if (r && dragIndex !== null && !usedIdx.has(dragIndex) &&
+        e.clientX >= r.left && e.clientX <= r.right &&
+        e.clientY >= r.top && e.clientY <= r.bottom) {
+      setUsedIdx(prev => { const s = new Set(prev); s.add(dragIndex); return s })
     }
     setDrag(null)
+    setDragIndex(null)
   }
 
   function advance() {
     const next = ri + 1
     if (next >= rounds.length) { onNext(); return }
     setRi(next)
-    setCount(0)
+    setUsedIdx(new Set())
   }
 
   return (
@@ -223,27 +229,25 @@ function S2({ onNext }) {
             <BondDots n={question} />
           </div>
           <span className="bond-drag-op">+</span>
-          <div className="bond-drag-slot-col">
-            <span className="bond-drag-counter" style={{ visibility: count > 0 ? 'visible' : 'hidden' }}>
-              {count}
+          <div ref={slotRef} className="bond-drag-tile bond-drag-tile--slot">
+            {dropped > 0 ? <BondDots n={dropped} /> : <span className="bond-drag-slot-hint">?</span>}
+            <span className="bond-drag-counter" style={{ visibility: dropped > 0 ? 'visible' : 'hidden' }}>
+              {dropped}
             </span>
-            <div ref={slotRef} className="bond-drag-tile bond-drag-tile--slot">
-              {count > 0 ? <BondDots n={count} /> : <span className="bond-drag-slot-hint">?</span>}
-            </div>
           </div>
           <span className="bond-drag-op">= 10</span>
         </div>
         <div className="bond-drag-pool">
           {Array.from({ length: 9 }, (_, i) => {
             const beyond = i >= correct
-            const used = i < count
-            const ghost = !beyond && !used && drag && i === correct - 1
+            const used = usedIdx.has(i)
+            const ghost = drag && i === dragIndex
             const hide = beyond || used || ghost
             return (
               <div key={i}
                 className="bond-drag-pool-dot"
                 style={{ visibility: hide ? 'hidden' : 'visible', pointerEvents: beyond || used ? 'none' : 'auto' }}
-                onPointerDown={startDrag}
+                onPointerDown={e => startDrag(e, i)}
                 onPointerMove={onMove}
                 onPointerUp={onUp}
               />
