@@ -30,16 +30,18 @@ function RoundDots({ total, current }) {
   )
 }
 
-// `total` dots laid out left-to-right. First `green` are green; rest are red with ×.
+// Fixed 5×2 grid of 10 slots — dimensions never change between questions.
+// Slots beyond `total` are invisible; slots beyond `green` but within `total` are red/crossed.
 function SubDots({ total, green }) {
   return (
-    <div className="mission-dots" style={{ maxWidth: total <= 5 ? '160px' : '260px' }}>
-      {Array.from({ length: total }, (_, i) => (
+    <div className="mission-subdots">
+      {Array.from({ length: 10 }, (_, i) => (
         <span
           key={i}
-          className={`mission-dot mission-dot--lg ${i < green ? 'mission-dot--green' : 'mission-dot--crossed'}`}
+          className={`mission-dot mission-dot--lg${i < green ? ' mission-dot--green' : i < total ? ' mission-dot--crossed' : ''}`}
+          style={{ visibility: i < total ? 'visible' : 'hidden' }}
         >
-          {i >= green && '×'}
+          {i >= green && i < total ? '×' : null}
         </span>
       ))}
     </div>
@@ -78,12 +80,10 @@ function Intro({ onDone }) {
           {a} − {b}
         </div>
         <SubDots total={a} green={green} />
-        <div style={{ minHeight: 'clamp(44px,9vw,64px)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '0.4rem' }}>
-          {phase >= 2 && (
-            <div style={{ fontSize: 'clamp(30px,7vw,54px)', fontWeight: 900, color: '#16a34a' }}>
-              = {diff}
-            </div>
-          )}
+        <div style={{ height: 'clamp(44px,9vw,64px)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '0.4rem' }}>
+          <div style={{ fontSize: 'clamp(30px,7vw,54px)', fontWeight: 900, color: '#16a34a', visibility: phase >= 2 ? 'visible' : 'hidden' }}>
+            = {diff}
+          </div>
         </div>
       </div>
       <div className="mission-actions">
@@ -126,6 +126,7 @@ function S1({ onNext }) {
   return (
     <div className="mission-screen">
       <Progress step={1} />
+      <RoundDots total={rounds.length} current={ri} />
       <div className="mission-body">
         <div className="mission-subtitle">{t('mission.4A.countGreen')}</div>
         <div style={{ background: '#f0f2ff', borderRadius: 12, padding: '0.4rem 1.2rem', fontSize: 'clamp(26px,6.5vw,48px)', fontWeight: 700, textAlign: 'center', margin: '0.2rem 0 0.6rem' }}>
@@ -140,7 +141,6 @@ function S1({ onNext }) {
               onClick={() => pick(opt)} disabled={!!fb}>{opt}</button>
           ))}
         </div>
-        <RoundDots total={rounds.length} current={ri} />
       </div>
       <div className="mission-actions" />
     </div>
@@ -179,6 +179,7 @@ function S2({ onNext }) {
   return (
     <div className="mission-screen">
       <Progress step={2} />
+      <RoundDots total={rounds.length} current={ri} />
       <div className="mission-body">
         <div className="mission-subtitle">{t('mission.4A.howManyCrossed')}</div>
         <div style={{ background: '#f0f2ff', borderRadius: 12, padding: '0.4rem 1.2rem', fontSize: 'clamp(20px,5vw,38px)', fontWeight: 700, textAlign: 'center', margin: '0.2rem 0 0.6rem' }}>
@@ -193,7 +194,6 @@ function S2({ onNext }) {
               onClick={() => pick(opt)} disabled={!!fb}>{opt}</button>
           ))}
         </div>
-        <RoundDots total={rounds.length} current={ri} />
       </div>
       <div className="mission-actions" />
     </div>
@@ -231,6 +231,7 @@ function S3({ onNext }) {
   return (
     <div className="mission-screen">
       <Progress step={3} />
+      <RoundDots total={rounds.length} current={ri} />
       <div className="mission-body">
         <div className="mission-subtitle">{t('mission.4A.whatDiff')}</div>
         <div style={{ background: '#f0f2ff', borderRadius: 12, padding: '0.6rem 1.4rem', fontSize: 'clamp(28px,7vw,52px)', fontWeight: 700, textAlign: 'center', margin: '0.3rem 0 1rem' }}>
@@ -243,7 +244,6 @@ function S3({ onNext }) {
               onClick={() => pick(opt)} disabled={!!fb}>{opt}</button>
           ))}
         </div>
-        <RoundDots total={rounds.length} current={ri} />
       </div>
       <div className="mission-actions" />
     </div>
@@ -269,11 +269,11 @@ function S4({ onFinish }) {
   return (
     <div className="mission-screen">
       <Progress step={4} />
+      <RoundDots total={qs.length} current={qi} />
       <div className="mission-body">
         <div style={{ background: '#f0f2ff', borderRadius: 12, padding: '0.6rem 1.6rem', fontSize: 'clamp(30px,8vw,56px)', fontWeight: 700, textAlign: 'center', margin: '0.3rem 0 0.8rem' }}>
           {a} − {b}
         </div>
-        <RoundDots total={qs.length} current={qi} />
         <NumberPad key={qi} onSubmit={submit} disabled={!!fb} />
       </div>
       <div className="mission-actions" />
