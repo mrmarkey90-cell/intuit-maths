@@ -1536,10 +1536,10 @@ button.results-reveal:hover {
 .numpad-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr);
+  grid-template-rows: repeat(4, 1fr);
   gap: clamp(4px, 1vh, 8px);
   width: 100%;
-  aspect-ratio: 1;
+  aspect-ratio: 3 / 4;
   flex-shrink: 0;
 }
 
