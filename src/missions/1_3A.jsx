@@ -213,8 +213,6 @@ function S2({ onNext }) {
     setCount(0)
   }
 
-  const poolCount = correct - count
-
   return (
     <div className="mission-screen">
       <Progress step={1} />
@@ -236,15 +234,19 @@ function S2({ onNext }) {
           <span className="bond-drag-op">= 10</span>
         </div>
         <div className="bond-drag-pool">
-          {Array.from({ length: poolCount }, (_, i) => (
-            <div key={i}
-              className="bond-drag-pool-dot"
-              style={{ visibility: drag && i === poolCount - 1 ? 'hidden' : 'visible' }}
-              onPointerDown={startDrag}
-              onPointerMove={onMove}
-              onPointerUp={onUp}
-            />
-          ))}
+          {Array.from({ length: correct }, (_, i) => {
+            const used = i < count
+            const ghost = !used && drag && i === correct - 1
+            return (
+              <div key={i}
+                className="bond-drag-pool-dot"
+                style={{ visibility: used || ghost ? 'hidden' : 'visible', pointerEvents: used ? 'none' : 'auto' }}
+                onPointerDown={startDrag}
+                onPointerMove={onMove}
+                onPointerUp={onUp}
+              />
+            )
+          })}
         </div>
         <RoundDots total={rounds.length} current={ri} />
       </div>
