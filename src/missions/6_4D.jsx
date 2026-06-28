@@ -284,7 +284,7 @@ function S3({ onNext }) {
 
 // ── S4: Which has the bigger answer? ─────────────────────────────────────────
 
-function genCompRound() {
+function genCmpRound() {
   let q1, q2
   do { q1 = genQ(); q2 = genQ() } while (Math.abs(q1.diffH - q2.diffH) < 50)
   return { q1, q2, biggerIdx: q1.diffH > q2.diffH ? 0 : 1 }
@@ -292,7 +292,7 @@ function genCompRound() {
 
 function S4({ onNext }) {
   const { t } = useTranslation()
-  const rounds = useMemo(() => Array.from({ length: 3 }, genCompRound), [])
+  const rounds = useMemo(() => Array.from({ length: 3 }, genCmpRound), [])
   const [ri, setRi] = useState(0)
   const [fb, setFb] = useState(null)
   const [done, setDone] = useState(false)
