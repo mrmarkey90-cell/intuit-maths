@@ -1,6 +1,5 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import { supabase } from '../supabaseClient'
-import NumberPad from '../components/NumberPad'
 import { useTranslation } from '../i18n/LanguageContext'
 
 function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5) }
@@ -164,42 +163,98 @@ function S1({ onNext }) {
   )
 }
 
-// ── S2: Missing addend — "N + ___ = 10" (NumPad) ─────────────────────────────
+// ── S2: Drag individual dots into gap — "[N dots] + ___ = 10" ────────────────
+
+function BondDots({ n }) {
+  return (
+    <div className="bond-drag-dots">
+      {Array.from({ length: n }, (_, i) => <span key={i} className="bond-drag-dot" />)}
+    </div>
+  )
+}
+
+function genDotDragRounds() {
+  return shuffle([[1, 9], [2, 8], [3, 7], [4, 6], [5, 5]]).slice(0, 3).map(([a, b]) => ({ question: a, correct: b }))
+}
 
 function S2({ onNext }) {
   const { t } = useTranslation()
-  const qs = useMemo(() => Array.from({ length: 5 }, () => {
-    const n = rnd(1, 9)
-    return { n, answer: String(10 - n) }
-  }), [])
-  const [qi, setQi] = useState(0)
-  const [fb, setFb] = useState(null)
-  const { n, answer } = qs[qi]
+  const rounds = useMemo(() => genDotDragRounds(), [])
+  const [ri, setRi] = useState(0)
+  const [count, setCount] = useState(0)
+  const [drag, setDrag] = useState(null)
+  const slotRef = useRef(null)
 
-  function submit(val) {
-    if (fb) return
-    const ok = val === answer
-    setFb(ok ? 'correct' : 'wrong')
-    setTimeout(() => { setFb(null); qi + 1 >= qs.length ? onNext() : setQi(i => i + 1) }, 700)
+  const { question, correct } = rounds[ri]
+  const done = count === correct
+
+  function startDrag(e) {
+    if (done) return
+    e.currentTarget.setPointerCapture?.(e.pointerId)
+    setDrag({ x: e.clientX, y: e.clientY })
   }
+  function onMove(e) {
+    if (!drag) return
+    setDrag({ x: e.clientX, y: e.clientY })
+  }
+  function onUp(e) {
+    if (!drag) return
+    const r = slotRef.current?.getBoundingClientRect()
+    if (r && e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) {
+      setCount(c => Math.min(c + 1, correct))
+    }
+    setDrag(null)
+  }
+
+  function advance() {
+    const next = ri + 1
+    if (next >= rounds.length) { onNext(); return }
+    setRi(next)
+    setCount(0)
+  }
+
+  const poolCount = correct - count
 
   return (
     <div className="mission-screen">
       <Progress step={2} />
       <div className="mission-body">
-        <div className="mission-gap-row" style={{ pointerEvents: 'none' }}>
-          <div className="mission-gap-box" style={{ fontSize: 'clamp(22px,5vw,38px)' }}>{n}</div>
-          <div className="mission-gap-box" style={{ fontSize: 'clamp(20px,4.5vw,34px)', background: 'none', border: 'none' }}>+</div>
-          <div className={`mission-gap-box mission-gap-box--gap${fb === 'correct' ? ' mission-gap-box--correct' : fb === 'wrong' ? ' mission-gap-box--wrong' : ''}`}>
-            {fb ? answer : '?'}
+        <div className="mission-title">{t('mission.3A.dragToMake10')}</div>
+        <div className={`bond-drag-eq${done ? ' bond-drag-eq--done' : ''}`}>
+          <div className="bond-drag-tile">
+            <BondDots n={question} />
           </div>
-          <div className="mission-gap-box" style={{ fontSize: 'clamp(20px,4.5vw,34px)', background: 'none', border: 'none' }}>=</div>
-          <div className="mission-gap-box" style={{ fontSize: 'clamp(22px,5vw,38px)' }}>10</div>
+          <span className="bond-drag-op">+</span>
+          <div className="bond-drag-slot-col">
+            <span className="bond-drag-counter" style={{ visibility: count > 0 ? 'visible' : 'hidden' }}>
+              {count}
+            </span>
+            <div ref={slotRef} className="bond-drag-tile bond-drag-tile--slot">
+              {count > 0 ? <BondDots n={count} /> : <span className="bond-drag-slot-hint">?</span>}
+            </div>
+          </div>
+          <span className="bond-drag-op">= 10</span>
         </div>
-        <RoundDots total={qs.length} current={qi} />
-        <NumberPad key={qi} onSubmit={submit} allowDecimal={false} disabled={!!fb} />
+        <div className="bond-drag-pool">
+          {Array.from({ length: poolCount }, (_, i) => (
+            <div key={i}
+              className="bond-drag-pool-dot"
+              style={{ visibility: drag && i === poolCount - 1 ? 'hidden' : 'visible' }}
+              onPointerDown={startDrag}
+              onPointerMove={onMove}
+              onPointerUp={onUp}
+            />
+          ))}
+        </div>
+        <RoundDots total={rounds.length} current={ri} />
       </div>
-      <div className="mission-actions" />
+      <div className="mission-actions">
+        <button className="mission-next-btn" onClick={advance}
+          style={{ visibility: done ? 'visible' : 'hidden' }}>
+          {t('mission.next')}
+        </button>
+      </div>
+      {drag && <div className="bond-drag-ghost-dot" style={{ left: drag.x, top: drag.y }} />}
     </div>
   )
 }

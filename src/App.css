@@ -4972,6 +4972,123 @@ button.hub-tile-collapse-btn:hover { opacity: 1; background: transparent; }
   background: #d1d5db;
 }
 
+/* ── Bond drag — dot dropping (1_3A Screen 2) ───────────────────────────── */
+
+.bond-drag-eq {
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 2vw, 14px);
+  transition: color 0.3s;
+}
+
+.bond-drag-op {
+  font-size: clamp(22px, 5vw, 34px);
+  font-weight: 700;
+  color: #374151;
+  white-space: nowrap;
+  transition: color 0.3s;
+}
+
+.bond-drag-eq--done .bond-drag-op { color: #15803d; }
+
+.bond-drag-tile {
+  width: clamp(72px, 16vw, 108px);
+  height: clamp(72px, 16vw, 108px);
+  border-radius: 14px;
+  border: 2.5px solid #c7d2fe;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.3s, background 0.3s;
+}
+
+.bond-drag-eq--done .bond-drag-tile {
+  border-color: #16a34a;
+  background: #dcfce7;
+}
+
+.bond-drag-tile--slot {
+  border: 2.5px dashed #f59e0b;
+  background: #fffbeb;
+}
+
+.bond-drag-eq--done .bond-drag-tile--slot {
+  border-style: solid;
+}
+
+.bond-drag-slot-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.bond-drag-counter {
+  font-size: clamp(16px, 3.5vw, 24px);
+  font-weight: 800;
+  color: #f59e0b;
+  line-height: 1;
+  min-height: 1.2em;
+}
+
+.bond-drag-slot-hint {
+  color: #d1d5db;
+  font-size: clamp(22px, 5vw, 34px);
+  font-weight: 700;
+}
+
+/* Small dots shown accumulating inside the gap tile */
+.bond-drag-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  justify-content: center;
+  align-content: center;
+  padding: 6px;
+  max-width: 52px;
+}
+
+.bond-drag-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f59e0b;
+  flex-shrink: 0;
+}
+
+/* Large draggable dots in the pool */
+.bond-drag-pool {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(8px, 2vw, 12px);
+  justify-content: center;
+  max-width: min(340px, 65vw);
+}
+
+.bond-drag-pool-dot {
+  width: clamp(28px, 6vw, 40px);
+  height: clamp(28px, 6vw, 40px);
+  border-radius: 50%;
+  background: #4f46e5;
+  cursor: grab;
+  touch-action: none;
+  flex-shrink: 0;
+}
+
+.bond-drag-ghost-dot {
+  position: fixed;
+  width: clamp(28px, 6vw, 40px);
+  height: clamp(28px, 6vw, 40px);
+  border-radius: 50%;
+  background: #4f46e5;
+  opacity: 0.75;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 200;
+}
+
 /* ── Bond bubbles ───────────────────────────────────────────────────────── */
 
 .bubble-grid {
