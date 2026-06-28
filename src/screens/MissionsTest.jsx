@@ -7,11 +7,21 @@ import { useTranslation } from '../i18n/LanguageContext'
 // Pupil ID is optional -- without one, complete_mission is a no-op (no credits),
 // which is fine for testing the flow itself.
 
-const MISSIONS = listMissions()
+const ALL_MISSIONS = listMissions()
+
+// Group by level (key format: "{level}_{subdomain}")
+const LEVEL_MAP = {}
+for (const key of ALL_MISSIONS) {
+  const level = key.split('_')[0]
+  if (!LEVEL_MAP[level]) LEVEL_MAP[level] = []
+  LEVEL_MAP[level].push(key)
+}
+const LEVELS = Object.keys(LEVEL_MAP).sort((a, b) => Number(a) - Number(b))
+const DEFAULT_LEVEL = LEVELS[0] ?? '1'
 
 const selectStyle = {
   padding: '7px 10px', borderRadius: 7, border: '1.5px solid #d1d5db',
-  fontSize: 15, background: '#fff', minWidth: 180,
+  fontSize: 15, background: '#fff',
 }
 
 const inputStyle = {
@@ -21,12 +31,18 @@ const inputStyle = {
 
 export default function MissionsTest() {
   const { language, setLanguage } = useTranslation()
-  const [selectedKey, setSelectedKey] = useState(MISSIONS[0] ?? '')
+  const [selectedLevel, setSelectedLevel] = useState(DEFAULT_LEVEL)
+  const [selectedKey, setSelectedKey] = useState(LEVEL_MAP[DEFAULT_LEVEL]?.[0] ?? '')
   const [pupilId, setPupilId] = useState('')
   const [MissionComp, setMissionComp] = useState(null)
   const [activeKey, setActiveKey] = useState(null)
-  const [lastResult, setLastResult] = useState(null) // 'completed'
+  const [lastResult, setLastResult] = useState(null)
   const [loading, setLoading] = useState(false)
+
+  function changeLevel(level) {
+    setSelectedLevel(level)
+    setSelectedKey(LEVEL_MAP[level]?.[0] ?? '')
+  }
 
   async function doLaunch(key) {
     if (!key || loading) return
@@ -42,7 +58,9 @@ export default function MissionsTest() {
   }
 
   function launchRandom() {
-    const key = MISSIONS[Math.floor(Math.random() * MISSIONS.length)]
+    const key = ALL_MISSIONS[Math.floor(Math.random() * ALL_MISSIONS.length)]
+    const level = key.split('_')[0]
+    setSelectedLevel(level)
     setSelectedKey(key)
     doLaunch(key)
   }
@@ -53,18 +71,10 @@ export default function MissionsTest() {
     setLastResult('completed')
   }
 
-  // When running, take over the full screen in a pupil-viewport so all
-  // mission CSS (height: 100%, font, overflow) works exactly as on device.
   if (MissionComp) {
     return (
-      <div
-        className="pupil-viewport"
-        style={{ position: 'fixed', inset: 0, zIndex: 9999 }}
-      >
-        <MissionComp
-          pupilId={pupilId.trim() || null}
-          onComplete={handleComplete}
-        />
+      <div className="pupil-viewport" style={{ position: 'fixed', inset: 0, zIndex: 9999 }}>
+        <MissionComp pupilId={pupilId.trim() || null} onComplete={handleComplete} />
         {activeKey && (
           <div style={{
             position: 'absolute', top: 10, right: 10,
@@ -79,6 +89,8 @@ export default function MissionsTest() {
       </div>
     )
   }
+
+  const levelMissions = LEVEL_MAP[selectedLevel] ?? []
 
   return (
     <div style={{ padding: '2rem', maxWidth: 560, margin: '0 auto', fontFamily: 'system-ui, sans-serif' }}>
@@ -115,14 +127,27 @@ export default function MissionsTest() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
         <div>
           <label style={{ fontWeight: 700, fontSize: 14, display: 'block', marginBottom: 5 }}>Mission</label>
-          <select
-            value={selectedKey}
-            onChange={e => setSelectedKey(e.target.value)}
-            style={selectStyle}
-          >
-            {MISSIONS.length === 0 && <option value="">— none registered —</option>}
-            {MISSIONS.map(k => <option key={k} value={k}>{k}</option>)}
-          </select>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <select
+              value={selectedLevel}
+              onChange={e => changeLevel(e.target.value)}
+              style={{ ...selectStyle, minWidth: 100 }}
+            >
+              {LEVELS.map(l => (
+                <option key={l} value={l}>Level {l}</option>
+              ))}
+            </select>
+            <select
+              value={selectedKey}
+              onChange={e => setSelectedKey(e.target.value)}
+              style={{ ...selectStyle, minWidth: 160 }}
+            >
+              {levelMissions.length === 0
+                ? <option value="">— none —</option>
+                : levelMissions.map(k => <option key={k} value={k}>{k}</option>)
+              }
+            </select>
+          </div>
         </div>
 
         <div>
@@ -156,13 +181,13 @@ export default function MissionsTest() {
           </button>
           <button
             onClick={launchRandom}
-            disabled={loading || MISSIONS.length === 0}
+            disabled={loading || ALL_MISSIONS.length === 0}
             style={{
               padding: '10px 20px',
-              background: !loading && MISSIONS.length > 0 ? '#0ea5e9' : '#a5a3e8',
+              background: !loading && ALL_MISSIONS.length > 0 ? '#0ea5e9' : '#a5a3e8',
               color: '#fff', border: 'none', borderRadius: 10,
               fontSize: 15, fontWeight: 700,
-              cursor: !loading && MISSIONS.length > 0 ? 'pointer' : 'not-allowed',
+              cursor: !loading && ALL_MISSIONS.length > 0 ? 'pointer' : 'not-allowed',
             }}
           >
             🎲 Random
@@ -175,6 +200,7 @@ export default function MissionsTest() {
         <ul style={{ marginTop: '0.4rem', paddingLeft: '1.2rem' }}>
           <li>Mission runs in a full-screen overlay — Esc or browser back won't exit; use the "Back to Hub" button inside.</li>
           <li>Without a pupil ID the <code>complete_mission</code> RPC is a no-op — flow and credits screen still show correctly.</li>
+          <li>🎲 Random picks from all levels. Selecting a random mission also updates both dropdowns to match.</li>
           <li>Add new keys to <code>src/missions/index.js</code> <code>REGISTERED</code> as each mission file is built.</li>
         </ul>
       </div>
