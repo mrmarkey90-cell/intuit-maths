@@ -131,7 +131,7 @@ function S1({ onNext }) {
 
   return (
     <div className="mission-screen">
-      <Progress step={1} />
+      <Progress step={5} />
       <div className="mission-body">
         {done ? (
           <BondList />
@@ -217,7 +217,7 @@ function S2({ onNext }) {
 
   return (
     <div className="mission-screen">
-      <Progress step={2} />
+      <Progress step={1} />
       <div className="mission-body">
         <div className="mission-title">{t('mission.3A.dragToMake10')}</div>
         <div className={`bond-drag-eq${done ? ' bond-drag-eq--done' : ''}`}>
@@ -292,7 +292,7 @@ function S3({ onNext }) {
 
   return (
     <div className="mission-screen">
-      <Progress step={3} />
+      <Progress step={2} />
       <div className="mission-body">
         <div style={{ background: '#f0f2ff', borderRadius: 12, padding: '0.8rem 1.4rem', fontSize: 'clamp(24px,5.5vw,42px)', fontWeight: 700, margin: '0.4rem 0 1rem', textAlign: 'center' }}>
           {a} + {b} = 10
@@ -347,7 +347,7 @@ function S4({ onNext }) {
 
   return (
     <div className="mission-screen">
-      <Progress step={4} />
+      <Progress step={3} />
       <div className="mission-body">
         {done ? (
           <div className="mission-title">{t('mission.3A.bondTip')}</div>
@@ -412,7 +412,7 @@ function S5({ onFinish }) {
 
   return (
     <div className="mission-screen">
-      <Progress step={5} />
+      <Progress step={4} />
       <div className="mission-body">
         {done ? (
           <BondList />
@@ -471,10 +471,10 @@ export default function Mission1_3A({ pupilId, onComplete }) {
   }
 
   if (step === 0) return <TenFrameFill onDone={() => setStep(1)} />
-  if (step === 1) return <S1 onNext={() => setStep(2)} />
-  if (step === 2) return <S2 onNext={() => setStep(3)} />
-  if (step === 3) return <S3 onNext={() => setStep(4)} />
-  if (step === 4) return <S4 onNext={() => setStep(5)} />
-  if (step === 5) return <S5 onFinish={finish} />
+  if (step === 1) return <S2 onNext={() => setStep(2)} />
+  if (step === 2) return <S3 onNext={() => setStep(3)} />
+  if (step === 3) return <S4 onNext={() => setStep(4)} />
+  if (step === 4) return <S5 onFinish={() => setStep(5)} />
+  if (step === 5) return <S1 onNext={finish} />
   return <Complete onDone={onComplete} />
 }
