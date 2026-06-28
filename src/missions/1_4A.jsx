@@ -236,7 +236,7 @@ function S3({ onNext }) {
         <div style={{ background: '#f0f2ff', borderRadius: 12, padding: '0.6rem 1.4rem', fontSize: 'clamp(28px,7vw,52px)', fontWeight: 700, textAlign: 'center', margin: '0.3rem 0 1rem' }}>
           {a} − {b}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem', width: 'min(240px,50vw)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, clamp(80px,17vw,130px))', gap: '0.6rem' }}>
           {opts.map(opt => (
             <button key={opt}
               className={`mission-bigger-btn${fb ? opt === diff ? ' mission-bigger-btn--correct' : opt === fb.opt && !fb.ok ? ' mission-bigger-btn--wrong' : '' : ''}`}
