@@ -234,13 +234,15 @@ function S2({ onNext }) {
           <span className="bond-drag-op">= 10</span>
         </div>
         <div className="bond-drag-pool">
-          {Array.from({ length: correct }, (_, i) => {
+          {Array.from({ length: 9 }, (_, i) => {
+            const beyond = i >= correct
             const used = i < count
-            const ghost = !used && drag && i === correct - 1
+            const ghost = !beyond && !used && drag && i === correct - 1
+            const hide = beyond || used || ghost
             return (
               <div key={i}
                 className="bond-drag-pool-dot"
-                style={{ visibility: used || ghost ? 'hidden' : 'visible', pointerEvents: used ? 'none' : 'auto' }}
+                style={{ visibility: hide ? 'hidden' : 'visible', pointerEvents: beyond || used ? 'none' : 'auto' }}
                 onPointerDown={startDrag}
                 onPointerMove={onMove}
                 onPointerUp={onUp}
