@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
 import NumberPad from '../components/NumberPad'
 import { useTranslation } from '../i18n/LanguageContext'
@@ -6,7 +6,7 @@ import { useTranslation } from '../i18n/LanguageContext'
 function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5) }
 function rnd(a, b) { return a + Math.floor(Math.random() * (b - a + 1)) }
 
-// a ∈ [21,49] (not ending in 9), b > units-digit-of-a so subtraction always crosses a ten
+// a ∈ [21,49] (not ending in 0 or 9), b > units digit so answer always crosses a tens boundary
 function genQ() {
   let a
   do { a = rnd(21, 49) } while (a % 10 === 9 || a % 10 === 0)
@@ -18,7 +18,7 @@ function genQ() {
 function Progress({ step }) {
   return (
     <div className="mission-progress">
-      <div className="mission-progress-fill" style={{ width: `${(step / 5) * 100}%` }} />
+      <div className="mission-progress-fill" style={{ width: `${(step / 4) * 100}%` }} />
     </div>
   )
 }
@@ -33,67 +33,80 @@ function RoundDots({ total, current }) {
   )
 }
 
-// ── S0: Mini-game — tap two chips that add to a two-digit target ──────────────
-// Chips from 5–35; target is a 2-digit number in the twenties/thirties.
+// A numbered track from diff to a showing the hop.
+// phase 0: all neutral; phase 1: a=blue, rest neutral; phase 2: a=blue, passed=amber, diff=green
+function NumTrack({ a, diff, phase }) {
+  const nums = []
+  for (let n = diff; n <= a; n++) nums.push(n)
 
-function genMiniRound() {
-  const target = rnd(20, 50)
-  const a = rnd(5, Math.min(35, target - 5))
-  const b = target - a
-  if (a === b) return genMiniRound()
-  const pool = [a, b]
-  let tries = 0
-  while (pool.length < 4 && tries < 200) {
-    const c = rnd(5, 40)
-    if (!pool.includes(c) && pool.every(x => x + c !== target)) pool.push(c)
-    tries++
-  }
-  return { target, chips: shuffle(pool) }
+  return (
+    <div className="mission-numtrack">
+      {nums.map(n => {
+        let cls = 'mission-numtrack-box'
+        if (phase >= 2) {
+          if (n === a) cls += ' mission-numtrack-box--start'
+          else if (n === diff) cls += ' mission-numtrack-box--end'
+          else cls += ' mission-numtrack-box--passed'
+        } else if (phase === 1 && n === a) {
+          cls += ' mission-numtrack-box--start'
+        }
+        // Tens boundary gets an extra outline (applied on top of other classes)
+        if (n % 10 === 0 && n !== a && n !== diff) cls += ' mission-numtrack-box--ten'
+        return <div key={n} className={cls}>{n}</div>
+      })}
+    </div>
+  )
 }
 
-function MiniGame({ onDone }) {
-  const { t } = useTranslation()
-  const rounds = useMemo(() => Array.from({ length: 3 }, genMiniRound), [])
-  const [ri, setRi] = useState(0)
-  const [sel, setSel] = useState(null)
-  const [fb, setFb] = useState(null)
-  const { target, chips } = rounds[Math.min(ri, rounds.length - 1)]
+// ── Intro: animated teaching demo ─────────────────────────────────────────────
 
-  function tap(i) {
-    if (fb) return
-    if (sel === null) { setSel(i); return }
-    if (sel === i) { setSel(null); return }
-    const ok = chips[sel] + chips[i] === target
-    setFb({ i1: sel, i2: i, ok })
-    setTimeout(() => {
-      setFb(null); setSel(null)
-      if (ok) { if (ri + 1 >= rounds.length) onDone(); else setRi(r => r + 1) }
-    }, 700)
+function Intro({ onDone }) {
+  const { t } = useTranslation()
+  const examples = useMemo(() => Array.from({ length: 3 }, genQ), [])
+  const [ei, setEi] = useState(0)
+  const [phase, setPhase] = useState(0) // 0=neutral, 1=start lit, 2=full hop, 3=answer label
+
+  const { a, b, diff } = examples[ei]
+
+  useEffect(() => {
+    setPhase(0)
+    const t1 = setTimeout(() => setPhase(1), 500)
+    const t2 = setTimeout(() => setPhase(2), 1100)
+    const t3 = setTimeout(() => setPhase(3), 1900)
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
+  }, [ei])
+
+  function next() {
+    if (ei + 1 >= examples.length) onDone()
+    else setEi(e => e + 1)
   }
 
   return (
     <div className="mission-screen">
       <div className="mission-body">
-        <div className="mission-subtitle">{t('mission.4A.tapPairLabel')}</div>
-        <div style={{ fontSize: 'clamp(56px,14vw,90px)', fontWeight: 900, color: '#0ea5e9', lineHeight: 1, textAlign: 'center', margin: '0.3rem 0 1rem' }}>
-          {target}
+        <div className="mission-subtitle">{t('mission.4A.watchLabel')}</div>
+        <div style={{ background: '#f0f2ff', borderRadius: 12, padding: '0.5rem 1.2rem', fontSize: 'clamp(26px,6.5vw,48px)', fontWeight: 700, textAlign: 'center', margin: '0.3rem 0 0.8rem' }}>
+          {a} − {b}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.7rem', width: 'min(280px,58vw)' }}>
-          {chips.map((n, i) => {
-            const inPair = fb && (i === fb.i1 || i === fb.i2)
-            const cls = inPair ? (fb.ok ? ' mission-bigger-btn--correct' : ' mission-bigger-btn--wrong') : sel === i ? ' mission-bigger-btn--selected' : ''
-            return (
-              <button key={i} className={`mission-bigger-btn${cls}`} onClick={() => tap(i)} disabled={!!fb}>{n}</button>
-            )
-          })}
+        <NumTrack a={a} diff={diff} phase={phase} />
+        <div style={{ minHeight: 'clamp(44px,9vw,64px)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '0.5rem' }}>
+          {phase >= 3 && (
+            <div style={{ fontSize: 'clamp(28px,6.5vw,50px)', fontWeight: 900, color: '#16a34a' }}>
+              = {diff}
+            </div>
+          )}
         </div>
-        <RoundDots total={rounds.length} current={ri} />
+      </div>
+      <div className="mission-actions">
+        <button className="mission-next-btn" onClick={next} style={{ visibility: phase >= 3 ? 'visible' : 'hidden' }}>
+          {ei + 1 < examples.length ? t('mission.next') : t('mission.4A.letsGo')}
+        </button>
       </div>
     </div>
   )
 }
 
-// ── S1: What is the answer? ───────────────────────────────────────────────────
+// ── S1: Number track shown — multiple choice ──────────────────────────────────
 
 function S1({ onNext }) {
   const { t } = useTranslation()
@@ -109,51 +122,98 @@ function S1({ onNext }) {
   }), [])
   const [ri, setRi] = useState(0)
   const [fb, setFb] = useState(null)
-  const [done, setDone] = useState(false)
   const { a, b, diff, opts } = rounds[Math.min(ri, rounds.length - 1)]
 
+  // Show the full hop once answered correctly
+  const trackPhase = fb?.ok ? 2 : 1
+
   function pick(opt) {
-    if (fb || done) return
+    if (fb) return
     setFb({ opt, ok: opt === diff })
     setTimeout(() => {
       setFb(null)
-      if (ri + 1 >= rounds.length) setDone(true); else setRi(r => r + 1)
-    }, 700)
+      if (ri + 1 >= rounds.length) onNext()
+      else setRi(r => r + 1)
+    }, 900)
   }
 
   return (
     <div className="mission-screen">
       <Progress step={1} />
       <div className="mission-body">
-        {done ? (
-          <div className="mission-title">{t('mission.4A.crossTenTip')}</div>
-        ) : (
-          <>
-            <div className="mission-subtitle">{t('mission.4A.whatDiff')}</div>
-            <div style={{ background: '#f0f2ff', borderRadius: 12, padding: '0.6rem 1.4rem', fontSize: 'clamp(28px,7vw,52px)', fontWeight: 700, textAlign: 'center', margin: '0.3rem 0 1rem' }}>
-              {a} − {b}
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem', width: 'min(280px,58vw)' }}>
-              {opts.map(opt => (
-                <button key={opt}
-                  className={`mission-bigger-btn${fb ? opt === diff ? ' mission-bigger-btn--correct' : opt === fb.opt && !fb.ok ? ' mission-bigger-btn--wrong' : '' : ''}`}
-                  onClick={() => pick(opt)} disabled={!!fb}>{opt}</button>
-              ))}
-            </div>
-            <RoundDots total={rounds.length} current={ri} />
-          </>
-        )}
+        <div className="mission-subtitle">{t('mission.4A.trackLabel')}</div>
+        <div style={{ background: '#f0f2ff', borderRadius: 12, padding: '0.4rem 1.2rem', fontSize: 'clamp(22px,5.5vw,40px)', fontWeight: 700, textAlign: 'center', margin: '0.2rem 0 0.6rem' }}>
+          {a} − {b}
+        </div>
+        <NumTrack a={a} diff={diff} phase={trackPhase} />
+        <div style={{ height: '0.6rem' }} />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem', width: 'min(280px,58vw)' }}>
+          {opts.map(opt => (
+            <button key={opt}
+              className={`mission-bigger-btn${fb ? opt === diff ? ' mission-bigger-btn--correct' : opt === fb.opt && !fb.ok ? ' mission-bigger-btn--wrong' : '' : ''}`}
+              onClick={() => pick(opt)} disabled={!!fb}>{opt}</button>
+          ))}
+        </div>
+        <RoundDots total={rounds.length} current={ri} />
       </div>
-      <div className="mission-actions">
-        <button className="mission-next-btn" onClick={onNext} style={{ visibility: done ? 'visible' : 'hidden' }}>{t('mission.next')}</button>
-      </div>
+      <div className="mission-actions" />
     </div>
   )
 }
 
-// ── S2: True or false? ────────────────────────────────────────────────────────
+// ── S2: No visual — multiple choice ───────────────────────────────────────────
 
 function S2({ onNext }) {
+  const { t } = useTranslation()
+  const rounds = useMemo(() => Array.from({ length: 3 }, () => {
+    const { a, b, diff } = genQ()
+    const opts = new Set([diff])
+    for (const off of shuffle([-1, 1, -2, 2, -10, 10])) {
+      if (opts.size >= 4) break
+      const v = diff + off
+      if (v > 0 && v !== diff) opts.add(v)
+    }
+    return { a, b, diff, opts: shuffle([...opts]) }
+  }), [])
+  const [ri, setRi] = useState(0)
+  const [fb, setFb] = useState(null)
+  const { a, b, diff, opts } = rounds[Math.min(ri, rounds.length - 1)]
+
+  function pick(opt) {
+    if (fb) return
+    setFb({ opt, ok: opt === diff })
+    setTimeout(() => {
+      setFb(null)
+      if (ri + 1 >= rounds.length) onNext()
+      else setRi(r => r + 1)
+    }, 700)
+  }
+
+  return (
+    <div className="mission-screen">
+      <Progress step={2} />
+      <div className="mission-body">
+        <div className="mission-subtitle">{t('mission.4A.whatDiff')}</div>
+        <div style={{ background: '#f0f2ff', borderRadius: 12, padding: '0.6rem 1.4rem', fontSize: 'clamp(28px,7vw,52px)', fontWeight: 700, textAlign: 'center', margin: '0.3rem 0 1rem' }}>
+          {a} − {b}
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem', width: 'min(280px,58vw)' }}>
+          {opts.map(opt => (
+            <button key={opt}
+              className={`mission-bigger-btn${fb ? opt === diff ? ' mission-bigger-btn--correct' : opt === fb.opt && !fb.ok ? ' mission-bigger-btn--wrong' : '' : ''}`}
+              onClick={() => pick(opt)} disabled={!!fb}>{opt}</button>
+          ))}
+        </div>
+        <RoundDots total={rounds.length} current={ri} />
+      </div>
+      <div className="mission-actions" />
+    </div>
+  )
+}
+
+// ── S3: True or false? ────────────────────────────────────────────────────────
+
+function S3({ onNext }) {
   const { t } = useTranslation()
   const rounds = useMemo(() => {
     const trues = Array.from({ length: 2 }, () => {
@@ -184,7 +244,7 @@ function S2({ onNext }) {
 
   return (
     <div className="mission-screen">
-      <Progress step={2} />
+      <Progress step={3} />
       <div className="mission-body">
         <div style={{ background: '#f0f2ff', borderRadius: 12, padding: '0.8rem 1.4rem', fontSize: 'clamp(22px,5.5vw,40px)', fontWeight: 700, textAlign: 'center', margin: '0.4rem 0 1rem' }}>
           {a} − {b} = {shown}
@@ -206,131 +266,9 @@ function S2({ onNext }) {
   )
 }
 
-// ── S3: Fix the missing digit in the answer ───────────────────────────────────
-// Answers are 2-digit here (diff ∈ [12,47]), so one digit position is hidden.
+// ── S4: Numpad ────────────────────────────────────────────────────────────────
 
-function genFixRound() {
-  const { a, b, diff } = genQ()
-  const str = String(diff)
-  const pos = rnd(0, str.length - 1)
-  const correct = parseInt(str[pos], 10)
-  const opts = new Set([correct])
-  while (opts.size < 4) { const d = rnd(0, 9); if (d !== correct) opts.add(d) }
-  const display = str.slice(0, pos) + '?' + str.slice(pos + 1)
-  return { a, b, display, correct, opts: shuffle([...opts]) }
-}
-
-function S3({ onNext }) {
-  const { t } = useTranslation()
-  const rounds = useMemo(() => Array.from({ length: 3 }, genFixRound), [])
-  const [ri, setRi] = useState(0)
-  const [fb, setFb] = useState(null)
-  const [done, setDone] = useState(false)
-  const { a, b, display, correct, opts } = rounds[Math.min(ri, rounds.length - 1)]
-
-  function pick(opt) {
-    if (fb || done) return
-    setFb({ opt, ok: opt === correct })
-    setTimeout(() => {
-      setFb(null)
-      if (ri + 1 >= rounds.length) setDone(true); else setRi(r => r + 1)
-    }, 700)
-  }
-
-  return (
-    <div className="mission-screen">
-      <Progress step={3} />
-      <div className="mission-body">
-        {done ? (
-          <div className="mission-title">✓</div>
-        ) : (
-          <>
-            <div className="mission-subtitle">{t('mission.4A.fixDigit')}</div>
-            <div style={{ background: '#f0f2ff', borderRadius: 12, padding: '0.6rem 1.2rem', fontSize: 'clamp(20px,5vw,36px)', fontWeight: 700, textAlign: 'center', margin: '0.3rem 0 0.8rem' }}>
-              {a} − {b} = <span style={{ color: '#4f46e5', fontSize: 'clamp(24px,6vw,44px)' }}>{display}</span>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem', width: 'min(240px,50vw)', marginTop: '0.4rem' }}>
-              {opts.map(opt => (
-                <button key={opt}
-                  className={`mission-bigger-btn${fb ? opt === correct ? ' mission-bigger-btn--correct' : opt === fb.opt && !fb.ok ? ' mission-bigger-btn--wrong' : '' : ''}`}
-                  onClick={() => pick(opt)} disabled={!!fb}>{opt}</button>
-              ))}
-            </div>
-            <RoundDots total={rounds.length} current={ri} />
-          </>
-        )}
-      </div>
-      <div className="mission-actions">
-        <button className="mission-next-btn" onClick={onNext} style={{ visibility: done ? 'visible' : 'hidden' }}>{t('mission.next')}</button>
-      </div>
-    </div>
-  )
-}
-
-// ── S4: Estimation — the answer is closest to which multiple of 10? ───────────
-
-function genEstRound() {
-  const { a, b, diff } = genQ()
-  const correct = Math.round(diff / 10) * 10
-  const opts = new Set([correct])
-  for (const off of shuffle([-10, 10, -20, 20, 30])) {
-    if (opts.size >= 4) break
-    const v = correct + off
-    if (v >= 0) opts.add(v)
-  }
-  return { a, b, correct, opts: shuffle([...opts]) }
-}
-
-function S4({ onNext }) {
-  const { t } = useTranslation()
-  const rounds = useMemo(() => Array.from({ length: 3 }, genEstRound), [])
-  const [ri, setRi] = useState(0)
-  const [fb, setFb] = useState(null)
-  const [done, setDone] = useState(false)
-  const { a, b, correct, opts } = rounds[Math.min(ri, rounds.length - 1)]
-
-  function pick(opt) {
-    if (fb || done) return
-    setFb({ opt, ok: opt === correct })
-    setTimeout(() => {
-      setFb(null)
-      if (ri + 1 >= rounds.length) setDone(true); else setRi(r => r + 1)
-    }, 700)
-  }
-
-  return (
-    <div className="mission-screen">
-      <Progress step={4} />
-      <div className="mission-body">
-        {done ? (
-          <div className="mission-title">✓</div>
-        ) : (
-          <>
-            <div className="mission-subtitle">{t('mission.4A.estimateLabel')}</div>
-            <div style={{ background: '#f0f2ff', borderRadius: 12, padding: '0.6rem 1.4rem', fontSize: 'clamp(24px,6vw,44px)', fontWeight: 700, textAlign: 'center', margin: '0.3rem 0 1rem' }}>
-              {a} − {b}
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem', width: 'min(280px,58vw)' }}>
-              {opts.map(opt => (
-                <button key={opt}
-                  className={`mission-bigger-btn${fb ? opt === correct ? ' mission-bigger-btn--correct' : opt === fb.opt && !fb.ok ? ' mission-bigger-btn--wrong' : '' : ''}`}
-                  onClick={() => pick(opt)} disabled={!!fb}>{opt}</button>
-              ))}
-            </div>
-            <RoundDots total={rounds.length} current={ri} />
-          </>
-        )}
-      </div>
-      <div className="mission-actions">
-        <button className="mission-next-btn" onClick={onNext} style={{ visibility: done ? 'visible' : 'hidden' }}>{t('mission.next')}</button>
-      </div>
-    </div>
-  )
-}
-
-// ── S5: NumPad ────────────────────────────────────────────────────────────────
-
-function S5({ onFinish }) {
+function S4({ onFinish }) {
   const qs = useMemo(() => Array.from({ length: 4 }, genQ), [])
   const [qi, setQi] = useState(0)
   const [fb, setFb] = useState(null)
@@ -346,7 +284,7 @@ function S5({ onFinish }) {
 
   return (
     <div className="mission-screen">
-      <Progress step={5} />
+      <Progress step={4} />
       <div className="mission-body">
         <div style={{ background: '#f0f2ff', borderRadius: 12, padding: '0.6rem 1.4rem', fontSize: 'clamp(28px,7vw,52px)', fontWeight: 700, textAlign: 'center', margin: '0.3rem 0 0.8rem' }}>
           {a} − {b}
@@ -365,7 +303,7 @@ function Complete({ onDone }) {
   const { t } = useTranslation()
   return (
     <div className="mission-screen">
-      <Progress step={5} />
+      <Progress step={4} />
       <div className="mission-body">
         <div className="mission-complete-icon">🎯</div>
         <div className="mission-title">{t('mission.complete')}</div>
@@ -385,14 +323,13 @@ export default function Mission3_4A({ pupilId, onComplete }) {
 
   async function finish() {
     await supabase.rpc('complete_mission', { p_pupil_id: pupilId, p_special_mission: '3_4A' })
-    setStep(6)
+    setStep(5)
   }
 
-  if (step === 0) return <MiniGame onDone={() => setStep(1)} />
+  if (step === 0) return <Intro onDone={() => setStep(1)} />
   if (step === 1) return <S1 onNext={() => setStep(2)} />
   if (step === 2) return <S2 onNext={() => setStep(3)} />
   if (step === 3) return <S3 onNext={() => setStep(4)} />
-  if (step === 4) return <S4 onNext={() => setStep(5)} />
-  if (step === 5) return <S5 onFinish={finish} />
+  if (step === 4) return <S4 onFinish={finish} />
   return <Complete onDone={onComplete} />
 }
