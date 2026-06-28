@@ -846,7 +846,7 @@ export const translations = {
     'mission.6A.letsGo': "Let's go!",
     'mission.6A.yourTurn': 'Your turn — share them out!',
 
-    'mission.7A.howManyDouble': 'Double these dots — how many?',
+    'mission.7A.findPairs': 'Find the matching pairs!',
     'mission.7A.watchDouble': 'Watch what doubling does...',
     'mission.7A.double': 'Double',
     'mission.7A.tryIt': 'Try it!',
@@ -1691,7 +1691,7 @@ export const translations = {
     'mission.6A.letsGo': 'Awn ni!',
     'mission.6A.yourTurn': "Eich tro chi — rhannwch nhw!",
 
-    'mission.7A.howManyDouble': "Dybla'r dotiau hyn — faint sydd?",
+    'mission.7A.findPairs': "Dod o hyd i'r parau sy'n cyfateb!",
     'mission.7A.watchDouble': "Gwylia beth mae dyblu'n ei wneud...",
     'mission.7A.double': 'Dwbl',
     'mission.7A.tryIt': 'Rho gynnig arni!',

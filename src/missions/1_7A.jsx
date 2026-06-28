@@ -46,55 +46,80 @@ function DotRow({ count, color, visible = true }) {
   )
 }
 
-// ── Warm-up: visual count → pick the double ───────────────────────────────────
+// ── Warm-up: pelmanism (memory match) ────────────────────────────────────────
 
-function genWarmUp() {
-  const n = rnd(1, 4)
-  const correct = n * 2
-  const candidates = [...new Set(
-    [n, correct - 1, correct + 1, correct + 2, correct - 2].filter(v => v > 0 && v !== correct)
-  )]
-  while (candidates.length < 3) {
-    const v = rnd(1, 10)
-    if (v !== correct && !candidates.includes(v)) candidates.push(v)
-  }
-  return { n, opts: shuffle([correct, ...shuffle(candidates).slice(0, 3)]) }
-}
-
-function Intro({ onDone }) {
+function Pelmanism({ onDone }) {
   const { t } = useTranslation()
-  const rounds = useMemo(() => Array.from({ length: 3 }, genWarmUp), [])
-  const [ri, setRi] = useState(0)
-  const [fb, setFb] = useState(null)
-  const { n, opts } = rounds[Math.min(ri, rounds.length - 1)]
+  const [cards] = useState(() => {
+    const nums = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9]).slice(0, 3)
+    return shuffle([...nums, ...nums]).map((v, i) => ({ id: i, value: v }))
+  })
+  const [matched, setMatched] = useState(new Set())
+  const [flipped, setFlipped] = useState([])   // indices of face-up (not yet matched) cards
+  const [locked, setLocked] = useState(false)
 
-  function pick(opt) {
-    if (fb) return
-    const correct = rounds[ri].n * 2
-    setFb({ opt, ok: opt === correct })
-    setTimeout(() => {
-      setFb(null)
-      if (ri + 1 >= rounds.length) onDone()
-      else setRi(r => r + 1)
-    }, 700)
+  useEffect(() => {
+    if (matched.size === cards.length) {
+      const id = setTimeout(onDone, 600)
+      return () => clearTimeout(id)
+    }
+  }, [matched]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  function tap(idx) {
+    if (locked || matched.has(idx) || flipped.includes(idx) || flipped.length >= 2) return
+    const next = [...flipped, idx]
+    setFlipped(next)
+    if (next.length === 2) {
+      const [a, b] = next
+      if (cards[a].value === cards[b].value) {
+        setTimeout(() => {
+          setMatched(m => new Set([...m, a, b]))
+          setFlipped([])
+        }, 450)
+      } else {
+        setLocked(true)
+        setTimeout(() => { setFlipped([]); setLocked(false) }, 900)
+      }
+    }
   }
-
-  const correct = rounds[Math.min(ri, rounds.length - 1)].n * 2
 
   return (
     <div className="mission-screen">
-      <RoundDots total={rounds.length} current={ri} />
       <div className="mission-body">
-        <div className="mission-title">{t('mission.7A.howManyDouble')}</div>
-        <div style={{ margin: '0.5rem 0 0.8rem' }}>
-          <DotRow count={n} color="#f59e0b" />
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, clamp(72px,16vw,120px))', gap: '0.6rem' }}>
-          {opts.map(opt => (
-            <button key={opt}
-              className={`mission-bigger-btn${fb ? opt === correct ? ' mission-bigger-btn--correct' : opt === fb.opt && !fb.ok ? ' mission-bigger-btn--wrong' : '' : ''}`}
-              onClick={() => pick(opt)} disabled={!!fb}>{opt}</button>
-          ))}
+        <div className="mission-title">{t('mission.7A.findPairs')}</div>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, clamp(72px,14vw,108px))',
+          gap: 'clamp(8px,1.5vw,14px)',
+        }}>
+          {cards.map((card, idx) => {
+            const isMatched = matched.has(idx)
+            const isUp = isMatched || flipped.includes(idx)
+            return (
+              <div
+                key={card.id}
+                onClick={() => tap(idx)}
+                style={{
+                  height: 'clamp(72px,14vw,108px)',
+                  borderRadius: 12,
+                  border: '2.5px solid',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 'clamp(26px,5.5vw,42px)',
+                  fontWeight: 800,
+                  cursor: isUp ? 'default' : 'pointer',
+                  userSelect: 'none',
+                  transition: 'background 0.15s ease, border-color 0.15s ease, color 0.15s ease',
+                  background: isMatched ? '#dcfce7' : isUp ? '#eef2ff' : '#818cf8',
+                  borderColor: isMatched ? '#16a34a' : isUp ? '#4f46e5' : '#6366f1',
+                  color: isMatched ? '#15803d' : isUp ? '#4338ca' : 'transparent',
+                }}
+              >
+                {card.value}
+              </div>
+            )
+          })}
         </div>
       </div>
       <div className="mission-actions" />
@@ -274,7 +299,7 @@ export default function Mission1_7A({ pupilId, onComplete }) {
     setStep(3)
   }
 
-  if (step === 0) return <Intro onDone={() => setStep(1)} />
+  if (step === 0) return <Pelmanism onDone={() => setStep(1)} />
   if (step === 1) return <Demo onDone={() => setStep(2)} />
   if (step === 2) return <Quiz onDone={finish} />
   return <Complete onDone={onComplete} />
