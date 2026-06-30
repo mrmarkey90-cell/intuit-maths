@@ -851,6 +851,11 @@ export const translations = {
     'mission.7A.double': 'Double',
     'mission.7A.tryIt': 'Try it!',
     'mission.7A.doubleIt': 'Double it!',
+    'mission.7B.findPairs': 'Find the matching pairs!',
+    'mission.7B.watchHalf': 'Watch what halving does...',
+    'mission.7B.half': 'Half of',
+    'mission.7B.tryIt': 'Try it!',
+    'mission.7B.halveIt': 'Halve it!',
   },
   cy: {
     'common.back': 'Nôl',
@@ -1696,5 +1701,10 @@ export const translations = {
     'mission.7A.double': 'Dwbl',
     'mission.7A.tryIt': 'Rho gynnig arni!',
     'mission.7A.doubleIt': 'Dybla fe!',
+    'mission.7B.findPairs': "Dod o hyd i'r parau sy'n cyfateb!",
+    'mission.7B.watchHalf': "Gwylia beth mae haneru'n ei wneud...",
+    'mission.7B.half': 'Hanner o',
+    'mission.7B.tryIt': 'Rho gynnig arni!',
+    'mission.7B.halveIt': 'Hanera fe!',
   },
 }
