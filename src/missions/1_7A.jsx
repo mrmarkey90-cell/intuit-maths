@@ -51,8 +51,13 @@ function DotRow({ count, color, visible = true }) {
 function Pelmanism({ onDone }) {
   const { t } = useTranslation()
   const [cards] = useState(() => {
-    const nums = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9]).slice(0, 3)
-    return shuffle([...nums, ...nums]).map((v, i) => ({ id: i, value: v }))
+    const nums = shuffle([1, 2, 3, 4, 5, 6, 7, 8]).slice(0, 3)
+    return shuffle(
+      nums.flatMap((n, pairId) => [
+        { id: pairId * 2,     pairId, type: 'question', n },
+        { id: pairId * 2 + 1, pairId, type: 'answer',   n },
+      ])
+    )
   })
   const [matched, setMatched] = useState(new Set())
   const [flipped, setFlipped] = useState([])   // indices of face-up (not yet matched) cards
@@ -71,7 +76,7 @@ function Pelmanism({ onDone }) {
     setFlipped(next)
     if (next.length === 2) {
       const [a, b] = next
-      if (cards[a].value === cards[b].value) {
+      if (cards[a].pairId === cards[b].pairId) {
         setTimeout(() => {
           setMatched(m => new Set([...m, a, b]))
           setFlipped([])
@@ -89,12 +94,15 @@ function Pelmanism({ onDone }) {
         <div className="mission-title">{t('mission.7A.findPairs')}</div>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(3, clamp(72px,14vw,108px))',
+          gridTemplateColumns: 'repeat(3, clamp(90px,17vw,130px))',
           gap: 'clamp(8px,1.5vw,14px)',
         }}>
           {cards.map((card, idx) => {
             const isMatched = matched.has(idx)
             const isUp = isMatched || flipped.includes(idx)
+            const label = card.type === 'question'
+              ? `${t('mission.7A.double')} ${card.n}`
+              : String(card.n * 2)
             return (
               <div
                 key={card.id}
@@ -106,8 +114,12 @@ function Pelmanism({ onDone }) {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: 'clamp(26px,5.5vw,42px)',
+                  padding: '0 4px',
+                  fontSize: card.type === 'question'
+                    ? 'clamp(13px,2.6vw,18px)'
+                    : 'clamp(26px,5.5vw,42px)',
                   fontWeight: 800,
+                  textAlign: 'center',
                   cursor: isUp ? 'default' : 'pointer',
                   userSelect: 'none',
                   transition: 'background 0.15s ease, border-color 0.15s ease, color 0.15s ease',
@@ -116,7 +128,7 @@ function Pelmanism({ onDone }) {
                   color: isMatched ? '#15803d' : isUp ? '#4338ca' : 'transparent',
                 }}
               >
-                {card.value}
+                {label}
               </div>
             )
           })}
